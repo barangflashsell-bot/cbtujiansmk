@@ -1,0 +1,45 @@
+# Root
+composer.phar
+.agents/
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db
+
+# Server Laravel
+SERVER/.env
+SERVER/.env.backup
+SERVER/.env.production
+SERVER/vendor/
+SERVER/node_modules/
+SERVER/public/build/
+SERVER/public/hot/
+SERVER/public/storage
+SERVER/storage/*.key
+SERVER/storage/logs/*.log
+SERVER/storage/framework/cache/*
+SERVER/storage/framework/sessions/*
+SERVER/storage/framework/views/*
+!SERVER/storage/framework/cache/.gitignore
+!SERVER/storage/framework/sessions/.gitignore
+!SERVER/storage/framework/views/.gitignore
+
+# Android Flutter
+ANDROID/.dart_tool/
+ANDROID/.flutter-plugins
+ANDROID/.flutter-plugins-dependencies
+ANDROID/.pub-cache/
+ANDROID/.pub/
+ANDROID/build/
+ANDROID/coverage/
+ANDROID/android/app/debug/
+ANDROID/android/app/profile/
+ANDROID/android/app/release/
+ANDROID/android/.gradle/
+ANDROID/android/local.properties
+ANDROID/ios/Flutter/.last_build_id
+ANDROID/ios/Pods/
+ANDROID/ios/.symlinks/
+ANDROID/ios/Flutter/Flutter.framework
+ANDROID/ios/Flutter/Flutter.podspec
