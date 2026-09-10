@@ -332,6 +332,73 @@ body {
     line-height: 1.5;
 }
 
+/* STATS GRID & STAT CARDS (PETAK STATISTIK) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.stat-icon.primary { background: #e0f2fe; color: #0284c7; }
+.stat-icon.success { background: #dcfce7; color: #16a34a; }
+.stat-icon.warning { background: #fef3c7; color: #d97706; }
+.stat-icon.danger { background: #fee2e2; color: #dc2626; }
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.stat-subtext {
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
 /* TOP HERO METRIC CARDS (Exact match to image) */
 .hero-stats-grid {
     display: grid;
@@ -592,21 +659,28 @@ body {
     margin-top: 4px;
 }
 
-/* DATA TABLE */
-.data-table-wrapper {
+/* DATA TABLE & STANDARD TABLE (Crisp boxed styles) */
+.data-table-wrapper,
+.table-responsive {
+    width: 100%;
     overflow-x: auto;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
+    background-color: var(--bg-surface);
+    margin-top: 14px;
+    box-shadow: var(--shadow-sm);
 }
 
-.data-table {
+.data-table,
+.table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
     text-align: left;
 }
 
-.data-table th {
+.data-table th,
+.table th {
     padding: 12px 16px;
     background-color: #f8fafc;
     color: var(--text-secondary);
@@ -618,23 +692,172 @@ body {
     white-space: nowrap;
 }
 
-.data-table td {
+.data-table td,
+.table td {
     padding: 13px 16px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
     vertical-align: middle;
 }
 
-.data-table tbody tr {
+.data-table tbody tr,
+.table tbody tr {
     transition: background-color 0.1s ease;
 }
 
-.data-table tbody tr:hover {
+.data-table tbody tr:hover,
+.table tbody tr:hover {
     background-color: #f8fafc;
 }
 
-.data-table tbody tr:last-child td {
+.data-table tbody tr:last-child td,
+.table tbody tr:last-child td {
     border-bottom: none;
+}
+
+/* SEARCH & FILTER BAR IN CARDS */
+.search-filter-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-input-group {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-input-group .form-control {
+    padding-left: 36px;
+}
+
+.filter-select-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* CONTENT HEADER */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+/* PETAK-PETAK FITUR / TOOLS GRID */
+.section-heading-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.section-heading-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.feature-box-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.feature-box-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.feature-box-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background-color: #fafbfc;
+}
+
+.feature-box-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.feature-box-icon.blue { background: #e0f2fe; color: #0284c7; }
+.feature-box-icon.green { background: #dcfce7; color: #16a34a; }
+.feature-box-icon.amber { background: #fef3c7; color: #d97706; }
+.feature-box-icon.purple { background: #f3e8ff; color: #9333ea; }
+.feature-box-icon.rose { background: #ffe4e6; color: #e11d48; }
+.feature-box-icon.slate { background: #f1f5f9; color: #475569; }
+
+.feature-box-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-box-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.feature-box-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    line-height: 1.3;
 }
 
 /* BADGES */

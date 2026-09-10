@@ -1,19 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'CBT Dashboard — Rivendell High School')
-@section('page-title', 'CBT Dashboard')
+@section('title', 'Dashboard Administrator — CBT Server SMK')
+@section('page-title', 'Dashboard Administrator')
 
 @section('content')
 @php
     $totalQuestions = $metrics['total_questions'] ?? 0;
     $publishedExams = $metrics['active_exams'] ?? 0;
     $totalExams = $metrics['total_exams'] ?? 0;
-    $draftExams = max(0, $totalExams - $publishedExams);
+    $totalStudents = $metrics['total_students'] ?? 0;
+    $totalTeachers = $metrics['total_teachers'] ?? 0;
+    $totalClasses = $metrics['total_classes'] ?? 0;
+    $totalSubjects = $metrics['total_subjects'] ?? 0;
     $inProgress = $metrics['in_progress_attempts'] ?? 0;
 
     $completedAttempts = \App\Models\Result::count();
     $avgScore = \App\Models\Result::avg('final_score') ?? \App\Models\Result::avg('score') ?? 0;
-    $totalStudentsWithResults = \App\Models\Result::distinct('student_id')->count('student_id');
 
     $gradeA = \App\Models\Result::whereRaw('COALESCE(final_score, score) >= 80')->count();
     $gradeB = \App\Models\Result::whereRaw('COALESCE(final_score, score) >= 70 AND COALESCE(final_score, score) < 80')->count();
@@ -21,231 +23,238 @@
     $gradeD = \App\Models\Result::whereRaw('COALESCE(final_score, score) >= 50 AND COALESCE(final_score, score) < 60')->count();
     $gradeE = \App\Models\Result::whereRaw('COALESCE(final_score, score) >= 40 AND COALESCE(final_score, score) < 50')->count();
     $gradeF = \App\Models\Result::whereRaw('COALESCE(final_score, score) < 40')->count();
-
-    $recentExams = \App\Models\Exam::with(['subject'])
-        ->withCount([
-            'participants',
-            'attempts as completed_count' => function($q) {
-                $q->where('status', 'completed');
-            }
-        ])
-        ->latest('id')
-        ->take(4)
-        ->get();
-
-    $subjectsPerformance = \App\Models\Subject::withCount('exams')
-        ->with(['exams.results'])
-        ->take(4)
-        ->get()
-        ->map(function($subject) {
-            $totalAttempts = 0;
-            $totalScore = 0;
-            foreach ($subject->exams as $ex) {
-                foreach ($ex->results as $res) {
-                    $totalAttempts++;
-                    $totalScore += ($res->final_score ?? $res->score ?? 0);
-                }
-            }
-            $avg = $totalAttempts > 0 ? round($totalScore / $totalAttempts, 1) : 0;
-            return [
-                'name' => $subject->name,
-                'exams_count' => $subject->exams_count,
-                'attempts_count' => $totalAttempts,
-                'avg' => $avg,
-            ];
-        });
 @endphp
 
-<div style="display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; flex-direction: column; gap: 24px;">
     @if ($errorMessage)
         <div class="alert alert-danger">
             <span>{{ $errorMessage }}</span>
         </div>
     @endif
 
-    <!-- TITLE & SUBTITLE (Matching Screenshot) -->
-    <div class="dashboard-header" style="margin-bottom: 4px;">
-        <h1 class="dashboard-title" style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0;">CBT Dashboard</h1>
-        <p class="dashboard-subtitle" style="font-size: 13.5px; color: #64748b; margin-top: 4px; margin-bottom: 0;">Computer-Based Testing Analytics & Overview</p>
-    </div>
-
-    <!-- 4 HERO STAT CARDS (Green, Blue, Green, Blue) -->
-    <div class="hero-stats-grid">
-        <!-- 1. Total Questions (Green) -->
-        <div class="hero-stat-card green">
-            <div class="hero-stat-header">
-                <span class="hero-stat-label">Total Questions</span>
-                <div class="hero-stat-icon-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                </div>
+    <!-- PETAK 1: WELCOME & SERVER STATUS BANNER -->
+    <div class="card" style="padding: 20px 24px; border-left: 4px solid var(--primary);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 class="card-title" style="font-size: 18px; margin-bottom: 4px;">Selamat Datang, {{ $user->name ?? $user->username }}!</h2>
+                <p class="card-description" style="margin: 0;">
+                    Panel Kendali Utama <strong>CBT Server SMK</strong>. Seluruh modul evaluasi berbasis LAN siap beroperasi.
+                </p>
             </div>
-            <div class="hero-stat-number">{{ number_format($totalQuestions) }}</div>
-            <div class="hero-stat-subtext">&nbsp;</div>
-        </div>
-
-        <!-- 2. Published Exams (Blue) -->
-        <div class="hero-stat-card blue">
-            <div class="hero-stat-header">
-                <span class="hero-stat-label">Published Exams</span>
-                <div class="hero-stat-icon-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="offline-badge">
+                    <span class="status-dot"></span>
+                    <span>Server: Local LAN Offline Aktif</span>
+                </span>
             </div>
-            <div class="hero-stat-number">{{ number_format($publishedExams) }}</div>
-            <div class="hero-stat-subtext">{{ $draftExams }} drafts</div>
-        </div>
-
-        <!-- 3. Completed Attempts (Green) -->
-        <div class="hero-stat-card green">
-            <div class="hero-stat-header">
-                <span class="hero-stat-label">Completed Attempts</span>
-                <div class="hero-stat-icon-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                </div>
-            </div>
-            <div class="hero-stat-number">{{ number_format($completedAttempts) }}</div>
-            <div class="hero-stat-subtext">{{ $inProgress }} in progress</div>
-        </div>
-
-        <!-- 4. Average Score (Blue) -->
-        <div class="hero-stat-card blue">
-            <div class="hero-stat-header">
-                <span class="hero-stat-label">Average Score</span>
-                <div class="hero-stat-icon-wrap">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                </div>
-            </div>
-            <div class="hero-stat-number">{{ number_format($avgScore, 2) }}%</div>
-            <div class="hero-stat-subtext">{{ $totalStudentsWithResults }} students</div>
         </div>
     </div>
 
-    <!-- GRADE DISTRIBUTION (6 Pastel Cards Row) -->
+    <!-- PETAK 2: RINGKASAN METRIK SISTEM (STATS GRID) -->
+    <div>
+        <div class="section-heading-box">
+            <h3 class="section-heading-title">
+                <span>📊</span>
+                <span>Ringkasan Data & Statistik Sistem</span>
+            </h3>
+        </div>
+
+        <div class="stats-grid">
+            <!-- 1. Total Peserta -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Total Peserta</span>
+                    <span class="stat-icon primary">👥</span>
+                </div>
+                <div class="stat-number">{{ number_format($totalStudents) }}</div>
+                <div class="stat-subtext">Siswa terdaftar aktif</div>
+            </div>
+
+            <!-- 2. Total Guru -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Guru & Pengawas</span>
+                    <span class="stat-icon primary">👨‍🏫</span>
+                </div>
+                <div class="stat-number">{{ number_format($totalTeachers) }}</div>
+                <div class="stat-subtext">Pengajar di sistem</div>
+            </div>
+
+            <!-- 3. Total Kelas -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Rombel / Kelas</span>
+                    <span class="stat-icon primary">🏫</span>
+                </div>
+                <div class="stat-number">{{ number_format($totalClasses) }}</div>
+                <div class="stat-subtext">Kelas aktif sekolah</div>
+            </div>
+
+            <!-- 4. Total Mapel -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Mata Pelajaran</span>
+                    <span class="stat-icon primary">📚</span>
+                </div>
+                <div class="stat-number">{{ number_format($totalSubjects) }}</div>
+                <div class="stat-subtext">Kurikulum mapel</div>
+            </div>
+
+            <!-- 5. Bank Soal -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Bank Soal</span>
+                    <span class="stat-icon success">📝</span>
+                </div>
+                <div class="stat-number">{{ number_format($totalQuestions) }}</div>
+                <div class="stat-subtext">Butir soal terdaftar</div>
+            </div>
+
+            <!-- 6. Paket Ujian -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Paket Ujian</span>
+                    <span class="stat-icon success">⏱️</span>
+                </div>
+                <div class="stat-number">{{ number_format($totalExams) }}</div>
+                <div class="stat-subtext">{{ $publishedExams }} ujian aktif</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PETAK 3: PETAK-PETAK FITUR & MODUL UTAMA (TOOLS PINTAS TERTATA RAPI) -->
+    <div>
+        <div class="section-heading-box">
+            <h3 class="section-heading-title">
+                <span>🛠️</span>
+                <span>Modul & Fitur Utama (Akses Cepat)</span>
+            </h3>
+        </div>
+
+        <div class="feature-box-grid">
+            <!-- 1. Bank Soal -->
+            <a href="{{ route('admin.questions.index') }}" class="feature-box-card">
+                <div class="feature-box-icon blue">📝</div>
+                <div class="feature-box-info">
+                    <div class="feature-box-title">Bank Soal</div>
+                    <div class="feature-box-desc">Kelola butir soal, opsi jawaban, dan kunci nilai ujian</div>
+                </div>
+            </a>
+
+            <!-- 2. Paket Ujian -->
+            <a href="{{ route('admin.exams.index') }}" class="feature-box-card">
+                <div class="feature-box-icon green">⏱️</div>
+                <div class="feature-box-info">
+                    <div class="feature-box-title">Paket Ujian</div>
+                    <div class="feature-box-desc">Jadwal sesi ujian, atur durasi waktu, token & peserta</div>
+                </div>
+            </a>
+
+            <!-- 3. Monitoring LAN -->
+            <a href="{{ route('admin.monitoring.index') }}" class="feature-box-card">
+                <div class="feature-box-icon amber">📡</div>
+                <div class="feature-box-info">
+                    <div class="feature-box-title">Monitoring Ujian</div>
+                    <div class="feature-box-desc">Pantau progres pengerjaan peserta secara langsung di LAN</div>
+                </div>
+            </a>
+
+            <!-- 4. Hasil Ujian -->
+            <a href="{{ route('admin.results.index') }}" class="feature-box-card">
+                <div class="feature-box-icon purple">🎯</div>
+                <div class="feature-box-info">
+                    <div class="feature-box-title">Hasil & Nilai</div>
+                    <div class="feature-box-desc">Rekapitulasi perolehan skor, jawaban siswa & evaluasi</div>
+                </div>
+            </a>
+
+            <!-- 5. Data Peserta -->
+            <a href="{{ route('admin.students.index') }}" class="feature-box-card">
+                <div class="feature-box-icon rose">👥</div>
+                <div class="feature-box-info">
+                    <div class="feature-box-title">Data Peserta</div>
+                    <div class="feature-box-desc">Manajemen akun login siswa, NIS, kelas dan rombel</div>
+                </div>
+            </a>
+
+            <!-- 6. Backup Data -->
+            <a href="{{ route('admin.backups.index') }}" class="feature-box-card">
+                <div class="feature-box-icon slate">💾</div>
+                <div class="feature-box-info">
+                    <div class="feature-box-title">Backup & Restore</div>
+                    <div class="feature-box-desc">Pencadangan berkas database dan pemulihan sistem offline</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- PETAK 4: DISTRIBUSI NILAI SISWA (PETAK PASTEL A-F) -->
     <div class="grade-distribution-card">
-        <h3 class="grade-distribution-header">Grade Distribution</h3>
+        <div class="section-heading-box" style="margin-bottom: 12px;">
+            <h3 class="section-heading-title" style="margin-bottom: 0;">
+                <span>📈</span>
+                <span>Distribusi Grade Nilai Evaluasi</span>
+            </h3>
+            <span style="font-size: 12px; color: var(--text-muted);">Total Selesai: <strong>{{ number_format($completedAttempts) }}</strong> pengerjaan</span>
+        </div>
+
         <div class="grade-boxes-grid">
             <div class="grade-box grade-a">
                 <div class="grade-box-number">{{ $gradeA }}</div>
                 <div class="grade-box-label">Grade A</div>
-                <div class="grade-box-range">80-100%</div>
+                <div class="grade-box-range">80 - 100%</div>
             </div>
             <div class="grade-box grade-b">
                 <div class="grade-box-number">{{ $gradeB }}</div>
                 <div class="grade-box-label">Grade B</div>
-                <div class="grade-box-range">70-79%</div>
+                <div class="grade-box-range">70 - 79%</div>
             </div>
             <div class="grade-box grade-c">
                 <div class="grade-box-number">{{ $gradeC }}</div>
                 <div class="grade-box-label">Grade C</div>
-                <div class="grade-box-range">60-69%</div>
+                <div class="grade-box-range">60 - 69%</div>
             </div>
             <div class="grade-box grade-d">
                 <div class="grade-box-number">{{ $gradeD }}</div>
                 <div class="grade-box-label">Grade D</div>
-                <div class="grade-box-range">50-59%</div>
+                <div class="grade-box-range">50 - 59%</div>
             </div>
             <div class="grade-box grade-e">
                 <div class="grade-box-number">{{ $gradeE }}</div>
                 <div class="grade-box-label">Grade E</div>
-                <div class="grade-box-range">40-49%</div>
+                <div class="grade-box-range">40 - 49%</div>
             </div>
             <div class="grade-box grade-f">
                 <div class="grade-box-number">{{ $gradeF }}</div>
                 <div class="grade-box-label">Grade F</div>
-                <div class="grade-box-range">0-39%</div>
+                <div class="grade-box-range">0 - 39%</div>
             </div>
         </div>
     </div>
 
-    <!-- TWO-COLUMN SECTION: RECENT EXAMS & PERFORMANCE BY SUBJECT -->
-    <div class="dashboard-two-col">
-        <!-- LEFT: Recent Exams -->
-        <div class="card">
-            <h3 class="card-title" style="margin-bottom: 16px;">Recent Exams</h3>
-            @if ($recentExams->isEmpty())
-                <div class="empty-state" style="padding: 24px 0;">
-                    <div class="empty-state-icon">⏱️</div>
-                    <p>Belum ada ujian yang dibuat.</p>
-                </div>
-            @else
-                <div>
-                    @foreach ($recentExams as $exam)
-                        @php
-                            $participantsTotal = $exam->participants_count ?? 0;
-                            $completedCount = $exam->completed_count ?? 0;
-                            $completionPct = $participantsTotal > 0 ? round(($completedCount / $participantsTotal) * 100) : 0;
-                            $examAvg = round($exam->results()->avg('final_score') ?? 0, 1);
-                            $isPublished = in_array($exam->status, ['published', 'active']);
-                        @endphp
-                        <div class="recent-exam-item">
-                            <div class="recent-exam-info">
-                                <h4>{{ $exam->title }}</h4>
-                                <p>{{ strtoupper($exam->subject?->name ?? 'UMUM') }} • {{ $exam->duration_minutes ?? 60 }} Min • Token: {{ $exam->token ?? '-' }}</p>
-                                <div class="recent-exam-stats">
-                                    {{ $completedCount }}/{{ $participantsTotal }} completed &nbsp;•&nbsp; Avg: {{ $examAvg }}% &nbsp;•&nbsp; {{ $completionPct }}% completion
-                                </div>
-                            </div>
-                            <div>
-                                <span class="badge {{ $isPublished ? 'badge-success' : 'badge-neutral' }}" style="font-size: 11px; padding: 3px 8px;">
-                                    {{ $isPublished ? 'Published' : 'Draft' }}
-                                </span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-
-        <!-- RIGHT: Performance by Subject -->
-        <div class="card">
-            <h3 class="card-title" style="margin-bottom: 16px;">Performance by Subject</h3>
-            @if ($subjectsPerformance->isEmpty())
-                <div class="empty-state" style="padding: 24px 0;">
-                    <div class="empty-state-icon">📚</div>
-                    <p>Belum ada mata pelajaran terdaftar.</p>
-                </div>
-            @else
-                <div>
-                    @foreach ($subjectsPerformance as $sub)
-                        <div class="subject-perf-item">
-                            <div class="subject-perf-header">
-                                <span class="subject-perf-title">{{ $sub['name'] }}</span>
-                                <span class="subject-perf-pct">{{ $sub['avg'] }}%</span>
-                            </div>
-                            <div class="subject-perf-bar-bg">
-                                <div class="subject-perf-bar-fill" style="width: {{ min(100, max(0, $sub['avg'])) }}%;"></div>
-                            </div>
-                            <div class="subject-perf-meta">
-                                {{ $sub['exams_count'] }} exams &nbsp; {{ $sub['attempts_count'] }} attempts
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <!-- LOWER SECTION: RECENT RESULTS & RECENT ACTIVITY AUDIT LOG -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px;">
-        <!-- Hasil Terbaru -->
+    <!-- PETAK 5: HASIL UJIAN TERBARU & LOG AKTIVITAS (TABEL RAPI BERKOTAK) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+        <!-- Hasil Ujian Terbaru -->
         <div class="card" style="padding: 20px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <h3 class="card-title" style="margin-bottom: 0;">Hasil Ujian Terbaru</h3>
-                <span class="badge badge-primary">Terbaru</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <h3 class="card-title" style="margin-bottom: 0; font-size: 15px;">
+                    <span>📋</span> Hasil Ujian Terbaru
+                </h3>
+                <a href="{{ route('admin.results.index') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px;">Lihat Semua</a>
             </div>
 
             @if ($recentResults->isEmpty())
-                <div class="empty-state" style="padding: 20px 0;">
+                <div class="empty-state" style="padding: 28px 0;">
                     <div class="empty-state-icon">📋</div>
-                    <p>Belum ada rekaman hasil ujian yang diselesaikan.</p>
+                    <p style="margin-bottom: 0;">Belum ada hasil ujian yang diselesaikan.</p>
                 </div>
             @else
-                <div class="data-table-wrapper">
+                <div class="data-table-wrapper" style="margin-top: 0;">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Peserta</th>
-                                <th>Ujian / Mapel</th>
+                                <th>Paket Ujian</th>
                                 <th>Nilai</th>
                                 <th>Waktu</th>
                             </tr>
@@ -277,20 +286,22 @@
             @endif
         </div>
 
-        <!-- Aktivitas Terbaru -->
+        <!-- Log Aktivitas Sistem -->
         <div class="card" style="padding: 20px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <h3 class="card-title" style="margin-bottom: 0;">Aktivitas Sistem Terbaru</h3>
-                <span class="badge badge-neutral">Audit Log</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <h3 class="card-title" style="margin-bottom: 0; font-size: 15px;">
+                    <span>📜</span> Log Aktivitas Sistem
+                </h3>
+                <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px;">Lihat Semua</a>
             </div>
 
             @if ($recentActivities->isEmpty())
-                <div class="empty-state" style="padding: 20px 0;">
+                <div class="empty-state" style="padding: 28px 0;">
                     <div class="empty-state-icon">📜</div>
-                    <p>Belum ada rekaman aktivitas sistem tercatat.</p>
+                    <p style="margin-bottom: 0;">Belum ada log aktivitas tercatat.</p>
                 </div>
             @else
-                <div class="data-table-wrapper">
+                <div class="data-table-wrapper" style="margin-top: 0;">
                     <table class="data-table">
                         <thead>
                             <tr>
