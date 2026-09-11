@@ -33,7 +33,7 @@
     @endif
 
     <!-- PETAK 1: WELCOME & SERVER STATUS BANNER -->
-    <div class="card" style="padding: 20px 24px; border-left: 4px solid var(--primary);">
+    <div class="card" style="padding: 20px 24px; border-left: 4px solid var(--primary); background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
             <div>
                 <h2 class="welcome-heading">
@@ -64,60 +64,60 @@
 
         <div class="stats-grid">
             <!-- 1. Total Peserta -->
-            <div class="stat-card">
+            <div class="stat-card purple">
                 <div class="stat-header">
                     <span class="stat-label">Total Peserta</span>
-                    <span class="stat-icon primary">👥</span>
+                    <span class="stat-icon purple">👥</span>
                 </div>
                 <div class="stat-number">{{ number_format($totalStudents) }}</div>
                 <div class="stat-subtext">Siswa terdaftar aktif</div>
             </div>
 
             <!-- 2. Total Guru -->
-            <div class="stat-card">
+            <div class="stat-card teal">
                 <div class="stat-header">
                     <span class="stat-label">Guru & Pengawas</span>
-                    <span class="stat-icon primary">👨‍🏫</span>
+                    <span class="stat-icon teal">👨‍🏫</span>
                 </div>
                 <div class="stat-number">{{ number_format($totalTeachers) }}</div>
                 <div class="stat-subtext">Pengajar di sistem</div>
             </div>
 
             <!-- 3. Total Kelas -->
-            <div class="stat-card">
+            <div class="stat-card amber">
                 <div class="stat-header">
                     <span class="stat-label">Rombel / Kelas</span>
-                    <span class="stat-icon primary">🏫</span>
+                    <span class="stat-icon amber">🏫</span>
                 </div>
                 <div class="stat-number">{{ number_format($totalClasses) }}</div>
                 <div class="stat-subtext">Kelas aktif sekolah</div>
             </div>
 
             <!-- 4. Total Mapel -->
-            <div class="stat-card">
+            <div class="stat-card rose">
                 <div class="stat-header">
                     <span class="stat-label">Mata Pelajaran</span>
-                    <span class="stat-icon primary">📚</span>
+                    <span class="stat-icon rose">📚</span>
                 </div>
                 <div class="stat-number">{{ number_format($totalSubjects) }}</div>
                 <div class="stat-subtext">Kurikulum mapel</div>
             </div>
 
             <!-- 5. Bank Soal -->
-            <div class="stat-card">
+            <div class="stat-card orange">
                 <div class="stat-header">
                     <span class="stat-label">Bank Soal</span>
-                    <span class="stat-icon success">📝</span>
+                    <span class="stat-icon orange">📝</span>
                 </div>
                 <div class="stat-number">{{ number_format($totalQuestions) }}</div>
                 <div class="stat-subtext">Butir soal terdaftar</div>
             </div>
 
             <!-- 6. Paket Ujian -->
-            <div class="stat-card">
+            <div class="stat-card emerald">
                 <div class="stat-header">
                     <span class="stat-label">Paket Ujian</span>
-                    <span class="stat-icon success">⏱️</span>
+                    <span class="stat-icon emerald">⏱️</span>
                 </div>
                 <div class="stat-number">{{ number_format($totalExams) }}</div>
                 <div class="stat-subtext">{{ $publishedExams }} ujian aktif</div>

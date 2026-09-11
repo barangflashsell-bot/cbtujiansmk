@@ -1,4 +1,4 @@
-/* CBT LOCAL SERVER - THEME CERAH & NATURAL (BRIGHT & NATURAL MODERN THEME) */
+/* CBT LOCAL SERVER - THEME CERAH BERWARNA (BRIGHT & COLORFUL MODERN THEME) */
 :root {
     --bg-main: #f8fafc;
     --bg-surface: #ffffff;
@@ -6,37 +6,40 @@
     --border-color-subtle: #f1f5f9;
     
     --text-primary: #0f172a;
-    --text-secondary: #475569;
+    --text-secondary: #334155;
     --text-muted: #64748b;
     
-    /* NATURAL FRESH EMERALD ACCENT */
-    --primary: #059669;
-    --primary-hover: #047857;
-    --primary-light: #ecfdf5;
-    --primary-border: #a7f3d0;
+    /* VIBRANT & COLORFUL ACCENTS */
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --primary-border: #bfdbfe;
     
-    --success: #16a34a;
-    --success-hover: #15803d;
-    --success-light: #dcfce7;
-    --success-border: #bbf7d0;
+    --success: #10b981;
+    --success-hover: #059669;
+    --success-light: #ecfdf5;
+    --success-border: #a7f3d0;
     
-    --danger: #dc2626;
-    --danger-hover: #b91c1c;
-    --danger-light: #fee2e2;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --danger-light: #fef2f2;
     
-    --warning: #d97706;
-    --warning-hover: #b45309;
-    --warning-light: #fef3c7;
+    --warning: #f59e0b;
+    --warning-hover: #d97706;
+    --warning-light: #fffbeb;
     
-    /* SIDEBAR CERAH (BRIGHT WHITE & NATURAL FRESH ACCENTS) */
-    --sidebar-width: 232px;
+    --info: #0284c7;
+    --info-light: #e0f2fe;
+    
+    /* SIDEBAR CERAH (BRIGHT WHITE & COLORFUL ACCENTS) */
+    --sidebar-width: 236px;
     --sidebar-bg: #ffffff;
     --sidebar-border: #e2e8f0;
     --sidebar-hover: #f1f5f9;
-    --sidebar-active-bg: #ecfdf5;
-    --sidebar-active-text: #059669;
-    --sidebar-text: #475569;
-    --sidebar-muted: #94a3b8;
+    --sidebar-active-bg: #eff6ff;
+    --sidebar-active-text: #1d4ed8;
+    --sidebar-text: #334155;
+    --sidebar-muted: #64748b;
     
     --radius-sm: 6px;
     --radius-md: 8px;
@@ -44,7 +47,7 @@
     --radius-xl: 14px;
     
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 3px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 3px 8px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
 }
 
 *, *::before, *::after {
@@ -119,10 +122,10 @@ body {
 
 .brand-tagline {
     font-size: 10px;
-    color: #059669;
+    color: #2563eb;
     line-height: 1.2;
     margin-top: 2px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .sidebar-nav {
@@ -154,7 +157,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 40;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .topbar-left {
@@ -181,14 +184,14 @@ body {
 
 .topbar-badge {
     font-size: 10px;
-    font-weight: 700;
-    background: #ecfdf5;
-    color: #059669;
-    border: 1px solid #a7f3d0;
-    padding: 2px 7px;
-    border-radius: 4px;
-    letter-spacing: 0.03em;
+    font-weight: 800;
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    color: #ffffff;
+    padding: 2.5px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
 }
 
 .topbar-subtitle {
@@ -222,14 +225,15 @@ body {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background-color: #ecfdf5;
-    color: #059669;
+    background-color: #eff6ff;
+    color: #2563eb;
     font-weight: 700;
     font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #a7f3d0;
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.15);
 }
 
 .logout-link-btn {
@@ -253,52 +257,59 @@ body {
     border-color: #fca5a5;
 }
 
-/* MENU ICONS - SIMPLE & ELEGANT (Tanpa kotak warna-warni mencolok) */
+/* MENU ICONS - CERAH BERWARNA (PASTEL VIBRANT PILLS) */
 .menu-icon-box {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
+    border-radius: 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 13.5px;
+    font-size: 13px;
     flex-shrink: 0;
-    background: transparent;
-    box-shadow: none;
     line-height: 1;
-    opacity: 0.85;
-    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .nav-link:hover .menu-icon-box {
-    opacity: 1;
-    transform: scale(1.08);
+    transform: scale(1.12);
 }
 
-.nav-link.active .menu-icon-box {
-    opacity: 1;
-}
+.menu-icon-box.blue    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.menu-icon-box.purple  { background: #faf5ff; color: #9333ea; border: 1px solid #e9d5ff; }
+.menu-icon-box.teal    { background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4; }
+.menu-icon-box.amber   { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.menu-icon-box.rose    { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
+.menu-icon-box.orange  { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+.menu-icon-box.emerald { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.menu-icon-box.cyan    { background: #ecfeff; color: #0891b2; border: 1px solid #a5f3fc; }
+.menu-icon-box.red     { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.menu-icon-box.indigo  { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; }
+.menu-icon-box.lime    { background: #f7fee7; color: #65a30d; border: 1px solid #d9f99d; }
+.menu-icon-box.slate   { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 
 .nav-section-title {
     font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #94a3b8;
-    padding: 10px 8px 3px 8px;
-    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    padding: 11px 9px 3px 9px;
+    font-weight: 800;
 }
 
 .nav-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 9px;
-    border-radius: 5px;
-    color: #475569;
+    padding: 5px 9px;
+    border-radius: 6px;
+    color: #334155;
     text-decoration: none;
     font-size: 12.5px;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.12s ease;
-    height: 33px;
+    height: 35px;
 }
 
 .nav-link:hover:not(.disabled) {
@@ -307,21 +318,21 @@ body {
 }
 
 .nav-link.active {
-    background-color: #ecfdf5;
-    color: #059669;
-    font-weight: 600;
-    box-shadow: inset 3px 0 0 #059669;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 700;
+    box-shadow: inset 3.5px 0 0 #2563eb;
 }
 
 .nav-link-content {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
 }
 
 .nav-badge-pill {
     font-size: 10px;
-    padding: 1px 6px;
+    padding: 1px 7px;
     border-radius: 9999px;
     background-color: #f1f5f9;
     color: #475569;
@@ -330,9 +341,9 @@ body {
 }
 
 .nav-link.active .nav-badge-pill {
-    background-color: #d1fae5;
-    color: #047857;
-    border-color: #a7f3d0;
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
 }
 
 /* CONTENT BODY (PADAT & BERSIH) */
@@ -477,49 +488,68 @@ body {
     background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 12px 14px;
+    padding: 13px 15px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.12s ease, border-color 0.12s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    border-top: 3px solid #2563eb;
 }
 
 .stat-card:hover {
     border-color: #cbd5e1;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
 }
+
+.stat-card.purple  { border-top-color: #8b5cf6; }
+.stat-card.teal    { border-top-color: #0d9488; }
+.stat-card.amber   { border-top-color: #f59e0b; }
+.stat-card.rose    { border-top-color: #f43f5e; }
+.stat-card.orange  { border-top-color: #f97316; }
+.stat-card.emerald { border-top-color: #10b981; }
+.stat-card.blue    { border-top-color: #2563eb; }
 
 .stat-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 }
 
 .stat-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-secondary);
 }
 
 .stat-icon {
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 13.5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.stat-icon.primary { background: #eff6ff; color: #2563eb; }
-.stat-icon.success { background: #f0fdf4; color: #16a34a; }
-.stat-icon.warning { background: #fefce8; color: #ca8a04; }
-.stat-icon.danger { background: #fef2f2; color: #dc2626; }
+.stat-icon.primary { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.stat-icon.success { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.stat-icon.warning { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.stat-icon.danger  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+.stat-icon.purple  { background: #faf5ff; color: #8b5cf6; border: 1px solid #e9d5ff; }
+.stat-icon.teal    { background: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4; }
+.stat-icon.amber   { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.stat-icon.rose    { background: #fff1f2; color: #f43f5e; border: 1px solid #fecdd3; }
+.stat-icon.orange  { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+.stat-icon.emerald { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; }
+.stat-icon.blue    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
 
 .stat-number {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 800;
     color: var(--text-primary);
     line-height: 1.1;
@@ -938,39 +968,45 @@ body {
     background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 11px 13px;
+    padding: 12px 14px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     text-decoration: none;
     color: inherit;
-    transition: all 0.12s ease;
-    box-shadow: var(--shadow-sm);
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .feature-box-card:hover {
     border-color: #3b82f6;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
 }
 
 .feature-box-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 17px;
     flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease;
 }
 
-.feature-box-icon.blue { background: #eff6ff; color: #2563eb; }
-.feature-box-icon.green { background: #f0fdf4; color: #16a34a; }
-.feature-box-icon.amber { background: #fefce8; color: #ca8a04; }
-.feature-box-icon.purple { background: #faf5ff; color: #9333ea; }
-.feature-box-icon.rose { background: #fff1f2; color: #e11d48; }
-.feature-box-icon.slate { background: #f1f5f9; color: #475569; }
+.feature-box-card:hover .feature-box-icon {
+    transform: scale(1.1);
+}
+
+.feature-box-icon.blue   { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.feature-box-icon.green  { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.feature-box-icon.amber  { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.feature-box-icon.purple { background: #faf5ff; color: #9333ea; border: 1px solid #e9d5ff; }
+.feature-box-icon.rose   { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
+.feature-box-icon.slate  { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
 
 .feature-box-info {
     display: flex;
