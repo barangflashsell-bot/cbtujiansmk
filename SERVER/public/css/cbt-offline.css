@@ -166,11 +166,26 @@ body {
 }
 
 .topbar-title {
-    font-size: 17px;
+    font-size: 17.5px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #15803d;
     line-height: 1.2;
     letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.topbar-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 
 .topbar-subtitle {
@@ -417,9 +432,111 @@ body {
 
 .card-title {
     font-size: 16px;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-weight: 800;
+    color: #1e293b;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     letter-spacing: -0.01em;
+}
+
+/* WELCOME BANNER HEADING */
+.welcome-heading {
+    font-size: 19px;
+    font-weight: 800;
+    color: #15803d;
+    margin-bottom: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+}
+
+/* SECTION HEADINGS WITH COLORED BADGES & TEXT (Agar Judul Tidak Polos) */
+.section-heading-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.section-heading-title {
+    font-size: 15.5px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.heading-icon-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.heading-icon-badge.blue    { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+.heading-icon-badge.amber   { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+.heading-icon-badge.purple  { background: #f3e8ff; color: #9333ea; border: 1px solid #e9d5ff; }
+.heading-icon-badge.emerald { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.heading-icon-badge.orange  { background: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
+.heading-icon-badge.rose    { background: #ffe4e6; color: #e11d48; border: 1px solid #fecdd3; }
+.heading-icon-badge.indigo  { background: #e0e7ff; color: #4f46e5; border: 1px solid #c7d2fe; }
+
+.heading-text {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.heading-text.blue    { color: #0369a1; }
+.heading-text.amber   { color: #b45309; }
+.heading-text.purple  { color: #7e22ce; }
+.heading-text.emerald { color: #15803d; }
+.heading-text.orange  { color: #c2410c; }
+.heading-text.green   { color: #166534; }
+.heading-text.indigo  { color: #4338ca; }
+
+/* SUBPAGE HEADERS (Bank Soal, Data Peserta, etc.) */
+.content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #15803d;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+}
+
+.page-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 22px;
+    background: linear-gradient(180deg, #15803d, #22c55e);
+    border-radius: 4px;
+}
+
+.page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
 }
 
 .card-description {

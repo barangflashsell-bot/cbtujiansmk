@@ -36,7 +36,10 @@
     <div class="card" style="padding: 20px 24px; border-left: 4px solid var(--primary);">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
             <div>
-                <h2 class="card-title" style="font-size: 18px; margin-bottom: 4px;">Selamat Datang, {{ $user->name ?? $user->username }}!</h2>
+                <h2 class="welcome-heading">
+                    <span>👋</span>
+                    <span>Selamat Datang, {{ $user->name ?? $user->username }}!</span>
+                </h2>
                 <p class="card-description" style="margin: 0;">
                     Panel Kendali Utama <strong>CBT Server SMK</strong>. Seluruh modul evaluasi berbasis LAN siap beroperasi.
                 </p>
@@ -54,8 +57,8 @@
     <div>
         <div class="section-heading-box">
             <h3 class="section-heading-title">
-                <span>📊</span>
-                <span>Ringkasan Data & Statistik Sistem</span>
+                <span class="heading-icon-badge blue">📊</span>
+                <span class="heading-text blue">Ringkasan Data & Statistik Sistem</span>
             </h3>
         </div>
 
@@ -126,8 +129,8 @@
     <div>
         <div class="section-heading-box">
             <h3 class="section-heading-title">
-                <span>🛠️</span>
-                <span>Modul & Fitur Utama (Akses Cepat)</span>
+                <span class="heading-icon-badge amber">🛠️</span>
+                <span class="heading-text amber">Modul & Fitur Utama (Akses Cepat)</span>
             </h3>
         </div>
 
@@ -190,10 +193,10 @@
 
     <!-- PETAK 4: DISTRIBUSI NILAI SISWA (PETAK PASTEL A-F) -->
     <div class="grade-distribution-card">
-        <div class="section-heading-box" style="margin-bottom: 12px;">
+        <div class="section-heading-box" style="margin-bottom: 14px;">
             <h3 class="section-heading-title" style="margin-bottom: 0;">
-                <span>📈</span>
-                <span>Distribusi Grade Nilai Evaluasi</span>
+                <span class="heading-icon-badge purple">📈</span>
+                <span class="heading-text purple">Distribusi Grade Nilai Evaluasi</span>
             </h3>
             <span style="font-size: 12px; color: var(--text-muted);">Total Selesai: <strong>{{ number_format($completedAttempts) }}</strong> pengerjaan</span>
         </div>
@@ -238,7 +241,8 @@
         <div class="card" style="padding: 20px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
                 <h3 class="card-title" style="margin-bottom: 0; font-size: 15px;">
-                    <span>📋</span> Hasil Ujian Terbaru
+                    <span class="heading-icon-badge emerald" style="width: 26px; height: 26px; font-size: 13px;">📋</span>
+                    <span class="heading-text emerald">Hasil Ujian Terbaru</span>
                 </h3>
                 <a href="{{ route('admin.results.index') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px;">Lihat Semua</a>
             </div>
@@ -290,7 +294,8 @@
         <div class="card" style="padding: 20px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
                 <h3 class="card-title" style="margin-bottom: 0; font-size: 15px;">
-                    <span>📜</span> Log Aktivitas Sistem
+                    <span class="heading-icon-badge orange" style="width: 26px; height: 26px; font-size: 13px;">📜</span>
+                    <span class="heading-text orange">Log Aktivitas Sistem</span>
                 </h3>
                 <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-secondary btn-sm" style="font-size: 11.5px;">Lihat Semua</a>
             </div>

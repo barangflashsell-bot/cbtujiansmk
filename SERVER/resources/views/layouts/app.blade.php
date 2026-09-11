@@ -195,7 +195,10 @@
                         ☰
                     </button>
                     <div class="topbar-title-wrap">
-                        <div class="topbar-title">{{ $rawTitle ?: 'Dashboard' }}</div>
+                        <div class="topbar-title">
+                            <span>{{ $rawTitle ?: 'Dashboard' }}</span>
+                            <span class="topbar-badge">CBT SMK</span>
+                        </div>
                         <div class="topbar-subtitle">CBT Server Offline &bull; Kurikulum SMK</div>
                     </div>
                 </div>
