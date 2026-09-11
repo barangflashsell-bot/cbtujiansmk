@@ -21,7 +21,13 @@ class AuthController extends ApiController
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::with('role')->where('username', $validated['username'])->first();
+        $usernameInput = $validated['username'];
+        $user = User::with(['role', 'student'])
+            ->where('username', $usernameInput)
+            ->orWhereHas('student', function ($query) use ($usernameInput) {
+                $query->where('nis', $usernameInput);
+            })
+            ->first();
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return $this->errorResponse('Username atau password salah', null, 401);
@@ -40,6 +46,8 @@ class AuthController extends ApiController
                 'username' => $user->username,
                 'name' => $user->name,
                 'role' => $user->role->name ?? 'unknown',
+                'student_id' => $user->student->id ?? null,
+                'nis' => $user->student->nis ?? null,
             ],
             'token' => $token,
             'token_type' => 'Bearer',

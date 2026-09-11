@@ -250,13 +250,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _usernameController,
                     decoration: InputDecoration(
                       labelText: 'Username / NIS',
-                      hintText: 'Masukkan username ujian Anda',
+                      hintText: 'Masukkan NIS atau username ujian',
                       prefixIcon: const Icon(Icons.person_outline),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     validator: (val) {
                       if (val == null || val.trim().isEmpty) {
-                        return 'Username tidak boleh kosong';
+                        return 'Username / NIS tidak boleh kosong';
                       }
                       return null;
                     },
@@ -316,7 +316,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           )
                         : const Text(
-                            'Masuk ke Sistem Ujian',
+                            'Masuk',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                   ),
