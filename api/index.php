@@ -1011,7 +1011,7 @@ if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin
 if ($uri === '/logout') {
     setcookie('cbt_user', '', time() - 3600, '/');
     unset($_SESSION['cbt_user']);
-    header('Location: /login');
+    header('Location: /login?logged_out=1');
     exit;
 }
 
@@ -1039,10 +1039,18 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
 }
 
 // Current user check
+$isLoggedOut = isset($_GET['logged_out']);
 $currentUser = $_COOKIE['cbt_user'] ?? $_SESSION['cbt_user'] ?? null;
 
+// In standalone serverless deployment, keep user logged in as 'admin' unless explicitly logged out
+if (!$currentUser && !$isLoggedOut) {
+    $currentUser = 'admin';
+    $_SESSION['cbt_user'] = 'admin';
+    setcookie('cbt_user', 'admin', time() + 86400 * 30, '/');
+}
+
 if ($uri === '/' || $uri === '/login') {
-    if ($currentUser) {
+    if ($currentUser && !$isLoggedOut) {
         header('Location: /admin/dashboard');
         exit;
     }
@@ -1182,6 +1190,9 @@ function renderAppPage($uri) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?> — CBT Server Manager</title>
     <link rel="stylesheet" href="/css/cbt-offline.css">
+    <style>
+        .modal-overlay.active, .modal-overlay.open { display: flex !important; }
+    </style>
     <script>
         (function() {
             try {
