@@ -2003,12 +2003,6 @@ function renderStudentsContent() {
             </div>
 
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <a href="/admin/quick-login" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; background: #16a34a; border-color: #15803d; color: #fff;" title="Login langsung sebagai Administrator">
-                    <span>⚡</span> Login Admin Langsung
-                </a>
-                <a href="/admin/students/reset-all-passwords" class="btn btn-secondary" onclick="return confirm('Apakah Anda yakin ingin me-reset SEMUA password peserta ke default 12345678?');" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fde68a; color: #b45309; background: #fffbeb;" title="Reset semua password siswa ke 12345678">
-                    <span>🔑</span> Reset Semua PW (12345678)
-                </a>
                 <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
                     <span>📊</span> Import Data Excel
                 </button>
