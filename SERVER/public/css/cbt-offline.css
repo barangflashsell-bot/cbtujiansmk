@@ -1718,3 +1718,19 @@ input[type="checkbox"] {
     text-align: center;
 }
 
+/* 26. ACTION BUTTONS ROW (PREVENT WRAPPING) */
+.action-btns {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    gap: 4px !important;
+}
+
+.action-btns .btn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+

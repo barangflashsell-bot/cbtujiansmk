@@ -1387,6 +1387,8 @@ function renderAppPage($uri) {
         .subject-tab-pill.active, .class-tab-pill.active { background: var(--primary) !important; border-color: var(--primary) !important; color: #ffffff !important; box-shadow: 0 2px 6px rgba(0, 149, 255, 0.3); }
         .subject-tab-badge, .class-tab-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 7px; border-radius: 12px; font-size: 11px; font-weight: 700; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
         .subject-tab-pill.active .subject-tab-badge, .class-tab-pill.active .class-tab-badge { background: rgba(255, 255, 255, 0.25); color: #ffffff; border-color: rgba(255, 255, 255, 0.4); }
+        .action-btns { display: inline-flex !important; align-items: center !important; justify-content: center !important; flex-wrap: nowrap !important; white-space: nowrap !important; gap: 5px !important; }
+        .data-table th, .data-table td { vertical-align: middle; }
     </style>
     <script>
         (function() {
@@ -2081,7 +2083,7 @@ function renderStudentsContent() {
                             <th>Username (Nama Depan + NIS)</th>
                             <th style="width: 120px; text-align: center;">Password</th>
                             <th style="width: 50px; text-align: center;">L/P</th>
-                            <th style="width: 260px; text-align: center;">Aksi</th>
+                            <th style="text-align: center; white-space: nowrap; min-width: 330px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2116,12 +2118,12 @@ function renderStudentsContent() {
                                         </code>
                                     </td>
                                     <td style="text-align: center; font-weight: 700;"><?= ($s['gender'] ?? 'L') === 'L' ? 'L' : 'P' ?></td>
-                                    <td style="text-align: center;">
-                                        <div class="action-btns" style="justify-content: center; gap: 4px;">
+                                    <td style="text-align: center; white-space: nowrap;">
+                                        <div class="action-btns" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: nowrap; white-space: nowrap;">
                                             <a 
                                                 href="/admin/students/login-as?id=<?= urlencode($s['id']) ?>" 
                                                 class="btn btn-primary btn-sm" 
-                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px;"
+                                                style="padding: 4px 7px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;"
                                                 title="Login langsung sebagai siswa ini"
                                             >
                                                 <span>🚀</span> Login Siswa
@@ -2130,7 +2132,7 @@ function renderStudentsContent() {
                                                 href="/admin/students/reset-password?id=<?= urlencode($s['id']) ?>" 
                                                 class="btn btn-secondary btn-sm" 
                                                 onclick="return confirm('Reset password peserta <?= htmlspecialchars(addslashes($s['name'])) ?> ke default 12345678?');"
-                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 700; color: #b45309; border-color: #fde68a; background: #fffbeb;"
+                                                style="padding: 4px 7px; font-size: 11.5px; font-weight: 700; color: #b45309; border-color: #fde68a; background: #fffbeb; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;"
                                                 title="Reset password ke default 12345678"
                                             >
                                                 <span>🔑</span> Reset PW
@@ -2139,7 +2141,7 @@ function renderStudentsContent() {
                                                 type="button" 
                                                 class="btn btn-secondary btn-sm" 
                                                 onclick="openEditStudent('<?= htmlspecialchars($s['id']) ?>', '<?= htmlspecialchars(addslashes($s['name'])) ?>', '<?= htmlspecialchars(addslashes($s['nis'])) ?>', '<?= htmlspecialchars(addslashes($s['class'])) ?>', '<?= htmlspecialchars($s['gender'] ?? 'L') ?>', '<?= htmlspecialchars(addslashes($s['password'] ?? '12345678')) ?>')"
-                                                style="padding: 4px 8px; font-size: 11.5px;"
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 600; white-space: nowrap;"
                                                 title="Edit Peserta"
                                             >
                                                 Edit
@@ -2148,7 +2150,7 @@ function renderStudentsContent() {
                                                 href="/admin/students/delete?id=<?= urlencode($s['id']) ?>" 
                                                 class="btn btn-danger btn-sm" 
                                                 onclick="return confirm('Apakah Anda yakin ingin menghapus data peserta <?= htmlspecialchars(addslashes($s['name'])) ?>?');"
-                                                style="padding: 4px 8px; font-size: 11.5px;"
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 600; white-space: nowrap;"
                                                 title="Hapus Peserta"
                                             >
                                                 Hapus
