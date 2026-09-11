@@ -1,4 +1,4 @@
-/* CBT LOCAL SERVER - THEME ELEGANT DARK SLATE & MINIMALIST WHITE (PADAT & ELEGAN) */
+/* CBT LOCAL SERVER - THEME CERAH & NATURAL (BRIGHT & NATURAL MODERN THEME) */
 :root {
     --bg-main: #f8fafc;
     --bg-surface: #ffffff;
@@ -9,10 +9,11 @@
     --text-secondary: #475569;
     --text-muted: #64748b;
     
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --primary-light: #eff6ff;
-    --primary-border: #bfdbfe;
+    /* NATURAL FRESH EMERALD ACCENT */
+    --primary: #059669;
+    --primary-hover: #047857;
+    --primary-light: #ecfdf5;
+    --primary-border: #a7f3d0;
     
     --success: #16a34a;
     --success-hover: #15803d;
@@ -27,15 +28,15 @@
     --warning-hover: #b45309;
     --warning-light: #fef3c7;
     
-    /* SIDEBAR ELEGANT MIDNIGHT SLATE (Simple, Padat, Elegan) */
+    /* SIDEBAR CERAH (BRIGHT WHITE & NATURAL FRESH ACCENTS) */
     --sidebar-width: 232px;
-    --sidebar-bg: #0f172a;
-    --sidebar-border: #1e293b;
-    --sidebar-hover: #1e293b;
-    --sidebar-active-bg: #1e293b;
-    --sidebar-active-text: #38bdf8;
-    --sidebar-text: #94a3b8;
-    --sidebar-muted: #64748b;
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #e2e8f0;
+    --sidebar-hover: #f1f5f9;
+    --sidebar-active-bg: #ecfdf5;
+    --sidebar-active-text: #059669;
+    --sidebar-text: #475569;
+    --sidebar-muted: #94a3b8;
     
     --radius-sm: 6px;
     --radius-md: 8px;
@@ -43,7 +44,7 @@
     --radius-xl: 14px;
     
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 3px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 3px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
 }
 
 *, *::before, *::after {
@@ -68,11 +69,11 @@ body {
     background-color: var(--bg-main);
 }
 
-/* SIDEBAR - TEMA ELEGAN SLATE (PADAT & RAPI) */
+/* SIDEBAR - TEMA CERAH & NATURAL (PADAT & BERSIH) */
 .sidebar {
     width: var(--sidebar-width);
-    background: #0f172a;
-    border-right: 1px solid #1e293b;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
     color: var(--sidebar-text);
     display: flex;
     flex-direction: column;
@@ -82,7 +83,7 @@ body {
     flex-shrink: 0;
     z-index: 50;
     transition: transform 0.25s ease;
-    box-shadow: 1px 0 6px rgba(0, 0, 0, 0.06);
+    box-shadow: 1px 0 4px rgba(0, 0, 0, 0.03);
 }
 
 .sidebar-brand-header {
@@ -91,8 +92,8 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid #1e293b;
-    background: #0b0f19;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
     flex-shrink: 0;
 }
 
@@ -111,16 +112,17 @@ body {
 .brand-name {
     font-size: 13.5px;
     font-weight: 800;
-    color: #ffffff;
+    color: #0f172a;
     line-height: 1.2;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
 }
 
 .brand-tagline {
     font-size: 10px;
-    color: #64748b;
+    color: #059669;
     line-height: 1.2;
     margin-top: 2px;
+    font-weight: 600;
 }
 
 .sidebar-nav {
@@ -179,10 +181,10 @@ body {
 
 .topbar-badge {
     font-size: 10px;
-    font-weight: 600;
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #e2e8f0;
+    font-weight: 700;
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
     padding: 2px 7px;
     border-radius: 4px;
     letter-spacing: 0.03em;
@@ -220,14 +222,14 @@ body {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background-color: #f1f5f9;
-    color: #1e293b;
+    background-color: #ecfdf5;
+    color: #059669;
     font-weight: 700;
     font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #a7f3d0;
 }
 
 .logout-link-btn {
@@ -280,8 +282,8 @@ body {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #64748b;
-    padding: 8px 8px 2px 8px;
+    color: #94a3b8;
+    padding: 10px 8px 3px 8px;
     font-weight: 700;
 }
 
@@ -291,7 +293,7 @@ body {
     justify-content: space-between;
     padding: 6px 9px;
     border-radius: 5px;
-    color: #94a3b8;
+    color: #475569;
     text-decoration: none;
     font-size: 12.5px;
     font-weight: 500;
@@ -300,15 +302,15 @@ body {
 }
 
 .nav-link:hover:not(.disabled) {
-    background-color: #1e293b;
-    color: #f8fafc;
+    background-color: #f1f5f9;
+    color: #0f172a;
 }
 
 .nav-link.active {
-    background-color: #1e293b;
-    color: #38bdf8;
+    background-color: #ecfdf5;
+    color: #059669;
     font-weight: 600;
-    box-shadow: inset 3px 0 0 #38bdf8;
+    box-shadow: inset 3px 0 0 #059669;
 }
 
 .nav-link-content {
@@ -321,16 +323,16 @@ body {
     font-size: 10px;
     padding: 1px 6px;
     border-radius: 9999px;
-    background-color: #1e293b;
-    color: #94a3b8;
+    background-color: #f1f5f9;
+    color: #475569;
     font-weight: 700;
-    border: 1px solid #334155;
+    border: 1px solid #e2e8f0;
 }
 
 .nav-link.active .nav-badge-pill {
-    background-color: rgba(56, 189, 248, 0.15);
-    color: #38bdf8;
-    border-color: rgba(56, 189, 248, 0.3);
+    background-color: #d1fae5;
+    color: #047857;
+    border-color: #a7f3d0;
 }
 
 /* CONTENT BODY (PADAT & BERSIH) */
@@ -447,7 +449,7 @@ body {
     display: inline-block;
     width: 3px;
     height: 18px;
-    background: #3b82f6;
+    background: #059669;
     border-radius: 2px;
 }
 

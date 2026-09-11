@@ -26,9 +26,9 @@
             <!-- 1. BRAND CBT SMK DI PALING ATAS SIDEBAR -->
             <div class="sidebar-brand-header">
                 <div class="brand-crest-box">
-                    <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="36" height="36" rx="8" fill="#ffffff" fill-opacity="0.2"/>
-                        <path d="M18 7L8 12V20C8 26 12.2 30.5 18 31.5C23.8 30.5 28 26 28 20V12L18 7Z" fill="#ffffff" fill-opacity="0.3" stroke="#ffffff" stroke-width="1.8"/>
+                    <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="36" height="36" rx="8" fill="#059669"/>
+                        <path d="M18 7L8 12V20C8 26 12.2 30.5 18 31.5C23.8 30.5 28 26 28 20V12L18 7Z" fill="#ffffff" fill-opacity="0.2" stroke="#ffffff" stroke-width="1.8"/>
                         <path d="M14 18L17 21L23 15" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
