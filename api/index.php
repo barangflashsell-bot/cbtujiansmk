@@ -245,13 +245,14 @@ function logCbtActivity($module, $action, $details) {
 $reqFormat = strtolower(trim($_GET['format'] ?? 'excel'));
 
 if ($uri === '/admin/students/template') {
-    $headers = ['No', 'Nama Lengkap Peserta', 'Username Login', 'Password', 'Kelas', 'NIS', 'NISN', 'Jenis Kelamin (L/P)'];
+    // Sesuai kebutuhan: Username (Nama Depan + NIS) & Password (12345678) dibuat otomatis oleh sistem, NISN dibuang
+    $headers = ['No', 'NIS', 'Nama Lengkap Peserta', 'Kelas', 'Jenis Kelamin (L/P)'];
     $sampleRows = [
-        ['1', 'Ahmad Dhani Prasetya', 'peserta01', '123456', '10-TKJ-1', '0081234567', '0081234567', 'L'],
-        ['2', 'Siti Aminah Zahra', 'peserta02', '123456', '10-TKJ-1', '0081234568', '0081234568', 'P'],
-        ['3', 'Budi Santoso Nugroho', 'peserta03', '123456', '10-RPL-1', '0081234569', '0081234569', 'L'],
+        ['1', '0081234567', 'Ahmad Dhani Prasetya', '10-TKJ-1', 'L'],
+        ['2', '0081234568', 'Siti Aminah Zahra', '10-TKJ-1', 'P'],
+        ['3', '0081234569', 'Budi Santoso Nugroho', '10-RPL-1', 'L'],
     ];
-    $colWidths = [40, 220, 140, 100, 90, 120, 120, 140];
+    $colWidths = [40, 140, 260, 130, 140];
     if ($reqFormat === 'csv') {
         streamCsvTemplate('template_data_peserta.csv', $headers, $sampleRows);
     } else {
@@ -371,14 +372,18 @@ function streamExcelTemplate($filename, $headers, $sampleRows, $colWidths = []) 
         $xml .= "    <Cell ss:StyleID=\"Header\"><Data ss:Type=\"String\">" . htmlspecialchars($h) . "</Data></Cell>\n";
     }
     $xml .= "   </Row>\n";
-    foreach ($sampleRows as $row) {
-        $xml .= "   <Row ss:Height=\"22\">\n";
-        foreach ($row as $colIdx => $val) {
-            $style = ($colIdx === 0 || $colIdx === 4 || $colIdx === 7) ? 'CenterCell' : 'TextCell';
-            $xml .= "    <Cell ss:StyleID=\"{$style}\"><Data ss:Type=\"String\">" . htmlspecialchars((string)$val) . "</Data></Cell>\n";
+        foreach ($sampleRows as $row) {
+            $xml .= "   <Row ss:Height=\"22\">\n";
+            foreach ($row as $colIdx => $val) {
+                if (count($row) === 5) {
+                    $style = ($colIdx === 2) ? 'TextCell' : 'CenterCell';
+                } else {
+                    $style = ($colIdx === 0 || $colIdx === 4 || $colIdx === 7) ? 'CenterCell' : 'TextCell';
+                }
+                $xml .= "    <Cell ss:StyleID=\"{$style}\"><Data ss:Type=\"String\">" . htmlspecialchars((string)$val) . "</Data></Cell>\n";
+            }
+            $xml .= "   </Row>\n";
         }
-        $xml .= "   </Row>\n";
-    }
     $xml .= "  </Table>\n";
     $xml .= " </Worksheet>\n";
     $xml .= "</Workbook>\n";
@@ -446,19 +451,44 @@ if ($method === 'POST' && strpos($uri, '/import') !== false) {
 
         if (strpos($uri, 'students') !== false) {
             foreach ($importedItems as $item) {
+                // Deteksi format:
+                // Format Baru (5 kolom): [0 => No, 1 => NIS, 2 => Nama Lengkap, 3 => Kelas, 4 => L/P]
+                // Format Lama (8 kolom): [0 => No, 1 => Nama, 2 => Username, 3 => Password, 4 => Kelas, 5 => NIS, 6 => NISN, 7 => L/P]
+                if (count($item) <= 6) {
+                    $nis = trim($item[1] ?? '');
+                    $name = trim($item[2] ?? '');
+                    $class = trim($item[3] ?? '10-TKJ-1');
+                    $gender = strtoupper(trim($item[4] ?? 'L'));
+                } else {
+                    $name = trim($item[1] ?? '');
+                    $class = trim($item[4] ?? '10-TKJ-1');
+                    $nis = trim($item[5] ?? $item[1]);
+                    $gender = strtoupper(trim($item[7] ?? 'L'));
+                }
+                if (empty($nis)) {
+                    $nis = '008' . rand(1000000, 9999999);
+                }
+                if (empty($name)) {
+                    $name = 'Peserta ' . $nis;
+                }
+                $gender = ($gender === 'P') ? 'P' : 'L';
+                // Otomatis tanpa diminta:
+                $username = getStudentUsernameFromNameNis($name, $nis);
+                $password = '12345678';
+
                 $_SESSION['students_list'][] = [
                     'id' => uniqid('s_'),
-                    'name' => $item[1] ?? 'Peserta Impor',
-                    'username' => $item[2] ?? ('peserta_' . rand(100, 999)),
-                    'class' => $item[4] ?? '10-TKJ-1',
-                    'nis' => $item[5] ?? ('NIS-' . rand(100, 999)),
-                    'nisn' => $item[6] ?? ('008' . rand(1000000, 9999999)),
-                    'gender' => strtoupper($item[7] ?? 'L'),
+                    'nis' => $nis,
+                    'name' => $name,
+                    'username' => $username,
+                    'password' => $password,
+                    'class' => $class,
+                    'gender' => $gender,
                     'status' => 'Aktif',
                 ];
             }
-            logCbtActivity('STUDENT', 'IMPORT_EXCEL', "Mengimpor {$count} peserta ujian baru dari spreadsheet");
-            $_SESSION['import_success'] = "Berhasil mengimpor {$count} data peserta ke dalam sistem!";
+            logCbtActivity('STUDENT', 'IMPORT_EXCEL', "Mengimpor {$count} peserta baru dari spreadsheet (Username & Password otomatis)");
+            $_SESSION['import_success'] = "Berhasil mengimpor {$count} data peserta! Username (Nama Depan + NIS) dan Password (12345678) telah dibuat otomatis.";
             header('Location: /admin/students');
             exit;
         } elseif (strpos($uri, 'teachers') !== false) {
@@ -718,6 +748,76 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/students/
             $_SESSION['import_success'] = "Data peserta \"{$deletedName}\" berhasil dihapus!";
             break;
         }
+    }
+    header('Location: /admin/students');
+    exit;
+}
+
+// 8. Hapus Peserta Terpilih Sekaligus (Bulk Delete)
+if ($method === 'POST' && $uri === '/admin/students/bulk-delete') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) {
+        $rawIds = explode(',', $rawIds);
+    }
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $deletedCount = 0;
+    if (!empty($ids)) {
+        $_SESSION['students_list'] = array_values(array_filter($_SESSION['students_list'], function($s) use ($ids, &$deletedCount) {
+            if (in_array($s['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('STUDENT', 'BULK_DELETE', "Menghapus {$deletedCount} data peserta yang ditandai sekaligus");
+        $_SESSION['import_success'] = "Berhasil menghapus <strong>{$deletedCount} data peserta</strong> yang ditandai!";
+    }
+    header('Location: /admin/students');
+    exit;
+}
+
+// 9. Reset Password Peserta Terpilih ke Default 12345678 (Bulk Reset Password)
+if ($method === 'POST' && $uri === '/admin/students/bulk-reset-password') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) {
+        $rawIds = explode(',', $rawIds);
+    }
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $resetCount = 0;
+    if (!empty($ids)) {
+        foreach ($_SESSION['students_list'] as &$s) {
+            if (in_array($s['id'], $ids)) {
+                $s['password'] = '12345678';
+                $resetCount++;
+            }
+        }
+        unset($s);
+        logCbtActivity('STUDENT', 'BULK_RESET_PW', "Mereset password {$resetCount} peserta terpilih ke default 12345678");
+        $_SESSION['import_success'] = "Berhasil mereset password <strong>{$resetCount} peserta</strong> yang ditandai ke default: <strong>12345678</strong>!";
+    }
+    header('Location: /admin/students');
+    exit;
+}
+
+// 10. Pindah Kelas Peserta Terpilih (Bulk Change Class)
+if ($method === 'POST' && $uri === '/admin/students/bulk-change-class') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) {
+        $rawIds = explode(',', $rawIds);
+    }
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $targetClass = trim($_POST['target_class'] ?? '');
+    $movedCount = 0;
+    if (!empty($ids) && !empty($targetClass)) {
+        foreach ($_SESSION['students_list'] as &$s) {
+            if (in_array($s['id'], $ids)) {
+                $s['class'] = $targetClass;
+                $movedCount++;
+            }
+        }
+        unset($s);
+        logCbtActivity('STUDENT', 'BULK_CHANGE_CLASS', "Memindahkan {$movedCount} peserta terpilih ke kelas: {$targetClass}");
+        $_SESSION['import_success'] = "Berhasil memindahkan <strong>{$movedCount} peserta</strong> yang ditandai ke rombel kelas: <strong>{$targetClass}</strong>!";
     }
     header('Location: /admin/students');
     exit;
@@ -2065,12 +2165,47 @@ function renderStudentsContent() {
             </form>
         </div>
 
+        <!-- BATCH SELECTION ACTION BAR (MENU TANDAI) -->
+        <div id="bulkActionBar" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 5px rgba(0, 149, 255, 0.08);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 18px;">☑️</span>
+                <span style="font-size: 13.5px; font-weight: 700; color: #1e40af;">
+                    <span id="selectedCount">0</span> Peserta Ditandai
+                </span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-danger btn-sm" onclick="executeBulkDelete()" style="font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" title="Hapus semua peserta yang ditandai">
+                    <span>🗑️</span> Hapus Terpilih
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="executeBulkResetPassword()" style="color: #b45309; border-color: #fde68a; background: #fffbeb; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" title="Reset password semua peserta yang ditandai ke default 12345678">
+                    <span>🔑</span> Reset Password Terpilih (12345678)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openBulkChangeClassModal()" style="color: #0284c7; border-color: #bae6fd; background: #f0f9ff; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" title="Pindahkan peserta yang ditandai ke rombel kelas lain">
+                    <span>🏫</span> Pindah Kelas Terpilih
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearSelectedStudents()" style="font-weight: 600;">
+                    ✖ Batal Tandai
+                </button>
+            </div>
+        </div>
+
+        <!-- HIDDEN BULK ACTION FORMS -->
+        <form id="bulkDeleteForm" action="/admin/students/bulk-delete" method="POST" style="display:none;">
+            <input type="hidden" name="ids" id="bulkDeleteIds">
+        </form>
+        <form id="bulkResetForm" action="/admin/students/bulk-reset-password" method="POST" style="display:none;">
+            <input type="hidden" name="ids" id="bulkResetIds">
+        </form>
+
         <!-- STUDENTS TABLE -->
         <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th style="width: 42px; text-align: center;">
+                                <input type="checkbox" id="selectAllStudents" onclick="toggleSelectAllStudents(this)" style="cursor: pointer; width: 16px; height: 16px;" title="Tandai Semua Peserta">
+                            </th>
                             <th style="width: 45px; text-align: center;">No</th>
                             <th style="width: 130px;">NIS</th>
                             <th>Nama Lengkap Peserta</th>
@@ -2084,7 +2219,7 @@ function renderStudentsContent() {
                     <tbody>
                         <?php if (empty($students)): ?>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="9">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">👥</div>
                                         <p>Tidak ada peserta yang cocok dengan filter yang dipilih.</p>
@@ -2094,6 +2229,9 @@ function renderStudentsContent() {
                         <?php else: ?>
                             <?php foreach ($students as $idx => $s): ?>
                                 <tr>
+                                    <td style="text-align: center;">
+                                        <input type="checkbox" class="student-checkbox" value="<?= htmlspecialchars($s['id']) ?>" onclick="updateSelectedStudentsBar()" style="cursor: pointer; width: 16px; height: 16px;" title="Tandai peserta ini">
+                                    </td>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td>
                                         <code style="font-size: 13px; font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($s['nis']) ?></code>
@@ -2259,7 +2397,109 @@ function renderStudentsContent() {
             updateEditStudentUsernamePreview();
             document.getElementById('editStudentModal').classList.add('open');
         }
+
+        // ==========================================
+        // MENU TANDAI (BULK ACTIONS SELECTION JS)
+        // ==========================================
+        function getSelectedStudentIds() {
+            var checkboxes = document.querySelectorAll('.student-checkbox:checked');
+            var ids = [];
+            checkboxes.forEach(function(cb) { ids.push(cb.value); });
+            return ids;
+        }
+
+        function updateSelectedStudentsBar() {
+            var ids = getSelectedStudentIds();
+            var count = ids.length;
+            var bar = document.getElementById('bulkActionBar');
+            var countSpan = document.getElementById('selectedCount');
+            var selectAll = document.getElementById('selectAllStudents');
+            var allCheckboxes = document.querySelectorAll('.student-checkbox');
+            
+            if (countSpan) countSpan.innerText = count;
+            if (bar) {
+                bar.style.display = (count > 0) ? 'flex' : 'none';
+            }
+            if (selectAll && allCheckboxes.length > 0) {
+                selectAll.checked = (count === allCheckboxes.length);
+                selectAll.indeterminate = (count > 0 && count < allCheckboxes.length);
+            }
+        }
+
+        function toggleSelectAllStudents(masterCb) {
+            var checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(function(cb) {
+                cb.checked = masterCb.checked;
+            });
+            updateSelectedStudentsBar();
+        }
+
+        function clearSelectedStudents() {
+            var checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(function(cb) { cb.checked = false; });
+            var master = document.getElementById('selectAllStudents');
+            if (master) { master.checked = false; master.indeterminate = false; }
+            updateSelectedStudentsBar();
+        }
+
+        function executeBulkDelete() {
+            var ids = getSelectedStudentIds();
+            if (ids.length === 0) return;
+            if (confirm('Apakah Anda yakin ingin menghapus ' + ids.length + ' peserta yang ditandai?')) {
+                document.getElementById('bulkDeleteIds').value = ids.join(',');
+                document.getElementById('bulkDeleteForm').submit();
+            }
+        }
+
+        function executeBulkResetPassword() {
+            var ids = getSelectedStudentIds();
+            if (ids.length === 0) return;
+            if (confirm('Reset password ' + ids.length + ' peserta yang ditandai ke default 12345678?')) {
+                document.getElementById('bulkResetIds').value = ids.join(',');
+                document.getElementById('bulkResetForm').submit();
+            }
+        }
+
+        function openBulkChangeClassModal() {
+            var ids = getSelectedStudentIds();
+            if (ids.length === 0) return;
+            document.getElementById('bulkChangeClassIds').value = ids.join(',');
+            document.getElementById('bulkClassCountLabel').innerText = ids.length;
+            document.getElementById('bulkChangeClassModal').classList.add('open');
+        }
+
+        function closeBulkChangeClassModal() {
+            document.getElementById('bulkChangeClassModal').classList.remove('open');
+        }
     </script>
+
+    <!-- BULK CHANGE CLASS MODAL -->
+    <div class="modal-overlay" id="bulkChangeClassModal" style="align-items: center; justify-content: center;">
+        <div class="modal-content-card" style="max-width: 440px; border-radius: 12px;">
+            <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid var(--border-color); padding: 14px 18px;">
+                <h3 class="modal-title" style="margin: 0; font-size: 1.1rem; font-weight: 800;">Pindah Kelas Peserta Terpilih</h3>
+                <button type="button" class="modal-close-btn" onclick="closeBulkChangeClassModal()">&times;</button>
+            </div>
+            <form action="/admin/students/bulk-change-class" method="POST" id="bulkChangeClassForm" style="padding: 18px;">
+                <input type="hidden" name="ids" id="bulkChangeClassIds">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
+                    Pindahkan <strong id="bulkClassCountLabel" style="color: var(--primary);">0</strong> peserta yang ditandai ke rombel kelas tujuan:
+                </p>
+                <div class="form-group" style="margin-bottom: 18px;">
+                    <label class="form-label" style="font-weight: 700;">Pilih Kelas Tujuan *</label>
+                    <select name="target_class" class="form-select" required>
+                        <?php foreach ($_SESSION['classes_list'] as $c): ?>
+                            <option value="<?= htmlspecialchars($c['name']) ?>"><?= htmlspecialchars($c['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeBulkChangeClassModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Terapkan Pindah Kelas</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <?php
 }
 
@@ -5072,6 +5312,12 @@ function renderImportModalGeneric($actionUrl, $templateUrl, $titleSingular, $fil
                     <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
                         Unggah file Excel (<strong>.xls</strong>) atau CSV (<strong>.csv</strong>) untuk memasukkan data <?= htmlspecialchars(strtolower($titleSingular)) ?> secara massal.
                     </p>
+
+                    <?php if ($titleSingular === 'Peserta'): ?>
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 11.5px; color: #166534; line-height: 1.45;">
+                            💡 <strong>Format Ringkas (Otomatis):</strong> Cukup isi kolom <strong>NIS</strong>, <strong>Nama Siswa</strong>, <strong>Kelas</strong>, dan <strong>Jenis Kelamin (L/P)</strong>. Username (<em>Nama Depan + NIS</em>) dan Password (<em>default 12345678</em>) dibuat otomatis oleh sistem tanpa perlu diminta di spreadsheet.
+                        </div>
+                    <?php endif; ?>
 
                     <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div>
