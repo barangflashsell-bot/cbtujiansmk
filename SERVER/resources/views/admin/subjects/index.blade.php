@@ -74,7 +74,7 @@
                         <th>Total Soal</th>
                         <th>Total Ujian</th>
                         <th>Status</th>
-                        <th style="width: 140px; text-align: center;">Aksi</th>
+                        <th style="width: 220px; text-align: center;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,7 +87,11 @@
                             <td>
                                 <strong style="font-size: 14px;">{{ $item->name }}</strong>
                             </td>
-                            <td>{{ $item->questions_count }} Butir</td>
+                            <td>
+                                <a href="{{ route('admin.questions.index', ['subject_id' => $item->id]) }}" class="badge badge-info" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Lihat semua soal {{ $item->name }}">
+                                    <span>📖</span> {{ $item->questions_count }} Butir &rarr;
+                                </a>
+                            </td>
                             <td>{{ $item->exams_count }} Paket</td>
                             <td>
                                 <span class="badge {{ $item->status === 'active' ? 'badge-success' : 'badge-neutral' }}">
@@ -95,7 +99,10 @@
                                 </span>
                             </td>
                             <td style="text-align: center;">
-                                <div class="action-btns">
+                                <div class="action-btns" style="justify-content: center;">
+                                    <a href="{{ route('admin.questions.create', ['subject_id' => $item->id]) }}" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700;" title="Buat soal baru untuk {{ $item->name }}">
+                                        <span>📝</span> Buat Soal
+                                    </a>
                                     <button 
                                         type="button" 
                                         class="btn btn-secondary btn-sm"

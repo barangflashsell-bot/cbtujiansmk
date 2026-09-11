@@ -16,6 +16,60 @@
     </div>
 </div>
 
+<!-- SUBJECT TABS NAVIGATION -->
+<div class="card" style="padding: 14px 18px; margin-bottom: 18px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">📚</span>
+            <strong style="font-size: 14px; color: var(--text-primary);">Bank Soal Per-Mata Pelajaran</strong>
+            <span style="font-size: 11.5px; color: var(--text-muted);">(Pilih mapel untuk kelola &amp; buat soal spesifik)</span>
+        </div>
+        <div style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">
+            Total: <span style="color: var(--primary);">{{ $questions->total() }} Butir Soal</span>
+        </div>
+    </div>
+
+    <div class="subject-nav-tabs" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+        <a href="{{ route('admin.questions.index') }}" class="class-tab-pill {{ !request('subject_id') ? 'active' : '' }}">
+            <span>Semua Mapel</span>
+        </a>
+        @foreach($subjects as $sb)
+            <a href="{{ route('admin.questions.index', ['subject_id' => $sb->id]) }}" class="class-tab-pill {{ request('subject_id') == $sb->id ? 'active' : '' }}">
+                <span>{{ $sb->code ?? $sb->name }} - {{ $sb->name }}</span>
+                <span class="class-tab-badge">{{ $sb->questions_count ?? 0 }}</span>
+            </a>
+        @endforeach
+    </div>
+</div>
+
+@php
+    $selectedSubject = $subjects->firstWhere('id', request('subject_id'));
+@endphp
+@if($selectedSubject)
+    <div class="card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; padding: 16px 20px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800;">
+                📖
+            </div>
+            <div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #0284c7; letter-spacing: 0.5px;">Mata Pelajaran Terpilih</div>
+                <div style="font-size: 17px; font-weight: 800; color: #0369a1; margin-top: 1px;">
+                    {{ $selectedSubject->name }} <span style="font-size: 13px; font-weight: 600; opacity: 0.85;">({{ $selectedSubject->code }})</span>
+                </div>
+                <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">
+                    Total Soal Mapel Ini: <strong>{{ $selectedSubject->questions_count ?? $questions->total() }} Butir</strong>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="{{ route('admin.questions.create', ['subject_id' => $selectedSubject->id]) }}" class="btn btn-primary" style="font-weight: 700;">
+                <span>+</span> Buat Soal {{ $selectedSubject->name }}
+            </a>
+            <a href="{{ route('admin.questions.index') }}" class="btn btn-secondary">Semua Mapel</a>
+        </div>
+    </div>
+@endif
+
 <div class="card">
     <form method="GET" action="{{ route('admin.questions.index') }}" class="search-filter-bar">
         <div class="search-input-group">
