@@ -137,9 +137,9 @@ class WebTeacherController extends Controller
     }
 
     /**
-     * Download Excel CSV template for teacher import.
+     * Download Excel or CSV template for teacher import.
      */
-    public function downloadTemplate()
+    public function downloadTemplate(Request $request)
     {
         $headers = ['No', 'Nama Lengkap', 'Username', 'Password', 'NIP', 'No HP'];
         $sampleRows = [
@@ -147,8 +147,13 @@ class WebTeacherController extends Controller
             ['2', 'Sri Wahyuni S.Pd', 'guru_sri', '123456', '198502022008022002', '081234567891'],
             ['3', 'Ahmad Farhan S.T', 'guru_farhan', '123456', '199003032015031003', '081234567892'],
         ];
+        $colWidths = [40, 240, 140, 100, 160, 140];
 
-        return $this->streamCsvTemplate('template_data_guru.csv', $headers, $sampleRows);
+        if ($request->query('format') === 'csv') {
+            return $this->streamCsvTemplate('template_data_guru.csv', $headers, $sampleRows);
+        }
+
+        return $this->streamExcelTemplate('template_data_guru.xls', $headers, $sampleRows, $colWidths);
     }
 
     /**

@@ -254,7 +254,7 @@ class WebQuestionController extends Controller
     }
 
     /**
-     * Download Excel CSV template for question import.
+     * Download Excel or CSV template for question import.
      */
     public function downloadTemplate(Request $request)
     {
@@ -279,8 +279,13 @@ class WebQuestionController extends Controller
             ['3', 'Pemrograman Dasar', 'multiple_choice', 'Manakah di bawah ini yang merupakan tipe data bilangan bulat?', 'Integer', 'Float', 'Long', 'Boolean', 'Double', 'A,C', '20', 'medium'],
             ['4', 'Matematika', 'essay', 'Tuliskan rumus keliling lingkaran dan jelaskan simbol-simbolnya!', '', '', '', '', '', 'K = 2 x pi x r', '20', 'medium'],
         ];
+        $colWidths = [40, 140, 110, 280, 120, 120, 120, 120, 120, 110, 80, 110];
 
-        return $this->streamCsvTemplate('template_bank_soal.csv', $headers, $sampleRows);
+        if ($request->query('format') === 'csv') {
+            return $this->streamCsvTemplate('template_bank_soal.csv', $headers, $sampleRows);
+        }
+
+        return $this->streamExcelTemplate('template_bank_soal.xls', $headers, $sampleRows, $colWidths);
     }
 
     /**

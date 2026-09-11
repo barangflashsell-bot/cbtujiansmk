@@ -100,9 +100,9 @@ class WebClassController extends Controller
     }
 
     /**
-     * Download Excel CSV template for class import.
+     * Download Excel or CSV template for class import.
      */
-    public function downloadTemplate()
+    public function downloadTemplate(Request $request)
     {
         $headers = ['No', 'Nama Kelas', 'Tingkat', 'Tahun Ajaran', 'Status'];
         $sampleRows = [
@@ -110,8 +110,13 @@ class WebClassController extends Controller
             ['2', '10 RPL 2', '10', date('Y') . '/' . (date('Y') + 1), 'active'],
             ['3', '11 TKJ 1', '11', date('Y') . '/' . (date('Y') + 1), 'active'],
         ];
+        $colWidths = [40, 140, 100, 140, 100];
 
-        return $this->streamCsvTemplate('template_data_kelas.csv', $headers, $sampleRows);
+        if ($request->query('format') === 'csv') {
+            return $this->streamCsvTemplate('template_data_kelas.csv', $headers, $sampleRows);
+        }
+
+        return $this->streamExcelTemplate('template_data_kelas.xls', $headers, $sampleRows, $colWidths);
     }
 
     /**

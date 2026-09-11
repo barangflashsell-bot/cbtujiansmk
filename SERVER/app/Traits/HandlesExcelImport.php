@@ -7,16 +7,40 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 trait HandlesExcelImport
 {
     /**
-     * Parse an uploaded Excel (.xlsx) or CSV (.csv/.txt) file into an array of rows.
+     * Parse an uploaded Excel (.xlsx, .xls) or CSV (.csv/.txt) file into an array of rows.
      */
     protected function parseUploadedSpreadsheet(string $filePath, string $extension): array
     {
         $extension = strtolower(trim($extension));
+        $content = file_get_contents($filePath);
+
+        if ($content !== false && (str_contains($content, 'urn:schemas-microsoft-com:office:spreadsheet') || str_starts_with(trim($content), '<?xml'))) {
+            return $this->parseExcelXmlContent($content);
+        }
+
         if ($extension === 'xlsx') {
             return $this->parseXlsxFile($filePath);
         }
 
         return $this->parseCsvFile($filePath);
+    }
+
+    /**
+     * Stream an Excel Spreadsheet (.xls) template with styled headers, borders, and column widths.
+     */
+    protected function streamExcelTemplate(string $filename, array $headers, array $sampleRows, array $colWidths = []): StreamedResponse
+    {
+        $responseHeaders = [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        ];
+
+        $callback = function () use ($headers, $sampleRows, $colWidths) {
+            echo $this->buildExcelXmlString($headers, $sampleRows, $colWidths);
+        };
+
+        return response()->stream($callback, 200, $responseHeaders);
     }
 
     /**
@@ -27,6 +51,7 @@ trait HandlesExcelImport
         $responseHeaders = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
         ];
 
         $callback = function () use ($headers, $sampleRows) {
@@ -34,15 +59,110 @@ trait HandlesExcelImport
             // UTF-8 BOM
             fputs($handle, "\xEF\xBB\xBF");
 
-            fputcsv($handle, $headers);
+            // Use semicolon for seamless Indonesian/European Excel auto-column splitting
+            fputcsv($handle, $headers, ';');
             foreach ($sampleRows as $row) {
-                fputcsv($handle, $row);
+                fputcsv($handle, $row, ';');
             }
 
             fclose($handle);
         };
 
         return response()->stream($callback, 200, $responseHeaders);
+    }
+
+    /**
+     * Build native Excel 2003 XML spreadsheet string.
+     */
+    protected function buildExcelXmlString(array $headers, array $rows, array $colWidths = []): string
+    {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"' . "\n";
+        $xml .= ' xmlns:o="urn:schemas-microsoft-com:office:office"' . "\n";
+        $xml .= ' xmlns:x="urn:schemas-microsoft-com:office:excel"' . "\n";
+        $xml .= ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+        $xml .= ' <Styles>' . "\n";
+        $xml .= '  <Style ss:ID="Header">' . "\n";
+        $xml .= '   <Font ss:Bold="1" ss:Color="#FFFFFF" ss:FontName="Calibri" ss:Size="11"/>' . "\n";
+        $xml .= '   <Interior ss:Color="#0095FF" ss:Pattern="Solid"/>' . "\n";
+        $xml .= '   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
+        $xml .= '   <Borders>' . "\n";
+        $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0066CC"/>' . "\n";
+        $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBE2FF"/>' . "\n";
+        $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBE2FF"/>' . "\n";
+        $xml .= '   </Borders>' . "\n";
+        $xml .= '  </Style>' . "\n";
+        $xml .= '  <Style ss:ID="TextCell">' . "\n";
+        $xml .= '   <NumberFormat ss:Format="@"/>' . "\n";
+        $xml .= '   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#0F172A"/>' . "\n";
+        $xml .= '   <Alignment ss:Vertical="Center"/>' . "\n";
+        $xml .= '   <Borders>' . "\n";
+        $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+        $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+        $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+        $xml .= '   </Borders>' . "\n";
+        $xml .= '  </Style>' . "\n";
+        $xml .= '  <Style ss:ID="CenterCell">' . "\n";
+        $xml .= '   <NumberFormat ss:Format="@"/>' . "\n";
+        $xml .= '   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#0F172A"/>' . "\n";
+        $xml .= '   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
+        $xml .= '   <Borders>' . "\n";
+        $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+        $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+        $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+        $xml .= '   </Borders>' . "\n";
+        $xml .= '  </Style>' . "\n";
+        $xml .= ' </Styles>' . "\n";
+        $xml .= ' <Worksheet ss:Name="Template CBT">' . "\n";
+        $xml .= '  <Table>' . "\n";
+
+        foreach ($headers as $i => $h) {
+            $w = $colWidths[$i] ?? 130;
+            $xml .= '   <Column ss:Width="' . $w . '"/>' . "\n";
+        }
+
+        $xml .= '   <Row ss:Height="26">' . "\n";
+        foreach ($headers as $h) {
+            $xml .= '    <Cell ss:StyleID="Header"><Data ss:Type="String">' . htmlspecialchars($h) . '</Data></Cell>' . "\n";
+        }
+        $xml .= '   </Row>' . "\n";
+
+        foreach ($rows as $row) {
+            $xml .= '   <Row ss:Height="22">' . "\n";
+            foreach ($row as $colIdx => $val) {
+                $style = ($colIdx === 0 || $colIdx === 4 || $colIdx === 7) ? 'CenterCell' : 'TextCell';
+                $xml .= '    <Cell ss:StyleID="' . $style . '"><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+            }
+            $xml .= '   </Row>' . "\n";
+        }
+
+        $xml .= '  </Table>' . "\n";
+        $xml .= ' </Worksheet>' . "\n";
+        $xml .= '</Workbook>' . "\n";
+
+        return $xml;
+    }
+
+    /**
+     * Parse XML-based Excel (.xls) file.
+     */
+    protected function parseExcelXmlContent(string $content): array
+    {
+        $xml = simplexml_load_string($content);
+        $rows = [];
+        if ($xml && isset($xml->Worksheet->Table->Row)) {
+            foreach ($xml->Worksheet->Table->Row as $row) {
+                $rowData = [];
+                foreach ($row->Cell as $cell) {
+                    $rowData[] = trim((string)($cell->Data ?? ''));
+                }
+                if (!empty(array_filter($rowData, fn($v) => $v !== ''))) {
+                    $rows[] = $rowData;
+                }
+            }
+        }
+        return $rows;
     }
 
     /**

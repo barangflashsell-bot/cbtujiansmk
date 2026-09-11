@@ -11,10 +11,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Traits\HandlesExcelImport;
 use Illuminate\View\View;
 
 class WebStudentController extends Controller
 {
+    use HandlesExcelImport;
     /**
      * Display student listing for Admin (with full management actions).
      */
@@ -189,32 +191,25 @@ class WebStudentController extends Controller
     }
 
     /**
-     * Download Excel CSV template for student import.
+     * Download Excel or CSV template for student import.
      */
-    public function downloadTemplate()
+    public function downloadTemplate(Request $request)
     {
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="template_data_peserta.csv"',
+        $headers = ['No', 'Nama Lengkap', 'Username', 'Password', 'Kelas', 'NIS', 'NISN', 'Jenis Kelamin'];
+        $sampleRows = [
+            ['1', 'Ahmad Dhani Prasetya', 'peserta01', '123456', '9A', 'NIS001', '0081234567', 'L'],
+            ['2', 'Siti Aminah Zahra', 'peserta02', '123456', '9A', 'NIS002', '0081234568', 'P'],
+            ['3', 'Budi Santoso Nugroho', 'peserta03', '123456', '9A', 'NIS003', '0081234569', 'L'],
+            ['4', 'Dewi Lestari', 'peserta04', '123456', '9B', 'NIS004', '0081234570', 'P'],
+            ['5', 'Eko Prasetyo', 'peserta05', '123456', '9B', 'NIS005', '0081234571', 'L'],
         ];
+        $colWidths = [40, 220, 140, 100, 90, 100, 120, 120];
 
-        $callback = function () {
-            $handle = fopen('php://output', 'w');
-            // Write UTF-8 BOM for Microsoft Excel Windows compatibility
-            fputs($handle, "\xEF\xBB\xBF");
+        if ($request->query('format') === 'csv') {
+            return $this->streamCsvTemplate('template_data_peserta.csv', $headers, $sampleRows);
+        }
 
-            // Header columns
-            fputcsv($handle, ['No', 'Nama Lengkap', 'Username', 'Password', 'Kelas', 'NIS', 'NISN', 'Jenis Kelamin']);
-
-            // Example rows
-            fputcsv($handle, ['1', 'Ahmad Dhani Prasetya', 'peserta01', '123456', '9A', 'NIS001', '0081234567', 'L']);
-            fputcsv($handle, ['2', 'Siti Aminah Zahra', 'peserta02', '123456', '9A', 'NIS002', '0081234568', 'P']);
-            fputcsv($handle, ['3', 'Budi Santoso Nugroho', 'peserta03', '123456', '9A', 'NIS003', '0081234569', 'L']);
-
-            fclose($handle);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $this->streamExcelTemplate('template_data_peserta.xls', $headers, $sampleRows, $colWidths);
     }
 
     /**

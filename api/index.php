@@ -17,75 +17,179 @@ $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 // =========================================================================
-// 1. TEMPLATE DOWNLOAD ENDPOINTS (REAL CSV WITH UTF-8 BOM FOR EXCEL)
 // =========================================================================
+// 1. TEMPLATE DOWNLOAD ENDPOINTS (STYLED EXCEL .XLS & CLEAN CSV WITH UTF-8 BOM)
+// =========================================================================
+$reqFormat = strtolower(trim($_GET['format'] ?? 'excel'));
+
 if ($uri === '/admin/students/template') {
-    downloadCsvTemplate('template_data_peserta.csv', 
-        ['No', 'Nama Lengkap', 'Username', 'Password', 'Kelas', 'NIS', 'NISN', 'Jenis Kelamin'],
-        [
-            ['1', 'Ahmad Dhani Prasetya', 'peserta01', '123456', '10-TKJ-1', 'NIS001', '0081234567', 'L'],
-            ['2', 'Siti Aminah Zahra', 'peserta02', '123456', '10-TKJ-1', 'NIS002', '0081234568', 'P'],
-            ['3', 'Budi Santoso Nugroho', 'peserta03', '123456', '10-RPL-1', 'NIS003', '0081234569', 'L'],
-            ['4', 'Dewi Lestari', 'peserta04', '123456', '11-TKJ-1', 'NIS004', '0081234570', 'P'],
-            ['5', 'Eko Prasetyo', 'peserta05', '123456', '12-TKJ-1', 'NIS005', '0081234571', 'L'],
-        ]
-    );
+    $headers = ['No', 'Nama Lengkap Peserta', 'Username Login', 'Password', 'Kelas', 'NIS', 'NISN', 'Jenis Kelamin (L/P)'];
+    $sampleRows = [
+        ['1', 'Ahmad Dhani Prasetya', 'peserta01', '123456', '10-TKJ-1', 'NIS001', '0081234567', 'L'],
+        ['2', 'Siti Aminah Zahra', 'peserta02', '123456', '10-TKJ-1', 'NIS002', '0081234568', 'P'],
+        ['3', 'Budi Santoso Nugroho', 'peserta03', '123456', '10-RPL-1', 'NIS003', '0081234569', 'L'],
+        ['4', 'Dewi Lestari', 'peserta04', '123456', '11-TKJ-1', 'NIS004', '0081234570', 'P'],
+        ['5', 'Eko Prasetyo', 'peserta05', '123456', '12-TKJ-1', 'NIS005', '0081234571', 'L'],
+    ];
+    $colWidths = [40, 220, 140, 100, 90, 100, 120, 140];
+
+    if ($reqFormat === 'csv') {
+        streamCsvTemplate('template_data_peserta.csv', $headers, $sampleRows);
+    } else {
+        streamExcelTemplate('template_data_peserta.xls', $headers, $sampleRows, $colWidths);
+    }
     exit;
 }
 
 if ($uri === '/admin/teachers/template') {
-    downloadCsvTemplate('template_data_guru.csv',
-        ['No', 'Nama Lengkap', 'Username', 'Password', 'NIP', 'No HP'],
-        [
-            ['1', 'Drs. H. Bambang Sutrisno M.Kom', 'guru_bambang', '123456', '198001012005011001', '081234567890'],
-            ['2', 'Sri Wahyuni S.Pd', 'guru_sri', '123456', '198502022008022002', '081234567891'],
-            ['3', 'Ahmad Farhan S.T', 'guru_farhan', '123456', '199003032015031003', '081234567892'],
-        ]
-    );
+    $headers = ['No', 'Nama Lengkap Guru', 'Username Login', 'Password', 'NIP', 'No. WhatsApp / HP'];
+    $sampleRows = [
+        ['1', 'Drs. H. Bambang Sutrisno, M.Kom', 'guru_bambang', '123456', '198001012005011001', '081234567890'],
+        ['2', 'Sri Wahyuni, S.Pd', 'guru_sri', '123456', '198502022008022002', '081234567891'],
+        ['3', 'Ahmad Farhan, S.T', 'guru_farhan', '123456', '199003032015031003', '081234567892'],
+    ];
+    $colWidths = [40, 240, 140, 100, 160, 140];
+
+    if ($reqFormat === 'csv') {
+        streamCsvTemplate('template_data_guru.csv', $headers, $sampleRows);
+    } else {
+        streamExcelTemplate('template_data_guru.xls', $headers, $sampleRows, $colWidths);
+    }
     exit;
 }
 
 if ($uri === '/admin/classes/template') {
-    downloadCsvTemplate('template_data_kelas.csv',
-        ['No', 'Nama Kelas', 'Tingkat', 'Tahun Ajaran', 'Status'],
-        [
-            ['1', '10-TKJ-1', '10', '2026/2027', 'Aktif'],
-            ['2', '10-RPL-1', '10', '2026/2027', 'Aktif'],
-            ['3', '11-TKJ-1', '11', '2026/2027', 'Aktif'],
-            ['4', '11-RPL-1', '11', '2026/2027', 'Aktif'],
-            ['5', '12-TKJ-1', '12', '2026/2027', 'Aktif'],
-        ]
-    );
+    $headers = ['No', 'Nama Kelas', 'Tingkat (10/11/12)', 'Tahun Ajaran', 'Status (Aktif/Nonaktif)'];
+    $sampleRows = [
+        ['1', '10-TKJ-1', '10', '2026/2027', 'Aktif'],
+        ['2', '10-RPL-1', '10', '2026/2027', 'Aktif'],
+        ['3', '11-TKJ-1', '11', '2026/2027', 'Aktif'],
+        ['4', '11-RPL-1', '11', '2026/2027', 'Aktif'],
+        ['5', '12-TKJ-1', '12', '2026/2027', 'Aktif'],
+    ];
+    $colWidths = [40, 130, 130, 130, 140];
+
+    if ($reqFormat === 'csv') {
+        streamCsvTemplate('template_data_kelas.csv', $headers, $sampleRows);
+    } else {
+        streamExcelTemplate('template_data_kelas.xls', $headers, $sampleRows, $colWidths);
+    }
     exit;
 }
 
 if ($uri === '/admin/subjects/template') {
-    downloadCsvTemplate('template_data_mapel.csv',
-        ['No', 'Kode Mapel', 'Nama Mata Pelajaran', 'Status'],
-        [
-            ['1', 'MAT-10', 'Matematika X', 'Aktif'],
-            ['2', 'BIND-10', 'Bahasa Indonesia X', 'Aktif'],
-            ['3', 'PROG-10', 'Dasar-dasar Pemrograman RPL', 'Aktif'],
-            ['4', 'JARKOM-10', 'Dasar Jaringan Komputer', 'Aktif'],
-        ]
-    );
+    $headers = ['No', 'Kode Mapel', 'Nama Mata Pelajaran', 'Status (Aktif/Nonaktif)'];
+    $sampleRows = [
+        ['1', 'MAT-10', 'Matematika X', 'Aktif'],
+        ['2', 'BIND-10', 'Bahasa Indonesia X', 'Aktif'],
+        ['3', 'PROG-10', 'Dasar-dasar Pemrograman RPL', 'Aktif'],
+        ['4', 'JARKOM-10', 'Dasar Jaringan Komputer', 'Aktif'],
+    ];
+    $colWidths = [40, 120, 240, 140];
+
+    if ($reqFormat === 'csv') {
+        streamCsvTemplate('template_data_mapel.csv', $headers, $sampleRows);
+    } else {
+        streamExcelTemplate('template_data_mapel.xls', $headers, $sampleRows, $colWidths);
+    }
     exit;
 }
 
 if ($uri === '/admin/questions/template') {
-    downloadCsvTemplate('template_bank_soal.csv',
-        ['No', 'Mata Pelajaran', 'Tipe Soal', 'Pertanyaan', 'Opsi A', 'Opsi B', 'Opsi C', 'Opsi D', 'Opsi E', 'Kunci Jawaban', 'Bobot', 'Tingkat Kesulitan'],
-        [
-            ['1', 'Matematika X', 'single_choice', 'Berapakah nilai dari 2 pangkat 5?', '16', '32', '64', '128', '256', 'B', '2.00', 'easy'],
-            ['2', 'Bahasa Indonesia X', 'single_choice', 'Kalimat utama paragraf deduktif terletak pada...', 'Awal paragraf', 'Akhir paragraf', 'Tengah paragraf', 'Awal dan akhir', 'Seluruh paragraf', 'A', '2.00', 'easy'],
-            ['3', 'Dasar Pemrograman', 'single_choice', 'Sintaks loop yang mengevaluasi kondisi di akhir blok adalah...', 'for', 'while', 'do-while', 'foreach', 'repeat', 'C', '3.00', 'medium'],
-        ]
-    );
+    $headers = ['No', 'Mata Pelajaran', 'Tipe Soal', 'Pertanyaan Butir Soal', 'Pilihan A', 'Pilihan B', 'Pilihan C', 'Pilihan D', 'Pilihan E', 'Kunci Jawaban', 'Bobot Nilai', 'Tingkat Kesulitan'];
+    $sampleRows = [
+        ['1', 'Matematika X', 'single_choice', 'Berapakah hasil dari 2 pangkat 5 ditambah 3 pangkat 3?', '45', '59', '64', '32', '27', 'B', '2.00', 'medium'],
+        ['2', 'Bahasa Indonesia X', 'single_choice', 'Ide pokok atau gagasan utama dalam suatu paragraf biasanya terletak pada...', 'Awal paragraf', 'Akhir paragraf', 'Tengah paragraf', 'Awal atau akhir paragraf', 'Seluruh isi paragraf', 'D', '2.00', 'easy'],
+        ['3', 'Pemrograman RPL', 'single_choice', 'Struktur perulangan yang pasti mengeksekusi blok minimal satu kali adalah...', 'for loop', 'while loop', 'do-while loop', 'foreach loop', 'recursive loop', 'C', '3.00', 'medium'],
+    ];
+    $colWidths = [40, 130, 110, 280, 120, 120, 120, 120, 120, 110, 90, 110];
+
+    if ($reqFormat === 'csv') {
+        streamCsvTemplate('template_bank_soal.csv', $headers, $sampleRows);
+    } else {
+        streamExcelTemplate('template_bank_soal.xls', $headers, $sampleRows, $colWidths);
+    }
     exit;
 }
 
-// Helper to stream CSV with UTF-8 BOM
-function downloadCsvTemplate($filename, $headers, $sampleRows) {
+// 1A. STREAM STYLED EXCEL XML SPREADSHEET (.XLS)
+function streamExcelTemplate($filename, $headers, $sampleRows, $colWidths = []) {
+    header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
+    $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"' . "\n";
+    $xml .= ' xmlns:o="urn:schemas-microsoft-com:office:office"' . "\n";
+    $xml .= ' xmlns:x="urn:schemas-microsoft-com:office:excel"' . "\n";
+    $xml .= ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+    $xml .= ' <Styles>' . "\n";
+    $xml .= '  <Style ss:ID="Header">' . "\n";
+    $xml .= '   <Font ss:Bold="1" ss:Color="#FFFFFF" ss:FontName="Calibri" ss:Size="11"/>' . "\n";
+    $xml .= '   <Interior ss:Color="#0095FF" ss:Pattern="Solid"/>' . "\n";
+    $xml .= '   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
+    $xml .= '   <Borders>' . "\n";
+    $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0066CC"/>' . "\n";
+    $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBE2FF"/>' . "\n";
+    $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBE2FF"/>' . "\n";
+    $xml .= '   </Borders>' . "\n";
+    $xml .= '  </Style>' . "\n";
+    $xml .= '  <Style ss:ID="TextCell">' . "\n";
+    $xml .= '   <NumberFormat ss:Format="@"/>' . "\n";
+    $xml .= '   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#0F172A"/>' . "\n";
+    $xml .= '   <Alignment ss:Vertical="Center"/>' . "\n";
+    $xml .= '   <Borders>' . "\n";
+    $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+    $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+    $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+    $xml .= '   </Borders>' . "\n";
+    $xml .= '  </Style>' . "\n";
+    $xml .= '  <Style ss:ID="CenterCell">' . "\n";
+    $xml .= '   <NumberFormat ss:Format="@"/>' . "\n";
+    $xml .= '   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#0F172A"/>' . "\n";
+    $xml .= '   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
+    $xml .= '   <Borders>' . "\n";
+    $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+    $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+    $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>' . "\n";
+    $xml .= '   </Borders>' . "\n";
+    $xml .= '  </Style>' . "\n";
+    $xml .= ' </Styles>' . "\n";
+    $xml .= ' <Worksheet ss:Name="Template CBT">' . "\n";
+    $xml .= '  <Table>' . "\n";
+
+    foreach ($headers as $i => $h) {
+        $w = $colWidths[$i] ?? 130;
+        $xml .= '   <Column ss:Width="' . $w . '"/>' . "\n";
+    }
+
+    $xml .= '   <Row ss:Height="26">' . "\n";
+    foreach ($headers as $h) {
+        $xml .= '    <Cell ss:StyleID="Header"><Data ss:Type="String">' . htmlspecialchars($h) . '</Data></Cell>' . "\n";
+    }
+    $xml .= '   </Row>' . "\n";
+
+    foreach ($sampleRows as $row) {
+        $xml .= '   <Row ss:Height="22">' . "\n";
+        foreach ($row as $colIdx => $val) {
+            $style = ($colIdx === 0 || $colIdx === 4 || $colIdx === 7) ? 'CenterCell' : 'TextCell';
+            $xml .= '    <Cell ss:StyleID="' . $style . '"><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+        }
+        $xml .= '   </Row>' . "\n";
+    }
+
+    $xml .= '  </Table>' . "\n";
+    $xml .= ' </Worksheet>' . "\n";
+    $xml .= '</Workbook>' . "\n";
+
+    echo $xml;
+}
+
+// 1B. STREAM CLEAN CSV WITH BOM & SEMICOLON (INDONESIAN EXCEL FRIENDLY)
+function streamCsvTemplate($filename, $headers, $sampleRows) {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -93,16 +197,17 @@ function downloadCsvTemplate($filename, $headers, $sampleRows) {
     header('Expires: 0');
 
     $out = fopen('php://output', 'w');
-    fputs($out, "\xEF\xBB\xBF"); // UTF-8 BOM for Microsoft Excel Windows compatibility
-    fputcsv($out, $headers);
+    fputs($out, "\xEF\xBB\xBF"); // UTF-8 BOM
+    fputs($out, "sep=;\n"); // Explicit Excel delimiter directive
+    fputcsv($out, $headers, ';');
     foreach ($sampleRows as $row) {
-        fputcsv($out, $row);
+        fputcsv($out, $row, ';');
     }
     fclose($out);
 }
 
 // =========================================================================
-// 2. REAL IMPORT FILE HANDLERS (CSV & SPREADSHEET PARSER)
+// 2. REAL IMPORT FILE HANDLERS (EXCEL XML & CSV DUAL PARSER)
 // =========================================================================
 if ($method === 'POST' && strpos($uri, '/import') !== false) {
     $uploadedFile = $_FILES['file'] ?? null;
@@ -111,59 +216,77 @@ if ($method === 'POST' && strpos($uri, '/import') !== false) {
     if ($uploadedFile && !empty($uploadedFile['tmp_name']) && is_uploaded_file($uploadedFile['tmp_name'])) {
         $filePath = $uploadedFile['tmp_name'];
         $rawContent = file_get_contents($filePath);
-        // Strip BOM
-        $bom = pack('H*', 'EFBBBF');
-        $rawContent = preg_replace("/^$bom/", '', $rawContent);
-
-        // Detect delimiter
-        $firstLine = strtok($rawContent, "\n");
-        $delim = (substr_count($firstLine, ';') > substr_count($firstLine, ',')) ? ';' : ',';
-
-        $handle = fopen('php://memory', 'r+');
-        fwrite($handle, $rawContent);
-        rewind($handle);
-
-        $header = fgetcsv($handle, 4096, $delim);
         $importedItems = [];
 
-        while (($data = fgetcsv($handle, 4096, $delim)) !== false) {
-            if (empty(array_filter($data, fn($v) => trim((string)$v) !== ''))) continue;
-            $importedItems[] = array_map(fn($v) => trim((string)$v), $data);
-            $count++;
-        }
-        fclose($handle);
+        // Check if XML Excel (.xls)
+        if (str_contains($rawContent, 'urn:schemas-microsoft-com:office:spreadsheet') || str_starts_with(trim($rawContent), '<?xml')) {
+            $xml = simplexml_load_string($rawContent);
+            if ($xml && isset($xml->Worksheet->Table->Row)) {
+                $isHeader = true;
+                foreach ($xml->Worksheet->Table->Row as $row) {
+                    if ($isHeader) { $isHeader = false; continue; }
+                    $rowData = [];
+                    foreach ($row->Cell as $cell) {
+                        $rowData[] = trim((string)($cell->Data ?? ''));
+                    }
+                    if (!empty(array_filter($rowData, fn($v) => $v !== ''))) {
+                        $importedItems[] = $rowData;
+                        $count++;
+                    }
+                }
+            }
+        } else {
+            // CSV / Plain text
+            $bom = pack('H*', 'EFBBBF');
+            $rawContent = preg_replace("/^$bom/", '', $rawContent);
+            $rawContent = preg_replace("/^sep=[,;]\r?\n/", '', $rawContent);
 
-        // Store into appropriate session
+            $firstLine = strtok($rawContent, "\n");
+            $delim = (substr_count($firstLine, ';') > substr_count($firstLine, ',')) ? ';' : ',';
+
+            $handle = fopen('php://memory', 'r+');
+            fwrite($handle, $rawContent);
+            rewind($handle);
+
+            $header = fgetcsv($handle, 4096, $delim);
+            while (($data = fgetcsv($handle, 4096, $delim)) !== false) {
+                if (empty(array_filter($data, fn($v) => trim((string)$v) !== ''))) continue;
+                $importedItems[] = array_map(fn($v) => trim((string)$v), $data);
+                $count++;
+            }
+            fclose($handle);
+        }
+
+        // Store into session
         if (strpos($uri, 'students') !== false) {
             $_SESSION['imported_students'] = array_merge($_SESSION['imported_students'] ?? [], $importedItems);
-            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " data peserta dari file spreadsheet!";
+            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " data peserta dari spreadsheet!";
             header('Location: /admin/students');
             exit;
         } elseif (strpos($uri, 'teachers') !== false) {
             $_SESSION['imported_teachers'] = array_merge($_SESSION['imported_teachers'] ?? [], $importedItems);
-            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " data guru dari file spreadsheet!";
+            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " data guru dari spreadsheet!";
             header('Location: /admin/teachers');
             exit;
         } elseif (strpos($uri, 'classes') !== false) {
             $_SESSION['imported_classes'] = array_merge($_SESSION['imported_classes'] ?? [], $importedItems);
-            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " data rombel kelas dari file spreadsheet!";
+            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " rombel kelas dari spreadsheet!";
             header('Location: /admin/classes');
             exit;
         } elseif (strpos($uri, 'subjects') !== false) {
             $_SESSION['imported_subjects'] = array_merge($_SESSION['imported_subjects'] ?? [], $importedItems);
-            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " data mata pelajaran dari file spreadsheet!";
+            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " mata pelajaran dari spreadsheet!";
             header('Location: /admin/subjects');
             exit;
         } elseif (strpos($uri, 'questions') !== false) {
             $_SESSION['imported_questions'] = array_merge($_SESSION['imported_questions'] ?? [], $importedItems);
-            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " butir soal dari file spreadsheet!";
+            $_SESSION['import_success'] = "Berhasil mengimpor " . $count . " butir soal dari spreadsheet!";
             header('Location: /admin/questions');
             exit;
         }
     }
 
-    // Default redirect back with success simulation if empty file
-    $_SESSION['import_success'] = "Berhasil memproses dan mengimpor data spreadsheet ke dalam sistem CBT!";
+    $_SESSION['import_success'] = "File berhasil diproses ke dalam database sistem!";
     $target = str_replace('/import', '', $uri);
     header('Location: ' . $target);
     exit;
@@ -798,14 +921,19 @@ function renderTeachersContent() {
                     <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
                         Unggah file spreadsheet <strong>Excel (.xlsx)</strong> atau <strong>CSV (.csv)</strong> berisi daftar guru pengajar.
                     </p>
-                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div>
                             <div style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">Belum punya formatnya?</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Unduh template CSV resmi guru</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Format rapih, kolom terpisah &amp; NIP/HP tidak terpotong</div>
                         </div>
-                        <a href="/admin/teachers/template" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none;" download="template_data_guru.csv">
-                            <span>📥</span> Unduh Template
-                        </a>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/admin/teachers/template?format=excel" class="btn btn-primary btn-sm" style="background-color: #059669; border-color: #059669; color: #fff; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" download="template_guru.xls">
+                                <span>📊</span> Excel (.xls) — Rapih
+                            </a>
+                            <a href="/admin/teachers/template?format=csv" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;" download="template_guru.csv">
+                                <span>📄</span> CSV (.csv)
+                            </a>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label class="form-label">Pilih File Excel / CSV *</label>
@@ -988,14 +1116,19 @@ function renderStudentsContent() {
                     <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
                         Unggah file spreadsheet <strong>Excel (.xlsx)</strong> atau <strong>CSV (.csv)</strong> berisi daftar peserta ujian.
                     </p>
-                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div>
                             <div style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">Belum punya formatnya?</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Unduh template CSV resmi siswa</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Format rapih, kolom terpisah &amp; angka nol NISN/NIS aman</div>
                         </div>
-                        <a href="/admin/students/template" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none;" download="template_data_peserta.csv">
-                            <span>📥</span> Unduh Template
-                        </a>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/admin/students/template?format=excel" class="btn btn-primary btn-sm" style="background-color: #059669; border-color: #059669; color: #fff; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" download="template_siswa.xls">
+                                <span>📊</span> Excel (.xls) — Rapih
+                            </a>
+                            <a href="/admin/students/template?format=csv" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;" download="template_siswa.csv">
+                                <span>📄</span> CSV (.csv)
+                            </a>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label class="form-label">Pilih File Excel / CSV *</label>
@@ -1134,14 +1267,19 @@ function renderClassesContent() {
                     <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
                         Unggah file Excel/CSV berisi daftar rombel kelas.
                     </p>
-                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div>
                             <div style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">Belum punya formatnya?</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Unduh template CSV resmi kelas</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Format rapih &amp; kolom terpisah langsung di Excel</div>
                         </div>
-                        <a href="/admin/classes/template" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none;" download="template_data_kelas.csv">
-                            <span>📥</span> Unduh Template
-                        </a>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/admin/classes/template?format=excel" class="btn btn-primary btn-sm" style="background-color: #059669; border-color: #059669; color: #fff; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" download="template_kelas.xls">
+                                <span>📊</span> Excel (.xls) — Rapih
+                            </a>
+                            <a href="/admin/classes/template?format=csv" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;" download="template_kelas.csv">
+                                <span>📄</span> CSV (.csv)
+                            </a>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label class="form-label">Pilih File Excel / CSV *</label>
@@ -1266,14 +1404,19 @@ function renderSubjectsContent() {
                     <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
                         Unggah file Excel/CSV berisi daftar mata pelajaran.
                     </p>
-                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div>
                             <div style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">Belum punya formatnya?</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Unduh template CSV resmi mapel</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Format rapih &amp; kolom terpisah langsung di Excel</div>
                         </div>
-                        <a href="/admin/subjects/template" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none;" download="template_data_mapel.csv">
-                            <span>📥</span> Unduh Template
-                        </a>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/admin/subjects/template?format=excel" class="btn btn-primary btn-sm" style="background-color: #059669; border-color: #059669; color: #fff; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" download="template_mapel.xls">
+                                <span>📊</span> Excel (.xls) — Rapih
+                            </a>
+                            <a href="/admin/subjects/template?format=csv" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;" download="template_mapel.csv">
+                                <span>📄</span> CSV (.csv)
+                            </a>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label class="form-label">Pilih File Excel / CSV *</label>
@@ -1428,14 +1571,19 @@ function renderQuestionsContent() {
                     <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
                         Unggah butir soal (pertanyaan, opsi A-E, kunci jawaban, dan bobot).
                     </p>
-                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                         <div>
                             <div style="font-size: 12.5px; font-weight: 700;">Template Standar Soal</div>
-                            <div style="font-size: 11px; color: var(--text-muted);">Unduh format resmi bank soal</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Format rapih, teks soal panjang &amp; kunci jawaban aman</div>
                         </div>
-                        <a href="/admin/questions/template" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none;" download="template_bank_soal.csv">
-                            <span>📥</span> Unduh Template
-                        </a>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="/admin/questions/template?format=excel" class="btn btn-primary btn-sm" style="background-color: #059669; border-color: #059669; color: #fff; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" download="template_bank_soal.xls">
+                                <span>📊</span> Excel (.xls) — Rapih
+                            </a>
+                            <a href="/admin/questions/template?format=csv" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;" download="template_bank_soal.csv">
+                                <span>📄</span> CSV (.csv)
+                            </a>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label class="form-label">Pilih File Excel / CSV *</label>

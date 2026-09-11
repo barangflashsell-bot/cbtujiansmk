@@ -96,9 +96,9 @@ class WebSubjectController extends Controller
     }
 
     /**
-     * Download Excel CSV template for subject import.
+     * Download Excel or CSV template for subject import.
      */
-    public function downloadTemplate()
+    public function downloadTemplate(Request $request)
     {
         $headers = ['No', 'Kode Mapel', 'Nama Mata Pelajaran', 'Status'];
         $sampleRows = [
@@ -107,8 +107,13 @@ class WebSubjectController extends Controller
             ['3', 'BING', 'Bahasa Inggris', 'active'],
             ['4', 'PROG', 'Pemrograman Dasar', 'active'],
         ];
+        $colWidths = [40, 120, 240, 120];
 
-        return $this->streamCsvTemplate('template_mata_pelajaran.csv', $headers, $sampleRows);
+        if ($request->query('format') === 'csv') {
+            return $this->streamCsvTemplate('template_mata_pelajaran.csv', $headers, $sampleRows);
+        }
+
+        return $this->streamExcelTemplate('template_mata_pelajaran.xls', $headers, $sampleRows, $colWidths);
     }
 
     /**
