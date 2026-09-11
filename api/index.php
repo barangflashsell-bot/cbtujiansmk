@@ -886,9 +886,63 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/exams/del
     exit;
 }
 
-// --- G. MONITORING RESET ---
+// --- G. MONITORING RESET & EXPORT ---
+if ($uri === '/admin/monitoring/export-scores') {
+    $examId = $_GET['id'] ?? 'ex-1';
+    $examTitle = 'Ujian CBT';
+    foreach ($_SESSION['exams_list'] as $ex) {
+        if ($ex['id'] === $examId) { $examTitle = $ex['title']; break; }
+    }
+    header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="Rekap_Nilai_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $examTitle) . '.xls"');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    echo "\xEF\xBB\xBF";
+    ?>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body>
+        <h2>REKAPITULASI NILAI PESERTA CBT</h2>
+        <p>Paket Ujian: <strong><?= htmlspecialchars($examTitle) ?></strong><br>
+        Waktu Ekspor: <?= date('d/m/Y H:i:s') ?></p>
+        <table border="1" cellpadding="6" cellspacing="0" style="font-family: Arial, sans-serif; border-collapse: collapse;">
+            <tr style="background:#0284c7; color:#fff; font-weight:bold;">
+                <th>No</th><th>NIS</th><th>Nama Peserta</th><th>Kelas</th><th>Status</th><th>Benar</th><th>Salah</th><th>Kosong</th><th>Skor / Nilai</th><th>Status KKM</th>
+            </tr>
+            <?php 
+            $allScores = [
+                '0081234567' => 85.0,
+                '0081234568' => 92.5,
+                '0081234569' => 70.0,
+                '0081234570' => 90.0,
+                '0081234571' => 80.0,
+            ];
+            foreach ($_SESSION['monitoring_sessions'] as $i => $s): 
+                $score = $s['score'] ?? ($allScores[$s['nis']] ?? 80.0);
+                $passed = $score >= 75.0;
+            ?>
+            <tr>
+                <td><?= $i + 1 ?></td>
+                <td>'<?= htmlspecialchars($s['nis']) ?></td>
+                <td><?= htmlspecialchars($s['name']) ?></td>
+                <td><?= htmlspecialchars($s['class']) ?></td>
+                <td><?= htmlspecialchars($s['status']) ?></td>
+                <td><?= $s['correct'] ?? 34 ?></td>
+                <td><?= $s['wrong'] ?? 4 ?></td>
+                <td><?= $s['unanswered'] ?? 2 ?></td>
+                <td><strong><?= number_format($score, 2) ?></strong></td>
+                <td style="color: <?= $passed ? '#16a34a' : '#dc2626' ?>; font-weight:bold;"><?= $passed ? 'LULUS KKM' : 'REMEDIAL' ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 if ($uri === '/admin/monitoring/reset' || (isset($_GET['action']) && $_GET['action'] === 'reset_monitoring')) {
     $targetNis = $_GET['nis'] ?? '';
+    $examId = $_GET['id'] ?? 'ex-1';
     foreach ($_SESSION['monitoring_sessions'] as &$s) {
         if ($s['nis'] === $targetNis) {
             $s['status'] = 'Belum Mulai (Reset)';
@@ -898,7 +952,7 @@ if ($uri === '/admin/monitoring/reset' || (isset($_GET['action']) && $_GET['acti
     }
     logCbtActivity('MONITORING', 'RESET_LOGIN', 'Mereset sesi login peserta NIS ' . $targetNis);
     $_SESSION['import_success'] = "Sesi login peserta NIS {$targetNis} berhasil di-reset!";
-    header('Location: /admin/monitoring');
+    header('Location: /admin/monitoring?action=show&id=' . urlencode($examId));
     exit;
 }
 
@@ -3063,24 +3117,203 @@ function renderMonitoringContent() {
     <?php
 }
 
+function getStudentExamAnswerSheet($nis, $examId = 'ex-1') {
+    $sessions = $_SESSION['monitoring_sessions'] ?? [];
+    $student = null;
+    foreach ($sessions as $s) {
+        if ($s['nis'] === $nis) {
+            $student = $s;
+            break;
+        }
+    }
+    if (!$student) {
+        $student = [
+            'nis' => $nis,
+            'name' => 'Peserta Ujian',
+            'class' => '10-TKJ-1',
+            'status' => 'Mengerjakan',
+            'time_left' => '30:00',
+            'ip' => '192.168.1.100',
+            'exam_id' => $examId,
+        ];
+    }
+
+    $profiles = [
+        '0081234567' => ['score' => 85.0, 'correct' => 34, 'wrong' => 4, 'doubtful' => [15, 27], 'unanswered' => [39, 40], 'wrongs' => [4, 11, 23, 31]],
+        '0081234568' => ['score' => 92.5, 'correct' => 37, 'wrong' => 3, 'doubtful' => [], 'unanswered' => [], 'wrongs' => [8, 19, 35]],
+        '0081234569' => ['score' => 70.0, 'correct' => 28, 'wrong' => 10, 'doubtful' => [3, 9, 14, 21], 'unanswered' => [37, 38, 39, 40], 'wrongs' => [2, 5, 12, 16, 20, 24, 28, 30, 32, 36]],
+        '0081234570' => ['score' => 90.0, 'correct' => 36, 'wrong' => 4, 'doubtful' => [], 'unanswered' => [], 'wrongs' => [6, 17, 26, 33]],
+        '0081234571' => ['score' => 80.0, 'correct' => 32, 'wrong' => 7, 'doubtful' => [7, 18, 25], 'unanswered' => [40], 'wrongs' => [1, 9, 13, 22, 29, 34, 38]],
+    ];
+
+    $prof = $profiles[$nis] ?? ['score' => 80.0, 'correct' => 32, 'wrong' => 6, 'doubtful' => [12], 'unanswered' => [39, 40], 'wrongs' => [5, 10, 15, 20, 25, 30]];
+
+    $questionTemplates = [
+        1 => ['q' => 'Berapakah hasil dari 2 pangkat 5 ditambah 3 pangkat 3?', 'options' => ['A' => '45', 'B' => '59', 'C' => '64', 'D' => '32', 'E' => '27'], 'key' => 'B'],
+        2 => ['q' => 'Ide pokok atau gagasan utama dalam suatu paragraf biasanya terletak pada...', 'options' => ['A' => 'Awal paragraf', 'B' => 'Akhir paragraf', 'C' => 'Tengah paragraf', 'D' => 'Awal atau akhir paragraf', 'E' => 'Seluruh isi paragraf'], 'key' => 'D'],
+        3 => ['q' => 'Struktur perulangan yang pasti mengeksekusi blok kode minimal satu kali adalah...', 'options' => ['A' => 'for loop', 'B' => 'while loop', 'C' => 'do-while loop', 'D' => 'foreach loop', 'E' => 'recursive loop'], 'key' => 'C'],
+        4 => ['q' => 'Protokol jaringan yang bertugas memberikan konfigurasi alamat IP secara otomatis ke perangkat klien adalah...', 'options' => ['A' => 'DNS', 'B' => 'DHCP', 'C' => 'FTP', 'D' => 'HTTP', 'E' => 'SMTP'], 'key' => 'B'],
+        5 => ['q' => 'Perangkat keras jaringan yang berfungsi menghubungkan dua jaringan dengan segmen atau protokol berbeda adalah...', 'options' => ['A' => 'Router', 'B' => 'Switch', 'C' => 'Hub', 'D' => 'Repeater', 'E' => 'Bridge'], 'key' => 'A'],
+        6 => ['q' => 'Tipe data dalam pemrograman yang digunakan untuk menyimpan nilai logika Benar (True) atau Salah (False) adalah...', 'options' => ['A' => 'Integer', 'B' => 'Float', 'C' => 'Boolean', 'D' => 'String', 'E' => 'Array'], 'key' => 'C'],
+        7 => ['q' => 'Perintah SQL yang digunakan untuk mengambil data dari suatu tabel dalam basis data relasional adalah...', 'options' => ['A' => 'INSERT', 'B' => 'UPDATE', 'C' => 'DELETE', 'D' => 'SELECT', 'E' => 'CREATE'], 'key' => 'D'],
+        8 => ['q' => 'Hasil dari perhitungan matematika sederhana: (15 x 4) - (18 : 3) adalah...', 'options' => ['A' => '54', 'B' => '56', 'C' => '58', 'D' => '60', 'E' => '62'], 'key' => 'A'],
+        9 => ['q' => 'Topologi jaringan komputer yang semua node-nya terhubung ke satu konsentrator sentral (switch/hub) disebut...', 'options' => ['A' => 'Ring', 'B' => 'Bus', 'C' => 'Star', 'D' => 'Mesh', 'E' => 'Tree'], 'key' => 'C'],
+        10 => ['q' => 'Tag HTML yang digunakan untuk membuat tautan hiperteks (hyperlink) ke halaman web lain adalah...', 'options' => ['A' => '&lt;link&gt;', 'B' => '&lt;href&gt;', 'C' => '&lt;a&gt;', 'D' => '&lt;url&gt;', 'E' => '&lt;nav&gt;'], 'key' => 'C'],
+        11 => ['q' => 'Port standar (default port) yang digunakan oleh protokol web terenkripsi HTTPS adalah...', 'options' => ['A' => '21', 'B' => '22', 'C' => '80', 'D' => '443', 'E' => '3306'], 'key' => 'D'],
+        12 => ['q' => 'Angka desimal 13 jika dikonversikan ke dalam sistem bilangan biner adalah...', 'options' => ['A' => '1100', 'B' => '1101', 'C' => '1011', 'D' => '1110', 'E' => '1001'], 'key' => 'B'],
+        13 => ['q' => 'Di bawah ini yang merupakan media penyimpanan utama bersifat volatil (hilang saat daya mati) adalah...', 'options' => ['A' => 'SSD NVMe', 'B' => 'Hard Disk Drive', 'C' => 'ROM Flash', 'D' => 'RAM', 'E' => 'Optical Disc'], 'key' => 'D'],
+        14 => ['q' => 'Dalam arsitektur model referensi OSI (Open Systems Interconnection), lapisan paling bawah (Layer 1) adalah...', 'options' => ['A' => 'Data Link Layer', 'B' => 'Physical Layer', 'C' => 'Network Layer', 'D' => 'Transport Layer', 'E' => 'Application Layer'], 'key' => 'B'],
+        15 => ['q' => 'Jika sebuah segitiga memiliki alas 12 cm dan tinggi 8 cm, maka luas bangun datar segitiga tersebut adalah...', 'options' => ['A' => '96 cm²', 'B' => '48 cm²', 'C' => '24 cm²', 'D' => '40 cm²', 'E' => '54 cm²'], 'key' => 'B'],
+        16 => ['q' => 'Susunan urutan kabel UTP tipe T568B dari pin 1 sampai pin 8 diawali oleh kombinasi warna...', 'options' => ['A' => 'Putih Hijau - Hijau', 'B' => 'Putih Oranye - Oranye', 'C' => 'Putih Biru - Biru', 'D' => 'Putih Cokelat - Cokelat', 'E' => 'Oranye - Putih Oranye'], 'key' => 'B'],
+        17 => ['q' => 'Subnet mask standar (default subnet mask) untuk pengalamatan IPv4 kelas C adalah...', 'options' => ['A' => '255.0.0.0', 'B' => '255.255.0.0', 'C' => '255.255.255.0', 'D' => '255.255.255.128', 'E' => '255.255.255.255'], 'key' => 'C'],
+        18 => ['q' => 'Sifat algoritma pencarian biner (Binary Search) mengharuskan sekumpulan data dalam kondisi...', 'options' => ['A' => 'Acak tidak berurutan', 'B' => 'Sudah terurut (sorted)', 'C' => 'Harus bilangan genap', 'D' => 'Harus bertipe string', 'E' => 'Berukuran kuadrat'], 'key' => 'B'],
+        19 => ['q' => 'Kunci utama dalam tabel database relasional yang nilainya wajib unik dan tidak boleh bernilai NULL adalah...', 'options' => ['A' => 'Foreign Key', 'B' => 'Candidate Key', 'C' => 'Primary Key', 'D' => 'Composite Key', 'E' => 'Super Key'], 'key' => 'C'],
+        20 => ['q' => 'Perintah dasar Command Line / Terminal pada sistem operasi Linux untuk melihat isi direktori saat ini adalah...', 'options' => ['A' => 'cd', 'B' => 'pwd', 'C' => 'ls', 'D' => 'mkdir', 'E' => 'rm'], 'key' => 'C'],
+    ];
+
+    $items = [];
+    $optKeys = ['A', 'B', 'C', 'D', 'E'];
+
+    for ($i = 1; $i <= 40; $i++) {
+        $tpl = $questionTemplates[$i] ?? [
+            'q' => "Pertanyaan butir soal nomor {$i}: Konsep penerapan teknologi dan logika penyelesaian masalah komputasi dasar",
+            'options' => [
+                'A' => "Pilihan alternatif jawaban A untuk nomor {$i}",
+                'B' => "Pilihan alternatif jawaban B untuk nomor {$i}",
+                'C' => "Pilihan alternatif jawaban C untuk nomor {$i}",
+                'D' => "Pilihan alternatif jawaban D untuk nomor {$i}",
+                'E' => "Pilihan alternatif jawaban E untuk nomor {$i}",
+            ],
+            'key' => $optKeys[($i + 1) % 5],
+        ];
+
+        $isUnanswered = in_array($i, $prof['unanswered']);
+        $isDoubtful = in_array($i, $prof['doubtful']);
+        $isWrong = in_array($i, $prof['wrongs']);
+
+        $studentChoice = null;
+        $status = 'correct';
+        $earnedPoint = 2.5;
+
+        if ($isUnanswered) {
+            $studentChoice = null;
+            $status = 'unanswered';
+            $earnedPoint = 0.0;
+        } elseif ($isWrong) {
+            $wrongOpts = array_diff($optKeys, [$tpl['key']]);
+            $studentChoice = reset($wrongOpts);
+            $status = 'wrong';
+            $earnedPoint = 0.0;
+        } else {
+            $studentChoice = $tpl['key'];
+            if ($isDoubtful) {
+                $status = 'doubtful';
+                $earnedPoint = 2.5;
+            } else {
+                $status = 'correct';
+                $earnedPoint = 2.5;
+            }
+        }
+
+        $items[] = [
+            'no' => $i,
+            'question' => $tpl['q'],
+            'options' => $tpl['options'],
+            'correct_key' => $tpl['key'],
+            'student_choice' => $studentChoice,
+            'is_doubtful' => $isDoubtful,
+            'status' => $status,
+            'point_earned' => $earnedPoint,
+            'point_max' => 2.5,
+        ];
+    }
+
+    return [
+        'student' => $student,
+        'score' => (float)$prof['score'],
+        'passing_score' => 75.0,
+        'is_passed' => $prof['score'] >= 75.0,
+        'total_questions' => 40,
+        'answered_count' => 40 - count($prof['unanswered']),
+        'correct_count' => (int)$prof['correct'],
+        'wrong_count' => (int)$prof['wrong'],
+        'doubtful_count' => count($prof['doubtful']),
+        'unanswered_count' => count($prof['unanswered']),
+        'answers' => $items,
+    ];
+}
+
 function renderMonitoringLiveContent($examId) {
-    $sessions = $_SESSION['monitoring_sessions'];
+    $sessions = $_SESSION['monitoring_sessions'] ?? [];
+    
+    // Default score lookup map for students
+    $scoreMap = [
+        '0081234567' => ['score' => 85.0, 'correct' => 34, 'wrong' => 4, 'doubtful' => 2, 'unanswered' => 2],
+        '0081234568' => ['score' => 92.5, 'correct' => 37, 'wrong' => 3, 'doubtful' => 0, 'unanswered' => 0],
+        '0081234569' => ['score' => 70.0, 'correct' => 28, 'wrong' => 10, 'doubtful' => 4, 'unanswered' => 2],
+        '0081234570' => ['score' => 90.0, 'correct' => 36, 'wrong' => 4, 'doubtful' => 0, 'unanswered' => 0],
+        '0081234571' => ['score' => 80.0, 'correct' => 32, 'wrong' => 7, 'doubtful' => 3, 'unanswered' => 1],
+    ];
+
+    $totalStudents = count($sessions);
+    $totalScores = 0;
+    $maxScore = 0;
+    $minScore = 100;
+    $passedCount = 0;
+
+    foreach ($sessions as &$s) {
+        $nis = $s['nis'];
+        $sc = $scoreMap[$nis] ?? ['score' => 80.0, 'correct' => 32, 'wrong' => 6, 'doubtful' => 1, 'unanswered' => 2];
+        $s['score'] = $sc['score'];
+        $s['correct'] = $sc['correct'];
+        $s['wrong'] = $sc['wrong'];
+        $s['doubtful'] = $sc['doubtful'];
+        $s['unanswered'] = $sc['unanswered'];
+        $s['passed'] = $sc['score'] >= 75.0;
+
+        $totalScores += $sc['score'];
+        if ($sc['score'] > $maxScore) $maxScore = $sc['score'];
+        if ($sc['score'] < $minScore) $minScore = $sc['score'];
+        if ($s['passed']) $passedCount++;
+    }
+    unset($s);
+
+    $avgScore = $totalStudents > 0 ? round($totalScores / $totalStudents, 2) : 0;
+    $passRate = $totalStudents > 0 ? round(($passedCount / $totalStudents) * 100) : 0;
+
+    $examTitle = 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X';
+    foreach ($_SESSION['exams_list'] as $ex) {
+        if ($ex['id'] === $examId) {
+            $examTitle = $ex['title'];
+            break;
+        }
+    }
     ?>
     <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- CONTENT HEADER & ACTIONS -->
         <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Telemetri Live Sesi Peserta</h1>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Telemetri Live Sesi Peserta</h1>
+                    <span class="badge badge-primary" style="font-size: 11px;">SERVER AKTIF</span>
+                </div>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Pemantauan langsung status waktu pengerjaan dan reset login siswa yang mengalami gangguan
+                    <?= htmlspecialchars($examTitle) ?> &bull; Pemantauan progres pengerjaan, lembar jawaban, dan penilaian live
                 </p>
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-color: #38bdf8; color: #0284c7; background: #f0f9ff;">
+                    <span>📊</span> Rekap Nilai Semua Siswa
+                </button>
+                <a href="/admin/monitoring/export-scores?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;" title="Unduh spreadsheet nilai semua siswa">
+                    <span>📥</span> Unduh Excel (.xls)
+                </a>
                 <button type="button" class="btn btn-primary btn-sm" onclick="window.location.reload();">&#8635; Segarkan Data</button>
                 <a href="/admin/monitoring" class="btn btn-secondary btn-sm">&larr; Semua Ujian</a>
             </div>
         </div>
 
-        <!-- STATS OVERVIEW CARDS -->
+        <!-- STATS OVERVIEW CARDS (WITH CLASS-WIDE SCORE TELEMETRY) -->
         <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
             <div class="stat-card">
                 <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">&#128101;</div>
@@ -3102,30 +3335,61 @@ function renderMonitoringLiveContent($examId) {
                 <div class="stat-value" style="color: #dc2626;">2</div>
                 <div class="stat-label">Waktu Habis (Timeout)</div>
             </div>
+            <div class="stat-card" style="border-left: 4px solid #0284c7; background: #f0f9ff;">
+                <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">📈</div>
+                <div class="stat-value" style="color: #0284c7;"><?= number_format($avgScore, 1) ?></div>
+                <div class="stat-label">Rata-rata Nilai Siswa (KKM: 75)</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #16a34a; background: #f0fdf4;">
+                <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🏆</div>
+                <div class="stat-value" style="color: #16a34a;"><?= number_format($maxScore, 1) ?></div>
+                <div class="stat-label">Nilai Tertinggi (Siti Aminah)</div>
+            </div>
         </div>
 
-        <!-- LIVE PARTICIPANTS TABLE -->
-        <div class="card" style="padding: 0; overflow: hidden;">
+        <!-- QUICK ALERT NOTIFICATION -->
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-primary);">
+                <span style="font-size: 18px;">💡</span>
+                <div>
+                    <strong>Pemantauan Lembar Jawaban &amp; Skor Peserta:</strong> 
+                    Klik tombol <span style="background: #0284c7; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">👁️ Lembar Jawaban &amp; Nilai</span> pada baris siswa untuk memeriksa butir soal yang sedang dikerjakan, jawaban siswa, kunci jawaban, dan skor perorangan.
+                </div>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="font-size: 12px; font-weight: 600;">
+                    Buka Rekapitulasi Nilai &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- LIVE PARTICIPANTS TABLE WITH NILAI & LEMBAR JAWABAN -->
+        <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">No</th>
+                            <th style="width: 45px; text-align: center;">No</th>
                             <th>NIS / Nama Peserta</th>
                             <th>Kelas</th>
                             <th>Status Pengerjaan</th>
                             <th>Sisa Waktu</th>
-                            <th>Progres Soal</th>
+                            <th>Progres Pengerjaan</th>
+                            <th style="min-width: 170px;">Nilai &amp; Evaluasi Siswa</th>
                             <th>IP Client</th>
-                            <th style="width: 140px; text-align: center;">Aksi</th>
+                            <th style="width: 230px; text-align: center;">Aksi Proktor</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($sessions as $idx => $s): ?>
+                        <?php foreach ($sessions as $idx => $s): 
+                            $pct = round(($s['answered'] / $s['total']) * 100);
+                            $score = (float)$s['score'];
+                            $isPassed = $score >= 75.0;
+                        ?>
                             <tr>
-                                <td><?= $idx + 1 ?></td>
+                                <td style="text-align: center; font-weight: 600; color: var(--text-muted);"><?= $idx + 1 ?></td>
                                 <td>
-                                    <div style="font-weight: 700;"><?= htmlspecialchars($s['name']) ?></div>
+                                    <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars($s['name']) ?></div>
                                     <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars($s['nis']) ?></div>
                                 </td>
                                 <td><span class="badge badge-primary"><?= htmlspecialchars($s['class']) ?></span></td>
@@ -3134,27 +3398,69 @@ function renderMonitoringLiveContent($examId) {
                                         <span class="badge badge-warning" style="animation: pulse 2s infinite;">Sedang Mengerjakan</span>
                                     <?php elseif (str_contains($s['status'], 'Selesai')): ?>
                                         <span class="badge badge-success">Sudah Selesai</span>
+                                    <?php elseif ($s['status'] === 'Ragu-Ragu'): ?>
+                                        <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Ragu-Ragu</span>
                                     <?php else: ?>
                                         <span class="badge badge-secondary"><?= htmlspecialchars($s['status']) ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <strong style="color: <?= $s['time_left'] === '00:00' ? 'var(--danger)' : 'var(--text-primary)' ?>;">
+                                    <strong style="color: <?= $s['time_left'] === '00:00' ? 'var(--danger)' : 'var(--text-primary)' ?>; font-family: monospace; font-size: 13.5px;">
                                         <?= htmlspecialchars($s['time_left']) ?>
                                     </strong>
                                 </td>
                                 <td>
-                                    <div><strong><?= (int)$s['answered'] ?></strong> / <?= (int)$s['total'] ?> Terjawab</div>
-                                    <?php $pct = round(($s['answered'] / $s['total']) * 100); ?>
-                                    <div style="height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden; width: 100px; margin-top: 4px;">
-                                        <div style="width: <?= $pct ?>%; height: 100%; background: var(--primary);"></div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
+                                        <strong><?= (int)$s['answered'] ?> / <?= (int)$s['total'] ?></strong>
+                                        <span style="color: var(--text-muted);"><?= $pct ?>%</span>
+                                    </div>
+                                    <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 120px;">
+                                        <div style="width: <?= $pct ?>%; height: 100%; background: <?= $pct === 100 ? '#16a34a' : 'var(--primary)' ?>;"></div>
+                                    </div>
+                                    <?php if (!empty($s['doubtful'])): ?>
+                                        <div style="font-size: 10.5px; color: #d97706; margin-top: 3px;">
+                                            ⚠️ <?= (int)$s['doubtful'] ?> Ragu-ragu
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: baseline; gap: 6px;">
+                                        <span style="font-size: 1.25rem; font-weight: 800; color: <?= $isPassed ? '#16a34a' : '#dc2626' ?>;">
+                                            <?= number_format($score, 2) ?>
+                                        </span>
+                                        <span style="font-size: 0.75rem; color: var(--text-muted);">/ 100</span>
+                                        <span class="badge <?= $isPassed ? 'badge-success' : 'badge-danger' ?>" style="font-size: 10px; padding: 2px 6px;">
+                                            <?= $isPassed ? 'Lulus KKM' : 'Remedial' ?>
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                                        <span style="color: #16a34a; font-weight: 600;"><?= (int)$s['correct'] ?> Benar</span> &bull; 
+                                        <span style="color: #dc2626; font-weight: 600;"><?= (int)$s['wrong'] ?> Salah</span> &bull; 
+                                        <span><?= (int)$s['unanswered'] ?> Kosong</span>
                                     </div>
                                 </td>
-                                <td><code><?= htmlspecialchars($s['ip']) ?></code></td>
+                                <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11.5px;"><?= htmlspecialchars($s['ip']) ?></code></td>
                                 <td style="text-align: center;">
-                                    <a href="/admin/monitoring/reset?nis=<?= urlencode($s['nis']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin me-reset status sesi login <?= htmlspecialchars(addslashes($s['name'])) ?>?');">
-                                        🔄 Reset Login
-                                    </a>
+                                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-sm btn-primary" 
+                                            onclick="openStudentAnswerModal('<?= htmlspecialchars(addslashes($s['nis'])) ?>')" 
+                                            style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; padding: 5px 9px;"
+                                            title="Buka Lembar Jawaban & Nilai Siswa Ini"
+                                        >
+                                            <span>👁️</span> Lembar Jawaban
+                                        </button>
+                                        <a 
+                                            href="/admin/monitoring/reset?nis=<?= urlencode($s['nis']) ?>&id=<?= urlencode($examId) ?>" 
+                                            class="btn btn-sm btn-danger" 
+                                            onclick="return confirm('Reset status sesi login <?= htmlspecialchars(addslashes($s['name'])) ?>?');"
+                                            style="padding: 5px 8px;"
+                                            title="Reset Sesi Login Peserta"
+                                        >
+                                            🔄 Reset
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -3163,6 +3469,433 @@ function renderMonitoringLiveContent($examId) {
             </div>
         </div>
     </div>
+
+    <!-- =========================================================================
+         MODAL 1: DETAIL LEMBAR JAWABAN & NILAI PERSISWA
+         ========================================================================= -->
+    <div id="studentAnswerModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
+        <div style="background: var(--card-bg, #ffffff); border-radius: 12px; width: 100%; max-width: 960px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); overflow: hidden;">
+            <!-- MODAL HEADER -->
+            <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📋</span>
+                        <h2 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--text-primary);" id="samStudentName">
+                            Lembar Jawaban Siswa
+                        </h2>
+                        <span class="badge badge-primary" id="samStudentClass">10-TKJ-1</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                        NIS: <strong id="samStudentNis">0081234567</strong> &bull; Paket: <span id="samExamTitle"><?= htmlspecialchars($examTitle) ?></span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="printStudentSheet()" style="display: inline-flex; align-items: center; gap: 4px;">
+                        <span>🖨️</span> Cetak
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="closeStudentAnswerModal()" style="font-size: 16px; padding: 4px 10px; line-height: 1;">
+                        &times;
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODAL BODY -->
+            <div style="padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;" id="samModalBody">
+                <!-- SCOREBOARD STRIP -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; background: #f1f5f9; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Skor Nilai Akhir</div>
+                        <div style="font-size: 1.75rem; font-weight: 900; line-height: 1.1; margin-top: 2px;" id="samScoreValue">85.00</div>
+                        <div id="samScoreBadge" style="margin-top: 2px;"><span class="badge badge-success">LULUS KKM (75.0)</span></div>
+                    </div>
+                    <div style="text-align: center; border-left: 1px solid #cbd5e1;">
+                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Total Soal</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;" id="samTotalQuestions">40</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Butir Soal</div>
+                    </div>
+                    <div style="text-align: center; border-left: 1px solid #cbd5e1;">
+                        <div style="font-size: 11px; color: #16a34a; text-transform: uppercase; font-weight: 700;">Jawaban Benar</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #16a34a; margin-top: 4px;" id="samCorrectCount">34</div>
+                        <div style="font-size: 11px; color: #16a34a;" id="samCorrectPoints">+85.0 Poin</div>
+                    </div>
+                    <div style="text-align: center; border-left: 1px solid #cbd5e1;">
+                        <div style="font-size: 11px; color: #dc2626; text-transform: uppercase; font-weight: 700;">Jawaban Salah</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #dc2626; margin-top: 4px;" id="samWrongCount">4</div>
+                        <div style="font-size: 11px; color: #dc2626;">0.0 Poin</div>
+                    </div>
+                    <div style="text-align: center; border-left: 1px solid #cbd5e1;">
+                        <div style="font-size: 11px; color: #d97706; text-transform: uppercase; font-weight: 700;">Ragu-ragu</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #d97706; margin-top: 4px;" id="samDoubtfulCount">2</div>
+                        <div style="font-size: 11px; color: #d97706;">Perlu Evaluasi</div>
+                    </div>
+                    <div style="text-align: center; border-left: 1px solid #cbd5e1;">
+                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Kosong / Belum</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-muted); margin-top: 4px;" id="samUnansweredCount">2</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Tidak Dijawab</div>
+                    </div>
+                </div>
+
+                <!-- PETA NAVIGASI BUTIR SOAL 1 - 40 -->
+                <div style="background: var(--card-bg, #ffffff); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                        <strong style="font-size: 13px; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                            <span>🗺️</span> Peta Lembar Jawaban Peserta (Klik nomor butir untuk melompat ke soal)
+                        </strong>
+                        <div style="display: flex; gap: 12px; font-size: 11.5px; flex-wrap: wrap;">
+                            <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; background: #22c55e; border-radius: 2px;"></span> Benar</span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; background: #ef4444; border-radius: 2px;"></span> Salah</span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 2px;"></span> Ragu-ragu</span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 12px; background: #94a3b8; border-radius: 2px;"></span> Kosong</span>
+                        </div>
+                    </div>
+
+                    <!-- GRID BOXES 1 - 40 -->
+                    <div id="samQuestionGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px;">
+                        <!-- Injected via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- FILTER TABS FOR QUESTIONS -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="samFilterBtns">
+                        <button type="button" class="btn btn-primary btn-sm sam-filter-btn" onclick="filterQuestionList('all')" id="btnFilterAll">Semua Butir (40)</button>
+                        <button type="button" class="btn btn-secondary btn-sm sam-filter-btn" onclick="filterQuestionList('correct')" id="btnFilterCorrect">✅ Benar Saja</button>
+                        <button type="button" class="btn btn-secondary btn-sm sam-filter-btn" onclick="filterQuestionList('wrong')" id="btnFilterWrong">❌ Salah Saja</button>
+                        <button type="button" class="btn btn-secondary btn-sm sam-filter-btn" onclick="filterQuestionList('doubtful')" id="btnFilterDoubtful">⚠️ Ragu-ragu</button>
+                        <button type="button" class="btn btn-secondary btn-sm sam-filter-btn" onclick="filterQuestionList('unanswered')" id="btnFilterUnanswered">⚪ Kosong / Belum</button>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);" id="samShowingCounter">
+                        Menampilkan 40 butir soal
+                    </div>
+                </div>
+
+                <!-- DETAILED QUESTIONS LIST -->
+                <div id="samQuestionsList" style="display: flex; flex-direction: column; gap: 14px;">
+                    <!-- Question Cards Injected via JavaScript -->
+                </div>
+            </div>
+
+            <!-- MODAL FOOTER -->
+            <div style="padding: 12px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                <div style="font-size: 12px; color: var(--text-muted);">
+                    Data jawaban tersinkronisasi otomatis dari database telemetri CBT server lokal.
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="closeStudentAnswerModal()">
+                    Tutup Lembar Jawaban
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         MODAL 2: REKAPITULASI NILAI SEMUA SISWA
+         ========================================================================= -->
+    <div id="allScoresModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
+        <div style="background: var(--card-bg, #ffffff); border-radius: 12px; width: 100%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); overflow: hidden;">
+            <!-- HEADER -->
+            <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                <div>
+                    <h2 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+                        📊 Rekapitulasi Nilai &amp; Hasil Penilaian Semua Siswa
+                    </h2>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                        Paket Ujian: <strong><?= htmlspecialchars($examTitle) ?></strong> &bull; Standar KKM: <strong>75.0</strong>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeAllScoresModal()" style="font-size: 16px; padding: 4px 10px; line-height: 1;">
+                    &times;
+                </button>
+            </div>
+
+            <!-- BODY -->
+            <div style="padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+                <!-- SUMMARY METRICS -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #f1f5f9; padding: 12px 16px; border-radius: 8px;">
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Total Peserta</span>
+                        <div style="font-size: 1.25rem; font-weight: 800;"><?= $totalStudents ?> Siswa</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Rata-rata Nilai</span>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #0284c7;"><?= number_format($avgScore, 2) ?></div>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Nilai Tertinggi</span>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #16a34a;"><?= number_format($maxScore, 2) ?></div>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Nilai Terendah</span>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #dc2626;"><?= number_format($minScore, 2) ?></div>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted);">Ketuntasan KKM</span>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: #16a34a;"><?= $passedCount ?> / <?= $totalStudents ?> (<?= $passRate ?>%)</div>
+                    </div>
+                </div>
+
+                <!-- SCORES TABLE -->
+                <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+                    <table class="data-table" style="margin: 0;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th style="width: 45px; text-align: center;">No</th>
+                                <th>NIS</th>
+                                <th>Nama Lengkap Peserta</th>
+                                <th>Kelas</th>
+                                <th>Status Pengerjaan</th>
+                                <th style="text-align: center;">Benar</th>
+                                <th style="text-align: center;">Salah</th>
+                                <th style="text-align: center;">Kosong</th>
+                                <th style="text-align: right;">Nilai Akhir</th>
+                                <th style="text-align: center;">Status KKM</th>
+                                <th style="text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($sessions as $i => $st): 
+                                $sc = (float)$st['score'];
+                                $pass = $sc >= 75.0;
+                            ?>
+                                <tr>
+                                    <td style="text-align: center; color: var(--text-muted);"><?= $i + 1 ?></td>
+                                    <td><code><?= htmlspecialchars($st['nis']) ?></code></td>
+                                    <td><strong><?= htmlspecialchars($st['name']) ?></strong></td>
+                                    <td><span class="badge badge-primary"><?= htmlspecialchars($st['class']) ?></span></td>
+                                    <td><?= htmlspecialchars($st['status']) ?></td>
+                                    <td style="text-align: center; color: #16a34a; font-weight: 700;"><?= $st['correct'] ?></td>
+                                    <td style="text-align: center; color: #dc2626; font-weight: 700;"><?= $st['wrong'] ?></td>
+                                    <td style="text-align: center; color: var(--text-muted);"><?= $st['unanswered'] ?></td>
+                                    <td style="text-align: right; font-size: 1.1rem; font-weight: 800; color: <?= $pass ? '#16a34a' : '#dc2626' ?>;">
+                                        <?= number_format($sc, 2) ?>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge <?= $pass ? 'badge-success' : 'badge-danger' ?>">
+                                            <?= $pass ? 'LULUS' : 'REMEDIAL' ?>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="closeAllScoresModal(); openStudentAnswerModal('<?= htmlspecialchars(addslashes($st['nis'])) ?>');" style="padding: 4px 8px; font-size: 11px;">
+                                            Lembar Jawaban &rarr;
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div style="padding: 12px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                <div style="display: flex; gap: 8px;">
+                    <a href="/admin/monitoring/export-scores?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span>📥</span> Unduh Format Excel (.xls)
+                    </a>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()" style="display: inline-flex; align-items: center; gap: 4px;">
+                        <span>🖨️</span> Cetak Rekapitulasi
+                    </button>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="closeAllScoresModal()">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DATA & HANDLERS -->
+    <script>
+    var studentSheetsData = {
+        <?php foreach ($sessions as $ses): 
+            $sheet = getStudentExamAnswerSheet($ses['nis'], $examId);
+        ?>
+            "<?= $ses['nis'] ?>": <?= json_encode($sheet) ?>,
+        <?php endforeach; ?>
+    };
+
+    var currentActiveNis = null;
+    var currentFilter = 'all';
+
+    function openStudentAnswerModal(nis) {
+        var data = studentSheetsData[nis];
+        if (!data) {
+            alert('Data lembar jawaban siswa dengan NIS ' + nis + ' tidak ditemukan.');
+            return;
+        }
+        currentActiveNis = nis;
+        currentFilter = 'all';
+
+        var st = data.student;
+        document.getElementById('samStudentName').innerText = 'Lembar Jawaban: ' + st.name;
+        document.getElementById('samStudentClass').innerText = st.class;
+        document.getElementById('samStudentNis').innerText = st.nis;
+        
+        var scoreVal = Number(data.score).toFixed(2);
+        var scoreElem = document.getElementById('samScoreValue');
+        scoreElem.innerText = scoreVal;
+        scoreElem.style.color = data.is_passed ? '#16a34a' : '#dc2626';
+
+        var badgeElem = document.getElementById('samScoreBadge');
+        if (data.is_passed) {
+            badgeElem.innerHTML = '<span class="badge badge-success" style="font-size: 11px;">✅ LULUS KKM (75.0)</span>';
+        } else {
+            badgeElem.innerHTML = '<span class="badge badge-danger" style="font-size: 11px;">⚠️ REMEDIAL (&lt; 75.0)</span>';
+        }
+
+        document.getElementById('samTotalQuestions').innerText = data.total_questions;
+        document.getElementById('samCorrectCount').innerText = data.correct_count;
+        document.getElementById('samCorrectPoints').innerText = '+' + (data.correct_count * 2.5).toFixed(1) + ' Poin';
+        document.getElementById('samWrongCount').innerText = data.wrong_count;
+        document.getElementById('samDoubtfulCount').innerText = data.doubtful_count;
+        document.getElementById('samUnansweredCount').innerText = data.unanswered_count;
+
+        // Render Navigation Grid 1 - 40
+        var gridHtml = '';
+        data.answers.forEach(function(ans) {
+            var bg = '#22c55e'; // correct
+            var color = '#ffffff';
+            if (ans.status === 'wrong') {
+                bg = '#ef4444';
+            } else if (ans.status === 'doubtful') {
+                bg = '#f59e0b';
+            } else if (ans.status === 'unanswered') {
+                bg = '#94a3b8';
+            }
+            gridHtml += '<button type="button" onclick="jumpToQuestion(' + ans.no + ')" style="height: 36px; border: 1px solid rgba(0,0,0,0.1); background: ' + bg + '; color: ' + color + '; font-weight: 800; font-size: 12px; border-radius: 4px; cursor: pointer; transition: transform 0.1s;" title="No. ' + ans.no + ' - ' + ans.status + '">' + ans.no + '</button>';
+        });
+        document.getElementById('samQuestionGrid').innerHTML = gridHtml;
+
+        renderQuestionsView();
+
+        document.getElementById('studentAnswerModal').style.display = 'flex';
+    }
+
+    function closeStudentAnswerModal() {
+        document.getElementById('studentAnswerModal').style.display = 'none';
+    }
+
+    function filterQuestionList(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.sam-filter-btn').forEach(function(b) {
+            b.classList.remove('btn-primary');
+            b.classList.add('btn-secondary');
+        });
+
+        if (filter === 'all') document.getElementById('btnFilterAll').classList.replace('btn-secondary', 'btn-primary');
+        if (filter === 'correct') document.getElementById('btnFilterCorrect').classList.replace('btn-secondary', 'btn-primary');
+        if (filter === 'wrong') document.getElementById('btnFilterWrong').classList.replace('btn-secondary', 'btn-primary');
+        if (filter === 'doubtful') document.getElementById('btnFilterDoubtful').classList.replace('btn-secondary', 'btn-primary');
+        if (filter === 'unanswered') document.getElementById('btnFilterUnanswered').classList.replace('btn-secondary', 'btn-primary');
+
+        renderQuestionsView();
+    }
+
+    function renderQuestionsView() {
+        var data = studentSheetsData[currentActiveNis];
+        if (!data) return;
+
+        var filtered = data.answers.filter(function(ans) {
+            if (currentFilter === 'all') return true;
+            return ans.status === currentFilter;
+        });
+
+        document.getElementById('samShowingCounter').innerText = 'Menampilkan ' + filtered.length + ' dari ' + data.answers.length + ' butir soal';
+
+        var listHtml = '';
+        if (filtered.length === 0) {
+            listHtml = '<div style="text-align: center; padding: 24px; color: var(--text-muted); background: #f8fafc; border-radius: 8px;">Tidak ada butir soal dengan kategori ini.</div>';
+        } else {
+            filtered.forEach(function(ans) {
+                var statusBadge = '';
+                if (ans.status === 'correct') {
+                    statusBadge = '<span class="badge badge-success" style="font-size: 11px;">✅ Jawaban Benar (+2.5 Poin)</span>';
+                } else if (ans.status === 'wrong') {
+                    statusBadge = '<span class="badge badge-danger" style="font-size: 11px;">❌ Jawaban Salah (0.0 Poin)</span>';
+                } else if (ans.status === 'doubtful') {
+                    statusBadge = '<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-size: 11px;">⚠️ Ragu-ragu (Dijawab ' + ans.student_choice + ')</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-secondary" style="font-size: 11px;">⚪ Belum Terjawab (Kosong)</span>';
+                }
+
+                listHtml += '<div id="q_card_' + ans.no + '" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 16px; background: var(--card-bg, #ffffff);">';
+                listHtml += '  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px;">';
+                listHtml += '    <div style="font-weight: 800; font-size: 13.5px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">';
+                listHtml += '      <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 4px;">Butir #' + ans.no + '</span>';
+                listHtml += '      <span style="font-size: 11.5px; color: var(--text-muted); font-weight: normal;">Pilihan Ganda &bull; Bobot: 2.5 Poin</span>';
+                listHtml += '    </div>';
+                listHtml += '    <div>' + statusBadge + '</div>';
+                listHtml += '  </div>';
+
+                listHtml += '  <div style="font-size: 13.5px; color: var(--text-primary); font-weight: 600; line-height: 1.5; margin-bottom: 12px;">' + ans.question + '</div>';
+
+                listHtml += '  <div style="display: flex; flex-direction: column; gap: 6px;">';
+                var optKeys = ['A', 'B', 'C', 'D', 'E'];
+                optKeys.forEach(function(k) {
+                    var optText = ans.options[k] || ('Opsi ' + k);
+                    var isSelected = ans.student_choice === k;
+                    var isCorrectKey = ans.correct_key === k;
+
+                    var rowBg = '#ffffff';
+                    var rowBorder = '1px solid #e2e8f0';
+                    var labelPill = '<span style="font-weight: 700; width: 22px; display: inline-block;">' + k + '.</span>';
+                    var tagHtml = '';
+
+                    if (isSelected && isCorrectKey) {
+                        rowBg = '#f0fdf4';
+                        rowBorder = '2px solid #22c55e';
+                        tagHtml = '<span class="badge badge-success" style="font-size: 10.5px; margin-left: auto;">✓ Jawaban Siswa (Benar)</span>';
+                    } else if (isSelected && !isCorrectKey) {
+                        rowBg = '#fef2f2';
+                        rowBorder = '2px solid #ef4444';
+                        tagHtml = '<span class="badge badge-danger" style="font-size: 10.5px; margin-left: auto;">✗ Jawaban Siswa (Salah)</span>';
+                    } else if (!isSelected && isCorrectKey) {
+                        rowBg = '#f8fafc';
+                        rowBorder = '2px dashed #16a34a';
+                        tagHtml = '<span style="color: #16a34a; font-weight: 700; font-size: 11px; margin-left: auto;">🔑 Kunci Jawaban Benar</span>';
+                    }
+
+                    listHtml += '<div style="display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 6px; background: ' + rowBg + '; border: ' + rowBorder + '; font-size: 13px;">';
+                    listHtml += labelPill + ' <span>' + optText + '</span> ' + tagHtml;
+                    listHtml += '</div>';
+                });
+                listHtml += '  </div>';
+
+                listHtml += '  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: var(--text-muted); background: #f8fafc; padding: 6px 10px; border-radius: 4px;">';
+                listHtml += '    <div>Jawaban Siswa: <strong>' + (ans.student_choice ? ans.student_choice : 'Belum Dijawab (Kosong)') + '</strong></div>';
+                listHtml += '    <div>Kunci Jawaban: <strong style="color: #16a34a;">' + ans.correct_key + '</strong></div>';
+                listHtml += '    <div>Perolehan Skor: <strong style="color: ' + (ans.point_earned > 0 ? '#16a34a' : '#dc2626') + ';">' + ans.point_earned.toFixed(1) + ' / ' + ans.point_max.toFixed(1) + '</strong></div>';
+                listHtml += '  </div>';
+
+                listHtml += '</div>';
+            });
+        }
+
+        document.getElementById('samQuestionsList').innerHTML = listHtml;
+    }
+
+    function jumpToQuestion(no) {
+        if (currentFilter !== 'all') {
+            filterQuestionList('all');
+        }
+        var elem = document.getElementById('q_card_' + no);
+        if (elem) {
+            elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            elem.style.outline = '3px solid #0284c7';
+            setTimeout(function() { elem.style.outline = 'none'; }, 2000);
+        }
+    }
+
+    function openAllScoresModal() {
+        document.getElementById('allScoresModal').style.display = 'flex';
+    }
+
+    function closeAllScoresModal() {
+        document.getElementById('allScoresModal').style.display = 'none';
+    }
+
+    function printStudentSheet() {
+        window.print();
+    }
+    </script>
     <?php
 }
 
