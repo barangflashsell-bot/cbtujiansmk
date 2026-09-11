@@ -1733,4 +1733,15 @@ input[type="checkbox"] {
     flex-shrink: 0 !important;
 }
 
+/* 27. ACTION BAR (FLEX SEJAJAR) */
+.action-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+
 

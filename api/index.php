@@ -1388,6 +1388,7 @@ function renderAppPage($uri) {
         .subject-tab-badge, .class-tab-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 7px; border-radius: 12px; font-size: 11px; font-weight: 700; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
         .subject-tab-pill.active .subject-tab-badge, .class-tab-pill.active .class-tab-badge { background: rgba(255, 255, 255, 0.25); color: #ffffff; border-color: rgba(255, 255, 255, 0.4); }
         .action-btns { display: inline-flex !important; align-items: center !important; justify-content: center !important; flex-wrap: nowrap !important; white-space: nowrap !important; gap: 5px !important; }
+        .action-bar { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; flex-wrap: wrap; }
         .data-table th, .data-table td { vertical-align: middle; }
     </style>
     <script>
@@ -1990,11 +1991,11 @@ function renderStudentsContent() {
         </div>
 
         <!-- ACTION BAR -->
-        <div class="action-bar">
+        <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
             <div class="filter-group">
-                <form action="/admin/students" method="GET" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <form action="/admin/students" method="GET" style="display: flex; gap: 8px; align-items: center; margin: 0;">
                     <input type="hidden" name="class_id" value="<?= htmlspecialchars($currentClass) ?>">
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama, NIS, username..." value="<?= htmlspecialchars($search) ?>" style="max-width: 240px;">
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama, NIS, username..." value="<?= htmlspecialchars($search) ?>" style="max-width: 260px;">
                     <button type="submit" class="btn btn-secondary">Cari</button>
                     <?php if ($search !== '' || $currentClass !== 'all'): ?>
                         <a href="/admin/students" class="btn btn-secondary">Reset</a>
@@ -2002,11 +2003,11 @@ function renderStudentsContent() {
                 </form>
             </div>
 
-            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7; white-space: nowrap;">
                     <span>📊</span> Import Data Excel
                 </button>
-                <button type="button" class="btn btn-primary" onclick="toggleCreateStudentCard()" style="font-weight: 700;">
+                <button type="button" class="btn btn-primary" onclick="toggleCreateStudentCard()" style="font-weight: 700; white-space: nowrap;">
                     <span>+</span> Tambah Peserta Baru
                 </button>
             </div>
