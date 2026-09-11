@@ -33,6 +33,10 @@
       "dest": "/SERVER/public/robots.txt"
     },
     {
+      "src": "/downloads/(.*)",
+      "dest": "/SERVER/public/downloads/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/api/index.php"
     }

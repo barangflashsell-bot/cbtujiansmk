@@ -301,10 +301,16 @@ function logCbtActivity($module, $action, $details) {
 // 2. TEMPLATE & APK DOWNLOAD ENGINE (STYLED EXCEL, CSV BOM & ANDROID APK)
 // =========================================================================
 if ($uri === '/admin/settings/download-apk' || $uri === '/downloads/cbt-peserta.apk') {
+    // Pada environment Vercel, redirect langsung ke static path CDN agar terhindar dari limit serverless function
+    if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
+        header('Location: /downloads/cbt-peserta-v1.0.apk');
+        exit;
+    }
+
     $apkPaths = [
         __DIR__ . '/../SERVER/public/downloads/cbt-peserta-v1.0.apk',
+        __DIR__ . '/../ANDROID/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk',
         __DIR__ . '/../ANDROID/build/app/outputs/flutter-apk/app-release.apk',
-        __DIR__ . '/../ANDROID/build/app/outputs/apk/release/app-release.apk',
     ];
 
     $foundPath = null;
@@ -315,14 +321,13 @@ if ($uri === '/admin/settings/download-apk' || $uri === '/downloads/cbt-peserta.
         }
     }
 
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/vnd.android.package-archive');
-    header('Content-Disposition: attachment; filename="cbt-peserta-v1.0.apk"');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-    header('Pragma: public');
-
     if ($foundPath) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/vnd.android.package-archive');
+        header('Content-Disposition: attachment; filename="cbt-peserta-v1.0.apk"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
         header('Content-Length: ' . filesize($foundPath));
         while (ob_get_level()) {
             ob_end_clean();
@@ -331,9 +336,8 @@ if ($uri === '/admin/settings/download-apk' || $uri === '/downloads/cbt-peserta.
         exit;
     }
 
-    $dummyPayload = "PK\x03\x04" . "CBT-ANDROID-CLIENT-APK-V1.0.0-PESANTREN-BUSTANUL-ULUM";
-    header('Content-Length: ' . strlen($dummyPayload));
-    echo $dummyPayload;
+    // Fallback redirect ke file download publik jika path lokal berbeda
+    header('Location: /downloads/cbt-peserta-v1.0.apk');
     exit;
 }
 $reqFormat = strtolower(trim($_GET['format'] ?? 'excel'));
@@ -6367,7 +6371,7 @@ function renderSettingsContent() {
                     </span>
                 </div>
                 <span class="badge badge-success" style="font-size: 0.75rem; padding: 4px 10px;">
-                    v1.0.0 &bull; Universal Release
+                    v1.0.0 &bull; Release APK
                 </span>
             </div>
 
@@ -6380,7 +6384,7 @@ function renderSettingsContent() {
                         cbt-peserta-v1.0.apk
                     </div>
                     <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
-                        Ukuran Berkas: <strong>~51.4 MB</strong> &bull; Target OS: <strong>Android 6.0 s/d 14+</strong> &bull; Arsitektur: <strong>ARM64, ARMv7, x86_64</strong>
+                        Ukuran Berkas: <strong>17.3 MB</strong> &bull; Target OS: <strong>Android 6.0 s/d 14+</strong> &bull; Arsitektur: <strong>ARM64-v8a</strong>
                     </div>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                         <span style="font-size: 0.7rem; background: var(--bg-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🔒 Mode Kiosk Kunci Layar</span>
@@ -6389,11 +6393,11 @@ function renderSettingsContent() {
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <a href="/admin/settings/download-apk" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
-                        <span>⬇️</span> Unduh Berkas APK Android
+                    <a href="/downloads/cbt-peserta-v1.0.apk" download="cbt-peserta-v1.0.apk" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
+                        <span>⬇️</span> Unduh Berkas APK Android (17.3 MB)
                     </a>
-                    <a href="/downloads/cbt-peserta.apk" target="_blank" style="font-size: 0.75rem; text-align: center; color: var(--primary); text-decoration: underline;">
-                        Tautan Langsung (/downloads/cbt-peserta.apk)
+                    <a href="/downloads/cbt-peserta-v1.0.apk" download style="font-size: 0.75rem; text-align: center; color: var(--primary); text-decoration: underline;">
+                        Tautan Langsung (/downloads/cbt-peserta-v1.0.apk)
                     </a>
                 </div>
             </div>

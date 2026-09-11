@@ -16,7 +16,6 @@ SERVER/node_modules/
 SERVER/public/build/
 SERVER/public/hot/
 SERVER/public/storage
-SERVER/public/downloads/*.apk
 SERVER/storage/*.key
 SERVER/storage/logs/*.log
 SERVER/storage/framework/cache/*

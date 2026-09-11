@@ -113,7 +113,7 @@
                     cbt-peserta-v1.0.apk
                 </div>
                 <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
-                    Ukuran Berkas: <strong>~51.4 MB</strong> &bull; Target OS: <strong>Android 6.0 s/d 14+</strong> &bull; Arsitektur: <strong>ARM64, ARMv7, x86_64</strong>
+                    Ukuran Berkas: <strong>17.3 MB</strong> &bull; Target OS: <strong>Android 6.0 s/d 14+</strong> &bull; Arsitektur: <strong>ARM64-v8a</strong>
                 </div>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     <span style="font-size: 0.7rem; background: var(--bg-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🔒 Mode Kiosk Kunci Layar</span>
@@ -122,11 +122,11 @@
                 </div>
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
-                <a href="{{ route('admin.settings.download_apk') }}" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
-                    <span>⬇️</span> Unduh Berkas APK Android
+                <a href="/downloads/cbt-peserta-v1.0.apk" download="cbt-peserta-v1.0.apk" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
+                    <span>⬇️</span> Unduh Berkas APK Android (17.3 MB)
                 </a>
-                <a href="{{ route('public.download_apk') }}" target="_blank" style="font-size: 0.75rem; text-align: center; color: var(--primary); text-decoration: underline;">
-                    Tautan Langsung (/downloads/cbt-peserta.apk)
+                <a href="/downloads/cbt-peserta-v1.0.apk" download style="font-size: 0.75rem; text-align: center; color: var(--primary); text-decoration: underline;">
+                    Tautan Langsung (/downloads/cbt-peserta-v1.0.apk)
                 </a>
             </div>
         </div>
