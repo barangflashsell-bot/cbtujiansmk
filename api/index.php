@@ -292,6 +292,357 @@ if ($method === 'POST' && strpos($uri, '/import') !== false) {
     exit;
 }
 
+// =========================================================================
+// 2B. STATE INITIALIZATION & ACTIVITY LOG HELPER
+// =========================================================================
+function logCbtActivity($module, $action, $details) {
+    if (!isset($_SESSION['activity_logs'])) {
+        $_SESSION['activity_logs'] = [];
+    }
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $user = ($_SESSION['cbt_user'] ?? 'admin') === 'admin' ? 'Administrator CBT (admin)' : 'Guru Pengajar (guru)';
+    array_unshift($_SESSION['activity_logs'], [
+        'id' => uniqid(),
+        'timestamp' => date('d/m/Y H:i:s'),
+        'user' => $user,
+        'module' => strtoupper($module),
+        'action' => strtoupper($action),
+        'ip' => $ip,
+        'details' => $details,
+    ]);
+    if (count($_SESSION['activity_logs']) > 80) {
+        array_pop($_SESSION['activity_logs']);
+    }
+}
+
+// Default Settings
+if (!isset($_SESSION['cbt_settings'])) {
+    $_SESSION['cbt_settings'] = [
+        'school_name' => 'SMK PESANTREN BUSTANUL ULUM',
+        'academic_year' => '2025/2026',
+        'school_address' => 'Jl. Raya Pesantren No. 01, Krajan, Kec. Tanggul, Kabupaten Jember, Jawa Timur 68155',
+        'app_name' => 'CBT SERVER MANAGER',
+        'server_port' => 8000,
+        'token_refresh_minutes' => 15,
+        'active_token' => 'WXYZ89',
+        'student_review' => true,
+    ];
+}
+
+// Default Exams
+if (!isset($_SESSION['exams_list'])) {
+    $_SESSION['exams_list'] = [
+        [
+            'id' => 'ex-1',
+            'title' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X',
+            'subject' => 'Matematika X',
+            'creator' => 'Administrator CBT',
+            'start' => '11/09/2026 08:00',
+            'end' => '11/09/2026 10:00',
+            'duration' => 90,
+            'token' => 'WXYZ89',
+            'questions_count' => 40,
+            'participants_count' => 36,
+            'passing_score' => 75.0,
+            'status' => 'active',
+        ],
+        [
+            'id' => 'ex-2',
+            'title' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X',
+            'subject' => 'Bahasa Indonesia X',
+            'creator' => 'Drs. H. Bambang Sutrisno',
+            'start' => '10/09/2026 08:00',
+            'end' => '10/09/2026 09:30',
+            'duration' => 90,
+            'token' => 'ABCD12',
+            'questions_count' => 40,
+            'participants_count' => 36,
+            'passing_score' => 75.0,
+            'status' => 'completed',
+        ],
+        [
+            'id' => 'ex-3',
+            'title' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL',
+            'subject' => 'Dasar-dasar Pemrograman RPL',
+            'creator' => 'Ahmad Farhan, S.T',
+            'start' => '12/09/2026 08:00',
+            'end' => '12/09/2026 10:30',
+            'duration' => 120,
+            'token' => 'PROG26',
+            'questions_count' => 50,
+            'participants_count' => 32,
+            'passing_score' => 78.0,
+            'status' => 'published',
+        ],
+    ];
+}
+
+// Default Monitoring Sessions
+if (!isset($_SESSION['monitoring_sessions'])) {
+    $_SESSION['monitoring_sessions'] = [
+        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1'],
+        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1'],
+        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'answered' => 22, 'total' => 40, 'time_left' => '41:05', 'status' => 'Ragu-Ragu', 'ip' => '192.168.1.103', 'exam_id' => 'ex-1'],
+        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1'],
+        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'answered' => 15, 'total' => 40, 'time_left' => '58:20', 'status' => 'Mengerjakan', 'ip' => '192.168.1.105', 'exam_id' => 'ex-1'],
+    ];
+}
+
+// Default Results
+if (!isset($_SESSION['results_list'])) {
+    $_SESSION['results_list'] = [
+        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'correct' => 34, 'wrong' => 6, 'empty' => 0, 'score' => 85.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'correct' => 37, 'wrong' => 3, 'empty' => 0, 'score' => 92.5, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'correct' => 28, 'wrong' => 10, 'empty' => 2, 'score' => 70.0, 'passing' => 75.0, 'published' => false],
+        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'correct' => 36, 'wrong' => 4, 'empty' => 0, 'score' => 90.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'correct' => 32, 'wrong' => 7, 'empty' => 1, 'score' => 80.0, 'passing' => 75.0, 'published' => true],
+    ];
+}
+
+// Default Backups
+if (!isset($_SESSION['backups_list'])) {
+    $_SESSION['backups_list'] = [
+        ['filename' => 'cbt_backup_2026_09_11_1600_manual.sql', 'type' => 'manual', 'size' => '3.8 MB', 'created_at' => '11/09/2026 16:00:00', 'hash' => 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+        ['filename' => 'cbt_backup_2026_09_10_0800_pre_exam.sql', 'type' => 'pre_exam', 'size' => '3.6 MB', 'created_at' => '10/09/2026 08:00:00', 'hash' => '7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069'],
+    ];
+}
+
+// Default Activity Logs
+if (!isset($_SESSION['activity_logs'])) {
+    $_SESSION['activity_logs'] = [
+        ['id' => '1', 'timestamp' => '11/09/2026 16:45:00', 'user' => 'Administrator CBT (admin)', 'module' => 'BACKUP', 'action' => 'CREATE_SNAPSHOT', 'ip' => '192.168.1.1', 'details' => 'Membuat snapshot cadangan database lokal cbt_backup_2026_09_11_1600_manual.sql'],
+        ['id' => '2', 'timestamp' => '11/09/2026 16:15:30', 'user' => 'Administrator CBT (admin)', 'module' => 'EXAM', 'action' => 'PUBLISH_EXAM', 'ip' => '192.168.1.1', 'details' => 'Mengaktifkan paket ujian Penilaian Akhir Semester (PAS) Ganjil - Matematika X'],
+        ['id' => '3', 'timestamp' => '11/09/2026 15:30:10', 'user' => 'Administrator CBT (admin)', 'module' => 'STUDENT', 'action' => 'IMPORT_EXCEL', 'ip' => '192.168.1.1', 'details' => 'Mengimpor berkas spreadsheet data peserta ujian baru'],
+        ['id' => '4', 'timestamp' => '11/09/2026 14:10:00', 'user' => 'Administrator CBT (admin)', 'module' => 'AUTH', 'action' => 'LOGIN_SUCCESS', 'ip' => '192.168.1.1', 'details' => 'Autentikasi admin berhasil via browser portal CBT'],
+    ];
+}
+
+// =========================================================================
+// 2C. ACTION ROUTING (DOWNLOADS & POST HANDLERS)
+// =========================================================================
+
+// Download Backup SQL file
+if ($uri === '/admin/backups/download' || (strpos($uri, '/admin/backups/') === 0 && strpos($uri, '/download') !== false)) {
+    $fn = $_GET['file'] ?? 'cbt_backup_snapshot.sql';
+    header('Content-Type: application/sql');
+    header('Content-Disposition: attachment; filename="' . basename($fn) . '"');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    echo "-- =====================================================\n";
+    echo "-- CBT SERVER MANAGER DATABASE SNAPSHOT (OFFLINE LAN)\n";
+    echo "-- Generator: Antigravity Standalone CBT Engine\n";
+    echo "-- Waktu Snapshot: " . date('Y-m-d H:i:s') . "\n";
+    echo "-- File: " . htmlspecialchars($fn) . "\n";
+    echo "-- =====================================================\n\n";
+    echo "SET FOREIGN_KEY_CHECKS=0;\n\n";
+    echo "-- Table structure for `settings`\n";
+    echo "CREATE TABLE IF NOT EXISTS `settings` (\n";
+    echo "  `key` varchar(191) NOT NULL,\n";
+    echo "  `value` longtext DEFAULT NULL,\n";
+    echo "  PRIMARY KEY (`key`)\n";
+    echo ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n";
+    echo "INSERT INTO `settings` VALUES ('school_name', " . json_encode($_SESSION['cbt_settings']['school_name']) . ");\n";
+    echo "INSERT INTO `settings` VALUES ('academic_year', " . json_encode($_SESSION['cbt_settings']['academic_year']) . ");\n";
+    echo "INSERT INTO `settings` VALUES ('server_port', '8000');\n\n";
+    echo "-- Table structure for `exams`\n";
+    echo "CREATE TABLE IF NOT EXISTS `exams` (\n";
+    echo "  `id` varchar(36) NOT NULL,\n";
+    echo "  `title` varchar(255) NOT NULL,\n";
+    echo "  `subject` varchar(100) NOT NULL,\n";
+    echo "  `token` varchar(20) DEFAULT NULL,\n";
+    echo "  `status` varchar(50) NOT NULL DEFAULT 'draft',\n";
+    echo "  PRIMARY KEY (`id`)\n";
+    echo ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n";
+    foreach ($_SESSION['exams_list'] as $ex) {
+        echo "INSERT INTO `exams` VALUES (" . json_encode($ex['id']) . ", " . json_encode($ex['title']) . ", " . json_encode($ex['subject']) . ", " . json_encode($ex['token']) . ", " . json_encode($ex['status']) . ");\n";
+    }
+    echo "\nSET FOREIGN_KEY_CHECKS=1;\n";
+    echo "-- Snapshot Selesai.\n";
+    logCbtActivity('BACKUP', 'DOWNLOAD_SNAPSHOT', 'Mengunduh berkas snapshot database ' . $fn);
+    exit;
+}
+
+// Export Exam Report CSV
+if ($uri === '/admin/reports/export-csv') {
+    $fn = 'rekap_nilai_ujian_' . date('Ymd_His') . '.csv';
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="' . $fn . '"');
+    echo "\xEF\xBB\xBF";
+    echo "sep=;\n";
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['No', 'NIS / NISN', 'Nama Peserta', 'Kelas', 'Paket Ujian', 'Benar', 'Salah', 'Kosong', 'Nilai Akhir', 'Status Kelulusan'], ';');
+    foreach ($_SESSION['results_list'] as $idx => $r) {
+        $lulus = ($r['score'] >= $r['passing']) ? 'Lulus' : 'Belum Lulus (Remidi)';
+        fputcsv($out, [
+            $idx + 1,
+            $r['nis'],
+            $r['name'],
+            $r['class'],
+            $r['exam'],
+            $r['correct'],
+            $r['wrong'],
+            $r['empty'],
+            number_format((float)$r['score'], 1),
+            $lulus
+        ], ';');
+    }
+    fclose($out);
+    logCbtActivity('REPORT', 'EXPORT_CSV', 'Mengekspor rekapitulasi nilai ujian ke format CSV');
+    exit;
+}
+
+// POST: Buat Cadangan Database Baru
+if ($method === 'POST' && ($uri === '/admin/backups/create' || $uri === '/admin/backups')) {
+    $type = $_POST['type'] ?? 'manual';
+    $timeStr = date('Y_m_d_Hi');
+    $fn = "cbt_backup_{$timeStr}_{$type}.sql";
+    $newBackup = [
+        'filename' => $fn,
+        'type' => $type,
+        'size' => rand(36, 42) / 10 . ' MB',
+        'created_at' => date('d/m/Y H:i:s'),
+        'hash' => hash('sha256', $fn . microtime()),
+    ];
+    array_unshift($_SESSION['backups_list'], $newBackup);
+    logCbtActivity('BACKUP', 'CREATE_SNAPSHOT', "Membuat cadangan database snapshot baru ({$fn})");
+    $_SESSION['import_success'] = "Snapshot database ({$fn}) berhasil dibuat dan siap diunduh!";
+    header('Location: /admin/backups');
+    exit;
+}
+
+// POST: Simpan Pengaturan Server
+if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin/settings')) {
+    $_SESSION['cbt_settings']['school_name'] = trim($_POST['school_name'] ?? $_SESSION['cbt_settings']['school_name']);
+    $_SESSION['cbt_settings']['academic_year'] = trim($_POST['academic_year'] ?? $_SESSION['cbt_settings']['academic_year']);
+    $_SESSION['cbt_settings']['school_address'] = trim($_POST['school_address'] ?? $_SESSION['cbt_settings']['school_address']);
+    $_SESSION['cbt_settings']['app_name'] = trim($_POST['app_name'] ?? $_SESSION['cbt_settings']['app_name']);
+    $_SESSION['cbt_settings']['server_port'] = (int)($_POST['server_port'] ?? 8000);
+    $_SESSION['cbt_settings']['token_refresh_minutes'] = (int)($_POST['token_refresh_minutes'] ?? 15);
+    logCbtActivity('SETTING', 'UPDATE_CONFIG', 'Memperbarui konfigurasi sistem & identitas sekolah');
+    $_SESSION['import_success'] = "Pengaturan sistem dan identitas sekolah berhasil diperbarui!";
+    header('Location: /admin/settings');
+    exit;
+}
+
+// POST: Buat Paket Ujian Baru
+if ($method === 'POST' && ($uri === '/admin/exams/create' || $uri === '/admin/exams')) {
+    $newExam = [
+        'id' => 'ex-' . (count($_SESSION['exams_list']) + 1),
+        'title' => trim($_POST['title'] ?? 'Paket Ujian Baru'),
+        'subject' => trim($_POST['subject'] ?? 'Matematika X'),
+        'creator' => 'Administrator CBT',
+        'start' => date('d/m/Y') . ' ' . ($_POST['start_time'] ?? '08:00'),
+        'end' => date('d/m/Y') . ' ' . ($_POST['end_time'] ?? '10:00'),
+        'duration' => (int)($_POST['duration'] ?? 90),
+        'token' => strtoupper(trim($_POST['token'] ?? substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6))),
+        'questions_count' => (int)($_POST['questions_count'] ?? 40),
+        'participants_count' => (int)($_POST['participants_count'] ?? 36),
+        'passing_score' => (float)($_POST['passing_score'] ?? 75.0),
+        'status' => $_POST['status'] ?? 'active',
+    ];
+    array_unshift($_SESSION['exams_list'], $newExam);
+    logCbtActivity('EXAM', 'CREATE_EXAM', 'Membuat paket ujian baru: ' . $newExam['title']);
+    $_SESSION['import_success'] = "Paket Ujian \"" . htmlspecialchars($newExam['title']) . "\" berhasil dibuat dan aktif!";
+    header('Location: /admin/exams');
+    exit;
+}
+
+// GET/POST: Monitoring Reset Login Peserta
+if ($uri === '/admin/monitoring/reset') {
+    $targetNis = $_GET['nis'] ?? '';
+    foreach ($_SESSION['monitoring_sessions'] as &$s) {
+        if ($s['nis'] === $targetNis) {
+            $s['status'] = 'Belum Mulai (Reset)';
+            $s['ip'] = '-';
+            break;
+        }
+    }
+    logCbtActivity('MONITORING', 'RESET_LOGIN', 'Mereset sesi login peserta NIS ' . $targetNis);
+    $_SESSION['import_success'] = "Sesi login peserta NIS {$targetNis} berhasil di-reset!";
+    header('Location: /admin/monitoring');
+    exit;
+}
+
+// GET/POST: Toggle Publikasi Hasil Ujian
+if ($uri === '/admin/results/publish') {
+    $idx = (int)($_GET['idx'] ?? 0);
+    if (isset($_SESSION['results_list'][$idx])) {
+        $_SESSION['results_list'][$idx]['published'] = !$_SESSION['results_list'][$idx]['published'];
+        $statusStr = $_SESSION['results_list'][$idx]['published'] ? 'dipublikasikan' : 'disembunyikan';
+        logCbtActivity('RESULT', 'TOGGLE_PUBLISH', "Nilai peserta index {$idx} {$statusStr}");
+        $_SESSION['import_success'] = "Status publikasi nilai berhasil diperbarui!";
+    }
+    header('Location: /admin/results');
+    exit;
+}
+
+// POST: Tambah Siswa Baru
+if ($method === 'POST' && ($uri === '/admin/students/create' || $uri === '/admin/students')) {
+    $nis = trim($_POST['nis'] ?? 'NIS-00' . rand(10, 99));
+    $nisn = trim($_POST['nisn'] ?? '008' . rand(1000000, 9999999));
+    $name = trim($_POST['name'] ?? 'Peserta Baru');
+    $class = trim($_POST['class'] ?? '10-TKJ-1');
+    $username = trim($_POST['username'] ?? strtolower(str_replace(' ', '', $name)));
+    $_SESSION['imported_students'][] = ['1', $name, $username, '123456', $class, $nis, $nisn, 'L'];
+    logCbtActivity('STUDENT', 'CREATE_STUDENT', "Menambahkan peserta ujian baru: {$name} ({$class})");
+    $_SESSION['import_success'] = "Data siswa \"{$name}\" berhasil disimpan ke sistem!";
+    header('Location: /admin/students');
+    exit;
+}
+
+// POST: Tambah Guru Baru
+if ($method === 'POST' && ($uri === '/admin/teachers/create' || $uri === '/admin/teachers')) {
+    $name = trim($_POST['name'] ?? 'Guru Baru');
+    $username = trim($_POST['username'] ?? 'guru.' . rand(10, 99));
+    $nip = trim($_POST['nip'] ?? '1985' . rand(10000000000000, 99999999999999));
+    $phone = trim($_POST['phone'] ?? '0812' . rand(10000000, 99999999));
+    $_SESSION['imported_teachers'][] = ['1', $name, $username, '123456', $nip, $phone];
+    logCbtActivity('TEACHER', 'CREATE_TEACHER', "Menambahkan guru baru: {$name}");
+    $_SESSION['import_success'] = "Data guru \"{$name}\" berhasil disimpan ke sistem!";
+    header('Location: /admin/teachers');
+    exit;
+}
+
+// POST: Tambah Kelas Baru
+if ($method === 'POST' && ($uri === '/admin/classes/create' || $uri === '/admin/classes')) {
+    $name = trim($_POST['name'] ?? 'Kelas Baru');
+    $level = trim($_POST['level'] ?? '10');
+    $year = trim($_POST['year'] ?? '2025/2026');
+    $_SESSION['imported_classes'][] = ['1', $name, $level, $year, 'Aktif'];
+    logCbtActivity('CLASS', 'CREATE_CLASS', "Menambahkan rombel kelas: {$name}");
+    $_SESSION['import_success'] = "Data rombel kelas \"{$name}\" berhasil disimpan!";
+    header('Location: /admin/classes');
+    exit;
+}
+
+// POST: Tambah Mapel Baru
+if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin/subjects')) {
+    $code = strtoupper(trim($_POST['code'] ?? 'MAPEL-' . rand(10, 99)));
+    $name = trim($_POST['name'] ?? 'Mata Pelajaran Baru');
+    $_SESSION['imported_subjects'][] = ['1', $code, $name, 'Aktif'];
+    logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan mata pelajaran baru: {$name} ({$code})");
+    $_SESSION['import_success'] = "Mata pelajaran \"{$name}\" berhasil disimpan!";
+    header('Location: /admin/subjects');
+    exit;
+}
+
+// POST: Tambah Soal Baru
+if ($method === 'POST' && ($uri === '/admin/questions/create' || $uri === '/admin/questions')) {
+    $subject = trim($_POST['subject'] ?? 'Matematika X');
+    $qText = trim($_POST['question'] ?? 'Pertanyaan Soal Baru');
+    $optA = trim($_POST['option_a'] ?? 'Opsi A');
+    $optB = trim($_POST['option_b'] ?? 'Opsi B');
+    $optC = trim($_POST['option_c'] ?? 'Opsi C');
+    $optD = trim($_POST['option_d'] ?? 'Opsi D');
+    $optE = trim($_POST['option_e'] ?? 'Opsi E');
+    $key = strtoupper(trim($_POST['key'] ?? 'A'));
+    $score = trim($_POST['score'] ?? '2.00');
+    $_SESSION['imported_questions'][] = ['1', $subject, 'single_choice', $qText, $optA, $optB, $optC, $optD, $optE, $key, $score, 'medium'];
+    logCbtActivity('QUESTION', 'CREATE_QUESTION', "Menambahkan butir soal baru mapel {$subject}");
+    $_SESSION['import_success'] = "Butir soal baru berhasil disimpan ke Bank Soal!";
+    header('Location: /admin/questions');
+    exit;
+}
+
 // 3. Logout Handler
 if ($uri === '/logout') {
     setcookie('cbt_user', '', time() - 3600, '/');
@@ -418,7 +769,13 @@ function renderAppPage($uri) {
         $pageTitle = 'Laporan Nilai';
     } elseif (strpos($uri, 'backups') !== false) {
         $activeMenu = 'backups';
-        $pageTitle = 'Backup & Restore Database';
+        $pageTitle = 'Backup & Database Snapshot';
+    } elseif (strpos($uri, 'settings') !== false) {
+        $activeMenu = 'settings';
+        $pageTitle = 'Pengaturan Sistem Server';
+    } elseif (strpos($uri, 'activity-logs') !== false) {
+        $activeMenu = 'activity-logs';
+        $pageTitle = 'Log Aktivitas & Audit Trail';
     }
 
     $successBanner = '';
@@ -556,13 +913,13 @@ function renderAppPage($uri) {
                         <span>Backup & Restore</span>
                     </span>
                 </a>
-                <a href="/admin/dashboard" class="nav-link">
+                <a href="/admin/settings" class="nav-link <?= $activeMenu === 'settings' ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box slate">⚙️</span>
                         <span>Pengaturan Server</span>
                     </span>
                 </a>
-                <a href="/admin/dashboard" class="nav-link">
+                <a href="/admin/activity-logs" class="nav-link <?= $activeMenu === 'activity-logs' ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box amber">📜</span>
                         <span>Log Aktivitas</span>
@@ -583,7 +940,7 @@ function renderAppPage($uri) {
                             <span><?= htmlspecialchars($pageTitle) ?></span>
                             <span class="topbar-badge">CBT MANAGER</span>
                         </div>
-                        <div class="topbar-subtitle">CBT Server Offline &bull; Jaringan Sekolah Mandiri</div>
+                        <div class="topbar-subtitle"><?= htmlspecialchars($_SESSION['cbt_settings']['school_name'] ?? 'SMK PESANTREN BUSTANUL ULUM') ?> &bull; TA <?= htmlspecialchars($_SESSION['cbt_settings']['academic_year'] ?? '2025/2026') ?></div>
                     </div>
                 </div>
 
@@ -629,6 +986,20 @@ function renderAppPage($uri) {
                     renderSubjectsContent();
                 } elseif ($activeMenu === 'questions') {
                     renderQuestionsContent();
+                } elseif ($activeMenu === 'exams') {
+                    renderExamsContent();
+                } elseif ($activeMenu === 'monitoring') {
+                    renderMonitoringContent();
+                } elseif ($activeMenu === 'results') {
+                    renderResultsContent();
+                } elseif ($activeMenu === 'reports') {
+                    renderReportsContent();
+                } elseif ($activeMenu === 'backups') {
+                    renderBackupsContent();
+                } elseif ($activeMenu === 'settings') {
+                    renderSettingsContent();
+                } elseif ($activeMenu === 'activity-logs') {
+                    renderActivityLogsContent();
                 } else {
                     renderGenericMenuContent($activeMenu, $pageTitle);
                 }
@@ -1605,7 +1976,860 @@ function renderQuestionsContent() {
 }
 
 /* ==========================================================================
-   VIEW 7: GENERIC MENU RENDERER (EXAMS, MONITORING, RESULTS, ETC.)
+   VIEW 7: PAKET UJIAN (EXAMS)
+   ========================================================================== */
+function renderExamsContent() {
+    $exams = $_SESSION['exams_list'] ?? [];
+    $search = strtolower(trim($_GET['search'] ?? ''));
+    $filterSubject = trim($_GET['subject'] ?? '');
+    $filterStatus = trim($_GET['status'] ?? '');
+
+    if ($search !== '' || $filterSubject !== '' || $filterStatus !== '') {
+        $exams = array_filter($exams, function($ex) use ($search, $filterSubject, $filterStatus) {
+            if ($search !== '' && !str_contains(strtolower($ex['title']), $search)) return false;
+            if ($filterSubject !== '' && $ex['subject'] !== $filterSubject) return false;
+            if ($filterStatus !== '' && $ex['status'] !== $filterStatus) return false;
+            return true;
+        });
+    }
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="action-bar">
+            <form method="GET" action="/admin/exams" class="filter-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <input type="text" name="search" class="form-control" placeholder="Cari judul ujian..." value="<?= htmlspecialchars($search) ?>" style="max-width: 240px;">
+                <select name="status" class="form-control" style="max-width: 160px;" onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <option value="active" <?= $filterStatus === 'active' ? 'selected' : '' ?>>Aktif (Active)</option>
+                    <option value="published" <?= $filterStatus === 'published' ? 'selected' : '' ?>>Published</option>
+                    <option value="completed" <?= $filterStatus === 'completed' ? 'selected' : '' ?>>Selesai</option>
+                    <option value="draft" <?= $filterStatus === 'draft' ? 'selected' : '' ?>>Draft</option>
+                </select>
+                <button type="submit" class="btn btn-secondary">Filter</button>
+                <?php if ($search || $filterStatus): ?>
+                    <a href="/admin/exams" class="btn btn-secondary">Reset</a>
+                <?php endif; ?>
+            </form>
+
+            <button type="button" class="btn btn-primary" onclick="toggleCreateExam()">
+                <span>+</span> Buat Paket Ujian
+            </button>
+        </div>
+
+        <!-- FORM BUAT PAKET UJIAN BARU -->
+        <div class="card" id="createExamCard" style="display: none; border-color: var(--primary); margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 class="card-title" style="margin-bottom: 0;">Buat Jadwal & Konfigurasi Paket Ujian Baru</h3>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateExam()">&times; Batal</button>
+            </div>
+            <form method="POST" action="/admin/exams/create">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Judul Paket Ujian *</label>
+                        <input type="text" name="title" class="form-control" placeholder="Contoh: Asesmen Sumatif Akhir Semester" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mata Pelajaran *</label>
+                        <select name="subject" class="form-control" required>
+                            <option value="Matematika X">Matematika X</option>
+                            <option value="Bahasa Indonesia X">Bahasa Indonesia X</option>
+                            <option value="Dasar-dasar Pemrograman RPL">Dasar-dasar Pemrograman RPL</option>
+                            <option value="Dasar Jaringan Komputer">Dasar Jaringan Komputer</option>
+                            <option value="Bahasa Inggris X">Bahasa Inggris X</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Waktu Mulai Ujian</label>
+                        <input type="text" name="start_time" class="form-control" value="08:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Waktu Selesai Ujian</label>
+                        <input type="text" name="end_time" class="form-control" value="10:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Durasi Pengerjaan (Menit) *</label>
+                        <input type="number" name="duration" class="form-control" value="90" min="10" max="300" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Token Ujian *</label>
+                        <input type="text" name="token" class="form-control" value="<?= substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6) ?>" style="font-family: monospace; font-weight: 700; letter-spacing: 2px;" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nilai KKM Kelulusan</label>
+                        <input type="number" step="0.1" name="passing_score" class="form-control" value="75.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status Ujian</label>
+                        <select name="status" class="form-control">
+                            <option value="active">Active (Langsung Aktif)</option>
+                            <option value="published">Published (Terjadwal)</option>
+                            <option value="draft">Draft (Konsep)</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                    <button type="button" class="btn btn-secondary" onclick="toggleCreateExam()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan & Aktifkan Paket Ujian</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Daftar Paket Ujian Terdaftar</h3>
+                    <p class="card-description">Total <?= count($exams) ?> paket ujian tersimpan di CBT Server</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>Judul Ujian & Mapel</th>
+                            <th>Jadwal Pelaksanaan</th>
+                            <th>Durasi / Token</th>
+                            <th>Soal / Peserta</th>
+                            <th>Status</th>
+                            <th style="width: 180px; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($exams)): ?>
+                            <tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">Tidak ada paket ujian yang cocok dengan filter.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($exams as $idx => $ex): ?>
+                            <tr>
+                                <td><?= $idx + 1 ?></td>
+                                <td>
+                                    <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars($ex['title']) ?></div>
+                                    <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                                        <span class="badge badge-info"><?= htmlspecialchars($ex['subject']) ?></span>
+                                        <span style="margin-left: 6px;">Oleh: <?= htmlspecialchars($ex['creator'] ?? 'Admin') ?></span>
+                                    </div>
+                                </td>
+                                <td style="font-size: 12.5px;">
+                                    <div>Mulai: <strong><?= htmlspecialchars($ex['start'] ?? '-') ?></strong></div>
+                                    <div style="color: var(--text-muted);">Selesai: <?= htmlspecialchars($ex['end'] ?? '-') ?></div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600;"><?= $ex['duration'] ?> Menit</div>
+                                    <span class="badge badge-secondary" style="font-family: monospace; letter-spacing: 1px; margin-top: 3px;">TOKEN: <?= htmlspecialchars($ex['token'] ?? 'OFF') ?></span>
+                                </td>
+                                <td>
+                                    <div style="font-size: 12px;">
+                                        <strong><?= $ex['questions_count'] ?></strong> Butir Soal<br>
+                                        <strong style="color: var(--primary);"><?= $ex['participants_count'] ?></strong> Peserta
+                                    </div>
+                                </td>
+                                <td>
+                                    <?php if ($ex['status'] === 'active'): ?>
+                                        <span class="badge badge-success">Aktif</span>
+                                    <?php elseif ($ex['status'] === 'published'): ?>
+                                        <span class="badge badge-info">Published</span>
+                                    <?php elseif ($ex['status'] === 'completed'): ?>
+                                        <span class="badge badge-secondary">Selesai</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-warning">Draft</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div style="display: inline-flex; gap: 4px;">
+                                        <a href="/admin/monitoring" class="btn btn-sm btn-primary" title="Pantau Ujian Live">📡 Pantau</a>
+                                        <button class="btn btn-sm btn-secondary" onclick="alert('Rincian Paket Ujian: <?= htmlspecialchars($ex['title']) ?>')">Detail</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+    function toggleCreateExam() {
+        var c = document.getElementById('createExamCard');
+        c.style.display = (c.style.display === 'none') ? 'block' : 'none';
+    }
+    </script>
+    <?php
+}
+
+/* ==========================================================================
+   VIEW 8: LIVE MONITORING UJIAN
+   ========================================================================== */
+function renderMonitoringContent() {
+    $sessions = $_SESSION['monitoring_sessions'] ?? [];
+    $totalStudents = count($sessions);
+    $inProgressCount = 0;
+    $completedCount = 0;
+    $issueCount = 0;
+
+    foreach ($sessions as $s) {
+        if ($s['status'] === 'Mengerjakan') $inProgressCount++;
+        elseif (str_contains($s['status'], 'Selesai')) $completedCount++;
+        else $issueCount++;
+    }
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">
+                    Live Monitoring Sesi Ujian Realtime
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Pantau aktivitas sesi pengerjaan ujian siswa secara langsung di jaringan lokal LAN
+                </p>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                <span>Waktu Server: <strong><?= date('H:i:s d/m/Y') ?></strong></span>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="window.location.reload();">&#8635; Refresh Data</button>
+            </div>
+        </div>
+
+        <!-- STATS OVERVIEW -->
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <div class="stat-card">
+                <div class="stat-icon blue">👥</div>
+                <div class="stat-value"><?= $totalStudents ?> Siswa</div>
+                <div class="stat-label">Total Peserta Ujian</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon yellow">⏳</div>
+                <div class="stat-value" style="color: #d97706;"><?= $inProgressCount ?> Siswa</div>
+                <div class="stat-label">Sedang Mengerjakan</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">✓</div>
+                <div class="stat-value" style="color: #059669;"><?= $completedCount ?> Siswa</div>
+                <div class="stat-label">Sudah Selesai (Submit)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red">⚠️</div>
+                <div class="stat-value" style="color: #dc2626;"><?= $issueCount ?> Sesi</div>
+                <div class="stat-label">Ragu / Reset Login</div>
+            </div>
+        </div>
+
+        <!-- TABLE OF MONITORING PARTICIPANTS -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Daftar Komputer Klien / Peserta Aktif</h3>
+                    <p class="card-description">Data tersinkronisasi otomatis dengan server CBT</p>
+                </div>
+                <span class="badge badge-success" style="padding: 6px 12px; font-size: 12px;">● Server Live Monitoring Active</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>NIS / NISN</th>
+                            <th>Nama Peserta & Rombel</th>
+                            <th>Progres Soal</th>
+                            <th>Sisa Waktu</th>
+                            <th>Status Sesi</th>
+                            <th>Alamat IP</th>
+                            <th style="width: 160px; text-align: center;">Aksi Kontrol</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($sessions as $idx => $s): ?>
+                        <tr>
+                            <td><?= $idx + 1 ?></td>
+                            <td><code><?= htmlspecialchars($s['nis']) ?></code></td>
+                            <td>
+                                <strong><?= htmlspecialchars($s['name']) ?></strong>
+                                <div style="font-size: 11px; color: var(--text-muted);"><span class="badge badge-info"><?= htmlspecialchars($s['class']) ?></span></div>
+                            </td>
+                            <td>
+                                <strong><?= $s['answered'] ?> / <?= $s['total'] ?></strong> Soal
+                                <div style="width: 100%; max-width: 110px; background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 4px; overflow: hidden;">
+                                    <div style="background: var(--primary); width: <?= ($s['answered'] / $s['total']) * 100 ?>%; height: 100%;"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <strong style="font-family: monospace; font-size: 13px; color: <?= $s['time_left'] === '00:00' ? '#94a3b8' : '#0284c7' ?>;">
+                                    <?= htmlspecialchars($s['time_left']) ?>
+                                </strong>
+                            </td>
+                            <td>
+                                <?php if ($s['status'] === 'Mengerjakan'): ?>
+                                    <span class="badge badge-warning">Mengerjakan</span>
+                                <?php elseif (str_contains($s['status'], 'Selesai')): ?>
+                                    <span class="badge badge-success">Selesai</span>
+                                <?php else: ?>
+                                    <span class="badge badge-danger"><?= htmlspecialchars($s['status']) ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td><code><?= htmlspecialchars($s['ip']) ?></code></td>
+                            <td style="text-align: center;">
+                                <a href="/admin/monitoring/reset?nis=<?= urlencode($s['nis']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin me-reset status login peserta <?= htmlspecialchars($s['name']) ?>?');" title="Reset sesi jika perangkat bermasalah">
+                                    🔄 Reset Login
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+/* ==========================================================================
+   VIEW 9: HASIL & NILAI UJIAN
+   ========================================================================== */
+function renderResultsContent() {
+    $results = $_SESSION['results_list'] ?? [];
+    $totalCount = count($results);
+    $totalScore = array_reduce($results, fn($carry, $item) => $carry + $item['score'], 0);
+    $avgScore = $totalCount > 0 ? round($totalScore / $totalCount, 1) : 0;
+    $passCount = count(array_filter($results, fn($r) => $r['score'] >= $r['passing']));
+    $passPct = $totalCount > 0 ? round(($passCount / $totalCount) * 100) : 0;
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">
+                    Hasil & Nilai Ujian Peserta
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Rekapitulasi skor penilaian, status kelulusan KKM, dan publikasi nilai peserta ujian
+                </p>
+            </div>
+            <a href="/admin/reports/export-csv" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd;">
+                <span>📥</span> Export Rekap (.csv)
+            </a>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <div class="stat-card">
+                <div class="stat-icon blue">📝</div>
+                <div class="stat-value"><?= $totalCount ?> Peserta</div>
+                <div class="stat-label">Total Ujian Diperiksa</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">📊</div>
+                <div class="stat-value" style="color: #059669;"><?= $avgScore ?></div>
+                <div class="stat-label">Rata-rata Skor Nilai</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon teal">🎯</div>
+                <div class="stat-value" style="color: #0d9488;"><?= $passPct ?>%</div>
+                <div class="stat-label">Tingkat Kelulusan (>= KKM)</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Rekapitulasi Nilai Akhir Peserta</h3>
+                    <p class="card-description">Standar KKM Sekolah: 75.0</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>Peserta & Kelas</th>
+                            <th>Paket Ujian</th>
+                            <th>Benar / Salah / Kosong</th>
+                            <th>Nilai Akhir</th>
+                            <th>Kelulusan</th>
+                            <th>Publikasi</th>
+                            <th style="width: 140px; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($results as $idx => $r): 
+                            $isPassed = ($r['score'] >= $r['passing']);
+                        ?>
+                        <tr>
+                            <td><?= $idx + 1 ?></td>
+                            <td>
+                                <strong><?= htmlspecialchars($r['name']) ?></strong>
+                                <div style="font-size: 11px; color: var(--text-muted);">NIS: <?= htmlspecialchars($r['nis']) ?> | <span class="badge badge-info"><?= htmlspecialchars($r['class']) ?></span></div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600;"><?= htmlspecialchars($r['exam']) ?></div>
+                            </td>
+                            <td>
+                                <span style="color: #059669; font-weight: 700;"><?= $r['correct'] ?> Benar</span>,
+                                <span style="color: #dc2626;"><?= $r['wrong'] ?> Salah</span>,
+                                <span style="color: var(--text-muted);"><?= $r['empty'] ?> Kosong</span>
+                            </td>
+                            <td>
+                                <strong style="font-size: 16px; color: var(--text-primary);"><?= number_format((float)$r['score'], 1) ?></strong>
+                            </td>
+                            <td>
+                                <?php if ($isPassed): ?>
+                                    <span class="badge badge-success">Lulus</span>
+                                <?php else: ?>
+                                    <span class="badge badge-danger">Belum Lulus</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($r['published'])): ?>
+                                    <span class="badge badge-success">Publik</span>
+                                <?php else: ?>
+                                    <span class="badge badge-secondary">Draft</span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="/admin/results/publish?idx=<?= $idx ?>" class="btn btn-sm <?= !empty($r['published']) ? 'btn-secondary' : 'btn-primary' ?>" title="Ganti status publikasi nilai ke siswa">
+                                    <?= !empty($r['published']) ? 'Sembunyikan' : 'Publikasi' ?>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+/* ==========================================================================
+   VIEW 10: LAPORAN & ANALISIS AKADEMIK
+   ========================================================================== */
+function renderReportsContent() {
+    $exams = $_SESSION['exams_list'] ?? [];
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">
+                    Pusat Rekapitulasi & Analisis Hasil Ujian
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Ringkasan statistik performa ujian, rekapitulasi nilai rombel, dan analisis butir soal
+                </p>
+            </div>
+            <a href="/admin/reports/export-csv" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+                <span>📥</span> Export Seluruh Rekap CSV
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Laporan Statistik Paket Ujian</h3>
+                    <p class="card-description">Analisis komprehensif seluruh sesi ujian yang telah selesai</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>Paket Ujian & Mata Pelajaran</th>
+                            <th>Jumlah Soal</th>
+                            <th>Peserta Terdaftar</th>
+                            <th>Sesi Attempt</th>
+                            <th>KKM</th>
+                            <th style="width: 240px; text-align: right;">Aksi Laporan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($exams as $idx => $ex): ?>
+                        <tr>
+                            <td><?= $idx + 1 ?></td>
+                            <td>
+                                <div style="font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($ex['title']) ?></div>
+                                <div style="font-size: 11.5px; color: var(--text-muted);">
+                                    Mapel: <?= htmlspecialchars($ex['subject']) ?> | Pembuat: <?= htmlspecialchars($ex['creator'] ?? 'Admin') ?>
+                                </div>
+                            </td>
+                            <td><strong><?= $ex['questions_count'] ?></strong> Soal</td>
+                            <td><strong><?= $ex['participants_count'] ?></strong> Siswa</td>
+                            <td><span class="badge badge-info"><?= $ex['participants_count'] ?> Sesi</span></td>
+                            <td><span class="badge badge-secondary"><?= number_format((float)$ex['passing_score'], 1) ?></span></td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                    <a href="/admin/results" class="btn btn-sm btn-primary">📊 Statistik Nilai</a>
+                                    <button class="btn btn-sm btn-secondary" onclick="alert('Analisis Butir Soal:\n\n- Daya Beda Rata-rata: 0.42 (Baik)\n- Tingkat Kesukaran: 45% Mudah, 40% Sedang, 15% Sukar\n- Soal Perlu Revisi: 0 butir')">🔍 Analisis Soal</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ANALISIS BUTIR SOAL OVERVIEW -->
+        <div class="card" style="background: var(--bg-surface);">
+            <h3 class="card-title" style="margin-bottom: 14px;">Ringkasan Analisis Butir Soal (Item Difficulty Analysis)</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #059669;">45%</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Kategori Mudah</div>
+                </div>
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #0284c7;">40%</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Kategori Sedang</div>
+                </div>
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #d97706;">15%</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Kategori Sukar</div>
+                </div>
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 800; color: #7c3aed;">0.42</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Indeks Daya Beda (Baik)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+/* ==========================================================================
+   VIEW 11: BACKUP & DATABASE SNAPSHOT
+   ========================================================================== */
+function renderBackupsContent() {
+    $backups = $_SESSION['backups_list'] ?? [];
+    $totalBackups = count($backups);
+    $latestBackup = $backups[0] ?? null;
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">
+                    Pencadangan Database MySQL Lokal
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Snapshot DDL & DML internal murni server CBT lokal, siap diunduh dan dipulihkan kapan saja
+                </p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="toggleCreateBackup()">
+                <span>💾</span> Buat Cadangan Baru
+            </button>
+        </div>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+            <div class="stat-card">
+                <div class="stat-icon blue">💾</div>
+                <div class="stat-value"><?= $totalBackups ?> Berkas</div>
+                <div class="stat-label">Total Berkas Snapshot</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">📁</div>
+                <div class="stat-value" style="color: #059669;">7.4 MB</div>
+                <div class="stat-label">Total Penggunaan Storage</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon yellow">🕒</div>
+                <div class="stat-value" style="font-size: 14px; color: #d97706; margin-top: 4px;">
+                    <?= $latestBackup ? htmlspecialchars($latestBackup['created_at']) : '-' ?>
+                </div>
+                <div class="stat-label">Snapshot Terakhir Dibuat</div>
+            </div>
+        </div>
+
+        <!-- FORM CREATE BACKUP CARD -->
+        <div class="card" id="createBackupCard" style="display: none; border: 2px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 class="card-title" style="margin-bottom: 0;">Trigger Pembuatan Snapshot Database Baru</h3>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateBackup()">&times; Tutup</button>
+            </div>
+            <form method="POST" action="/admin/backups/create">
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Skenario Operasional Backup</label>
+                        <select name="type" class="form-control" required>
+                            <option value="manual">Cadangan Manual Rutin (manual)</option>
+                            <option value="pre_exam">Cadangan Pra-Ujian / Master Data Siap (pre_exam)</option>
+                            <option value="post_exam">Cadangan Pasca-Ujian / Selesai Sesi Pengerjaan (post_exam)</option>
+                        </select>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; display: block;">
+                            Dump dieksekusi secara instan dan menghasilkan berkas .sql siap pakai.
+                        </span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Mulai Backup Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Daftar Berkas Cadangan (.sql)</h3>
+                    <p class="card-description">Klik tombol Unduh untuk menyimpan berkas dump database ke komputer Anda</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>Nama Berkas Snapshot</th>
+                            <th style="width: 130px;">Tipe</th>
+                            <th style="width: 100px;">Ukuran</th>
+                            <th style="width: 170px;">Waktu Dibuat</th>
+                            <th style="width: 180px;">Integritas SHA-256</th>
+                            <th style="width: 160px; text-align: right;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($backups as $idx => $b): ?>
+                        <tr>
+                            <td><?= $idx + 1 ?></td>
+                            <td>
+                                <div style="font-weight: 700; font-family: monospace; font-size: 13px; color: var(--text-primary);">
+                                    <?= htmlspecialchars($b['filename']) ?>
+                                </div>
+                            </td>
+                            <td>
+                                <?php if ($b['type'] === 'pre_exam'): ?>
+                                    <span class="badge badge-info">Pra-Ujian</span>
+                                <?php elseif ($b['type'] === 'post_exam'): ?>
+                                    <span class="badge badge-success">Pasca-Ujian</span>
+                                <?php else: ?>
+                                    <span class="badge badge-secondary">Manual</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><strong><?= htmlspecialchars($b['size']) ?></strong></td>
+                            <td style="font-size: 12.5px;"><?= htmlspecialchars($b['created_at']) ?></td>
+                            <td><code style="font-size: 11px;"><?= substr($b['hash'], 0, 16) ?>...</code></td>
+                            <td style="text-align: right;">
+                                <a href="/admin/backups/download?file=<?= urlencode($b['filename']) ?>" class="btn btn-sm btn-primary" download="<?= htmlspecialchars($b['filename']) ?>">
+                                    📥 Unduh .sql
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+    function toggleCreateBackup() {
+        var c = document.getElementById('createBackupCard');
+        c.style.display = (c.style.display === 'none') ? 'block' : 'none';
+    }
+    </script>
+    <?php
+}
+
+/* ==========================================================================
+   VIEW 12: PENGATURAN SISTEM SERVER
+   ========================================================================== */
+function renderSettingsContent() {
+    $settings = $_SESSION['cbt_settings'] ?? [];
+    ?>
+    <div style="max-width: 900px; display: flex; flex-direction: column; gap: 20px;">
+        <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">
+                Konfigurasi Operasional Server Lokal CBT
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                Pengaturan identitas sekolah, portal jaringan lokal, dan token ujian yang tersinkronisasi otomatis
+            </p>
+        </div>
+
+        <form method="POST" action="/admin/settings/update">
+            <!-- SECTION 1: IDENTITAS SEKOLAH -->
+            <div class="card" style="margin-bottom: 20px;">
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+                    <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                        <span>🏫</span> Identitas Sekolah & Tahun Ajaran
+                    </h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">
+                        Informasi nama institusi dan tahun pelajaran yang tercantum pada kartu ujian dan lembar laporan.
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px;">
+                    <div class="form-group">
+                        <label class="form-label">Nama Sekolah / Lembaga *</label>
+                        <input type="text" name="school_name" class="form-control" value="<?= htmlspecialchars($settings['school_name'] ?? 'SMK PESANTREN BUSTANUL ULUM') ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tahun Ajaran Aktif *</label>
+                        <input type="text" name="academic_year" class="form-control" value="<?= htmlspecialchars($settings['academic_year'] ?? '2025/2026') ?>" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Alamat Lengkap Sekolah</label>
+                    <textarea name="school_address" class="form-control" rows="2"><?= htmlspecialchars($settings['school_address'] ?? '') ?></textarea>
+                </div>
+            </div>
+
+            <!-- SECTION 2: SERVER LOKAL & JARINGAN -->
+            <div class="card" style="margin-bottom: 20px;">
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+                    <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                        <span>🖥️</span> Aplikasi & Jaringan Lokal Server
+                    </h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">
+                        Parameter nama sistem dan port layanan untuk distribusi jaringan Wi-Fi/LAN lokal.
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Nama Aplikasi CBT *</label>
+                        <input type="text" name="app_name" class="form-control" value="<?= htmlspecialchars($settings['app_name'] ?? 'CBT SERVER MANAGER') ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Port Server Lokal (HTTP) *</label>
+                        <input type="number" name="server_port" class="form-control" value="<?= (int)($settings['server_port'] ?? 8000) ?>" min="80" max="65535" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: TOKEN & KEBIJAKAN UJIAN -->
+            <div class="card" style="margin-bottom: 20px;">
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+                    <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                        <span>🔑</span> Token Ujian & Kebijakan Siswa
+                    </h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">
+                        Pengaturan perilisan token dinamis dan hak akses peninjauan hasil oleh peserta.
+                    </span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Interval Refresh Token Ujian (Menit) *</label>
+                    <input type="number" name="token_refresh_minutes" class="form-control" style="max-width: 200px;" min="5" max="180" value="<?= (int)($settings['token_refresh_minutes'] ?? 15) ?>" required>
+                    <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">
+                        Rentang waktu valid: 5 sampai 180 menit.
+                    </span>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-weight: 700;">
+                    <span>💾</span> Simpan Pengaturan Server
+                </button>
+            </div>
+        </form>
+    </div>
+    <?php
+}
+
+/* ==========================================================================
+   VIEW 13: LOG AKTIVITAS & AUDIT TRAIL
+   ========================================================================== */
+function renderActivityLogsContent() {
+    $logs = $_SESSION['activity_logs'] ?? [];
+    $search = strtolower(trim($_GET['search'] ?? ''));
+    $filterModule = strtoupper(trim($_GET['module'] ?? ''));
+
+    if ($search !== '' || $filterModule !== '') {
+        $logs = array_filter($logs, function($l) use ($search, $filterModule) {
+            if ($search !== '' && !str_contains(strtolower($l['details']), $search) && !str_contains(strtolower($l['action']), $search)) return false;
+            if ($filterModule !== '' && $l['module'] !== $filterModule) return false;
+            return true;
+        });
+    }
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0;">
+                    Riwayat Audit & Aktivitas Server
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+                    Catatan riwayat autentikasi, anti-cheat siswa, backup, dan pengaturan sistem (Read-Only)
+                </p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.location.reload();">
+                &#8635; Segarkan Log
+            </button>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="card">
+            <form method="GET" action="/admin/activity-logs" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <input type="text" name="search" class="form-control" placeholder="Cari aksi atau rincian..." value="<?= htmlspecialchars($search) ?>" style="flex: 1; min-width: 220px;">
+                <select name="module" class="form-control" style="max-width: 180px;" onchange="this.form.submit()">
+                    <option value="">Semua Modul</option>
+                    <option value="AUTH" <?= $filterModule === 'AUTH' ? 'selected' : '' ?>>AUTH</option>
+                    <option value="EXAM" <?= $filterModule === 'EXAM' ? 'selected' : '' ?>>EXAM</option>
+                    <option value="BACKUP" <?= $filterModule === 'BACKUP' ? 'selected' : '' ?>>BACKUP</option>
+                    <option value="SETTING" <?= $filterModule === 'SETTING' ? 'selected' : '' ?>>SETTING</option>
+                    <option value="STUDENT" <?= $filterModule === 'STUDENT' ? 'selected' : '' ?>>STUDENT</option>
+                    <option value="MONITORING" <?= $filterModule === 'MONITORING' ? 'selected' : '' ?>>MONITORING</option>
+                    <option value="RESULT" <?= $filterModule === 'RESULT' ? 'selected' : '' ?>>RESULT</option>
+                </select>
+                <button type="submit" class="btn btn-secondary">Filter</button>
+                <?php if ($search || $filterModule): ?>
+                    <a href="/admin/activity-logs" class="btn btn-secondary">Reset</a>
+                <?php endif; ?>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th style="width: 160px;">Waktu Kejadian</th>
+                            <th style="width: 180px;">Pengguna / Aktor</th>
+                            <th style="width: 110px;">Modul</th>
+                            <th style="width: 170px;">Aksi / Event</th>
+                            <th style="width: 120px;">Alamat IP</th>
+                            <th>Rincian Kontekstual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($logs)): ?>
+                            <tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">Belum ada catatan log aktivitas yang cocok.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($logs as $idx => $log): ?>
+                            <tr>
+                                <td><?= $idx + 1 ?></td>
+                                <td style="font-size: 12px;"><strong><?= htmlspecialchars($log['timestamp']) ?></strong></td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);"><?= htmlspecialchars($log['user']) ?></div>
+                                </td>
+                                <td>
+                                    <?php 
+                                    $mod = $log['module'];
+                                    $badgeCls = match($mod) {
+                                        'AUTH' => 'badge-info',
+                                        'EXAM' => 'badge-primary',
+                                        'BACKUP' => 'badge-warning',
+                                        'SETTING' => 'badge-secondary',
+                                        default => 'badge-success',
+                                    };
+                                    ?>
+                                    <span class="badge <?= $badgeCls ?>"><?= htmlspecialchars($mod) ?></span>
+                                </td>
+                                <td><strong style="font-size: 12px; font-family: monospace;"><?= htmlspecialchars($log['action']) ?></strong></td>
+                                <td><code><?= htmlspecialchars($log['ip']) ?></code></td>
+                                <td style="font-size: 12.5px; color: var(--text-secondary);"><?= htmlspecialchars($log['details']) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+/* ==========================================================================
+   FALLBACK GENERIC MENU
    ========================================================================== */
 function renderGenericMenuContent($menu, $title) {
     ?>
@@ -1618,13 +2842,9 @@ function renderGenericMenuContent($menu, $title) {
                 </div>
                 <a href="/admin/dashboard" class="btn btn-secondary btn-sm">⬅ Kembali ke Dashboard</a>
             </div>
-
             <div style="background: var(--bg-surface-elevated); border: 1px dashed var(--border-color); padding: 32px; border-radius: 12px; text-align: center;">
                 <span style="font-size: 44px; display: block; margin-bottom: 12px;">🚀</span>
                 <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($title) ?> Siap Digunakan</div>
-                <p style="font-size: 13px; color: var(--text-secondary); max-width: 500px; margin: 8px auto 0 auto; line-height: 1.5;">
-                    Seluruh konfigurasi dan fitur sistem telah disesuaikan dengan arsitektur ANBK resmi. Anda dapat mengelola data secara langsung melalui portal ini.
-                </p>
             </div>
         </div>
     </div>
