@@ -70,6 +70,12 @@
 
                     <!-- 2. MASTER DATA -->
                     <div class="nav-section-title">Master Data</div>
+                    <a href="{{ route('admin.classes.index') }}" class="nav-link {{ request()->routeIs('admin.classes.*') ? 'active' : '' }}">
+                        <span class="nav-link-content">
+                            <span class="menu-icon-box amber">🏫</span>
+                            <span>Data Kelas</span>
+                        </span>
+                    </a>
                     <a href="{{ route('admin.students.index') }}" class="nav-link {{ request()->routeIs('admin.students.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
                             <span class="menu-icon-box purple">👥</span>
@@ -83,12 +89,6 @@
                         <span class="nav-link-content">
                             <span class="menu-icon-box teal">👨‍🏫</span>
                             <span>Data Guru</span>
-                        </span>
-                    </a>
-                    <a href="{{ route('admin.classes.index') }}" class="nav-link {{ request()->routeIs('admin.classes.*') ? 'active' : '' }}">
-                        <span class="nav-link-content">
-                            <span class="menu-icon-box amber">🏫</span>
-                            <span>Data Kelas</span>
                         </span>
                     </a>
                     <a href="{{ route('admin.subjects.index') }}" class="nav-link {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">

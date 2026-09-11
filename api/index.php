@@ -1338,6 +1338,13 @@ function renderAppPage($uri) {
 
                 <!-- 2. MASTER DATA -->
                 <div class="nav-section-title">Master Data</div>
+                <a href="/admin/classes" class="nav-link <?= $activeMenu === 'classes' ? 'active' : '' ?>">
+                    <span class="nav-link-content">
+                        <span class="menu-icon-box amber">🏫</span>
+                        <span>Data Kelas</span>
+                    </span>
+                    <span class="nav-badge-pill"><?= count($_SESSION['classes_list']) ?></span>
+                </a>
                 <a href="/admin/students" class="nav-link <?= $activeMenu === 'students' ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box purple">👥</span>
@@ -1351,13 +1358,6 @@ function renderAppPage($uri) {
                         <span>Data Guru</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['teachers_list']) ?></span>
-                </a>
-                <a href="/admin/classes" class="nav-link <?= $activeMenu === 'classes' ? 'active' : '' ?>">
-                    <span class="nav-link-content">
-                        <span class="menu-icon-box amber">🏫</span>
-                        <span>Data Kelas</span>
-                    </span>
-                    <span class="nav-badge-pill"><?= count($_SESSION['classes_list']) ?></span>
                 </a>
                 <a href="/admin/subjects" class="nav-link <?= $activeMenu === 'subjects' ? 'active' : '' ?>">
                     <span class="nav-link-content">
