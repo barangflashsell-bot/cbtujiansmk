@@ -2148,10 +2148,315 @@ function renderClassesContent() {
 }
 
 // =========================================================================
-// 11. MENU 5: MATA PELAJARAN (FULL INTERACTIVE CRUD)
+// 11. MENU 5: MATA PELAJARAN & SOAL BUTIRAN (PER MATA PELAJARAN)
 // =========================================================================
 function renderSubjectsContent() {
     $search = strtolower(trim($_GET['search'] ?? ''));
+    $subjectParam = trim($_GET['subject_id'] ?? $_GET['subject_name'] ?? '');
+    $action = $_GET['action'] ?? '';
+
+    // Check if viewing questions inside a specific subject
+    $activeSubject = null;
+    if ($subjectParam !== '' && $subjectParam !== 'all') {
+        foreach ($_SESSION['subjects_list'] as $sb) {
+            if ($sb['id'] === $subjectParam || $sb['name'] === $subjectParam || $sb['code'] === $subjectParam) {
+                $activeSubject = $sb;
+                break;
+            }
+        }
+    }
+
+    if ($activeSubject) {
+        // =========================================================================
+        // VIEW 1: SOAL BUTIRAN DI DALAM MATA PELAJARAN TERPILIH
+        // =========================================================================
+        $subjectQuestions = array_filter($_SESSION['questions_list'], function($q) use ($activeSubject) {
+            return ($q['subject_id'] ?? '') === $activeSubject['id'] || ($q['subject_name'] ?? '') === $activeSubject['name'];
+        });
+
+        if ($search !== '') {
+            $subjectQuestions = array_filter($subjectQuestions, function($q) use ($search) {
+                return str_contains(strtolower($q['content']), $search);
+            });
+        }
+        ?>
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+            <!-- BACK BUTTON & BREADCRUMB -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <a href="/admin/subjects" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                        <span>&larr;</span> Kembali ke Daftar Mapel
+                    </a>
+                    <span style="color: var(--border-color);">|</span>
+                    <span style="font-size: 13px; color: var(--text-muted);">Mata Pelajaran: <strong><?= htmlspecialchars($activeSubject['name']) ?></strong></span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
+                        <span>📊</span> Import Soal Excel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="toggleCreateQuestionCard()" style="font-weight: 700;">
+                        <span>+</span> Tambah Butir Soal
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUBJECT HERO CARD -->
+            <div class="card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);">
+                        📚
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                            <span class="badge badge-primary" style="background: #0284c7; color: #ffffff; border: none; font-size: 11.5px;"><?= htmlspecialchars($activeSubject['code']) ?></span>
+                            <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #0369a1;"><?= htmlspecialchars($activeSubject['name']) ?></h2>
+                        </div>
+                        <div style="font-size: 13px; color: #475569;">
+                            Guru Pengampu: <strong><?= htmlspecialchars($activeSubject['teacher'] ?? 'Guru Pengampu') ?></strong> &bull; Total Soal Mapel Ini: <strong style="color: #0284c7;"><?= count($subjectQuestions) ?> Butir Soal</strong>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary" onclick="toggleCreateQuestionCard()" style="font-weight: 700; box-shadow: 0 2px 6px rgba(0, 149, 255, 0.3);">
+                        <span>📝</span> Buat Butir Soal
+                    </button>
+                </div>
+            </div>
+
+            <!-- COLLAPSIBLE CREATE QUESTION CARD -->
+            <div class="card" id="createQuestionCard" style="display: <?= ($action === 'create_question' || $action === 'create') ? 'block' : 'none' ?>; border-color: var(--primary);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 18px;">📝</span>
+                        <h3 class="card-title" style="margin-bottom: 0;">
+                            Tambah Butir Soal Baru — <?= htmlspecialchars($activeSubject['name']) ?>
+                        </h3>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateQuestionCard()">&times; Batal</button>
+                </div>
+                <form action="/admin/questions/create" method="POST">
+                    <input type="hidden" name="subject_name" value="<?= htmlspecialchars($activeSubject['name']) ?>">
+                    <input type="hidden" name="return_url" value="/admin/subjects?subject_id=<?= urlencode($activeSubject['id']) ?>">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label class="form-label">Mata Pelajaran</label>
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($activeSubject['name']) ?> (<?= htmlspecialchars($activeSubject['code']) ?>)" readonly style="background: var(--bg-surface-elevated); font-weight: 600;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Tipe Soal *</label>
+                            <select name="question_type" class="form-select" required>
+                                <option value="single_choice">Pilihan Ganda</option>
+                                <option value="multiple_choice">Pilihan Majemuk</option>
+                                <option value="essay">Uraian / Essay</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Tingkat Kesulitan *</label>
+                            <select name="difficulty" class="form-select" required>
+                                <option value="easy">Mudah</option>
+                                <option value="medium" selected>Sedang</option>
+                                <option value="hard">Sulit</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Bobot Nilai *</label>
+                            <input type="number" step="0.1" name="score_weight" class="form-control" value="2.5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label class="form-label">Pertanyaan Butir Soal *</label>
+                        <textarea name="content" class="textarea-control" rows="4" placeholder="Tuliskan pertanyaan butir soal secara lengkap..." required></textarea>
+                    </div>
+
+                    <div style="margin-top: 16px; padding: 14px 16px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px;">
+                        <div style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">
+                            Pilihan Jawaban &amp; Kunci Benar (Pilih Radio untuk Kunci)
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <?php foreach (['A', 'B', 'C', 'D', 'E'] as $lbl): ?>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; min-width: 45px;">
+                                        <input type="radio" name="correct_option" value="<?= $lbl ?>" <?= $lbl === 'A' ? 'checked' : '' ?>>
+                                        <strong><?= $lbl ?>.</strong>
+                                    </label>
+                                    <input type="text" name="opt_<?= strtolower($lbl) ?>" class="form-control" placeholder="Teks jawaban <?= $lbl ?>..." required>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+                        <button type="button" class="btn btn-secondary" onclick="toggleCreateQuestionCard()">Batal</button>
+                        <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Butir Soal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SEARCH IN THIS SUBJECT'S QUESTIONS -->
+            <div class="card" style="padding: 12px 18px;">
+                <form action="/admin/subjects" method="GET" style="display: flex; gap: 8px; align-items: center;">
+                    <input type="hidden" name="subject_id" value="<?= htmlspecialchars($activeSubject['id']) ?>">
+                    <input type="text" name="search" class="form-control" placeholder="Cari isi butir soal <?= htmlspecialchars($activeSubject['name']) ?>..." value="<?= htmlspecialchars($search) ?>" style="max-width: 320px;">
+                    <button type="submit" class="btn btn-secondary">Cari</button>
+                    <?php if ($search !== ''): ?>
+                        <a href="/admin/subjects?subject_id=<?= urlencode($activeSubject['id']) ?>" class="btn btn-secondary">Reset</a>
+                    <?php endif; ?>
+                </form>
+            </div>
+
+            <!-- BUTIR SOAL TABLE FOR THIS SUBJECT -->
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th style="width: 130px;">Tipe &amp; Tingkat</th>
+                                <th>Isi Butir Pertanyaan</th>
+                                <th style="width: 80px;">Bobot</th>
+                                <th style="width: 120px;">Pembuat</th>
+                                <th style="width: 140px; text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($subjectQuestions)): ?>
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">📝</div>
+                                            <p>Belum ada butir soal di dalam mata pelajaran <strong><?= htmlspecialchars($activeSubject['name']) ?></strong>.</p>
+                                            <div style="margin-top: 12px;">
+                                                <button type="button" class="btn btn-primary btn-sm" onclick="toggleCreateQuestionCard()">
+                                                    + Buat Butir Soal Pertama Sekarang
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php $idx = 1; foreach ($subjectQuestions as $q): ?>
+                                    <tr>
+                                        <td><?= $idx++ ?></td>
+                                        <td>
+                                            <div style="font-weight: 600; font-size: 0.85rem;">
+                                                <?= ($q['question_type'] ?? 'single_choice') === 'single_choice' ? 'Pilihan Ganda' : 'Uraian' ?>
+                                            </div>
+                                            <div style="margin-top: 3px;">
+                                                <?php if (($q['difficulty'] ?? 'easy') === 'easy'): ?>
+                                                    <span class="badge badge-success">Mudah</span>
+                                                <?php elseif (($q['difficulty'] ?? 'easy') === 'hard'): ?>
+                                                    <span class="badge badge-danger">Sulit</span>
+                                                <?php else: ?>
+                                                    <span class="badge badge-warning">Sedang</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 500; font-size: 0.9rem; line-height: 1.4;">
+                                                <?= htmlspecialchars($q['content']) ?>
+                                            </div>
+                                            <?php if (!empty($q['options'])): ?>
+                                                <div style="margin-top: 6px; font-size: 0.8rem; color: var(--text-muted);">
+                                                    <?= count($q['options']) ?> Opsi Jawaban &bull; Kunci: <strong style="color: var(--success); font-weight: 700;"><?= htmlspecialchars($q['correct_option'] ?? 'A') ?></strong>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><strong><?= number_format((float)($q['score_weight'] ?? 2.5), 1) ?></strong></td>
+                                        <td><span style="font-size: 0.85rem; color: var(--text-secondary);"><?= htmlspecialchars($q['creator'] ?? 'Admin') ?></span></td>
+                                        <td style="text-align: center;">
+                                            <div class="action-btns">
+                                                <button type="button" class="btn btn-secondary btn-sm" onclick="openEditQuestion('<?= htmlspecialchars($q['id']) ?>', '<?= htmlspecialchars(addslashes($q['content'])) ?>', '<?= htmlspecialchars($q['difficulty'] ?? 'medium') ?>', <?= (float)($q['score_weight'] ?? 2.5) ?>, '<?= htmlspecialchars($q['correct_option'] ?? 'A') ?>')">
+                                                    Edit
+                                                </button>
+                                                <a href="/admin/questions/delete?id=<?= urlencode($q['id']) ?>&return_url=<?= urlencode('/admin/subjects?subject_id=' . $activeSubject['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus butir soal ini?');">
+                                                    Hapus
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- EDIT QUESTION MODAL -->
+        <div class="modal-overlay" id="editQuestionModal">
+            <div class="modal-content-card" style="max-width: 540px;">
+                <div class="modal-header">
+                    <h3 class="modal-title" style="margin: 0;">Edit Butir Soal</h3>
+                    <button type="button" class="modal-close-btn" onclick="document.getElementById('editQuestionModal').classList.remove('open')">&times;</button>
+                </div>
+                <form action="/admin/questions/edit" method="POST">
+                    <input type="hidden" name="id" id="edit_q_id">
+                    <input type="hidden" name="return_url" value="/admin/subjects?subject_id=<?= urlencode($activeSubject['id']) ?>">
+                    <div style="margin-bottom: 12px;">
+                        <label class="form-label">Isi Pertanyaan *</label>
+                        <textarea name="content" id="edit_q_content" class="textarea-control" rows="4" required></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px;">
+                        <div>
+                            <label class="form-label">Tingkat Kesulitan</label>
+                            <select name="difficulty" id="edit_q_diff" class="form-select">
+                                <option value="easy">Mudah</option>
+                                <option value="medium">Sedang</option>
+                                <option value="hard">Sulit</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Bobot Nilai</label>
+                            <input type="number" step="0.1" name="score_weight" id="edit_q_weight" class="form-control" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Kunci Jawaban</label>
+                            <select name="correct_option" id="edit_q_key" class="form-select">
+                                <option value="A">Opsi A</option>
+                                <option value="B">Opsi B</option>
+                                <option value="C">Opsi C</option>
+                                <option value="D">Opsi D</option>
+                                <option value="E">Opsi E</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('editQuestionModal').classList.remove('open')">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <?php renderImportModalGeneric('/admin/questions/import', '/admin/questions/template', 'Bank Soal ' . $activeSubject['name'], 'template_soal'); ?>
+
+        <script>
+            function toggleCreateQuestionCard() {
+                var card = document.getElementById('createQuestionCard');
+                if (card.style.display === 'none' || card.style.display === '') {
+                    card.style.display = 'block';
+                    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+            function openEditQuestion(id, content, diff, weight, key) {
+                document.getElementById('edit_q_id').value = id;
+                document.getElementById('edit_q_content').value = content;
+                document.getElementById('edit_q_diff').value = diff;
+                document.getElementById('edit_q_weight').value = weight;
+                document.getElementById('edit_q_key').value = key;
+                document.getElementById('editQuestionModal').classList.add('open');
+            }
+        </script>
+        <?php
+        return;
+    }
+
+    // =========================================================================
+    // VIEW 2: LIST MATA PELAJARAN (CLEAN LIST DAFTAR MATA PELAJARAN)
+    // =========================================================================
     $subjects = $_SESSION['subjects_list'];
     if ($search !== '') {
         $subjects = array_filter($subjects, function($sb) use ($search) {
@@ -2160,6 +2465,23 @@ function renderSubjectsContent() {
     }
     ?>
     <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Daftar Mata Pelajaran</h1>
+                <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
+                    Kelola data mata pelajaran. Klik tombol "Butir Soal" pada mata pelajaran untuk mengelola soal di dalamnya.
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
+                    <span>📊</span> Import Data Excel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('createSubjectCard').style.display = 'block'; window.scrollTo({top: document.getElementById('createSubjectCard').offsetTop - 80, behavior: 'smooth'});">
+                    <span>+</span> Tambah Mapel Baru
+                </button>
+            </div>
+        </div>
+
         <div class="action-bar">
             <div class="filter-group">
                 <form action="/admin/subjects" method="GET" style="display: flex; gap: 8px;">
@@ -2169,18 +2491,6 @@ function renderSubjectsContent() {
                         <a href="/admin/subjects" class="btn btn-secondary">Reset</a>
                     <?php endif; ?>
                 </form>
-            </div>
-
-            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('chooseSubjectToCreateModal').classList.add('open')" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
-                    <span>📝</span> Buat Soal Mapel
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
-                    <span>📊</span> Import Data Excel
-                </button>
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('createSubjectCard').style.display = 'block'; window.scrollTo({top: document.getElementById('createSubjectCard').offsetTop - 80, behavior: 'smooth'});">
-                    <span>+</span> Tambah Mapel Baru
-                </button>
             </div>
         </div>
 
@@ -2208,19 +2518,19 @@ function renderSubjectsContent() {
             </form>
         </div>
 
-        <!-- SUBJECTS TABLE -->
+        <!-- SUBJECTS LIST TABLE -->
         <div class="card" style="padding: 0; overflow: hidden;">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th style="width: 50px;">No</th>
-                            <th>Kode</th>
+                            <th style="width: 100px;">Kode</th>
                             <th>Nama Mata Pelajaran</th>
                             <th>Guru Pengampu</th>
-                            <th>Total Soal</th>
+                            <th style="width: 170px; text-align: center;">Butir Soal</th>
                             <th>Status</th>
-                            <th style="width: 240px; text-align: center;">Aksi</th>
+                            <th style="width: 220px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2235,21 +2545,28 @@ function renderSubjectsContent() {
                             </tr>
                         <?php else: ?>
                             <?php foreach ($subjects as $idx => $sb): ?>
+                                <?php
+                                $sbCount = count(array_filter($_SESSION['questions_list'], fn($q) => ($q['subject_id'] ?? '') === $sb['id'] || ($q['subject_name'] ?? '') === $sb['name']));
+                                ?>
                                 <tr>
                                     <td><?= $idx + 1 ?></td>
                                     <td><span class="badge badge-primary"><?= htmlspecialchars($sb['code']) ?></span></td>
-                                    <td><strong><?= htmlspecialchars($sb['name']) ?></strong></td>
-                                    <td><?= htmlspecialchars($sb['teacher'] ?? 'Guru Pengampu') ?></td>
                                     <td>
-                                        <a href="/admin/questions?subject_name=<?= urlencode($sb['name']) ?>" class="badge badge-info" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Lihat semua butir soal <?= htmlspecialchars($sb['name']) ?>">
-                                            <span>📖</span> <?= (int)($sb['questions_count'] ?? 40) ?> Butir &rarr;
+                                        <a href="/admin/subjects?subject_id=<?= urlencode($sb['id']) ?>" style="font-weight: 700; font-size: 14px; color: var(--primary); text-decoration: none;" title="Buka butir soal mapel ini">
+                                            <?= htmlspecialchars($sb['name']) ?>
+                                        </a>
+                                    </td>
+                                    <td><?= htmlspecialchars($sb['teacher'] ?? 'Guru Pengampu') ?></td>
+                                    <td style="text-align: center;">
+                                        <a href="/admin/subjects?subject_id=<?= urlencode($sb['id']) ?>" class="badge badge-info" style="font-size: 12px; padding: 6px 14px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;" title="Kelola butir soal <?= htmlspecialchars($sb['name']) ?>">
+                                            <span>📂</span> <?= $sbCount ?> Butir Soal &rarr;
                                         </a>
                                     </td>
                                     <td><span class="badge badge-success">Aktif</span></td>
                                     <td style="text-align: center;">
                                         <div class="action-btns" style="justify-content: center;">
-                                            <a href="/admin/questions?subject_name=<?= urlencode($sb['name']) ?>&action=create" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700;" title="Buat butir soal baru untuk <?= htmlspecialchars($sb['name']) ?>">
-                                                <span>📝</span> Buat Soal
+                                            <a href="/admin/subjects?subject_id=<?= urlencode($sb['id']) ?>&action=create_question" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700;" title="Tambah butir soal baru ke mapel ini">
+                                                <span>➕</span> Buat Soal
                                             </a>
                                             <button type="button" class="btn btn-secondary btn-sm" onclick="openEditSubject('<?= htmlspecialchars($sb['id']) ?>', '<?= htmlspecialchars(addslashes($sb['code'])) ?>', '<?= htmlspecialchars(addslashes($sb['name'])) ?>')">
                                                 Edit
@@ -2265,40 +2582,6 @@ function renderSubjectsContent() {
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-
-    <!-- CHOOSE SUBJECT MODAL (BUAT SOAL SESUAI MAPEL YANG DIINGINKAN) -->
-    <div class="modal-overlay" id="chooseSubjectToCreateModal">
-        <div class="modal-content-card" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                    <span>📝</span> Buat Soal Mata Pelajaran
-                </h3>
-                <button type="button" class="modal-close-btn" onclick="document.getElementById('chooseSubjectToCreateModal').classList.remove('open')">&times;</button>
-            </div>
-            <form action="/admin/questions" method="GET">
-                <input type="hidden" name="action" value="create">
-                <div style="margin-bottom: 16px;">
-                    <label class="form-label" style="font-weight: 700;">Pilih Mata Pelajaran Yang Diinginkan *</label>
-                    <select name="subject_name" class="form-select" required style="font-size: 14px; padding: 10px 12px;">
-                        <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
-                            <option value="<?= htmlspecialchars($sb['name']) ?>">
-                                <?= htmlspecialchars($sb['name']) ?> (<?= htmlspecialchars($sb['code']) ?>) &bull; <?= (int)($sb['questions_count'] ?? 40) ?> Butir Soal
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div style="margin-top: 10px; padding: 10px 12px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
-                        💡 Anda akan diarahkan langsung ke halaman Bank Soal dengan form input soal baru yang sudah otomatis memilih mata pelajaran tersebut.
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('chooseSubjectToCreateModal').classList.remove('open')">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
-                        <span>📝</span> Lanjut Buat Soal &rarr;
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -2341,425 +2624,10 @@ function renderSubjectsContent() {
 }
 
 // =========================================================================
-// 12. MENU 6: BANK SOAL (FULL INTERACTIVE CRUD)
+// 12. MENU 6: BANK SOAL (TERPADU KE DALAM LIST MATA PELAJARAN)
 // =========================================================================
 function renderQuestionsContent() {
-    $search = strtolower(trim($_GET['search'] ?? ''));
-    $subjectParam = trim($_GET['subject_name'] ?? $_GET['subject_id'] ?? '');
-    $type = $_GET['type'] ?? '';
-    $action = $_GET['action'] ?? '';
-    $questions = $_SESSION['questions_list'];
-
-    // Identify active subject if specified
-    $activeSubject = null;
-    $activeSubjectName = '';
-    if ($subjectParam !== '' && $subjectParam !== 'all') {
-        foreach ($_SESSION['subjects_list'] as $sb) {
-            if ($sb['name'] === $subjectParam || $sb['id'] === $subjectParam || $sb['code'] === $subjectParam) {
-                $activeSubject = $sb;
-                $activeSubjectName = $sb['name'];
-                break;
-            }
-        }
-        if (!$activeSubject && $subjectParam !== '') {
-            $activeSubjectName = $subjectParam;
-        }
-    }
-
-    if ($activeSubjectName !== '') {
-        $questions = array_filter($questions, function($q) use ($activeSubjectName, $activeSubject) {
-            return ($q['subject_name'] ?? '') === $activeSubjectName || ($activeSubject && ($q['subject_id'] ?? '') === $activeSubject['id']);
-        });
-    }
-
-    if ($type !== '') {
-        $questions = array_filter($questions, function($q) use ($type) {
-            return ($q['question_type'] ?? 'single_choice') === $type;
-        });
-    }
-
-    if ($search !== '') {
-        $questions = array_filter($questions, function($q) use ($search) {
-            return str_contains(strtolower($q['content']), $search);
-        });
-    }
-    ?>
-    <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div>
-                <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Bank Soal & Kisi-Kisi</h1>
-                <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Kelola butir soal ujian, opsi pilihan jawaban, bobot nilai, dan kunci jawaban per-mata pelajaran
-                </p>
-            </div>
-            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
-                    <span>📊</span> Import Soal Excel
-                </button>
-                <button type="button" class="btn btn-primary" onclick="openCreateQuestionWithSubject('<?= htmlspecialchars(addslashes($activeSubjectName)) ?>')">
-                    <span>+</span> Buat Soal <?= $activeSubjectName ? htmlspecialchars($activeSubjectName) : 'Baru' ?>
-                </button>
-            </div>
-        </div>
-
-        <!-- TABS NAVIGASI BANK SOAL PER-MATA PELAJARAN -->
-        <div class="card" style="padding: 14px 18px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">📚</span>
-                    <strong style="font-size: 14px; color: var(--text-primary);">Bank Soal Per-Mata Pelajaran</strong>
-                    <span style="font-size: 11.5px; color: var(--text-muted);">(Pilih mata pelajaran untuk filter instan &amp; kelola butir soal per-mapel)</span>
-                </div>
-                <div style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">
-                    Total: <span style="color: var(--primary);"><?= count($_SESSION['questions_list']) ?> Butir Soal</span>
-                </div>
-            </div>
-
-            <div class="subject-nav-tabs">
-                <a href="/admin/questions?subject_name=all" class="subject-tab-pill <?= empty($activeSubjectName) ? 'active' : '' ?>">
-                    <span>Semua Mapel</span>
-                    <span class="subject-tab-badge"><?= count($_SESSION['questions_list']) ?></span>
-                </a>
-                <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
-                    <?php
-                    $sbCount = count(array_filter($_SESSION['questions_list'], fn($q) => ($q['subject_name'] ?? '') === $sb['name'] || ($q['subject_id'] ?? '') === $sb['id']));
-                    $isActive = ($activeSubjectName === $sb['name'] || ($activeSubject && $activeSubject['id'] === $sb['id']));
-                    ?>
-                    <a href="/admin/questions?subject_name=<?= urlencode($sb['name']) ?>" class="subject-tab-pill <?= $isActive ? 'active' : '' ?>">
-                        <span><?= htmlspecialchars($sb['code']) ?> - <?= htmlspecialchars($sb['name']) ?></span>
-                        <span class="subject-tab-badge"><?= $sbCount ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-
-        <?php if ($activeSubject): ?>
-            <!-- ACTIVE SUBJECT BANNER -->
-            <div class="card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="width: 44px; height: 44px; border-radius: 10px; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);">
-                        📖
-                    </div>
-                    <div>
-                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #0284c7; letter-spacing: 0.5px;">Mata Pelajaran Terpilih</div>
-                        <div style="font-size: 17px; font-weight: 800; color: #0369a1; margin-top: 1px;">
-                            <?= htmlspecialchars($activeSubject['name']) ?> <span style="font-size: 13px; font-weight: 600; opacity: 0.85;">(<?= htmlspecialchars($activeSubject['code']) ?>)</span>
-                        </div>
-                        <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">
-                            Guru Pengampu: <strong><?= htmlspecialchars($activeSubject['teacher'] ?? 'Budi Santoso, S.Pd') ?></strong> &bull; Total Soal Mapel Ini: <strong><?= count($questions) ?> Butir</strong>
-                        </div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <button type="button" class="btn btn-primary" onclick="openCreateQuestionWithSubject('<?= htmlspecialchars(addslashes($activeSubjectName)) ?>')" style="font-weight: 700;">
-                        <span>+</span> Buat Soal <?= htmlspecialchars($activeSubject['name']) ?>
-                    </button>
-                    <a href="/admin/questions?subject_name=all" class="btn btn-secondary">
-                        <span>🔄</span> Semua Mapel
-                    </a>
-                </div>
-            </div>
-        <?php else: ?>
-            <!-- GRID MAPEL KARTU RINGKASAN & BUAT SOAL CEPAT -->
-            <div>
-                <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span>🎯</span> Pilih Mata Pelajaran Untuk Buat / Kelola Soal:
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
-                    <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
-                        <?php
-                        $sbCount = count(array_filter($_SESSION['questions_list'], fn($q) => ($q['subject_name'] ?? '') === $sb['name'] || ($q['subject_id'] ?? '') === $sb['id']));
-                        ?>
-                        <div class="card" style="padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; border-left: 3px solid var(--primary); transition: transform 0.15s ease, box-shadow 0.15s ease;">
-                            <div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                    <span class="badge badge-primary"><?= htmlspecialchars($sb['code']) ?></span>
-                                    <span style="font-size: 11.5px; font-weight: 700; color: var(--primary);"><?= $sbCount ?> Soal</span>
-                                </div>
-                                <div style="font-weight: 700; font-size: 13.5px; color: var(--text-primary); line-height: 1.3;">
-                                    <?= htmlspecialchars($sb['name']) ?>
-                                </div>
-                                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
-                                    <?= htmlspecialchars($sb['teacher'] ?? 'Guru Pengampu') ?>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 6px; margin-top: 12px;">
-                                <a href="/admin/questions?subject_name=<?= urlencode($sb['name']) ?>" class="btn btn-secondary btn-sm" style="flex: 1; padding: 5px 8px; font-size: 11.5px; justify-content: center;" title="Lihat daftar butir soal">
-                                    📋 Lihat (<?= $sbCount ?>)
-                                </a>
-                                <a href="/admin/questions?subject_name=<?= urlencode($sb['name']) ?>&action=create" class="btn btn-primary btn-sm" style="flex: 1; padding: 5px 8px; font-size: 11.5px; justify-content: center; font-weight: 700;" title="Buat soal baru untuk mapel ini">
-                                    ➕ Buat Soal
-                                </a>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <!-- SEARCH & FILTER BAR -->
-        <div class="card" style="padding: 14px 18px;">
-            <form method="GET" action="/admin/questions" class="search-filter-bar" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <div class="search-input-group" style="flex: 2; min-width: 200px;">
-                    <input type="text" name="search" class="form-control" placeholder="Cari butir soal..." value="<?= htmlspecialchars($search) ?>">
-                </div>
-                <div class="filter-select-group" style="display: flex; gap: 8px; flex: 3; min-width: 240px;">
-                    <select name="subject_name" class="form-select" onchange="this.form.submit()">
-                        <option value="all">Semua Mapel</option>
-                        <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
-                            <option value="<?= htmlspecialchars($sb['name']) ?>" <?= $activeSubjectName === $sb['name'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($sb['name']) ?> (<?= htmlspecialchars($sb['code']) ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <select name="type" class="form-select" onchange="this.form.submit()">
-                        <option value="">Semua Tipe</option>
-                        <option value="single_choice" <?= $type === 'single_choice' ? 'selected' : '' ?>>Pilihan Ganda</option>
-                        <option value="multiple_choice" <?= $type === 'multiple_choice' ? 'selected' : '' ?>>Pilihan Majemuk</option>
-                        <option value="essay" <?= $type === 'essay' ? 'selected' : '' ?>>Uraian / Essay</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <?php if ($search !== '' || !empty($activeSubjectName) || $type !== ''): ?>
-                    <a href="/admin/questions" class="btn btn-secondary">Reset</a>
-                <?php endif; ?>
-            </form>
-        </div>
-
-        <!-- CREATE QUESTION CARD (Collapsible) -->
-        <div class="card" id="createQuestionCard" style="display: <?= $action === 'create' ? 'block' : 'none' ?>; border-color: var(--primary);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 18px;">📝</span>
-                    <h3 class="card-title" style="margin-bottom: 0;">
-                        Buat Butir Soal Baru <?= $activeSubjectName ? '— ' . htmlspecialchars($activeSubjectName) : '' ?>
-                    </h3>
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('createQuestionCard').style.display = 'none';">&times; Batal</button>
-            </div>
-            <form action="/admin/questions/create" method="POST">
-                <div class="form-row">
-                    <div class="form-group" style="flex: 2;">
-                        <label class="form-label">Mata Pelajaran *</label>
-                        <select name="subject_name" id="create_q_subject" class="form-select" required>
-                            <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
-                                <option value="<?= htmlspecialchars($sb['name']) ?>" <?= ($activeSubjectName === $sb['name']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($sb['name']) ?> (<?= htmlspecialchars($sb['code']) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label class="form-label">Tipe Soal *</label>
-                        <select name="question_type" class="form-select" required>
-                            <option value="single_choice">Pilihan Ganda</option>
-                            <option value="multiple_choice">Pilihan Majemuk</option>
-                            <option value="essay">Uraian / Essay</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label class="form-label">Tingkat Kesulitan *</label>
-                        <select name="difficulty" class="form-select" required>
-                            <option value="easy">Mudah</option>
-                            <option value="medium" selected>Sedang</option>
-                            <option value="hard">Sulit</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label class="form-label">Bobot Nilai *</label>
-                        <input type="number" step="0.1" name="score_weight" class="form-control" value="2.5" required>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-top: 14px;">
-                    <label class="form-label">Pertanyaan Butir Soal *</label>
-                    <textarea name="content" class="textarea-control" rows="4" placeholder="Tuliskan pertanyaan butir soal secara lengkap..." required></textarea>
-                </div>
-
-                <div style="margin-top: 16px; padding: 14px 16px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px;">
-                    <div style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">
-                        Pilihan Jawaban &amp; Kunci Benar (Pilih Radio untuk Kunci)
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <?php foreach (['A', 'B', 'C', 'D', 'E'] as $lbl): ?>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; min-width: 45px;">
-                                    <input type="radio" name="correct_option" value="<?= $lbl ?>" <?= $lbl === 'A' ? 'checked' : '' ?>>
-                                    <strong><?= $lbl ?>.</strong>
-                                </label>
-                                <input type="text" name="opt_<?= strtolower($lbl) ?>" class="form-control" placeholder="Teks jawaban <?= $lbl ?>..." required>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('createQuestionCard').style.display = 'none';">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Butir Soal</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- QUESTIONS TABLE -->
-        <div class="card" style="padding: 0; overflow: hidden;">
-            <div class="data-table-wrapper">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;">No</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Tipe &amp; Tingkat</th>
-                            <th>Isi Butir Pertanyaan</th>
-                            <th>Bobot</th>
-                            <th>Pembuat</th>
-                            <th style="width: 140px; text-align: center;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($questions)): ?>
-                            <tr>
-                                <td colspan="7">
-                                    <div class="empty-state">
-                                        <div class="empty-state-icon">📝</div>
-                                        <p>Belum ada butir soal <?= $activeSubjectName ? 'untuk mata pelajaran ' . htmlspecialchars($activeSubjectName) : '' ?> yang sesuai dengan pencarian Anda.</p>
-                                        <div style="margin-top: 12px;">
-                                            <button type="button" class="btn btn-primary btn-sm" onclick="openCreateQuestionWithSubject('<?= htmlspecialchars(addslashes($activeSubjectName)) ?>')">
-                                                + Buat Soal <?= $activeSubjectName ? htmlspecialchars($activeSubjectName) : '' ?> Sekarang
-                                            </button>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($questions as $idx => $q): ?>
-                                <tr>
-                                    <td><?= $idx + 1 ?></td>
-                                    <td>
-                                        <a href="/admin/questions?subject_name=<?= urlencode($q['subject_name'] ?? 'Matematika X') ?>" class="badge badge-info" style="text-decoration: none;" title="Filter khusus mapel ini">
-                                            <?= htmlspecialchars($q['subject_name'] ?? 'Matematika X') ?>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 600; font-size: 0.85rem;">
-                                            <?= ($q['question_type'] ?? 'single_choice') === 'single_choice' ? 'Pilihan Ganda' : 'Uraian' ?>
-                                        </div>
-                                        <div style="margin-top: 3px;">
-                                            <?php if (($q['difficulty'] ?? 'easy') === 'easy'): ?>
-                                                <span class="badge badge-success">Mudah</span>
-                                            <?php elseif (($q['difficulty'] ?? 'easy') === 'hard'): ?>
-                                                <span class="badge badge-danger">Sulit</span>
-                                            <?php else: ?>
-                                                <span class="badge badge-warning">Sedang</span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 500; font-size: 0.9rem; line-height: 1.4;">
-                                            <?= htmlspecialchars($q['content']) ?>
-                                        </div>
-                                        <?php if (!empty($q['options'])): ?>
-                                            <div style="margin-top: 6px; font-size: 0.8rem; color: var(--text-muted);">
-                                                <?= count($q['options']) ?> Opsi Jawaban &bull; Kunci: <strong style="color: var(--success); font-weight: 700;"><?= htmlspecialchars($q['correct_option'] ?? 'A') ?></strong>
-                                            </div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><strong><?= number_format((float)($q['score_weight'] ?? 2.5), 1) ?></strong></td>
-                                    <td><span style="font-size: 0.85rem; color: var(--text-secondary);"><?= htmlspecialchars($q['creator'] ?? 'Admin') ?></span></td>
-                                    <td style="text-align: center;">
-                                        <div class="action-btns">
-                                            <button type="button" class="btn btn-secondary btn-sm" onclick="openEditQuestion('<?= htmlspecialchars($q['id']) ?>', '<?= htmlspecialchars(addslashes($q['content'])) ?>', '<?= htmlspecialchars($q['difficulty'] ?? 'medium') ?>', <?= (float)($q['score_weight'] ?? 2.5) ?>, '<?= htmlspecialchars($q['correct_option'] ?? 'A') ?>')">
-                                                Edit
-                                            </button>
-                                            <a href="/admin/questions/delete?id=<?= urlencode($q['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus butir soal ini?');">
-                                                Hapus
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- EDIT QUESTION MODAL -->
-    <div class="modal-overlay" id="editQuestionModal">
-        <div class="modal-content-card" style="max-width: 540px;">
-            <div class="modal-header">
-                <h3 class="modal-title" style="margin: 0;">Edit Butir Soal</h3>
-                <button type="button" class="modal-close-btn" onclick="document.getElementById('editQuestionModal').classList.remove('open')">&times;</button>
-            </div>
-            <form action="/admin/questions/edit" method="POST">
-                <input type="hidden" name="id" id="edit_q_id">
-                <div style="margin-bottom: 12px;">
-                    <label class="form-label">Isi Pertanyaan *</label>
-                    <textarea name="content" id="edit_q_content" class="textarea-control" rows="4" required></textarea>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px;">
-                    <div>
-                        <label class="form-label">Tingkat Kesulitan</label>
-                        <select name="difficulty" id="edit_q_diff" class="form-select">
-                            <option value="easy">Mudah</option>
-                            <option value="medium">Sedang</option>
-                            <option value="hard">Sulit</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label">Bobot Nilai</label>
-                        <input type="number" step="0.1" name="score_weight" id="edit_q_weight" class="form-control" required>
-                    </div>
-                    <div>
-                        <label class="form-label">Kunci Jawaban</label>
-                        <select name="correct_option" id="edit_q_key" class="form-select">
-                            <option value="A">Opsi A</option>
-                            <option value="B">Opsi B</option>
-                            <option value="C">Opsi C</option>
-                            <option value="D">Opsi D</option>
-                            <option value="E">Opsi E</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('editQuestionModal').classList.remove('open')">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <?php renderImportModalGeneric('/admin/questions/import', '/admin/questions/template', 'Bank Soal', 'template_soal'); ?>
-
-    <script>
-        function openCreateQuestionWithSubject(subjName) {
-            var card = document.getElementById('createQuestionCard');
-            card.style.display = 'block';
-            if (subjName) {
-                var sel = document.getElementById('create_q_subject');
-                if (sel) {
-                    sel.value = subjName;
-                }
-            }
-            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function openEditQuestion(id, content, diff, weight, key) {
-            document.getElementById('edit_q_id').value = id;
-            document.getElementById('edit_q_content').value = content;
-            document.getElementById('edit_q_diff').value = diff;
-            document.getElementById('edit_q_weight').value = weight;
-            document.getElementById('edit_q_key').value = key;
-            document.getElementById('editQuestionModal').classList.add('open');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            <?php if ($action === 'create'): ?>
-                openCreateQuestionWithSubject('<?= htmlspecialchars(addslashes($activeSubjectName)) ?>');
-            <?php endif; ?>
-        });
-    </script>
-    <?php
+    renderSubjectsContent();
 }
 
 // =========================================================================
