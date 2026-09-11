@@ -2084,7 +2084,13 @@ function renderStudentsContent() {
             document.getElementById('edit_student_nisn').value = nisn;
             document.getElementById('edit_student_class').value = className;
             document.getElementById('edit_student_gender').value = gender;
-        // =========================================================================
+            document.getElementById('editStudentModal').classList.add('open');
+        }
+    </script>
+    <?php
+}
+
+// =========================================================================
 // 10. MENU 4: DATA KELAS
 // =========================================================================
 function renderClassesContent() {
