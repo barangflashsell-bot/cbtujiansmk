@@ -49,11 +49,11 @@ if (!isset($_SESSION['teachers_list'])) {
 // C. Classes List
 if (!isset($_SESSION['classes_list'])) {
     $_SESSION['classes_list'] = [
-        ['id' => 'c1', 'name' => '10-TKJ-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
-        ['id' => 'c2', 'name' => '10-RPL-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
-        ['id' => 'c3', 'name' => '11-TKJ-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
-        ['id' => 'c4', 'name' => '11-RPL-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
-        ['id' => 'c5', 'name' => '12-TKJ-1', 'level' => '12', 'academic_year' => '2025/2026', 'students_count' => 34, 'status' => 'active'],
+        ['id' => 'c1', 'major_id' => 'TKJ', 'major' => 'Teknik Komputer & Jaringan', 'name' => '10-TKJ-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
+        ['id' => 'c2', 'major_id' => 'RPL', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '10-RPL-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
+        ['id' => 'c3', 'major_id' => 'TKJ', 'major' => 'Teknik Komputer & Jaringan', 'name' => '11-TKJ-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
+        ['id' => 'c4', 'major_id' => 'RPL', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '11-RPL-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
+        ['id' => 'c5', 'major_id' => 'TKJ', 'major' => 'Teknik Komputer & Jaringan', 'name' => '12-TKJ-1', 'level' => '12', 'academic_year' => '2025/2026', 'students_count' => 34, 'status' => 'active'],
     ];
 }
 
@@ -656,18 +656,20 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/students/
 // --- C. CLASSES CRUD ---
 if ($method === 'POST' && ($uri === '/admin/classes/create' || $uri === '/admin/classes')) {
     $name = trim($_POST['name'] ?? 'Kelas Baru');
-    $level = trim($_POST['level'] ?? '10');
-    $year = trim($_POST['academic_year'] ?? '2025/2026');
+    $major_id = trim($_POST['major_id'] ?? 'TKJ');
+    $major = trim($_POST['major'] ?? 'Teknik Komputer & Jaringan');
     $_SESSION['classes_list'][] = [
         'id' => uniqid('c_'),
+        'major_id' => $major_id,
+        'major' => $major,
         'name' => $name,
-        'level' => $level,
-        'academic_year' => $year,
+        'level' => '10',
+        'academic_year' => '2025/2026',
         'students_count' => 36,
         'status' => 'active',
     ];
-    logCbtActivity('CLASS', 'CREATE_CLASS', "Menambahkan rombel kelas: {$name}");
-    $_SESSION['import_success'] = "Rombel kelas \"{$name}\" berhasil disimpan!";
+    logCbtActivity('CLASS', 'CREATE_CLASS', "Menambahkan kelas: {$name} (Jurusan: {$major})");
+    $_SESSION['import_success'] = "Data kelas \"{$name}\" berhasil disimpan!";
     header('Location: /admin/classes');
     exit;
 }
@@ -676,11 +678,11 @@ if ($method === 'POST' && $uri === '/admin/classes/edit') {
     $id = $_POST['id'] ?? '';
     foreach ($_SESSION['classes_list'] as &$c) {
         if ($c['id'] === $id) {
+            $c['major_id'] = trim($_POST['major_id'] ?? ($c['major_id'] ?? 'TKJ'));
+            $c['major'] = trim($_POST['major'] ?? ($c['major'] ?? 'Teknik Komputer & Jaringan'));
             $c['name'] = trim($_POST['name'] ?? $c['name']);
-            $c['level'] = trim($_POST['level'] ?? $c['level']);
-            $c['academic_year'] = trim($_POST['academic_year'] ?? $c['academic_year']);
-            logCbtActivity('CLASS', 'EDIT_CLASS', "Memperbarui rombel kelas: {$c['name']}");
-            $_SESSION['import_success'] = "Perubahan rombel kelas \"{$c['name']}\" berhasil disimpan!";
+            logCbtActivity('CLASS', 'EDIT_CLASS', "Memperbarui kelas: {$c['name']} (Jurusan: {$c['major_id']})");
+            $_SESSION['import_success'] = "Perubahan data kelas \"{$c['name']}\" berhasil disimpan!";
             break;
         }
     }
@@ -2082,121 +2084,69 @@ function renderStudentsContent() {
             document.getElementById('edit_student_nisn').value = nisn;
             document.getElementById('edit_student_class').value = className;
             document.getElementById('edit_student_gender').value = gender;
-            document.getElementById('editStudentModal').classList.add('open');
-        }
-    </script>
-    <?php
-}
-
-// =========================================================================
-// 10. MENU 4: DATA KELAS / ROMBEL (SETTING SESI & RUANG UJIAN)
+        // =========================================================================
+// 10. MENU 4: DATA KELAS
 // =========================================================================
 function renderClassesContent() {
     $search = strtolower(trim($_GET['search'] ?? ''));
     $classes = $_SESSION['classes_list'] ?? [];
-    $teachersList = $_SESSION['teachers_list'] ?? [];
 
-    // Ensure exam-ready attributes exist for all classes
-    $defaultExamConfigs = [
-        'c1' => ['room' => 'Lab Komputer 1', 'session' => 'Sesi 1 (07:30 - 09:30)', 'proctor' => 'Budi Santoso, S.Pd', 'supervisor' => 'Dra. Nurul Hidayati', 'exam_status' => 'ready', 'ip_range' => '192.168.1.101 - 136'],
-        'c2' => ['room' => 'Lab Komputer 2', 'session' => 'Sesi 1 (07:30 - 09:30)', 'proctor' => 'Siti Aminah, M.Kom', 'supervisor' => 'Ahmad Fauzi, S.T', 'exam_status' => 'ready', 'ip_range' => '192.168.2.101 - 136'],
-        'c3' => ['room' => 'Lab Komputer 1', 'session' => 'Sesi 2 (10:00 - 12:00)', 'proctor' => 'Budi Santoso, S.Pd', 'supervisor' => 'Drs. H. Bambang Sutrisno', 'exam_status' => 'standby', 'ip_range' => '192.168.1.101 - 135'],
-        'c4' => ['room' => 'Lab Komputer 2', 'session' => 'Sesi 2 (10:00 - 12:00)', 'proctor' => 'Siti Aminah, M.Kom', 'supervisor' => 'Dra. Nurul Hidayati', 'exam_status' => 'standby', 'ip_range' => '192.168.2.101 - 135'],
-        'c5' => ['room' => 'Lab Komputer 1', 'session' => 'Sesi 3 (13:00 - 15:00)', 'proctor' => 'Ahmad Fauzi, S.T', 'supervisor' => 'Budi Santoso, S.Pd', 'exam_status' => 'standby', 'ip_range' => '192.168.1.101 - 134'],
-    ];
-
+    // Pastikan ID jurusan dan nama jurusan terisi
     foreach ($classes as &$c) {
-        $cfg = $defaultExamConfigs[$c['id']] ?? ['room' => 'Lab Komputer 1', 'session' => 'Sesi 1 (07:30 - 09:30)', 'proctor' => 'Budi Santoso, S.Pd', 'supervisor' => 'Dra. Nurul Hidayati', 'exam_status' => 'standby', 'ip_range' => '192.168.1.101 - 136'];
-        if (empty($c['room'])) $c['room'] = $cfg['room'];
-        if (empty($c['session'])) $c['session'] = $cfg['session'];
-        if (empty($c['proctor'])) $c['proctor'] = $cfg['proctor'];
-        if (empty($c['supervisor'])) $c['supervisor'] = $cfg['supervisor'];
-        if (empty($c['exam_status'])) $c['exam_status'] = $cfg['exam_status'];
-        if (empty($c['ip_range'])) $c['ip_range'] = $cfg['ip_range'];
+        if (empty($c['major_id'])) {
+            if (str_contains(strtoupper($c['name']), 'TKJ')) {
+                $c['major_id'] = 'TKJ';
+                $c['major'] = 'Teknik Komputer & Jaringan';
+            } elseif (str_contains(strtoupper($c['name']), 'RPL')) {
+                $c['major_id'] = 'RPL';
+                $c['major'] = 'Rekayasa Perangkat Lunak';
+            } elseif (str_contains(strtoupper($c['name']), 'AK')) {
+                $c['major_id'] = 'AKL';
+                $c['major'] = 'Akuntansi & Keuangan Lembaga';
+            } else {
+                $c['major_id'] = 'TKJ';
+                $c['major'] = 'Teknik Komputer & Jaringan';
+            }
+        }
+        if (empty($c['major'])) {
+            if ($c['major_id'] === 'TKJ') $c['major'] = 'Teknik Komputer & Jaringan';
+            elseif ($c['major_id'] === 'RPL') $c['major'] = 'Rekayasa Perangkat Lunak';
+            elseif ($c['major_id'] === 'AKL') $c['major'] = 'Akuntansi & Keuangan Lembaga';
+            else $c['major'] = $c['major_id'];
+        }
     }
     unset($c);
+    $_SESSION['classes_list'] = $classes;
 
     if ($search !== '') {
         $classes = array_filter($classes, function($c) use ($search) {
-            return str_contains(strtolower($c['name']), $search) || str_contains(strtolower($c['room'] ?? ''), $search) || str_contains(strtolower($c['session'] ?? ''), $search);
+            return str_contains(strtolower($c['name']), $search) 
+                || str_contains(strtolower($c['major_id'] ?? ''), $search)
+                || str_contains(strtolower($c['major'] ?? ''), $search);
         });
     }
-
-    $readyCount = 0;
-    $standbyCount = 0;
-    foreach ($classes as $c) {
-        if (($c['exam_status'] ?? 'standby') === 'ready') $readyCount++;
-        else $standbyCount++;
-    }
     ?>
-    <div style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
         <!-- CONTENT HEADER -->
         <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Data Rombel &amp; Pengaturan Ujian Kelas</h1>
-                    <span class="badge badge-primary" style="font-size: 11px;">SETTING UJIAN CBT</span>
-                </div>
+                <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Data Kelas</h1>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Atur alokasi ruang lab komputer, sesi waktu, dan pengawas kelas untuk pelaksanaan ujian CBT. Detail data dan nama siswa dikelola di menu <strong>Data Peserta</strong>.
+                    Kelola ID jurusan dan nama kelas rombel.
                 </p>
             </div>
-            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
-                    <span>📊</span> Import Data Excel
-                </button>
+            <div style="display: flex; gap: 8px; align-items: center;">
                 <button type="button" class="btn btn-primary" onclick="toggleCreateClassCard()" style="font-weight: 700;">
-                    <span>+</span> Tambah Kelas Baru
+                    <span>+</span> Tambah Kelas
                 </button>
             </div>
         </div>
 
-        <!-- STATS CARDS FOR EXAM READINESS -->
-        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">&#127979;</div>
-                <div class="stat-value"><?= count($_SESSION['classes_list']) ?></div>
-                <div class="stat-label">Total Rombel Kelas</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #16a34a; background: #f0fdf4;">
-                <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">&#9989;</div>
-                <div class="stat-value" style="color: #16a34a;"><?= $readyCount ?> Kelas</div>
-                <div class="stat-label">Siap Pelaksanaan Ujian</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #d97706; background: #fffbeb;">
-                <div class="stat-icon" style="background: #fef3c7; color: #d97706;">&#9203;</div>
-                <div class="stat-value" style="color: #d97706;"><?= $standbyCount ?> Kelas</div>
-                <div class="stat-label">Menunggu Sesi (Standby)</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #0284c7; background: #f0f9ff;">
-                <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">🖥️</div>
-                <div class="stat-value" style="color: #0284c7;">2 Lab Komputer</div>
-                <div class="stat-label">Ruang Laboratorium Aktif</div>
-            </div>
-        </div>
-
-        <!-- ALERT INFORMATIF UNTUK PROKTOR -->
-        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-primary);">
-                <span style="font-size: 18px;">💡</span>
-                <div>
-                    <strong>Pemisahan Manajemen Kelas &amp; Data Siswa:</strong> 
-                    Menu ini khusus untuk <em>mengatur ruang, sesi waktu, dan proktor untuk pelaksanaan ujian rombel</em>. 
-                    Untuk melihat nama lengkap siswa, NIS, password, dan akun login peserta, klik tombol <strong>👥 Siswa</strong> atau buka menu <strong>Data Peserta</strong>.
-                </div>
-            </div>
-            <div>
-                <a href="/admin/students" class="btn btn-secondary btn-sm" style="font-size: 12px; font-weight: 700;">
-                    Buka Data Peserta &rarr;
-                </a>
-            </div>
-        </div>
-
-        <!-- SEARCH & FILTER BAR -->
+        <!-- SEARCH BAR -->
         <div class="action-bar">
             <div class="filter-group">
                 <form action="/admin/classes" method="GET" style="display: flex; gap: 8px; align-items: center;">
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama kelas, lab, atau sesi..." value="<?= htmlspecialchars($search) ?>" style="max-width: 280px;">
+                    <input type="text" name="search" class="form-control" placeholder="Cari ID jurusan / nama kelas..." value="<?= htmlspecialchars($search) ?>" style="max-width: 280px;">
                     <button type="submit" class="btn btn-secondary">Cari</button>
                     <?php if ($search !== ''): ?>
                         <a href="/admin/classes" class="btn btn-secondary">Reset</a>
@@ -2204,160 +2154,89 @@ function renderClassesContent() {
                 </form>
             </div>
             <div style="font-size: 13px; color: var(--text-muted);">
-                Menampilkan <strong><?= count($classes) ?> Rombel Kelas</strong>
+                Total <strong><?= count($classes) ?> Kelas</strong>
             </div>
         </div>
 
-        <!-- CREATE CLASS CARD (Collapsible) -->
+        <!-- FORM TAMBAH KELAS (Collapsible) -->
         <div class="card" id="createClassCard" style="display: none; border-color: var(--primary);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 18px;">🏫</span>
-                    <h3 class="card-title" style="margin-bottom: 0;">Tambah Kelas / Rombel Baru</h3>
-                </div>
+                <h3 class="card-title" style="margin-bottom: 0;">Tambah Kelas Baru</h3>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateClassCard()">&times; Batal</button>
             </div>
             <form action="/admin/classes/create" method="POST">
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Nama Kelas / Rombel *</label>
-                        <input type="text" name="name" class="form-control" placeholder="Contoh: 10-TKJ-2, 11-RPL-2" required>
+                        <label class="form-label" style="font-weight: 700;">ID Jurusan *</label>
+                        <input type="text" name="major_id" class="form-control" placeholder="Contoh: TKJ, RPL, AKL" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tingkat / Jenjang *</label>
-                        <input type="text" name="level" class="form-control" placeholder="Contoh: 10, 11, 12" required>
+                        <label class="form-label" style="font-weight: 700;">Jurusan *</label>
+                        <input type="text" name="major" class="form-control" placeholder="Contoh: Teknik Komputer & Jaringan" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tahun Ajaran *</label>
-                        <input type="text" name="academic_year" class="form-control" value="2025/2026" required>
+                        <label class="form-label" style="font-weight: 700;">Nama Kelas *</label>
+                        <input type="text" name="name" class="form-control" placeholder="Contoh: 10-TKJ-1" required>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
                     <button type="button" class="btn btn-secondary" onclick="toggleCreateClassCard()">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Rombel Kelas</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan</button>
                 </div>
             </form>
         </div>
 
-        <!-- CLASSES TABLE (FOCUSED ON EXAM SETTINGS: ROOM, SESSION, PROCTOR, READINESS) -->
+        <!-- TABEL DATA KELAS -->
         <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 45px; text-align: center;">No</th>
-                            <th style="min-width: 140px;">Nama Rombel</th>
-                            <th>Ruang / Lab Komputer</th>
-                            <th>Sesi Waktu Ujian</th>
-                            <th>Proktor &amp; Pengawas</th>
-                            <th style="text-align: center;">Peserta Rombel</th>
-                            <th style="width: 110px; text-align: center;">Kesiapan Ujian</th>
-                            <th style="width: 240px; text-align: center;">Aksi Setting Ujian</th>
+                            <th style="width: 50px; text-align: center;">No</th>
+                            <th style="width: 140px;">ID Jurusan</th>
+                            <th>Jurusan</th>
+                            <th>Nama Kelas</th>
+                            <th style="width: 100px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($classes)): ?>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="5">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">🏫</div>
-                                        <p>Belum ada data rombel kelas.</p>
+                                        <p>Belum ada data kelas.</p>
                                     </div>
                                 </td>
                             </tr>
                         <?php else: ?>
-                            <?php foreach ($classes as $idx => $c): 
-                                $isReady = ($c['exam_status'] ?? 'ready') === 'ready';
-                            ?>
+                            <?php foreach ($classes as $idx => $c): ?>
                                 <tr>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td>
-                                        <div style="font-weight: 800; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars($c['name']) ?></div>
-                                        <div style="font-size: 11.5px; color: var(--text-muted);">
-                                            Tingkat <?= htmlspecialchars($c['level']) ?> &bull; TA <?= htmlspecialchars($c['academic_year']) ?>
+                                        <span class="badge badge-primary" style="font-family: monospace; font-size: 12px; font-weight: 700; padding: 4px 8px;">
+                                            <?= htmlspecialchars($c['major_id'] ?? 'TKJ') ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600; color: var(--text-primary);">
+                                            <?= htmlspecialchars($c['major'] ?? 'Teknik Komputer & Jaringan') ?>
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: #0369a1;">
-                                            <span>🖥️</span>
-                                            <span><?= htmlspecialchars($c['room'] ?? 'Lab Komputer 1') ?></span>
-                                        </div>
-                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
-                                            IP: <code><?= htmlspecialchars($c['ip_range'] ?? '192.168.1.101 - 136') ?></code>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 700; color: #d97706; font-size: 13px;">
-                                            ⏱️ <?= htmlspecialchars($c['session'] ?? 'Sesi 1 (07:30 - 09:30)') ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 12.5px; color: var(--text-primary);">
-                                            <strong>Proktor:</strong> <?= htmlspecialchars($c['proctor'] ?? 'Budi Santoso, S.Pd') ?>
-                                        </div>
-                                        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
-                                            <strong>Pengawas:</strong> <?= htmlspecialchars($c['supervisor'] ?? 'Dra. Nurul Hidayati') ?>
+                                        <div style="font-weight: 700; color: var(--text-primary); font-size: 14px;">
+                                            <?= htmlspecialchars($c['name']) ?>
                                         </div>
                                     </td>
                                     <td style="text-align: center;">
-                                        <a 
-                                            href="/admin/students?search=<?= urlencode($c['name']) ?>" 
-                                            class="badge badge-primary" 
-                                            style="font-size: 12px; padding: 5px 10px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;"
-                                            title="Lihat daftar nama siswa kelas <?= htmlspecialchars($c['name']) ?> di Data Peserta"
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-secondary btn-sm" 
+                                            onclick="openEditClass('<?= htmlspecialchars($c['id']) ?>', '<?= htmlspecialchars(addslashes($c['major_id'] ?? 'TKJ')) ?>', '<?= htmlspecialchars(addslashes($c['major'] ?? 'Teknik Komputer & Jaringan')) ?>', '<?= htmlspecialchars(addslashes($c['name'])) ?>')"
+                                            style="padding: 5px 14px; font-weight: 600;"
                                         >
-                                            <span>👥</span> <?= (int)($c['students_count'] ?? 36) ?> Siswa &rarr;
-                                        </a>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <?php if ($isReady): ?>
-                                            <span class="badge badge-success" style="font-size: 11px; padding: 4px 8px;">
-                                                ✅ Siap Ujian
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge badge-warning" style="font-size: 11px; padding: 4px 8px;">
-                                                ⏳ Standby
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <div class="action-btns" style="justify-content: center; gap: 4px;">
-                                            <button 
-                                                type="button" 
-                                                class="btn btn-primary btn-sm" 
-                                                onclick="openSetExamModal('<?= htmlspecialchars($c['id']) ?>', '<?= htmlspecialchars(addslashes($c['name'])) ?>', '<?= htmlspecialchars(addslashes($c['room'] ?? 'Lab Komputer 1')) ?>', '<?= htmlspecialchars(addslashes($c['session'] ?? 'Sesi 1 (07:30 - 09:30)')) ?>', '<?= htmlspecialchars(addslashes($c['proctor'] ?? '')) ?>', '<?= htmlspecialchars(addslashes($c['supervisor'] ?? '')) ?>', '<?= htmlspecialchars($c['exam_status'] ?? 'ready') ?>', '<?= htmlspecialchars(addslashes($c['ip_range'] ?? '192.168.1.101 - 136')) ?>')"
-                                                style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; padding: 5px 8px;"
-                                                title="Setting Ruang Lab, Sesi, dan Proktor Ujian"
-                                            >
-                                                <span>⚙️</span> Atur Ujian
-                                            </button>
-                                            <a 
-                                                href="/admin/students?search=<?= urlencode($c['name']) ?>" 
-                                                class="btn btn-secondary btn-sm"
-                                                style="padding: 5px 8px;"
-                                                title="Buka Data Peserta Kelas Ini"
-                                            >
-                                                👥 Siswa
-                                            </a>
-                                            <button 
-                                                type="button" 
-                                                class="btn btn-secondary btn-sm" 
-                                                onclick="openEditClass('<?= htmlspecialchars($c['id']) ?>', '<?= htmlspecialchars(addslashes($c['name'])) ?>', '<?= htmlspecialchars(addslashes($c['level'])) ?>', '<?= htmlspecialchars(addslashes($c['academic_year'])) ?>')"
-                                                style="padding: 5px 8px;"
-                                                title="Edit Kelas"
-                                            >
-                                                Edit
-                                            </button>
-                                            <a 
-                                                href="/admin/classes/delete?id=<?= urlencode($c['id']) ?>" 
-                                                class="btn btn-danger btn-sm" 
-                                                onclick="return confirm('Apakah Anda yakin ingin menghapus kelas <?= htmlspecialchars(addslashes($c['name'])) ?>?');"
-                                                style="padding: 5px 8px;"
-                                                title="Hapus Kelas"
-                                            >
-                                                Hapus
-                                            </a>
-                                        </div>
+                                            Edit
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -2368,93 +2247,7 @@ function renderClassesContent() {
         </div>
     </div>
 
-    <!-- =========================================================================
-         MODAL 1: SETTING SESI & RUANG UJIAN KELAS
-         ========================================================================= -->
-    <div class="modal-overlay" id="setExamClassModal" style="align-items: center; justify-content: center;">
-        <div class="modal-content-card" style="max-width: 540px; border-radius: 12px;">
-            <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid var(--border-color); padding: 16px 20px;">
-                <div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 20px;">⚙️</span>
-                        <h3 class="modal-title" style="margin: 0; font-size: 1.15rem; font-weight: 800;">
-                            Pengaturan Sesi &amp; Ruang Ujian Rombel
-                        </h3>
-                    </div>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
-                        Rombel Kelas: <strong id="secClassName" style="color: var(--primary);">-</strong>
-                    </div>
-                </div>
-                <button type="button" class="modal-close-btn" onclick="document.getElementById('setExamClassModal').classList.remove('open')">&times;</button>
-            </div>
-            <form action="/admin/classes/set-exam" method="POST" style="padding: 20px;">
-                <input type="hidden" name="id" id="sec_class_id">
-
-                <div class="form-row" style="margin-bottom: 14px;">
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Ruang / Lab Komputer *</label>
-                        <select name="room" id="sec_room" class="form-control" required>
-                            <option value="Lab Komputer 1">🖥️ Lab Komputer 1 (Kapasitas 40 Klien)</option>
-                            <option value="Lab Komputer 2">🖥️ Lab Komputer 2 (Kapasitas 40 Klien)</option>
-                            <option value="Ruang Multimedia">🖥️ Ruang Multimedia (Kapasitas 35 Klien)</option>
-                            <option value="Ruang CBT Utama">🖥️ Ruang CBT Utama (Kapasitas 50 Klien)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Sesi Waktu Pengerjaan *</label>
-                        <select name="session" id="sec_session" class="form-control" required>
-                            <option value="Sesi 1 (07:30 - 09:30)">⏱️ Sesi 1 (07:30 - 09:30 WIB)</option>
-                            <option value="Sesi 2 (10:00 - 12:00)">⏱️ Sesi 2 (10:00 - 12:00 WIB)</option>
-                            <option value="Sesi 3 (13:00 - 15:00)">⏱️ Sesi 3 (13:00 - 15:00 WIB)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row" style="margin-bottom: 14px;">
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Guru Proktor Ujian *</label>
-                        <select name="proctor" id="sec_proctor" class="form-control" required>
-                            <?php foreach ($teachersList as $t): ?>
-                                <option value="<?= htmlspecialchars($t['name']) ?>"><?= htmlspecialchars($t['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Guru Pengawas Ruang *</label>
-                        <select name="supervisor" id="sec_supervisor" class="form-control" required>
-                            <?php foreach ($teachersList as $t): ?>
-                                <option value="<?= htmlspecialchars($t['name']) ?>"><?= htmlspecialchars($t['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row" style="margin-bottom: 16px;">
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Status Kesiapan Ujian</label>
-                        <select name="exam_status" id="sec_exam_status" class="form-control">
-                            <option value="ready">✅ Siap Ujian (Ready)</option>
-                            <option value="standby">⏳ Standby (Menunggu Sesi)</option>
-                            <option value="completed">🏁 Selesai Ujian</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Range IP LAN Klien</label>
-                        <input type="text" name="ip_range" id="sec_ip_range" class="form-control" placeholder="Contoh: 192.168.1.101 - 136">
-                    </div>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('setExamClassModal').classList.remove('open')">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Pengaturan Ujian</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- =========================================================================
-         MODAL 2: EDIT DATA KELAS UMUM
-         ========================================================================= -->
+    <!-- MODAL EDIT DATA KELAS -->
     <div class="modal-overlay" id="editClassModal" style="align-items: center; justify-content: center;">
         <div class="modal-content-card" style="max-width: 480px; border-radius: 12px;">
             <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid var(--border-color); padding: 16px 20px;">
@@ -2463,18 +2256,22 @@ function renderClassesContent() {
             </div>
             <form action="/admin/classes/edit" method="POST" style="padding: 20px;">
                 <input type="hidden" name="id" id="edit_class_id">
+                
                 <div style="margin-bottom: 14px;">
-                    <label class="form-label">Nama Kelas / Rombel *</label>
-                    <input type="text" name="name" id="edit_class_name" class="form-control" required>
+                    <label class="form-label" style="font-weight: 700;">ID Jurusan *</label>
+                    <input type="text" name="major_id" id="edit_class_major_id" class="form-control" placeholder="Contoh: TKJ, RPL, AKL" required>
                 </div>
+                
                 <div style="margin-bottom: 14px;">
-                    <label class="form-label">Tingkat / Jenjang *</label>
-                    <input type="text" name="level" id="edit_class_level" class="form-control" required>
+                    <label class="form-label" style="font-weight: 700;">Jurusan *</label>
+                    <input type="text" name="major" id="edit_class_major" class="form-control" placeholder="Contoh: Teknik Komputer & Jaringan" required>
                 </div>
+
                 <div style="margin-bottom: 18px;">
-                    <label class="form-label">Tahun Ajaran *</label>
-                    <input type="text" name="academic_year" id="edit_class_year" class="form-control" required>
+                    <label class="form-label" style="font-weight: 700;">Nama Kelas *</label>
+                    <input type="text" name="name" id="edit_class_name" class="form-control" placeholder="Contoh: 10-TKJ-1" required>
                 </div>
+
                 <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('editClassModal').classList.remove('open')">Batal</button>
                     <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Perubahan</button>
@@ -2482,8 +2279,6 @@ function renderClassesContent() {
             </form>
         </div>
     </div>
-
-    <?php renderImportModalGeneric('/admin/classes/import', '/admin/classes/template', 'Kelas', 'template_kelas'); ?>
 
     <script>
         function toggleCreateClassCard() {
@@ -2498,25 +2293,11 @@ function renderClassesContent() {
             }
         }
 
-        function openSetExamModal(id, name, room, session, proctor, supervisor, status, ipRange) {
-            document.getElementById('sec_class_id').value = id;
-            document.getElementById('secClassName').innerText = name;
-            document.getElementById('sec_room').value = room || 'Lab Komputer 1';
-            document.getElementById('sec_session').value = session || 'Sesi 1 (07:30 - 09:30)';
-            
-            if (proctor) document.getElementById('sec_proctor').value = proctor;
-            if (supervisor) document.getElementById('sec_supervisor').value = supervisor;
-            if (status) document.getElementById('sec_exam_status').value = status;
-            if (ipRange) document.getElementById('sec_ip_range').value = ipRange;
-
-            document.getElementById('setExamClassModal').classList.add('open');
-        }
-
-        function openEditClass(id, name, level, year) {
+        function openEditClass(id, majorId, major, name) {
             document.getElementById('edit_class_id').value = id;
+            document.getElementById('edit_class_major_id').value = majorId;
+            document.getElementById('edit_class_major').value = major;
             document.getElementById('edit_class_name').value = name;
-            document.getElementById('edit_class_level').value = level;
-            document.getElementById('edit_class_year').value = year;
             document.getElementById('editClassModal').classList.add('open');
         }
     </script>
