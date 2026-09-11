@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Traits\HandlesExcelImport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ use Illuminate\View\View;
 
 class WebQuestionController extends Controller
 {
+    use HandlesExcelImport;
     /**
      * Display a listing of questions (Role-scoped).
      */
@@ -250,4 +252,239 @@ class WebQuestionController extends Controller
 
         return redirect()->route($redirectRoute)->with('success', 'Butir soal berhasil dihapus.');
     }
+
+    /**
+     * Download Excel CSV template for question import.
+     */
+    public function downloadTemplate(Request $request)
+    {
+        $headers = [
+            'No',
+            'Mata Pelajaran',
+            'Tipe Soal',
+            'Pertanyaan',
+            'Opsi A',
+            'Opsi B',
+            'Opsi C',
+            'Opsi D',
+            'Opsi E',
+            'Kunci Jawaban',
+            'Bobot',
+            'Tingkat Kesulitan',
+        ];
+
+        $sampleRows = [
+            ['1', 'Matematika', 'single_choice', 'Berapakah hasil perhitungan dari 15 + 25?', '30', '35', '40', '45', '50', 'C', '20', 'easy'],
+            ['2', 'Bahasa Indonesia', 'single_choice', 'Ide pokok dalam sebuah paragraf biasanya terletak pada kalimat...', 'Utama', 'Penjelas', 'Pengembang', 'Terakhir', 'Pendukung', 'A', '20', 'medium'],
+            ['3', 'Pemrograman Dasar', 'multiple_choice', 'Manakah di bawah ini yang merupakan tipe data bilangan bulat?', 'Integer', 'Float', 'Long', 'Boolean', 'Double', 'A,C', '20', 'medium'],
+            ['4', 'Matematika', 'essay', 'Tuliskan rumus keliling lingkaran dan jelaskan simbol-simbolnya!', '', '', '', '', '', 'K = 2 x pi x r', '20', 'medium'],
+        ];
+
+        return $this->streamCsvTemplate('template_bank_soal.csv', $headers, $sampleRows);
+    }
+
+    /**
+     * Import questions from Excel or CSV file.
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $userRole = strtolower($user->role->name ?? '');
+
+        $teacher = $user->teacher;
+        $teacherId = ($userRole === 'admin')
+            ? ($teacher?->id ?? Teacher::first()?->id)
+            : $teacher?->id;
+
+        if (! $teacherId) {
+            $firstTeacher = Teacher::first();
+            if ($firstTeacher) {
+                $teacherId = $firstTeacher->id;
+            } else {
+                return back()->with('error', 'Silakan daftarkan minimal 1 data guru terlebih dahulu sebelum mengimpor soal.');
+            }
+        }
+
+        $request->validate([
+            'file' => ['required', 'file', 'max:10240'],
+            'default_subject_id' => ['nullable', 'exists:subjects,id'],
+        ], [
+            'file.required' => 'File Excel atau CSV butir soal wajib diunggah.',
+            'file.max' => 'Ukuran file maksimal 10MB.',
+        ]);
+
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        try {
+            $rawRows = $this->parseUploadedSpreadsheet($file->getRealPath(), $extension);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal membaca file: ' . $e->getMessage());
+        }
+
+        if (empty($rawRows)) {
+            return back()->with('error', 'File yang diunggah kosong atau tidak memiliki data.');
+        }
+
+        $headerRow = array_shift($rawRows);
+        $map = [];
+        foreach ($headerRow as $idx => $header) {
+            $clean = strtolower(trim((string) preg_replace('/[^a-zA-Z0-9]/', '', $header)));
+            if (in_array($clean, ['matapelajaran', 'mapel', 'subject', 'subjectname'])) {
+                $map['subject'] = $idx;
+            } elseif (in_array($clean, ['tipesoal', 'tipe', 'type', 'questiontype'])) {
+                $map['type'] = $idx;
+            } elseif (in_array($clean, ['pertanyaan', 'butirsoal', 'soal', 'content', 'question', 'isi'])) {
+                $map['content'] = $idx;
+            } elseif (in_array($clean, ['opsia', 'pilihana', 'a', 'optiona'])) {
+                $map['opsi_a'] = $idx;
+            } elseif (in_array($clean, ['opsib', 'pilihanb', 'b', 'optionb'])) {
+                $map['opsi_b'] = $idx;
+            } elseif (in_array($clean, ['opsic', 'pilihanc', 'c', 'optionc'])) {
+                $map['opsi_c'] = $idx;
+            } elseif (in_array($clean, ['opsid', 'pilihand', 'd', 'optiond'])) {
+                $map['opsi_d'] = $idx;
+            } elseif (in_array($clean, ['opsie', 'pilihane', 'e', 'optione'])) {
+                $map['opsi_e'] = $idx;
+            } elseif (in_array($clean, ['kuncijawaban', 'kunci', 'jawaban', 'correct', 'answer', 'key'])) {
+                $map['correct'] = $idx;
+            } elseif (in_array($clean, ['bobot', 'bobotnilai', 'skor', 'nilai', 'weight', 'scoreweight'])) {
+                $map['weight'] = $idx;
+            } elseif (in_array($clean, ['tingkatkesulitan', 'kesulitan', 'difficulty'])) {
+                $map['difficulty'] = $idx;
+            }
+        }
+
+        if (! isset($map['content'])) {
+            return back()->with('error', 'Format kolom file tidak sesuai. Pastikan terdapat kolom "Pertanyaan" / "Butir Soal".');
+        }
+
+        $defaultSubjectId = $request->input('default_subject_id');
+        $subjectsMap = Subject::all()->keyBy(fn ($s) => strtolower(trim($s->name)));
+        $subjectsCodeMap = Subject::all()->keyBy(fn ($s) => strtolower(trim($s->code)));
+
+        $imported = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use (
+            $rawRows,
+            $map,
+            $teacherId,
+            $defaultSubjectId,
+            &$subjectsMap,
+            &$subjectsCodeMap,
+            &$imported,
+            &$skipped
+        ) {
+            foreach ($rawRows as $row) {
+                $content = isset($map['content']) ? trim((string) ($row[$map['content']] ?? '')) : '';
+                if ($content === '') {
+                    $skipped++;
+                    continue;
+                }
+
+                // Resolve Subject
+                $subjectName = isset($map['subject']) ? trim((string) ($row[$map['subject']] ?? '')) : '';
+                $subjectId = null;
+
+                if ($subjectName !== '') {
+                    $subKey = strtolower($subjectName);
+                    if (isset($subjectsMap[$subKey])) {
+                        $subjectId = $subjectsMap[$subKey]->id;
+                    } elseif (isset($subjectsCodeMap[$subKey])) {
+                        $subjectId = $subjectsCodeMap[$subKey]->id;
+                    } else {
+                        // Auto-create subject
+                        $newSub = Subject::create([
+                            'code' => strtoupper(substr(preg_replace('/[^a-zA-Z0-9]/', '', $subjectName), 0, 6)),
+                            'name' => $subjectName,
+                            'status' => 'active',
+                        ]);
+                        $subjectsMap[$subKey] = $newSub;
+                        $subjectId = $newSub->id;
+                    }
+                } elseif ($defaultSubjectId) {
+                    $subjectId = $defaultSubjectId;
+                } else {
+                    $subjectId = $subjectsMap->first()?->id ?? Subject::first()?->id;
+                }
+
+                if (! $subjectId) {
+                    $skipped++;
+                    continue;
+                }
+
+                // Determine question type
+                $rawType = isset($map['type']) ? strtolower(trim((string) ($row[$map['type']] ?? ''))) : 'single_choice';
+                if (str_contains($rawType, 'essay') || str_contains($rawType, 'uraian')) {
+                    $questionType = 'essay';
+                } elseif (str_contains($rawType, 'multiple') || str_contains($rawType, 'majemuk') || str_contains($rawType, 'kompleks')) {
+                    $questionType = 'multiple_choice';
+                } else {
+                    $questionType = 'single_choice';
+                }
+
+                // Score weight
+                $weight = isset($map['weight']) ? (float) ($row[$map['weight']] ?? 20) : 20;
+                if ($weight <= 0) {
+                    $weight = 20;
+                }
+
+                // Difficulty
+                $rawDiff = isset($map['difficulty']) ? strtolower(trim((string) ($row[$map['difficulty']] ?? ''))) : 'medium';
+                if (in_array($rawDiff, ['mudah', 'easy', 'rendah', '1'])) {
+                    $difficulty = 'easy';
+                } elseif (in_array($rawDiff, ['sulit', 'hard', 'tinggi', '3'])) {
+                    $difficulty = 'hard';
+                } else {
+                    $difficulty = 'medium';
+                }
+
+                $correctKeys = isset($map['correct'])
+                    ? array_map('trim', explode(',', strtoupper((string) ($row[$map['correct']] ?? ''))))
+                    : ['A'];
+
+                $question = Question::create([
+                    'subject_id' => $subjectId,
+                    'created_by' => $teacherId,
+                    'question_type' => $questionType,
+                    'content' => $content,
+                    'score_weight' => $weight,
+                    'difficulty' => $difficulty,
+                    'status' => 'active',
+                ]);
+
+                // Options (A through E)
+                if (in_array($questionType, ['single_choice', 'multiple_choice'], true)) {
+                    $labels = ['A', 'B', 'C', 'D', 'E'];
+                    foreach ($labels as $label) {
+                        $key = 'opsi_' . strtolower($label);
+                        $optContent = isset($map[$key]) ? trim((string) ($row[$map[$key]] ?? '')) : '';
+
+                        if ($optContent !== '') {
+                            $isCorrect = in_array($label, $correctKeys, true);
+
+                            $question->options()->create([
+                                'option_label' => $label,
+                                'content' => $optContent,
+                                'is_correct' => $isCorrect,
+                            ]);
+                        }
+                    }
+                }
+
+                $imported++;
+            }
+        });
+
+        $redirectRoute = ($userRole === 'admin') ? 'admin.questions.index' : 'guru.questions.index';
+        $msg = "Import bank soal selesai: {$imported} butir soal baru berhasil ditambahkan";
+        if ($skipped > 0) {
+            $msg .= ", {$skipped} baris kosong/tidak valid dilewati";
+        }
+        $msg .= '.';
+
+        return redirect()->route($redirectRoute)->with('success', $msg);
+    }
 }
+

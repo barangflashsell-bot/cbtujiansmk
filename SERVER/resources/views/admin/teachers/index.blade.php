@@ -24,9 +24,15 @@
             </form>
         </div>
 
-        <button type="button" class="btn btn-primary" onclick="document.getElementById('createTeacherCard').style.display = 'block'; window.scrollTo({top: document.getElementById('createTeacherCard').offsetTop - 80, behavior: 'smooth'});">
-            <span>+</span> Tambah Guru Baru
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
+                <span>📊</span> Import Data Excel
+            </button>
+
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('createTeacherCard').style.display = 'block'; window.scrollTo({top: document.getElementById('createTeacherCard').offsetTop - 80, behavior: 'smooth'});">
+                <span>+</span> Tambah Guru Baru
+            </button>
+        </div>
     </div>
 
     <!-- CREATE FORM CARD -->
@@ -202,6 +208,67 @@
             </div>
         </form>
     </div>
+
+    <!-- MODAL IMPORT GURU EXCEL / CSV -->
+    <div class="modal-overlay" id="importTeacherModal">
+        <div class="modal-content-card" style="max-width: 520px;">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📊</span>
+                    <h3 class="modal-title" style="margin: 0;">Import Data Guru dari Excel</h3>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeImportModal()">&times;</button>
+            </div>
+
+            <form action="{{ route('admin.teachers.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div style="margin-bottom: 16px;">
+                    <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+                        Unggah file daftar guru/pengajar dalam format <strong>Excel (.xlsx)</strong> atau <strong>CSV (.csv)</strong>. Sistem otomatis membuat akun login guru.
+                    </p>
+
+                    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                        <div>
+                            <div style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">Belum punya formatnya?</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Unduh template standar data guru</div>
+                        </div>
+                        <a href="{{ route('admin.teachers.template') }}" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none;">
+                            <span>📥</span> Unduh Template
+                        </a>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label class="form-label">Pilih File Excel / CSV *</label>
+                        <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv,.txt" required style="padding: 7px 12px;">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Mendukung .xlsx, .xls, dan .csv (Maksimal 10MB)</div>
+                    </div>
+
+                    <div style="margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px;">
+                        <input type="checkbox" id="teacher_update_existing" name="update_existing" value="1" style="margin-top: 2px;">
+                        <label for="teacher_update_existing" style="font-size: 12.5px; color: var(--text-primary); cursor: pointer; line-height: 1.35;">
+                            <strong>Perbarui data jika NIP / Username sudah terdaftar</strong>
+                        </label>
+                    </div>
+
+                    <div style="background: var(--bg-surface-elevated); border: 1px dashed var(--border-color); border-radius: 6px; padding: 10px 12px; font-size: 11px; color: var(--text-secondary);">
+                        <strong style="display: block; margin-bottom: 4px; color: var(--text-primary);">Format Kolom File:</strong>
+                        <code>Nama Lengkap | Username | Password | NIP | No HP</code>
+                        <div style="margin-top: 4px; font-size: 10.5px; color: var(--text-muted);">
+                            &bull; Jika password dikosongkan, default password adalah <code>123456</code> atau NIP.<br>
+                            &bull; Jika username dikosongkan, otomatis menggunakan NIP.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeImportModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #0095ff; border-color: #0095ff;">
+                        <span>📤</span> Upload & Mulai Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -216,5 +283,20 @@ function editTeacher(id, name, nip, phone, isActive) {
     card.style.display = 'block';
     window.scrollTo({top: card.offsetTop - 80, behavior: 'smooth'});
 }
+
+function openImportModal() {
+    const modal = document.getElementById('importTeacherModal');
+    if (modal) modal.classList.add('active');
+}
+
+function closeImportModal() {
+    const modal = document.getElementById('importTeacherModal');
+    if (modal) modal.classList.remove('active');
+}
+
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('importTeacherModal');
+    if (modal && e.target === modal) closeImportModal();
+});
 </script>
 @endsection

@@ -39,6 +39,8 @@ Route::middleware('auth')->group(function () {
         // Master Data: Students (Peserta)
         Route::prefix('students')->as('students.')->group(function () {
             Route::get('/', [WebStudentController::class, 'adminIndex'])->name('index');
+            Route::get('/template', [WebStudentController::class, 'downloadTemplate'])->name('template');
+            Route::post('/import', [WebStudentController::class, 'adminImport'])->name('import');
             Route::post('/', [WebStudentController::class, 'adminStore'])->name('store');
             Route::match(['put', 'patch'], '/{id}', [WebStudentController::class, 'adminUpdate'])->name('update');
             Route::delete('/{id}', [WebStudentController::class, 'adminDestroy'])->name('destroy');
@@ -47,6 +49,8 @@ Route::middleware('auth')->group(function () {
         // Master Data: Teachers (Guru)
         Route::prefix('teachers')->as('teachers.')->group(function () {
             Route::get('/', [WebTeacherController::class, 'index'])->name('index');
+            Route::get('/template', [WebTeacherController::class, 'downloadTemplate'])->name('template');
+            Route::post('/import', [WebTeacherController::class, 'import'])->name('import');
             Route::post('/', [WebTeacherController::class, 'store'])->name('store');
             Route::match(['put', 'patch'], '/{id}', [WebTeacherController::class, 'update'])->name('update');
             Route::delete('/{id}', [WebTeacherController::class, 'destroy'])->name('destroy');
@@ -55,6 +59,8 @@ Route::middleware('auth')->group(function () {
         // Master Data: Classes (Kelas)
         Route::prefix('classes')->as('classes.')->group(function () {
             Route::get('/', [WebClassController::class, 'index'])->name('index');
+            Route::get('/template', [WebClassController::class, 'downloadTemplate'])->name('template');
+            Route::post('/import', [WebClassController::class, 'import'])->name('import');
             Route::post('/', [WebClassController::class, 'store'])->name('store');
             Route::match(['put', 'patch'], '/{id}', [WebClassController::class, 'update'])->name('update');
             Route::delete('/{id}', [WebClassController::class, 'destroy'])->name('destroy');
@@ -63,6 +69,8 @@ Route::middleware('auth')->group(function () {
         // Master Data: Subjects (Mata Pelajaran)
         Route::prefix('subjects')->as('subjects.')->group(function () {
             Route::get('/', [WebSubjectController::class, 'index'])->name('index');
+            Route::get('/template', [WebSubjectController::class, 'downloadTemplate'])->name('template');
+            Route::post('/import', [WebSubjectController::class, 'import'])->name('import');
             Route::post('/', [WebSubjectController::class, 'store'])->name('store');
             Route::match(['put', 'patch'], '/{id}', [WebSubjectController::class, 'update'])->name('update');
             Route::delete('/{id}', [WebSubjectController::class, 'destroy'])->name('destroy');
@@ -71,6 +79,8 @@ Route::middleware('auth')->group(function () {
         // Bank Soal: Questions (Admin)
         Route::prefix('questions')->as('questions.')->group(function () {
             Route::get('/', [WebQuestionController::class, 'index'])->name('index');
+            Route::get('/template', [WebQuestionController::class, 'downloadTemplate'])->name('template');
+            Route::post('/import', [WebQuestionController::class, 'import'])->name('import');
             Route::get('/create', [WebQuestionController::class, 'create'])->name('create');
             Route::post('/', [WebQuestionController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [WebQuestionController::class, 'edit'])->name('edit');
@@ -154,6 +164,8 @@ Route::middleware('auth')->group(function () {
         // Bank Soal: Questions (Guru scoped)
         Route::prefix('questions')->as('questions.')->group(function () {
             Route::get('/', [WebQuestionController::class, 'index'])->name('index');
+            Route::get('/template', [WebQuestionController::class, 'downloadTemplate'])->name('template');
+            Route::post('/import', [WebQuestionController::class, 'import'])->name('import');
             Route::get('/create', [WebQuestionController::class, 'create'])->name('create');
             Route::post('/', [WebQuestionController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [WebQuestionController::class, 'edit'])->name('edit');

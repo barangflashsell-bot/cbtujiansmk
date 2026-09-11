@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\Teacher;
 use App\Models\User;
+use App\Traits\HandlesExcelImport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ use Illuminate\View\View;
 
 class WebTeacherController extends Controller
 {
+    use HandlesExcelImport;
     /**
      * Display a listing of teachers.
      */
@@ -133,4 +135,155 @@ class WebTeacherController extends Controller
 
         return redirect()->route('admin.teachers.index')->with('success', 'Data guru berhasil dihapus.');
     }
+
+    /**
+     * Download Excel CSV template for teacher import.
+     */
+    public function downloadTemplate()
+    {
+        $headers = ['No', 'Nama Lengkap', 'Username', 'Password', 'NIP', 'No HP'];
+        $sampleRows = [
+            ['1', 'Drs. H. Bambang Sutrisno M.Kom', 'guru_bambang', '123456', '198001012005011001', '081234567890'],
+            ['2', 'Sri Wahyuni S.Pd', 'guru_sri', '123456', '198502022008022002', '081234567891'],
+            ['3', 'Ahmad Farhan S.T', 'guru_farhan', '123456', '199003032015031003', '081234567892'],
+        ];
+
+        return $this->streamCsvTemplate('template_data_guru.csv', $headers, $sampleRows);
+    }
+
+    /**
+     * Import teachers from Excel or CSV file.
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'max:10240'],
+            'update_existing' => ['nullable'],
+        ], [
+            'file.required' => 'File Excel atau CSV wajib diunggah.',
+            'file.max' => 'Ukuran file maksimal 10MB.',
+        ]);
+
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        try {
+            $rawRows = $this->parseUploadedSpreadsheet($file->getRealPath(), $extension);
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.teachers.index')->with('error', 'Gagal membaca file: ' . $e->getMessage());
+        }
+
+        if (empty($rawRows)) {
+            return redirect()->route('admin.teachers.index')->with('error', 'File yang diunggah kosong atau tidak memiliki data.');
+        }
+
+        $headerRow = array_shift($rawRows);
+        $map = [];
+        foreach ($headerRow as $idx => $header) {
+            $clean = strtolower(trim((string) preg_replace('/[^a-zA-Z0-9]/', '', $header)));
+            if (in_array($clean, ['nama', 'namalengkap', 'namaguru', 'name', 'fullname', 'teachername'])) {
+                $map['nama'] = $idx;
+            } elseif (in_array($clean, ['username', 'user', 'userid', 'login'])) {
+                $map['username'] = $idx;
+            } elseif (in_array($clean, ['password', 'pass', 'sandi', 'katasandi', 'pin'])) {
+                $map['password'] = $idx;
+            } elseif (in_array($clean, ['nip', 'nomorindukpegawai', 'noindukpegawai'])) {
+                $map['nip'] = $idx;
+            } elseif (in_array($clean, ['nohp', 'hp', 'phone', 'telepon', 'notelp', 'telp', 'wa', 'whatsapp'])) {
+                $map['phone'] = $idx;
+            }
+        }
+
+        if (! isset($map['nama'])) {
+            return redirect()->route('admin.teachers.index')->with('error', 'Format kolom file tidak sesuai. Pastikan terdapat kolom "Nama Lengkap".');
+        }
+
+        $teacherRole = Role::where('name', 'teacher')->firstOrFail();
+        $updateExisting = (bool) $request->input('update_existing');
+
+        $imported = 0;
+        $updated = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use (
+            $rawRows,
+            $map,
+            $teacherRole,
+            $updateExisting,
+            &$imported,
+            &$updated,
+            &$skipped
+        ) {
+            foreach ($rawRows as $row) {
+                $nama = isset($map['nama']) ? trim($row[$map['nama']] ?? '') : '';
+                if ($nama === '') {
+                    continue;
+                }
+
+                $nip = isset($map['nip']) ? trim((string) ($row[$map['nip']] ?? '')) : null;
+                $username = isset($map['username']) ? trim((string) ($row[$map['username']] ?? '')) : '';
+
+                if ($username === '') {
+                    $username = $nip ?: 'guru_' . strtolower(preg_replace('/[^a-zA-Z0-9]/', '', substr($nama, 0, 10))) . rand(10, 99);
+                }
+
+                $password = isset($map['password']) ? trim((string) ($row[$map['password']] ?? '')) : '';
+                if ($password === '') {
+                    $password = $nip ?: '123456';
+                }
+
+                $phone = isset($map['phone']) ? trim((string) ($row[$map['phone']] ?? '')) : null;
+
+                // Check existing teacher by username or NIP
+                $existingTeacher = Teacher::when($nip, fn ($q) => $q->where('nip', $nip))
+                    ->orWhereHas('user', fn ($uq) => $uq->where('username', $username))
+                    ->first();
+
+                if ($existingTeacher) {
+                    if ($updateExisting) {
+                        $userUpdate = ['name' => $nama, 'is_active' => true];
+                        if ($password !== '') {
+                            $userUpdate['password'] = Hash::make($password);
+                        }
+                        $existingTeacher->user->update($userUpdate);
+
+                        $existingTeacher->update([
+                            'nip' => $nip ?: $existingTeacher->nip,
+                            'phone' => $phone ?: $existingTeacher->phone,
+                        ]);
+                        $updated++;
+                    } else {
+                        $skipped++;
+                    }
+                } else {
+                    $user = User::create([
+                        'username' => $username,
+                        'name' => $nama,
+                        'password' => Hash::make($password),
+                        'role_id' => $teacherRole->id,
+                        'is_active' => true,
+                    ]);
+
+                    Teacher::create([
+                        'user_id' => $user->id,
+                        'nip' => $nip ?: null,
+                        'phone' => $phone ?: null,
+                    ]);
+                    $imported++;
+                }
+            }
+        });
+
+        $msg = "Import data guru selesai: {$imported} guru baru berhasil ditambahkan";
+        if ($updated > 0) {
+            $msg .= ", {$updated} data guru diperbarui";
+        }
+        if ($skipped > 0) {
+            $msg .= ", {$skipped} data dilewati";
+        }
+        $msg .= '.';
+
+        return redirect()->route('admin.teachers.index')->with('success', $msg);
+    }
 }
+

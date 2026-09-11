@@ -1,0 +1,188 @@
+<?php
+
+namespace App\Traits;
+
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+trait HandlesExcelImport
+{
+    /**
+     * Parse an uploaded Excel (.xlsx) or CSV (.csv/.txt) file into an array of rows.
+     */
+    protected function parseUploadedSpreadsheet(string $filePath, string $extension): array
+    {
+        $extension = strtolower(trim($extension));
+        if ($extension === 'xlsx') {
+            return $this->parseXlsxFile($filePath);
+        }
+
+        return $this->parseCsvFile($filePath);
+    }
+
+    /**
+     * Stream a standard CSV file with UTF-8 BOM for Microsoft Excel Windows compatibility.
+     */
+    protected function streamCsvTemplate(string $filename, array $headers, array $sampleRows): StreamedResponse
+    {
+        $responseHeaders = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($headers, $sampleRows) {
+            $handle = fopen('php://output', 'w');
+            // UTF-8 BOM
+            fputs($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, $headers);
+            foreach ($sampleRows as $row) {
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $responseHeaders);
+    }
+
+    /**
+     * Parse CSV / TXT file content with auto delimiter detection.
+     */
+    protected function parseCsvFile(string $filePath): array
+    {
+        $content = file_get_contents($filePath);
+        if ($content === false || trim($content) === '') {
+            return [];
+        }
+
+        // Remove UTF-8 BOM
+        $bom = pack('H*', 'EFBBBF');
+        $content = preg_replace("/^$bom/", '', $content);
+
+        // Auto-detect delimiter
+        $lines = explode("\n", $content);
+        $firstLine = $lines[0] ?? '';
+        $delimiter = ',';
+        if (substr_count($firstLine, ';') > substr_count($firstLine, ',')) {
+            $delimiter = ';';
+        } elseif (substr_count($firstLine, "\t") > substr_count($firstLine, ',')) {
+            $delimiter = "\t";
+        }
+
+        $handle = fopen('php://memory', 'r+');
+        fwrite($handle, $content);
+        rewind($handle);
+
+        $rows = [];
+        while (($data = fgetcsv($handle, 8192, $delimiter)) !== false) {
+            if (! empty(array_filter($data, fn ($v) => trim((string) $v) !== ''))) {
+                $rows[] = array_map(fn ($v) => trim((string) $v), $data);
+            }
+        }
+        fclose($handle);
+
+        return $rows;
+    }
+
+    /**
+     * Parse native Excel (.xlsx) file using PHP's built-in ZipArchive and SimpleXML.
+     */
+    protected function parseXlsxFile(string $filePath): array
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($filePath) !== true) {
+            throw new \Exception('Gagal membuka arsip file Excel (.xlsx).');
+        }
+
+        // 1. Read shared strings
+        $sharedStrings = [];
+        $sharedXml = $zip->getFromName('xl/sharedStrings.xml');
+        if ($sharedXml !== false) {
+            $xml = simplexml_load_string($sharedXml);
+            if ($xml !== false) {
+                foreach ($xml->si as $val) {
+                    if (isset($val->t)) {
+                        $sharedStrings[] = (string) $val->t;
+                    } elseif (isset($val->r)) {
+                        $text = '';
+                        foreach ($val->r as $r) {
+                            $text .= (string) $r->t;
+                        }
+                        $sharedStrings[] = $text;
+                    } else {
+                        $sharedStrings[] = '';
+                    }
+                }
+            }
+        }
+
+        // 2. Read first worksheet
+        $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+        if ($sheetXml === false) {
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $name = $zip->getNameIndex($i);
+                if (str_starts_with($name, 'xl/worksheets/sheet') && str_ends_with($name, '.xml')) {
+                    $sheetXml = $zip->getFromIndex($i);
+                    break;
+                }
+            }
+        }
+        $zip->close();
+
+        if ($sheetXml === false) {
+            throw new \Exception('Worksheet Excel tidak ditemukan.');
+        }
+
+        $xml = simplexml_load_string($sheetXml);
+        if ($xml === false || ! isset($xml->sheetData)) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($xml->sheetData->row as $row) {
+            $rowData = [];
+            $lastColIdx = 0;
+            foreach ($row->c as $c) {
+                $cellRef = (string) $c['r'];
+                $type = (string) $c['t'];
+
+                preg_match('/^([A-Z]+)(\d+)$/', $cellRef, $matches);
+                if (! empty($matches[1])) {
+                    $colLetters = $matches[1];
+                    $colIdx = 0;
+                    for ($len = strlen($colLetters), $k = 0; $k < $len; $k++) {
+                        $colIdx = $colIdx * 26 + (ord($colLetters[$k]) - ord('A') + 1);
+                    }
+                    $colIdx -= 1;
+                } else {
+                    $colIdx = $lastColIdx;
+                }
+
+                while (count($rowData) < $colIdx) {
+                    $rowData[] = '';
+                }
+
+                $val = '';
+                if (isset($c->v)) {
+                    $rawVal = (string) $c->v;
+                    if ($type === 's' && isset($sharedStrings[(int) $rawVal])) {
+                        $val = $sharedStrings[(int) $rawVal];
+                    } else {
+                        $val = $rawVal;
+                    }
+                } elseif ($type === 'inlineStr' && isset($c->is->t)) {
+                    $val = (string) $c->is->t;
+                }
+
+                $rowData[] = trim($val);
+                $lastColIdx = count($rowData);
+            }
+
+            if (! empty(array_filter($rowData, fn ($v) => $v !== ''))) {
+                $rows[] = $rowData;
+            }
+        }
+
+        return $rows;
+    }
+}
