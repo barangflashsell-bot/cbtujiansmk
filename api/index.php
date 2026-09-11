@@ -36,14 +36,25 @@ if (!isset($_SESSION['cbt_settings'])) {
     ];
 }
 
-// B. Teachers List
+// B. Teachers List (Nomer telepon dihilangkan, password default 12345678)
 if (!isset($_SESSION['teachers_list'])) {
     $_SESSION['teachers_list'] = [
-        ['id' => 't1', 'nip' => '197501012000011001', 'name' => 'Budi Santoso, S.Pd', 'username' => 'guru.budi', 'email' => 'budi@smk.sch.id', 'phone' => '081234567890', 'is_active' => true],
-        ['id' => 't2', 'nip' => '198203152005012003', 'name' => 'Siti Aminah, M.Kom', 'username' => 'guru.siti', 'email' => 'siti@smk.sch.id', 'phone' => '081298765432', 'is_active' => true],
-        ['id' => 't3', 'nip' => '198811202010011005', 'name' => 'Ahmad Fauzi, S.T', 'username' => 'guru.ahmad', 'email' => 'ahmad@smk.sch.id', 'phone' => '081345678901', 'is_active' => true],
-        ['id' => 't4', 'nip' => '199204122019031008', 'name' => 'Dra. Nurul Hidayati', 'username' => 'guru.nurul', 'email' => 'nurul@smk.sch.id', 'phone' => '085712345678', 'is_active' => true],
+        ['id' => 't1', 'nip' => '197501012000011001', 'name' => 'Budi Santoso, S.Pd', 'username' => 'guru.budi', 'password' => '12345678', 'email' => 'budi@smk.sch.id', 'is_active' => true],
+        ['id' => 't2', 'nip' => '198203152005012003', 'name' => 'Siti Aminah, M.Kom', 'username' => 'guru.siti', 'password' => '12345678', 'email' => 'siti@smk.sch.id', 'is_active' => true],
+        ['id' => 't3', 'nip' => '198811202010011005', 'name' => 'Ahmad Fauzi, S.T', 'username' => 'guru.ahmad', 'password' => '12345678', 'email' => 'ahmad@smk.sch.id', 'is_active' => true],
+        ['id' => 't4', 'nip' => '199204122019031008', 'name' => 'Dra. Nurul Hidayati', 'username' => 'guru.nurul', 'password' => '12345678', 'email' => 'nurul@smk.sch.id', 'is_active' => true],
     ];
+}
+
+// Sanitasi Data Guru: Pastikan nomer telepon tidak ada dan password default 12345678
+if (isset($_SESSION['teachers_list']) && is_array($_SESSION['teachers_list'])) {
+    foreach ($_SESSION['teachers_list'] as &$tItem) {
+        unset($tItem['phone']);
+        if (empty($tItem['password'])) {
+            $tItem['password'] = '12345678';
+        }
+    }
+    unset($tItem);
 }
 
 // C. Classes List
@@ -57,16 +68,42 @@ if (!isset($_SESSION['classes_list'])) {
     ];
 }
 
-// D. Students List
+// D. Students List (Kelas mengikuti ID Jurusan angka)
 if (!isset($_SESSION['students_list'])) {
     $_SESSION['students_list'] = [
-        ['id' => 's1', 'nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'username' => 'ahmad0081234567', 'password' => '12345678', 'class' => '10-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's2', 'nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'username' => 'siti0081234568', 'password' => '12345678', 'class' => '10-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
-        ['id' => 's3', 'nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'username' => 'budi0081234569', 'password' => '12345678', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's4', 'nis' => '0081234570', 'name' => 'Dewi Lestari', 'username' => 'dewi0081234570', 'password' => '12345678', 'class' => '11-TKJ-1', 'gender' => 'P', 'status' => 'Online'],
-        ['id' => 's5', 'nis' => '0081234571', 'name' => 'Eko Prasetyo', 'username' => 'eko0081234571', 'password' => '12345678', 'class' => '12-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's6', 'nis' => '0081234572', 'name' => 'Farhan Maulana', 'username' => 'farhan0081234572', 'password' => '12345678', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's1', 'nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'username' => 'ahmad0081234567', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's2', 'nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'username' => 'siti0081234568', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's3', 'nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'username' => 'budi0081234569', 'password' => '12345678', 'major_id' => '2', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's4', 'nis' => '0081234570', 'name' => 'Dewi Lestari', 'username' => 'dewi0081234570', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ-1', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's5', 'nis' => '0081234571', 'name' => 'Eko Prasetyo', 'username' => 'eko0081234571', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's6', 'nis' => '0081234572', 'name' => 'Farhan Maulana', 'username' => 'farhan0081234572', 'password' => '12345678', 'major_id' => '2', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
     ];
+}
+
+// Sanitasi Data Siswa: Pastikan memiliki major_id yang sinkron dengan rombel kelas
+if (isset($_SESSION['students_list']) && is_array($_SESSION['students_list'])) {
+    foreach ($_SESSION['students_list'] as &$sItem) {
+        if (empty($sItem['major_id'])) {
+            $cls = $sItem['class'] ?? '';
+            $foundMajor = null;
+            if (isset($_SESSION['classes_list'])) {
+                foreach ($_SESSION['classes_list'] as $clItem) {
+                    if ($clItem['name'] === $cls) {
+                        $foundMajor = (string)($clItem['major_id'] ?? '1');
+                        break;
+                    }
+                }
+            }
+            if (!$foundMajor) {
+                if (str_contains(strtoupper($cls), 'TKJ')) $foundMajor = '1';
+                elseif (str_contains(strtoupper($cls), 'RPL')) $foundMajor = '2';
+                elseif (str_contains(strtoupper($cls), 'AK')) $foundMajor = '3';
+                else $foundMajor = '1';
+            }
+            $sItem['major_id'] = $foundMajor;
+        }
+    }
+    unset($sItem);
 }
 
 // E. Subjects List
@@ -245,14 +282,16 @@ function logCbtActivity($module, $action, $details) {
 $reqFormat = strtolower(trim($_GET['format'] ?? 'excel'));
 
 if ($uri === '/admin/students/template') {
-    // Sesuai kebutuhan: Username (Nama Depan + NIS) & Password (12345678) dibuat otomatis oleh sistem, NISN dibuang
-    $headers = ['No', 'NIS', 'Nama Lengkap Peserta', 'Kelas', 'Jenis Kelamin (L/P)'];
+    // Sesuai kebutuhan: Penentuan siswa kelas berapa dan jurusan apa menggunakan ID Jurusan (angka: 1=TKJ, 2=RPL, 3=AKL, dst) & Tingkat/Kelas mengikuti otomatis.
+    // Username (Nama Depan + NIS) & Password (12345678) dibuat otomatis oleh sistem tanpa perlu diminta di excel.
+    $headers = ['No', 'NIS', 'Nama Lengkap Peserta', 'ID Jurusan (Angka: 1=TKJ, 2=RPL, 3=AKL)', 'Kelas / Tingkat (10/11/12)', 'Jenis Kelamin (L/P)'];
     $sampleRows = [
-        ['1', '0081234567', 'Ahmad Dhani Prasetya', '10-TKJ-1', 'L'],
-        ['2', '0081234568', 'Siti Aminah Zahra', '10-TKJ-1', 'P'],
-        ['3', '0081234569', 'Budi Santoso Nugroho', '10-RPL-1', 'L'],
+        ['1', '0081234567', 'Ahmad Dhani Prasetya', '1', '10', 'L'],
+        ['2', '0081234568', 'Siti Aminah Zahra', '1', '10', 'P'],
+        ['3', '0081234569', 'Budi Santoso Nugroho', '2', '10', 'L'],
+        ['4', '0081234570', 'Dewi Lestari', '1', '11', 'P'],
     ];
-    $colWidths = [40, 140, 260, 130, 140];
+    $colWidths = [40, 140, 240, 160, 140, 120];
     if ($reqFormat === 'csv') {
         streamCsvTemplate('template_data_peserta.csv', $headers, $sampleRows);
     } else {
@@ -262,12 +301,14 @@ if ($uri === '/admin/students/template') {
 }
 
 if ($uri === '/admin/teachers/template') {
-    $headers = ['No', 'Nama Lengkap Guru', 'Username Login', 'Password', 'NIP', 'No. WhatsApp / HP'];
+    // Sesuai kebutuhan: Nomer telepon guru dihilangkan. Password default akun guru otomatis 12345678.
+    $headers = ['No', 'NIP', 'Nama Lengkap Guru', 'Username Login'];
     $sampleRows = [
-        ['1', 'Drs. H. Bambang Sutrisno, M.Kom', 'guru_bambang', '123456', '198001012005011001', '081234567890'],
-        ['2', 'Sri Wahyuni, S.Pd', 'guru_sri', '123456', '198502022008022002', '081234567891'],
+        ['1', '198001012005011001', 'Drs. H. Bambang Sutrisno, M.Kom', 'guru_bambang'],
+        ['2', '198502022008022002', 'Sri Wahyuni, S.Pd', 'guru_sri'],
+        ['3', '198811202010011005', 'Ahmad Fauzi, S.T', 'guru_ahmad'],
     ];
-    $colWidths = [40, 240, 140, 100, 160, 140];
+    $colWidths = [40, 180, 260, 160];
     if ($reqFormat === 'csv') {
         streamCsvTemplate('template_data_guru.csv', $headers, $sampleRows);
     } else {
@@ -404,6 +445,67 @@ function streamCsvTemplate($filename, $headers, $sampleRows) {
 }
 
 // =========================================================================
+// 2B. CORE HELPERS (RESOLUSI KELAS & JURUSAN, GENERATOR USERNAME)
+// =========================================================================
+
+// Helper: Buat username dari nama depan + NIS (lowercase, alphanum only)
+function getStudentUsernameFromNameNis($name, $nis) {
+    $parts = preg_split('/\s+/', trim((string)$name));
+    $firstName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parts[0] ?? 'siswa'));
+    if (empty($firstName)) $firstName = 'siswa';
+    $cleanNis = preg_replace('/[^a-zA-Z0-9]/', '', (string)$nis);
+    return $firstName . $cleanNis;
+}
+
+// Helper: Penentuan siswa kelas berapa dan jurusan apa menggunakan ID Jurusan & Tingkat/Kelas
+function resolveStudentClassAndMajor($majorIdInput, $classInput) {
+    $classes = $_SESSION['classes_list'] ?? [];
+    $rawMajorId = trim((string)$majorIdInput);
+    $rawClass = trim((string)$classInput);
+
+    // 1. Jika nama kelas langsung cocok secara persis (contoh: '10-TKJ-1')
+    foreach ($classes as $c) {
+        if (strcasecmp($c['name'], $rawClass) === 0) {
+            $majorId = (string)($c['major_id'] ?? ($rawMajorId !== '' ? $rawMajorId : '1'));
+            return ['class' => $c['name'], 'major_id' => $majorId];
+        }
+    }
+
+    // 2. Jika ID Jurusan diberikan (contoh: 1, 2, 3), cocokkan kelas yang memiliki ID Jurusan tersebut dan tingkat yang sama
+    if ($rawMajorId !== '') {
+        // Cocokkan major_id dan level (misal major_id=1, level=10)
+        foreach ($classes as $c) {
+            $cMajorId = (string)($c['major_id'] ?? '');
+            $cLevel = (string)($c['level'] ?? '');
+            if ($cMajorId === $rawMajorId && ($cLevel === $rawClass || str_starts_with($c['name'], $rawClass))) {
+                return ['class' => $c['name'], 'major_id' => $rawMajorId];
+            }
+        }
+        // Jika tingkat tidak cocok tapi major_id cocok, ambil kelas pertama jurusan tersebut
+        foreach ($classes as $c) {
+            $cMajorId = (string)($c['major_id'] ?? '');
+            if ($cMajorId === $rawMajorId) {
+                return ['class' => $c['name'], 'major_id' => $rawMajorId];
+            }
+        }
+    }
+
+    // 3. Jika hanya nama/tingkat kelas tanpa ID Jurusan (misal '10' atau '10-TKJ-1')
+    if ($rawClass !== '') {
+        foreach ($classes as $c) {
+            if (str_contains(strtoupper($c['name']), strtoupper($rawClass))) {
+                return ['class' => $c['name'], 'major_id' => (string)($c['major_id'] ?? '1')];
+            }
+        }
+    }
+
+    // 4. Default fallback jika tidak ada yang cocok
+    $fallbackClass = !empty($rawClass) ? $rawClass : ($classes[0]['name'] ?? '10-TKJ-1');
+    $fallbackMajorId = !empty($rawMajorId) ? $rawMajorId : '1';
+    return ['class' => $fallbackClass, 'major_id' => $fallbackMajorId];
+}
+
+// =========================================================================
 // 3. FILE IMPORT PARSER (EXCEL XML & CSV)
 // =========================================================================
 if ($method === 'POST' && strpos($uri, '/import') !== false) {
@@ -451,20 +553,38 @@ if ($method === 'POST' && strpos($uri, '/import') !== false) {
 
         if (strpos($uri, 'students') !== false) {
             foreach ($importedItems as $item) {
-                // Deteksi format:
-                // Format Baru (5 kolom): [0 => No, 1 => NIS, 2 => Nama Lengkap, 3 => Kelas, 4 => L/P]
+                // Deteksi format Excel:
+                // Format Baru 6 Kolom: [0 => No, 1 => NIS, 2 => Nama Lengkap, 3 => ID Jurusan, 4 => Kelas/Tingkat, 5 => L/P]
+                // Format 5 Kolom: [0 => No, 1 => NIS, 2 => Nama Lengkap, 3 => ID Jurusan / Kelas, 4 => Kelas / L/P]
                 // Format Lama (8 kolom): [0 => No, 1 => Nama, 2 => Username, 3 => Password, 4 => Kelas, 5 => NIS, 6 => NISN, 7 => L/P]
-                if (count($item) <= 6) {
+                $majorIdInput = '';
+                $classInput = '';
+                $gender = 'L';
+
+                if (count($item) >= 6 && count($item) <= 7) {
                     $nis = trim($item[1] ?? '');
                     $name = trim($item[2] ?? '');
-                    $class = trim($item[3] ?? '10-TKJ-1');
-                    $gender = strtoupper(trim($item[4] ?? 'L'));
+                    $majorIdInput = trim($item[3] ?? '');
+                    $classInput = trim($item[4] ?? '');
+                    $gender = strtoupper(trim($item[5] ?? 'L'));
+                } elseif (count($item) === 5) {
+                    $nis = trim($item[1] ?? '');
+                    $name = trim($item[2] ?? '');
+                    if (is_numeric(trim($item[3] ?? ''))) {
+                        $majorIdInput = trim($item[3] ?? '');
+                        $classInput = trim($item[4] ?? '');
+                        $gender = 'L';
+                    } else {
+                        $classInput = trim($item[3] ?? '');
+                        $gender = strtoupper(trim($item[4] ?? 'L'));
+                    }
                 } else {
                     $name = trim($item[1] ?? '');
-                    $class = trim($item[4] ?? '10-TKJ-1');
+                    $classInput = trim($item[4] ?? '10-TKJ-1');
                     $nis = trim($item[5] ?? $item[1]);
                     $gender = strtoupper(trim($item[7] ?? 'L'));
                 }
+
                 if (empty($nis)) {
                     $nis = '008' . rand(1000000, 9999999);
                 }
@@ -472,6 +592,12 @@ if ($method === 'POST' && strpos($uri, '/import') !== false) {
                     $name = 'Peserta ' . $nis;
                 }
                 $gender = ($gender === 'P') ? 'P' : 'L';
+
+                // Resolusi Kelas mengikuti ID Jurusan (angka) secara otomatis
+                $resolved = resolveStudentClassAndMajor($majorIdInput, $classInput);
+                $finalClass = $resolved['class'];
+                $finalMajorId = $resolved['major_id'];
+
                 // Otomatis tanpa diminta:
                 $username = getStudentUsernameFromNameNis($name, $nis);
                 $password = '12345678';
@@ -482,29 +608,50 @@ if ($method === 'POST' && strpos($uri, '/import') !== false) {
                     'name' => $name,
                     'username' => $username,
                     'password' => $password,
-                    'class' => $class,
+                    'major_id' => $finalMajorId,
+                    'class' => $finalClass,
                     'gender' => $gender,
                     'status' => 'Aktif',
                 ];
             }
-            logCbtActivity('STUDENT', 'IMPORT_EXCEL', "Mengimpor {$count} peserta baru dari spreadsheet (Username & Password otomatis)");
-            $_SESSION['import_success'] = "Berhasil mengimpor {$count} data peserta! Username (Nama Depan + NIS) dan Password (12345678) telah dibuat otomatis.";
+            logCbtActivity('STUDENT', 'IMPORT_EXCEL', "Mengimpor {$count} peserta baru dari spreadsheet (Kelas mengikuti ID Jurusan, PW: 12345678)");
+            $_SESSION['import_success'] = "Berhasil mengimpor {$count} data peserta! Kelas otomatis mengikuti ID Jurusan, serta Username (Nama Depan + NIS) dan Password (12345678) telah dibuat otomatis.";
             header('Location: /admin/students');
             exit;
         } elseif (strpos($uri, 'teachers') !== false) {
             foreach ($importedItems as $item) {
+                // Format Guru: [0 => No, 1 => NIP, 2 => Nama Guru, 3 => Username]
+                $nip = trim($item[1] ?? '');
+                $name = trim($item[2] ?? '');
+                $username = trim($item[3] ?? '');
+                if (empty($name) && !empty($item[1])) {
+                    $name = trim($item[1]);
+                    $username = trim($item[2] ?? '');
+                    $nip = trim($item[4] ?? ('1985' . rand(10000000000000, 99999999999999)));
+                }
+                if (empty($username)) {
+                    $username = 'guru.' . rand(100, 999);
+                }
+                if (empty($nip)) {
+                    $nip = '1985' . rand(10000000000000, 99999999999999);
+                }
+                if (empty($name)) {
+                    $name = 'Guru ' . $nip;
+                }
+
+                // Nomer telepon dihilangkan, password default 12345678
                 $_SESSION['teachers_list'][] = [
                     'id' => uniqid('t_'),
-                    'name' => $item[1] ?? 'Guru Impor',
-                    'username' => $item[2] ?? ('guru.' . rand(100, 999)),
-                    'nip' => $item[4] ?? ('1985' . rand(10000000000000, 99999999999999)),
-                    'phone' => $item[5] ?? '08123456789',
-                    'email' => ($item[2] ?? 'guru') . '@smk.sch.id',
+                    'nip' => $nip,
+                    'name' => $name,
+                    'username' => $username,
+                    'password' => '12345678',
+                    'email' => $username . '@smk.sch.id',
                     'is_active' => true,
                 ];
             }
-            logCbtActivity('TEACHER', 'IMPORT_EXCEL', "Mengimpor {$count} data guru baru dari spreadsheet");
-            $_SESSION['import_success'] = "Berhasil mengimpor {$count} data guru ke dalam sistem!";
+            logCbtActivity('TEACHER', 'IMPORT_EXCEL', "Mengimpor {$count} data guru baru dari spreadsheet (Tanpa telepon, password default 12345678)");
+            $_SESSION['import_success'] = "Berhasil mengimpor {$count} data guru ke dalam sistem! Password default: <strong>12345678</strong>.";
             header('Location: /admin/teachers');
             exit;
         } elseif (strpos($uri, 'classes') !== false) {
@@ -576,18 +723,19 @@ if ($method === 'POST' && ($uri === '/admin/teachers/create' || $uri === '/admin
     $name = trim($_POST['name'] ?? 'Guru Baru');
     $username = trim($_POST['username'] ?? ('guru.' . rand(10, 99)));
     $nip = trim($_POST['nip'] ?? ('1985' . rand(10000000000000, 99999999999999)));
-    $phone = trim($_POST['phone'] ?? '0812' . rand(10000000, 99999999));
+    $password = trim($_POST['password'] ?? '12345678');
+    if (empty($password)) $password = '12345678';
     $_SESSION['teachers_list'][] = [
         'id' => uniqid('t_'),
         'nip' => $nip,
         'name' => $name,
         'username' => $username,
+        'password' => $password,
         'email' => $username . '@smk.sch.id',
-        'phone' => $phone,
         'is_active' => true,
     ];
-    logCbtActivity('TEACHER', 'CREATE_TEACHER', "Menambahkan guru baru: {$name}");
-    $_SESSION['import_success'] = "Data guru \"{$name}\" berhasil disimpan!";
+    logCbtActivity('TEACHER', 'CREATE_TEACHER', "Menambahkan guru baru: {$name} (Password Default: {$password})");
+    $_SESSION['import_success'] = "Data guru \"{$name}\" berhasil disimpan! Password default: <code>{$password}</code>";
     header('Location: /admin/teachers');
     exit;
 }
@@ -598,14 +746,64 @@ if ($method === 'POST' && $uri === '/admin/teachers/edit') {
         if ($t['id'] === $id) {
             $t['name'] = trim($_POST['name'] ?? $t['name']);
             $t['nip'] = trim($_POST['nip'] ?? $t['nip']);
-            $t['phone'] = trim($_POST['phone'] ?? $t['phone']);
+            $t['username'] = trim($_POST['username'] ?? $t['username']);
+            if (!empty($_POST['password'])) {
+                $t['password'] = trim($_POST['password']);
+            }
             $t['is_active'] = isset($_POST['is_active']);
+            unset($t['phone']); // Nomer telepon dihilangkan
             logCbtActivity('TEACHER', 'EDIT_TEACHER', "Memperbarui data guru: {$t['name']}");
             $_SESSION['import_success'] = "Perubahan data guru \"{$t['name']}\" berhasil disimpan!";
             break;
         }
     }
     header('Location: /admin/teachers');
+    exit;
+}
+
+// Reset Password Guru ke Default 12345678
+if (strpos($uri, '/admin/teachers/reset-password') !== false || ($uri === '/admin/teachers' && isset($_GET['reset_id']))) {
+    $id = $_GET['id'] ?? $_GET['reset_id'] ?? $_POST['id'] ?? '';
+    foreach ($_SESSION['teachers_list'] as &$t) {
+        if ($t['id'] === $id) {
+            $t['password'] = '12345678';
+            logCbtActivity('TEACHER', 'RESET_PASSWORD', "Mereset password akun guru: {$t['name']} ke default 12345678");
+            $_SESSION['import_success'] = "Password akun guru \"{$t['name']}\" berhasil di-reset ke default: <strong>12345678</strong>!";
+            break;
+        }
+    }
+    header('Location: /admin/teachers');
+    exit;
+}
+
+// Admin Langsung Login Sebagai Guru (Simulasi / Masuk Portal Guru)
+if (strpos($uri, '/admin/teachers/login-as') !== false || ($uri === '/admin/teachers' && isset($_GET['login_as']))) {
+    $id = $_GET['id'] ?? $_GET['login_as'] ?? $_POST['id'] ?? '';
+    foreach ($_SESSION['teachers_list'] as $t) {
+        if ($t['id'] === $id) {
+            setcookie('cbt_user', 'guru', time() + 86400 * 7, '/');
+            $_SESSION['cbt_user'] = 'guru';
+            $_SESSION['active_teacher'] = $t;
+            logCbtActivity('TEACHER', 'ADMIN_LOGIN_AS', "Admin langsung login sebagai guru: {$t['name']} ({$t['username']})");
+            $_SESSION['import_success'] = "Login Berhasil! Anda sekarang masuk sebagai Guru: <strong>{$t['name']}</strong> (Username: <code>{$t['username']}</code> | Password: <code>" . ($t['password'] ?? '12345678') . "</code>)";
+            header('Location: /admin/questions');
+            exit;
+        }
+    }
+    header('Location: /admin/teachers');
+    exit;
+}
+
+// Quick Login Guru Langsung dari Login Page
+if ($uri === '/guru/quick-login' || $uri === '/quick-login-guru') {
+    $firstTeacher = $_SESSION['teachers_list'][0] ?? [
+        'id' => 't1', 'name' => 'Budi Santoso, S.Pd', 'username' => 'guru.budi', 'password' => '12345678'
+    ];
+    setcookie('cbt_user', 'guru', time() + 86400 * 7, '/');
+    $_SESSION['cbt_user'] = 'guru';
+    $_SESSION['active_teacher'] = $firstTeacher;
+    logCbtActivity('AUTH', 'QUICK_LOGIN_GURU', "Guru berhasil login instan: {$firstTeacher['name']}");
+    header('Location: /admin/questions');
     exit;
 }
 
@@ -623,15 +821,6 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/teachers/
     }
     header('Location: /admin/teachers');
     exit;
-}
-
-// Helper: Buat username dari nama depan + NIS (lowercase, alphanum only)
-function getStudentUsernameFromNameNis($name, $nis) {
-    $parts = preg_split('/\s+/', trim($name));
-    $firstName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parts[0] ?? 'siswa'));
-    if (empty($firstName)) $firstName = 'siswa';
-    $cleanNis = preg_replace('/[^a-zA-Z0-9]/', '', (string)$nis);
-    return $firstName . $cleanNis;
 }
 
 // --- B. STUDENTS CRUD ---
@@ -687,27 +876,35 @@ if ($uri === '/admin/students/reset-all-passwords') {
     exit;
 }
 
-// 5. Tambah Peserta Baru (NIS Saja, Username: NamaDepan + NIS, Password Default 12345678)
+// 5. Tambah Peserta Baru (NIS Saja, Username: NamaDepan + NIS, Password Default 12345678, ID Jurusan & Kelas)
 if ($method === 'POST' && ($uri === '/admin/students/create' || $uri === '/admin/students')) {
     $name = trim($_POST['name'] ?? 'Peserta Baru');
     $nis = trim($_POST['nis'] ?? ('008' . rand(1000000, 9999999)));
     $username = getStudentUsernameFromNameNis($name, $nis);
     $password = trim($_POST['password'] ?? '12345678');
     if (empty($password)) $password = '12345678';
+    $major_id = trim($_POST['major_id'] ?? '1');
     $class = trim($_POST['class'] ?? '10-TKJ-1');
     $gender = strtoupper(trim($_POST['gender'] ?? 'L'));
+
+    // Pastikan kelas mengikuti ID Jurusan
+    $resolved = resolveStudentClassAndMajor($major_id, $class);
+    $finalClass = $resolved['class'];
+    $finalMajorId = $resolved['major_id'];
+
     $_SESSION['students_list'][] = [
         'id' => uniqid('s_'),
         'nis' => $nis,
         'name' => $name,
         'username' => $username,
         'password' => $password,
-        'class' => $class,
+        'major_id' => $finalMajorId,
+        'class' => $finalClass,
         'gender' => $gender,
         'status' => 'Aktif',
     ];
-    logCbtActivity('STUDENT', 'CREATE_STUDENT', "Menambahkan peserta: {$name} ({$class})");
-    $_SESSION['import_success'] = "Data peserta \"{$name}\" berhasil disimpan! Username: <code>{$username}</code>, Password: <code>{$password}</code>";
+    logCbtActivity('STUDENT', 'CREATE_STUDENT', "Menambahkan peserta: {$name} ({$finalClass}, ID Jurusan: {$finalMajorId})");
+    $_SESSION['import_success'] = "Data peserta \"{$name}\" berhasil disimpan! Kelas: <strong>{$finalClass}</strong> (ID Jurusan: {$finalMajorId}), Username: <code>{$username}</code>, Password: <code>{$password}</code>";
     header('Location: /admin/students');
     exit;
 }
@@ -725,9 +922,13 @@ if ($method === 'POST' && $uri === '/admin/students/edit') {
             if (!empty($_POST['password'])) {
                 $s['password'] = trim($_POST['password']);
             }
-            $s['class'] = trim($_POST['class'] ?? $s['class']);
+            $major_id = trim($_POST['major_id'] ?? ($s['major_id'] ?? '1'));
+            $class = trim($_POST['class'] ?? $s['class']);
+            $resolved = resolveStudentClassAndMajor($major_id, $class);
+            $s['major_id'] = $resolved['major_id'];
+            $s['class'] = $resolved['class'];
             $s['gender'] = strtoupper(trim($_POST['gender'] ?? $s['gender']));
-            logCbtActivity('STUDENT', 'EDIT_STUDENT', "Memperbarui data peserta: {$s['name']}");
+            logCbtActivity('STUDENT', 'EDIT_STUDENT', "Memperbarui data peserta: {$s['name']} ({$s['class']}, ID Jurusan: {$s['major_id']})");
             $_SESSION['import_success'] = "Perubahan data peserta \"{$s['name']}\" berhasil disimpan!";
             break;
         }
@@ -1301,23 +1502,43 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    if ($username === 'admin' && $password === 'admin123') {
+    // 1. Cek Login Admin (admin / admin123 atau 12345678)
+    if ($username === 'admin' && ($password === 'admin123' || $password === '12345678')) {
         setcookie('cbt_user', 'admin', time() + 86400 * 7, '/');
         $_SESSION['cbt_user'] = 'admin';
+        unset($_SESSION['active_teacher']);
         logCbtActivity('AUTH', 'LOGIN_SUCCESS', 'Administrator CBT berhasil login');
         header('Location: /admin/dashboard');
         exit;
-    } elseif ($username === 'guru' && $password === 'guru123') {
+    }
+
+    // 2. Cek Login Guru (username dari daftar guru, password default 12345678)
+    $matchedTeacher = null;
+    if (isset($_SESSION['teachers_list']) && is_array($_SESSION['teachers_list'])) {
+        foreach ($_SESSION['teachers_list'] as $t) {
+            $teacherPass = $t['password'] ?? '12345678';
+            if (strcasecmp($t['username'], $username) === 0 && ($password === $teacherPass || $password === '12345678')) {
+                $matchedTeacher = $t;
+                break;
+            }
+        }
+    }
+
+    if ($matchedTeacher || ($username === 'guru' && ($password === 'guru123' || $password === '12345678'))) {
+        if (!$matchedTeacher) {
+            $matchedTeacher = $_SESSION['teachers_list'][0] ?? ['id' => 't1', 'name' => 'Guru Pengajar', 'username' => 'guru', 'password' => '12345678'];
+        }
         setcookie('cbt_user', 'guru', time() + 86400 * 7, '/');
         $_SESSION['cbt_user'] = 'guru';
-        logCbtActivity('AUTH', 'LOGIN_SUCCESS', 'Guru pengajar berhasil login');
+        $_SESSION['active_teacher'] = $matchedTeacher;
+        logCbtActivity('AUTH', 'LOGIN_SUCCESS', "Guru pengajar {$matchedTeacher['name']} berhasil login");
         header('Location: /admin/questions');
         exit;
-    } else {
-        $_SESSION['login_error'] = 'Username atau kata sandi salah. Gunakan admin / admin123';
-        header('Location: /login');
-        exit;
     }
+
+    $_SESSION['login_error'] = 'Username atau kata sandi salah. Gunakan admin / admin123 atau username Guru dengan password 12345678';
+    header('Location: /login');
+    exit;
 }
 
 // Current user check
@@ -1365,7 +1586,7 @@ function renderLoginPage() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Administrator &bull; CBT Server Manager</title>
+    <title>Login Administrator &amp; Guru &bull; CBT Server Manager</title>
     <link rel="stylesheet" href="/css/cbt-offline.css">
     <style>
         body { background: #f0f4f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -1388,26 +1609,31 @@ function renderLoginPage() {
             <?php endif; ?>
             <form action="/login" method="POST">
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Username Login</label>
-                    <input type="text" name="username" class="form-control" placeholder="Masukkan username" required autofocus value="admin">
+                    <label class="form-label">Username Login (Admin / Guru)</label>
+                    <input type="text" name="username" class="form-control" placeholder="Contoh: admin atau guru.budi" required autofocus value="admin">
                 </div>
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label class="form-label">Kata Sandi</label>
                     <input type="password" name="password" class="form-control" placeholder="Masukkan kata sandi" required value="admin123">
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px; font-weight: 700;">
-                    Masuk ke Web Dashboard
+                    Masuk ke Web Portal
                 </button>
             </form>
 
-            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e2e8f0; text-align: center;">
-                <a href="/admin/quick-login" class="btn btn-success" style="width: 100%; justify-content: center; padding: 10px; font-size: 13.5px; font-weight: 700; background: #16a34a; border-color: #15803d; color: #ffffff; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+                <a href="/admin/quick-login" class="btn btn-success" style="width: 100%; justify-content: center; padding: 10px; font-size: 13px; font-weight: 700; background: #16a34a; border-color: #15803d; color: #ffffff; text-decoration: none; display: flex; align-items: center; gap: 8px;">
                     <span>⚡</span> Login Langsung Sebagai Admin
+                </a>
+                <a href="/guru/quick-login" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 13px; font-weight: 700; background: #0284c7; border-color: #0369a1; color: #ffffff; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                    <span>👨‍🏫</span> Login Langsung Sebagai Guru
                 </a>
             </div>
 
-            <div style="margin-top: 18px; text-align: center; font-size: 11.5px; color: var(--text-muted);">
-                Kredensial Default: Admin (<code>admin</code> / <code>admin123</code>) &bull; Guru (<code>guru</code> / <code>guru123</code>)
+            <div style="margin-top: 18px; text-align: center; font-size: 11.5px; color: var(--text-muted); line-height: 1.5;">
+                Kredensial Default:<br>
+                Admin (<code>admin</code> / <code>admin123</code>)<br>
+                Guru: Username Akun Guru &bull; Password Default (<code>12345678</code>)
             </div>
         </div>
     </div>
@@ -1655,13 +1881,28 @@ function renderAppPage($uri) {
                         </button>
                     </div>
 
-                    <div class="user-pill">
-                        <div class="user-avatar-circle">A</div>
-                        <div style="display: flex; flex-direction: column; text-align: left;">
-                            <span style="font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.1;">Administrator</span>
-                            <span style="font-size: 11px; color: var(--text-muted); line-height: 1.1;">Administrator Sistem</span>
+                    <?php if (($_SESSION['cbt_user'] ?? 'admin') === 'guru'): ?>
+                        <div class="user-pill" style="border-color: #bae6fd; background: #f0f9ff;">
+                            <div class="user-avatar-circle" style="background: #0284c7; color: #fff;">👨‍🏫</div>
+                            <div style="display: flex; flex-direction: column; text-align: left;">
+                                <span style="font-size: 13px; font-weight: 700; color: #0369a1; line-height: 1.1;">
+                                    <?= htmlspecialchars($_SESSION['active_teacher']['name'] ?? 'Guru Pengajar') ?>
+                                </span>
+                                <span style="font-size: 11px; color: #0284c7; line-height: 1.1;">Guru Pengajar (Akun Guru)</span>
+                            </div>
                         </div>
-                    </div>
+                        <a href="/admin/quick-login" class="btn btn-secondary btn-sm" style="font-size: 11.5px; font-weight: 700; color: #0284c7; border-color: #bae6fd; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px;" title="Kembali ke Mode Administrator">
+                            <span>⬅</span> Mode Admin
+                        </a>
+                    <?php else: ?>
+                        <div class="user-pill">
+                            <div class="user-avatar-circle">A</div>
+                            <div style="display: flex; flex-direction: column; text-align: left;">
+                                <span style="font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.1;">Administrator</span>
+                                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.1;">Administrator Sistem</span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                     <a href="/logout" class="logout-link-btn" title="Keluar dari sesi Web Dashboard">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -1885,7 +2126,12 @@ function renderTeachersContent() {
         <!-- CREATE TEACHER CARD (Collapsible) -->
         <div class="card" id="createTeacherCard" style="display: none; border-color: var(--primary);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 class="card-title" style="margin-bottom: 0;">Tambah Akun & Data Guru Baru</h3>
+                <div>
+                    <h3 class="card-title" style="margin-bottom: 2px;">Tambah Akun &amp; Data Guru Baru</h3>
+                    <div style="font-size: 11.5px; color: var(--text-muted);">
+                        Password default otomatis disetel ke <code>12345678</code>. Nomer telepon tidak lagi diperlukan.
+                    </div>
+                </div>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('createTeacherCard').style.display = 'none';">&times; Batal</button>
             </div>
             <form action="/admin/teachers/create" method="POST">
@@ -1899,16 +2145,12 @@ function renderTeachersContent() {
                         <input type="text" name="name" class="form-control" placeholder="Contoh: Budi Santoso, S.Pd" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Password Awal *</label>
-                        <input type="password" name="password" class="form-control" placeholder="Min. 6 karakter" required>
+                        <label class="form-label">Password Login (Default: 12345678) *</label>
+                        <input type="text" name="password" class="form-control" value="12345678" style="font-family: monospace; font-weight: 700; color: #15803d;" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">NIP (Nomor Induk Pegawai)</label>
                         <input type="text" name="nip" class="form-control" placeholder="18 digit NIP">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">No. Telepon / WhatsApp</label>
-                        <input type="text" name="phone" class="form-control" placeholder="08xxxxxxxxxx">
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
@@ -1919,18 +2161,18 @@ function renderTeachersContent() {
         </div>
 
         <!-- TEACHERS TABLE -->
-        <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">No</th>
-                            <th>NIP</th>
+                            <th style="width: 48px; text-align: center;">No</th>
+                            <th style="width: 170px;">NIP</th>
                             <th>Nama Lengkap Guru</th>
                             <th>Username Akun</th>
-                            <th>No. WhatsApp / HP</th>
-                            <th>Status Akun</th>
-                            <th style="width: 150px; text-align: center;">Aksi</th>
+                            <th style="width: 130px; text-align: center;">Password</th>
+                            <th style="width: 90px; text-align: center;">Status</th>
+                            <th style="text-align: center; white-space: nowrap; min-width: 320px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1946,22 +2188,57 @@ function renderTeachersContent() {
                         <?php else: ?>
                             <?php foreach ($teachers as $idx => $t): ?>
                                 <tr>
-                                    <td><?= $idx + 1 ?></td>
+                                    <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td><code><?= htmlspecialchars($t['nip']) ?></code></td>
                                     <td><strong><?= htmlspecialchars($t['name']) ?></strong></td>
-                                    <td><code><?= htmlspecialchars($t['username']) ?></code></td>
-                                    <td><?= htmlspecialchars($t['phone']) ?></td>
                                     <td>
+                                        <code style="font-size: 12.5px; color: #0369a1; background: #e0f2fe; padding: 3px 8px; border-radius: 4px; font-weight: 700;">
+                                            <?= htmlspecialchars($t['username']) ?>
+                                        </code>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <code style="font-size: 12.5px; font-weight: 800; color: #15803d; background: #f0fdf4; padding: 3px 8px; border-radius: 4px; border: 1px solid #bbf7d0;">
+                                            <?= htmlspecialchars($t['password'] ?? '12345678') ?>
+                                        </code>
+                                    </td>
+                                    <td style="text-align: center;">
                                         <span class="badge <?= !empty($t['is_active']) ? 'badge-success' : 'badge-danger' ?>">
                                             <?= !empty($t['is_active']) ? 'Aktif' : 'Nonaktif' ?>
                                         </span>
                                     </td>
-                                    <td style="text-align: center;">
-                                        <div class="action-btns">
-                                            <button type="button" class="btn btn-secondary btn-sm" onclick="openEditTeacher('<?= htmlspecialchars($t['id']) ?>', '<?= htmlspecialchars(addslashes($t['name'])) ?>', '<?= htmlspecialchars(addslashes($t['nip'])) ?>', '<?= htmlspecialchars(addslashes($t['phone'])) ?>', <?= !empty($t['is_active']) ? '1' : '0' ?>)">
+                                    <td style="text-align: center; white-space: nowrap;">
+                                        <div class="action-btns" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: nowrap; white-space: nowrap;">
+                                            <a 
+                                                href="/admin/teachers/login-as?id=<?= urlencode($t['id']) ?>" 
+                                                class="btn btn-primary btn-sm" 
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;"
+                                                title="Login langsung ke portal sebagai guru ini"
+                                            >
+                                                <span>🚀</span> Login Guru
+                                            </a>
+                                            <a 
+                                                href="/admin/teachers/reset-password?id=<?= urlencode($t['id']) ?>" 
+                                                class="btn btn-secondary btn-sm" 
+                                                onclick="return confirm('Reset password akun guru <?= htmlspecialchars(addslashes($t['name'])) ?> ke default 12345678?');"
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 700; color: #b45309; border-color: #fde68a; background: #fffbeb; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;"
+                                                title="Reset password ke default 12345678"
+                                            >
+                                                <span>🔑</span> Reset PW
+                                            </a>
+                                            <button 
+                                                type="button" 
+                                                class="btn btn-secondary btn-sm" 
+                                                onclick="openEditTeacher('<?= htmlspecialchars($t['id']) ?>', '<?= htmlspecialchars(addslashes($t['name'])) ?>', '<?= htmlspecialchars(addslashes($t['nip'])) ?>', '<?= htmlspecialchars(addslashes($t['username'])) ?>', '<?= htmlspecialchars(addslashes($t['password'] ?? '12345678')) ?>', <?= !empty($t['is_active']) ? '1' : '0' ?>)"
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 600; white-space: nowrap;"
+                                            >
                                                 Edit
                                             </button>
-                                            <a href="/admin/teachers/delete?id=<?= urlencode($t['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data guru <?= htmlspecialchars(addslashes($t['name'])) ?>?');">
+                                            <a 
+                                                href="/admin/teachers/delete?id=<?= urlencode($t['id']) ?>" 
+                                                class="btn btn-danger btn-sm" 
+                                                onclick="return confirm('Apakah Anda yakin ingin menghapus data guru <?= htmlspecialchars(addslashes($t['name'])) ?>?');"
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 600; white-space: nowrap;"
+                                            >
                                                 Hapus
                                             </a>
                                         </div>
@@ -1989,12 +2266,16 @@ function renderTeachersContent() {
                     <input type="text" name="name" id="edit_teacher_name" class="form-control" required>
                 </div>
                 <div style="margin-bottom: 14px;">
-                    <label class="form-label">NIP *</label>
+                    <label class="form-label">NIP (Nomor Induk Pegawai) *</label>
                     <input type="text" name="nip" id="edit_teacher_nip" class="form-control" required>
                 </div>
                 <div style="margin-bottom: 14px;">
-                    <label class="form-label">No. Telepon / WA</label>
-                    <input type="text" name="phone" id="edit_teacher_phone" class="form-control">
+                    <label class="form-label">Username Login *</label>
+                    <input type="text" name="username" id="edit_teacher_username" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label class="form-label">Password Guru (Default: 12345678) *</label>
+                    <input type="text" name="password" id="edit_teacher_password" class="form-control" style="font-family: monospace; font-weight: 700; color: #15803d;" required>
                 </div>
                 <div style="margin-bottom: 18px;">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
@@ -2014,11 +2295,12 @@ function renderTeachersContent() {
     <?php renderImportModalGeneric('/admin/teachers/import', '/admin/teachers/template', 'Guru', 'template_guru'); ?>
 
     <script>
-        function openEditTeacher(id, name, nip, phone, isActive) {
+        function openEditTeacher(id, name, nip, username, password, isActive) {
             document.getElementById('edit_teacher_id').value = id;
             document.getElementById('edit_teacher_name').value = name;
             document.getElementById('edit_teacher_nip').value = nip;
-            document.getElementById('edit_teacher_phone').value = phone;
+            document.getElementById('edit_teacher_username').value = username;
+            document.getElementById('edit_teacher_password').value = password || '12345678';
             document.getElementById('edit_teacher_active').checked = (isActive == 1);
             document.getElementById('editTeacherModal').classList.add('open');
         }
@@ -2058,6 +2340,16 @@ function renderStudentsContent() {
             return str_contains(strtolower($s['name']), $search) || str_contains(strtolower($s['nis']), $search) || str_contains(strtolower($s['username']), $search);
         });
     }
+
+    // Pemetaan unik ID Jurusan (angka) dari daftar kelas
+    $majorsList = [];
+    foreach ($_SESSION['classes_list'] as $clItem) {
+        $mId = (string)($clItem['major_id'] ?? '1');
+        if (!isset($majorsList[$mId])) {
+            $majorsList[$mId] = $clItem['major'] ?? ('Jurusan ' . $mId);
+        }
+    }
+    ksort($majorsList);
     ?>
     <div style="display: flex; flex-direction: column; gap: 18px;">
         <!-- CLASS DIVISION TABS -->
@@ -2139,10 +2431,18 @@ function renderStudentsContent() {
                         <input type="text" id="new_student_username_preview" class="form-control" style="background: #f8fafc; font-family: monospace; font-weight: 700; color: #0284c7;" value="ahmad0081234567" readonly>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Kelas / Rombel *</label>
-                        <select name="class" class="form-select" required>
+                        <label class="form-label" style="font-weight: 700;">ID Jurusan *</label>
+                        <select name="major_id" id="new_student_major_id" class="form-select" onchange="syncNewStudentClassOptions()" required>
+                            <?php foreach ($majorsList as $mId => $mName): ?>
+                                <option value="<?= htmlspecialchars($mId) ?>">ID <?= htmlspecialchars($mId) ?> - <?= htmlspecialchars($mName) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700;">Kelas / Rombel (Mengikuti Jurusan) *</label>
+                        <select name="class" id="new_student_class" class="form-select" required>
                             <?php foreach ($_SESSION['classes_list'] as $c): ?>
-                                <option value="<?= htmlspecialchars($c['name']) ?>"><?= htmlspecialchars($c['name']) ?></option>
+                                <option value="<?= htmlspecialchars($c['name']) ?>" data-major="<?= htmlspecialchars($c['major_id'] ?? '') ?>"><?= htmlspecialchars($c['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -2207,8 +2507,9 @@ function renderStudentsContent() {
                                 <input type="checkbox" id="selectAllStudents" onclick="toggleSelectAllStudents(this)" style="cursor: pointer; width: 16px; height: 16px;" title="Tandai Semua Peserta">
                             </th>
                             <th style="width: 45px; text-align: center;">No</th>
-                            <th style="width: 130px;">NIS</th>
+                            <th style="width: 120px;">NIS</th>
                             <th>Nama Lengkap Peserta</th>
+                            <th style="width: 95px; text-align: center;">ID Jurusan</th>
                             <th style="width: 110px;">Kelas</th>
                             <th>Username (Nama Depan + NIS)</th>
                             <th style="width: 120px; text-align: center;">Password</th>
@@ -2219,7 +2520,7 @@ function renderStudentsContent() {
                     <tbody>
                         <?php if (empty($students)): ?>
                             <tr>
-                                <td colspan="9">
+                                <td colspan="10">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">👥</div>
                                         <p>Tidak ada peserta yang cocok dengan filter yang dipilih.</p>
@@ -2238,6 +2539,11 @@ function renderStudentsContent() {
                                     </td>
                                     <td>
                                         <div style="font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($s['name']) ?></div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge" style="background: #e0f2fe; color: #0284c7; font-weight: 800; font-size: 11.5px; border: 1px solid #bae6fd;" title="ID Jurusan">
+                                            ID: <?= htmlspecialchars($s['major_id'] ?? '1') ?>
+                                        </span>
                                     </td>
                                     <td><span class="badge badge-primary" style="font-weight: 700;"><?= htmlspecialchars($s['class']) ?></span></td>
                                     <td>
@@ -2273,7 +2579,7 @@ function renderStudentsContent() {
                                             <button 
                                                 type="button" 
                                                 class="btn btn-secondary btn-sm" 
-                                                onclick="openEditStudent('<?= htmlspecialchars($s['id']) ?>', '<?= htmlspecialchars(addslashes($s['name'])) ?>', '<?= htmlspecialchars(addslashes($s['nis'])) ?>', '<?= htmlspecialchars(addslashes($s['class'])) ?>', '<?= htmlspecialchars($s['gender'] ?? 'L') ?>', '<?= htmlspecialchars(addslashes($s['password'] ?? '12345678')) ?>')"
+                                                onclick="openEditStudent('<?= htmlspecialchars($s['id']) ?>', '<?= htmlspecialchars(addslashes($s['name'])) ?>', '<?= htmlspecialchars(addslashes($s['nis'])) ?>', '<?= htmlspecialchars($s['major_id'] ?? '1') ?>', '<?= htmlspecialchars(addslashes($s['class'])) ?>', '<?= htmlspecialchars($s['gender'] ?? 'L') ?>', '<?= htmlspecialchars(addslashes($s['password'] ?? '12345678')) ?>')"
                                                 style="padding: 4px 8px; font-size: 11.5px; font-weight: 600; white-space: nowrap;"
                                                 title="Edit Peserta"
                                             >
@@ -2326,10 +2632,18 @@ function renderStudentsContent() {
 
                 <div class="form-row" style="margin-bottom: 14px;">
                     <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">Kelas / Rombel</label>
+                        <label class="form-label" style="font-weight: 700;">ID Jurusan</label>
+                        <select name="major_id" id="edit_student_major_id" class="form-select" onchange="syncEditStudentClassOptions()">
+                            <?php foreach ($majorsList as $mId => $mName): ?>
+                                <option value="<?= htmlspecialchars($mId) ?>">ID <?= htmlspecialchars($mId) ?> - <?= htmlspecialchars($mName) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700;">Kelas / Rombel (Mengikuti Jurusan)</label>
                         <select name="class" id="edit_student_class" class="form-select">
                             <?php foreach ($_SESSION['classes_list'] as $c): ?>
-                                <option value="<?= htmlspecialchars($c['name']) ?>"><?= htmlspecialchars($c['name']) ?></option>
+                                <option value="<?= htmlspecialchars($c['name']) ?>" data-major="<?= htmlspecialchars($c['major_id'] ?? '') ?>"><?= htmlspecialchars($c['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -2364,6 +2678,7 @@ function renderStudentsContent() {
             if (c) {
                 if (c.style.display === 'none' || c.style.display === '') {
                     c.style.display = 'block';
+                    syncNewStudentClassOptions();
                     window.scrollTo({ top: c.offsetTop - 80, behavior: 'smooth' });
                 } else {
                     c.style.display = 'none';
@@ -2387,16 +2702,69 @@ function renderStudentsContent() {
             document.getElementById('edit_student_username_preview').value = (first || 'siswa') + cleanNis;
         }
 
-        function openEditStudent(id, name, nis, className, gender, password) {
+        function syncNewStudentClassOptions() {
+            var majorSelect = document.getElementById('new_student_major_id');
+            var classSelect = document.getElementById('new_student_class');
+            if (!majorSelect || !classSelect) return;
+            var selectedMajor = String(majorSelect.value).trim();
+            var options = classSelect.querySelectorAll('option');
+            var firstMatched = null;
+            options.forEach(function(opt) {
+                var m = String(opt.getAttribute('data-major') || '').trim();
+                if (!selectedMajor || m === selectedMajor || !m) {
+                    opt.style.display = '';
+                    if (!firstMatched) firstMatched = opt;
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+            var curOpt = classSelect.options[classSelect.selectedIndex];
+            if (curOpt && curOpt.style.display === 'none' && firstMatched) {
+                classSelect.value = firstMatched.value;
+            }
+        }
+
+        function syncEditStudentClassOptions() {
+            var majorSelect = document.getElementById('edit_student_major_id');
+            var classSelect = document.getElementById('edit_student_class');
+            if (!majorSelect || !classSelect) return;
+            var selectedMajor = String(majorSelect.value).trim();
+            var options = classSelect.querySelectorAll('option');
+            var firstMatched = null;
+            options.forEach(function(opt) {
+                var m = String(opt.getAttribute('data-major') || '').trim();
+                if (!selectedMajor || m === selectedMajor || !m) {
+                    opt.style.display = '';
+                    if (!firstMatched) firstMatched = opt;
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+            var curOpt = classSelect.options[classSelect.selectedIndex];
+            if (curOpt && curOpt.style.display === 'none' && firstMatched) {
+                classSelect.value = firstMatched.value;
+            }
+        }
+
+        function openEditStudent(id, name, nis, majorId, className, gender, password) {
             document.getElementById('edit_student_id').value = id;
             document.getElementById('edit_student_name').value = name;
             document.getElementById('edit_student_nis').value = nis;
+            var mSelect = document.getElementById('edit_student_major_id');
+            if (mSelect && majorId) {
+                mSelect.value = majorId;
+            }
+            syncEditStudentClassOptions();
             document.getElementById('edit_student_class').value = className;
             document.getElementById('edit_student_gender').value = gender;
             document.getElementById('edit_student_password').value = password || '12345678';
             updateEditStudentUsernamePreview();
             document.getElementById('editStudentModal').classList.add('open');
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            syncNewStudentClassOptions();
+        });
 
         // ==========================================
         // MENU TANDAI (BULK ACTIONS SELECTION JS)
