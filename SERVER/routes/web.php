@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 // Root Route: show login form for guest or redirect authenticated user to role dashboard
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('home');
+Route::get('/downloads/cbt-peserta.apk', [WebSettingController::class, 'downloadApk'])->name('public.download_apk');
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -142,6 +143,7 @@ Route::middleware('auth')->group(function () {
         // Pemeliharaan Server: Settings System (Admin)
         Route::prefix('settings')->as('settings.')->group(function () {
             Route::get('/', [WebSettingController::class, 'index'])->name('index');
+            Route::get('/download-apk', [WebSettingController::class, 'downloadApk'])->name('download_apk');
             Route::match(['put', 'patch', 'post'], '/', [WebSettingController::class, 'update'])->name('update');
         });
 

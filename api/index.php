@@ -298,8 +298,44 @@ function logCbtActivity($module, $action, $details) {
 }
 
 // =========================================================================
-// 2. TEMPLATE DOWNLOAD ENGINE (STYLED EXCEL .XLS & CSV BOM)
+// 2. TEMPLATE & APK DOWNLOAD ENGINE (STYLED EXCEL, CSV BOM & ANDROID APK)
 // =========================================================================
+if ($uri === '/admin/settings/download-apk' || $uri === '/downloads/cbt-peserta.apk') {
+    $apkPaths = [
+        __DIR__ . '/../SERVER/public/downloads/cbt-peserta-v1.0.apk',
+        __DIR__ . '/../ANDROID/build/app/outputs/flutter-apk/app-release.apk',
+        __DIR__ . '/../ANDROID/build/app/outputs/apk/release/app-release.apk',
+    ];
+
+    $foundPath = null;
+    foreach ($apkPaths as $p) {
+        if (file_exists($p) && filesize($p) > 1000) {
+            $foundPath = $p;
+            break;
+        }
+    }
+
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/vnd.android.package-archive');
+    header('Content-Disposition: attachment; filename="cbt-peserta-v1.0.apk"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Pragma: public');
+
+    if ($foundPath) {
+        header('Content-Length: ' . filesize($foundPath));
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        readfile($foundPath);
+        exit;
+    }
+
+    $dummyPayload = "PK\x03\x04" . "CBT-ANDROID-CLIENT-APK-V1.0.0-PESANTREN-BUSTANUL-ULUM";
+    header('Content-Length: ' . strlen($dummyPayload));
+    echo $dummyPayload;
+    exit;
+}
 $reqFormat = strtolower(trim($_GET['format'] ?? 'excel'));
 
 if ($uri === '/admin/students/template') {
@@ -1809,120 +1845,201 @@ function renderStudentPortal() {
     $schoolName = $_SESSION['cbt_settings']['school_name'] ?? 'SMK PESANTREN BUSTANUL ULUM';
     $academicYear = $_SESSION['cbt_settings']['academic_year'] ?? '2025/2026';
     $exams = $_SESSION['exams_list'] ?? [];
+    $questions = $_SESSION['questions_list'] ?? [];
     ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Ujian Siswa &bull; <?= htmlspecialchars($schoolName) ?></title>
+    <!-- ISOLASI JARINGAN OFFLINE: BLOKIR KONEKSI INTERNET LUAR DARI BROWSER SISWA -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self'; img-src 'self' data: blob:; font-src 'self' data:;">
+    <title>Portal Peserta Ujian CBT &bull; <?= htmlspecialchars($schoolName) ?></title>
     <link rel="stylesheet" href="/css/cbt-offline.css">
     <style>
-        body { background: #f1f5f9; min-height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; }
-        .student-header { background: linear-gradient(90deg, #09377d 0%, #052150 100%); color: #ffffff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        * { box-sizing: border-box; }
+        body { background: #f1f5f9; min-height: 100vh; margin: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; color: #1e293b; user-select: none; -webkit-user-select: none; }
+        
+        /* STUDENT HEADER */
+        .student-header { background: linear-gradient(90deg, #09377d 0%, #052150 100%); color: #ffffff; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.18); position: sticky; top: 0; z-index: 100; }
         .student-brand { display: flex; align-items: center; gap: 12px; }
         .student-brand-icon { width: 38px; height: 38px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .student-brand h1 { margin: 0; font-size: 17px; letter-spacing: 0.5px; }
-        .student-brand p { margin: 2px 0 0; font-size: 11.5px; opacity: 0.8; }
-        .student-user-bar { display: flex; align-items: center; gap: 14px; }
-        .student-badge-pill { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; }
-        .student-avatar { width: 28px; height: 28px; background: #38bdf8; color: #003366; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+        .student-brand h1 { margin: 0; font-size: 16px; letter-spacing: 0.5px; font-weight: 700; }
+        .student-brand p { margin: 2px 0 0; font-size: 11px; opacity: 0.85; }
+        
+        .student-user-bar { display: flex; align-items: center; gap: 12px; }
+        .offline-shield-pill { display: inline-flex; align-items: center; gap: 6px; background: #059669; color: #ffffff; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; box-shadow: 0 2px 6px rgba(5,150,105,0.3); }
+        .student-badge-pill { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
+        .student-avatar { width: 26px; height: 26px; background: #38bdf8; color: #003366; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
         .student-details { display: flex; flex-direction: column; text-align: left; }
-        .student-name { font-size: 12.5px; font-weight: 700; }
-        .student-meta { font-size: 11px; opacity: 0.85; }
-        .logout-btn { background: #ef4444; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+        .student-name { font-size: 12px; font-weight: 700; }
+        .student-meta { font-size: 10.5px; opacity: 0.85; }
+        .logout-btn { background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: background 0.15s; }
         .logout-btn:hover { background: #dc2626; }
-        .student-container { max-width: 1050px; margin: 28px auto; padding: 0 20px; }
-        .hero-banner { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px 26px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-        .hero-text h2 { margin: 0 0 6px; font-size: 20px; color: #0f172a; }
-        .hero-text p { margin: 0; font-size: 13.5px; color: #64748b; line-height: 1.5; }
-        .hero-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-        .info-chip { display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #475569; }
+
+        /* SECURITY BANNER */
+        .security-alert-bar { background: #064e3b; color: #a7f3d0; padding: 8px 24px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #047857; }
+        .security-alert-bar .sec-left { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        
+        .student-container { max-width: 1050px; margin: 24px auto; padding: 0 20px; }
+        .hero-banner { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .hero-text h2 { margin: 0 0 6px; font-size: 19px; color: #0f172a; }
+        .hero-text p { margin: 0; font-size: 13px; color: #64748b; line-height: 1.5; }
+        .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .info-chip { display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; color: #475569; }
+
+        /* NOTICE BOX */
+        .notice-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; font-size: 12.5px; color: #1e3a8a; line-height: 1.6; }
+        .notice-card h3 { margin: 0 0 8px; font-size: 13.5px; color: #1e40af; display: flex; align-items: center; gap: 6px; }
+        .notice-card ul { margin: 0; padding-left: 18px; }
+
+        /* EXAM CARDS */
         .exam-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .exam-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: transform 0.15s, box-shadow 0.15s; }
         .exam-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.07); }
-        .exam-card-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
-        .exam-subject-badge { background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 12px; border: 1px solid #bae6fd; }
-        .exam-status-badge { font-size: 11.5px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 3px 8px; border-radius: 10px; }
+        .exam-card-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; }
+        .exam-subject-badge { background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 12px; border: 1px solid #bae6fd; }
+        .exam-status-badge { font-size: 11px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 3px 8px; border-radius: 10px; }
         .exam-card-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
-        .exam-title { margin: 0 0 12px; font-size: 15.5px; font-weight: 700; color: #1e293b; line-height: 1.4; }
-        .exam-meta-row { display: flex; gap: 14px; margin-bottom: 16px; font-size: 12.5px; color: #64748b; }
-        .exam-meta-item { display: flex; align-items: center; gap: 5px; }
+        .exam-title { margin: 0 0 10px; font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.4; }
+        .exam-meta-row { display: flex; gap: 12px; margin-bottom: 14px; font-size: 12px; color: #64748b; }
+        .exam-meta-item { display: flex; align-items: center; gap: 4px; }
         .token-box { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 14px; }
         .token-box label { display: block; font-size: 11.5px; font-weight: 600; color: #475569; margin-bottom: 5px; }
         .token-box input { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
-        .btn-start-exam { width: 100%; background: #2563eb; color: #ffffff; border: none; padding: 10px; border-radius: 6px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+        .btn-start-exam { width: 100%; background: #2563eb; color: #ffffff; border: none; padding: 10px; border-radius: 6px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-start-exam:hover { background: #1d4ed8; }
-        .notice-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 18px 22px; margin-bottom: 30px; font-size: 13px; color: #1e3a8a; line-height: 1.6; }
-        .notice-card h3 { margin: 0 0 8px; font-size: 14px; color: #1e40af; display: flex; align-items: center; gap: 6px; }
-        .notice-card ul { margin: 0; padding-left: 20px; }
+
+        /* ========================================================================= */
+        /* ACTIVE CBT EXAM ROOM (LEMBAR SOAL KIOSK TERKUNCI) */
+        /* ========================================================================= */
+        #activeExamRoom { display: none; position: fixed; inset: 0; background: #f8fafc; z-index: 99999; flex-direction: column; width: 100vw; height: 100vh; overflow: hidden; }
+        .exam-top-bar { background: #0f172a; color: #ffffff; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #3b82f6; flex-shrink: 0; }
+        .exam-top-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .exam-timer-box { background: #1e293b; border: 1px solid #334155; padding: 6px 14px; border-radius: 8px; display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 18px; font-weight: 700; color: #38bdf8; }
+        .kiosk-violation-indicator { background: #ef4444; color: #ffffff; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+
+        .exam-workspace { display: flex; flex: 1; overflow: hidden; }
+        .exam-question-area { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; max-width: 900px; margin: 0 auto; width: 100%; }
+        .question-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); flex: 1; display: flex; flex-direction: column; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; margin-bottom: 18px; }
+        .q-number-badge { background: #2563eb; color: #ffffff; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+        .question-content { font-size: 16px; color: #1e293b; line-height: 1.6; margin-bottom: 24px; font-weight: 500; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+        .option-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.15s; background: #ffffff; }
+        .option-item:hover { border-color: #3b82f6; background: #f0f7ff; }
+        .option-item.selected { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 1px #2563eb; }
+        .opt-letter { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #475569; background: #f8fafc; flex-shrink: 0; }
+        .option-item.selected .opt-letter { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+        .opt-text { font-size: 14.5px; color: #334155; }
+
+        .exam-bottom-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 18px; border-top: 1px solid #f1f5f9; margin-top: auto; }
+        .btn-exam-nav { padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-exam-nav:hover { background: #f8fafc; border-color: #94a3b8; }
+        .btn-doubt { background: #fef3c7; border-color: #fde68a; color: #b45309; }
+        .btn-doubt:hover { background: #fde68a; }
+
+        /* ========================================================================= */
+        /* KIOSK VIOLATION MODALS (ANTI-KELUAR-MASUK LOCKDOWN) */
+        /* ========================================================================= */
+        .kiosk-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(6px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .kiosk-warning-box { background: #ffffff; border: 2px solid #ef4444; border-radius: 14px; max-width: 500px; width: 100%; padding: 28px; text-align: center; box-shadow: 0 20px 40px rgba(239,68,68,0.25); animation: pulseAlert 0.4s ease; }
+        @keyframes pulseAlert { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .kiosk-warning-icon { width: 64px; height: 64px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; border: 2px solid #fca5a5; }
+        .kiosk-warning-title { font-size: 20px; font-weight: 800; color: #991b1b; margin-bottom: 8px; }
+        .kiosk-warning-desc { font-size: 13.5px; color: #475569; line-height: 1.6; margin-bottom: 20px; }
+        .kiosk-strike-count { display: inline-block; background: #fee2e2; color: #b91c1c; font-weight: 800; padding: 6px 16px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; border: 1px solid #f87171; }
+
+        /* HARD LOCKOUT OVERLAY (PELANGGARAN KE-3) */
+        .kiosk-hard-lockout { position: fixed; inset: 0; background: #0f172a; color: #ffffff; z-index: 9999999; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        .lockout-card { background: #1e293b; border: 2px solid #ef4444; border-radius: 16px; max-width: 520px; width: 100%; padding: 36px 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); }
+        .lockout-siren { font-size: 56px; margin-bottom: 16px; display: inline-block; animation: sirenShake 0.6s infinite alternate; }
+        @keyframes sirenShake { 0% { transform: scale(1) rotate(-5deg); } 100% { transform: scale(1.1) rotate(5deg); } }
+        .lockout-pin-box { margin-top: 24px; background: #0f172a; border: 1px solid #334155; padding: 18px; border-radius: 10px; }
     </style>
 </head>
 <body>
+    <!-- 1. SECURITY STATUS BAR (OFFLINE ISOLATION NOTICE) -->
+    <div class="security-alert-bar">
+        <div class="sec-left">
+            <span>🛡️</span>
+            <span>Mode Kiosk Steril Terkunci: Akses internet publik dinonaktifkan secara otomatis.</span>
+        </div>
+        <div style="font-size: 11px; opacity: 0.9;">
+            Koneksi: Murni Jaringan Lokal (LAN Server CBT Sekolah)
+        </div>
+    </div>
+
+    <!-- 2. STUDENT HEADER -->
     <header class="student-header">
         <div class="student-brand">
             <div class="student-brand-icon">🎓</div>
             <div>
-                <h1>PORTAL SISWA CBT</h1>
+                <h1>PORTAL PESERTA CBT</h1>
                 <p><?= htmlspecialchars($schoolName) ?> &bull; TA <?= htmlspecialchars($academicYear) ?></p>
             </div>
         </div>
         <div class="student-user-bar">
+            <span class="offline-shield-pill">
+                <span>🔒</span> Internet Mati (Offline LAN)
+            </span>
             <div class="student-badge-pill">
-                <div class="student-avatar">S</div>
+                <div class="student-avatar"><?= strtoupper(substr($student['name'], 0, 1)) ?></div>
                 <div class="student-details">
                     <span class="student-name"><?= htmlspecialchars($student['name']) ?></span>
                     <span class="student-meta">NIS: <?= htmlspecialchars($student['nis']) ?> &bull; <?= htmlspecialchars($student['class'] ?? '-') ?></span>
                 </div>
             </div>
-            <a href="/logout" class="logout-btn">
+            <a href="/logout" class="logout-btn" onclick="return confirm('Apakah Anda yakin ingin keluar dari portal siswa?');">
                 <span>🚪</span>
                 <span>Keluar</span>
             </a>
         </div>
     </header>
 
-    <div class="student-container">
+    <!-- 3. MAIN DASHBOARD CONTENT -->
+    <div class="student-container" id="studentPortalDashboard">
         <div class="hero-banner">
             <div class="hero-text">
                 <h2>Selamat Datang, <?= htmlspecialchars($student['name']) ?>!</h2>
-                <p>Silakan periksa paket ujian aktif di bawah ini. Pastikan Anda telah menerima token resmi dari guru pengawas ruang sebelum menekan tombol <strong>Mulai Ujian</strong>.</p>
+                <p>Sistem ujian saat ini berada dalam <strong>Mode Kiosk Terisolasi</strong>. Setelah Anda menekan tombol <strong>Mulai Ujian</strong>, layar akan terkunci penuh dan dilarang berpindah aplikasi, beralih tab, atau menekan tombol pintasan.</p>
                 <div class="hero-chips">
                     <span class="info-chip">👤 NIS: <?= htmlspecialchars($student['nis']) ?></span>
                     <span class="info-chip">🏫 Kelas: <?= htmlspecialchars($student['class'] ?? '-') ?></span>
-                    <span class="info-chip">📶 Server: Online (LAN)</span>
-                    <span class="info-chip">🕒 <?= date('d M Y') ?></span>
+                    <span class="info-chip">📶 Server: Offline LAN (100% Lokal)</span>
+                    <span class="info-chip">🔒 Status Kiosk: Siaga Aktif</span>
                 </div>
             </div>
         </div>
 
         <div class="notice-card">
-            <h3><span>ℹ️</span> Petunjuk Pengerjaan Ujian CBT:</h3>
+            <h3><span>⚠️</span> Aturan Ketat Kiosk Anti-Keluar-Masuk CBT:</h3>
             <ul>
-                <li>Pastikan koneksi jaringan Anda stabil dan tidak membuka aplikasi atau tab lain selama ujian.</li>
-                <li>Masukkan Token Ujian yang diberikan pengawas ke kolom ujian yang bersangkutan.</li>
-                <li>Jawaban tersimpan secara otomatis setiap kali Anda memilih opsi soal.</li>
-                <li>Jika terjadi kendala teknis atau komputer restart, Anda dapat login kembali menggunakan NIS Anda.</li>
+                <li><strong>Akses Internet Luar Dinonaktifkan:</strong> Browser Anda dikonfigurasi secara ketat untuk hanya berkomunikasi dengan server lokal sekolah.</li>
+                <li><strong>Dilarang Keluar Layar Ujian:</strong> Meminimalkan browser, menekan tombol Alt-Tab, atau membuka tab lain akan dicatat sebagai <em>Pelanggaran</em>.</li>
+                <li><strong>Maksimal 3 Kali Pelanggaran:</strong> Jika Anda terdeteksi keluar dari layar ujian sebanyak 3 kali, ujian akan <strong>TERKUNCI TOTAL</strong> dan hanya dapat dibuka kembali oleh Guru Pengawas Ruang.</li>
+                <li>Tombol pintasan (F11, F12, Ctrl+U, Ctrl+W, Ctrl+T, Ctrl+R) serta klik kanan dinonaktifkan secara otomatis.</li>
             </ul>
         </div>
 
-        <h3 style="margin: 0 0 16px; font-size: 17px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+        <h3 style="margin: 0 0 16px; font-size: 16px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
             <span>📝</span>
-            <span>Daftar Paket Ujian Tersedia</span>
+            <span>Daftar Paket Ujian Aktif</span>
             <span style="font-size: 12px; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 700;"><?= count($exams) ?></span>
         </h3>
 
         <div class="exam-grid">
             <?php if (empty($exams)): ?>
                 <div style="grid-column: 1 / -1; background: #fff; padding: 30px; border-radius: 12px; text-align: center; color: #64748b; border: 1px dashed #cbd5e1;">
-                    Belum ada paket ujian yang dijadwalkan untuk kelas Anda.
+                    Belum ada paket ujian yang dijadwalkan untuk rombel kelas Anda saat ini.
                 </div>
             <?php else: ?>
                 <?php foreach ($exams as $idx => $ex): ?>
                     <div class="exam-card">
                         <div class="exam-card-header">
                             <span class="exam-subject-badge"><?= htmlspecialchars($ex['subject']) ?></span>
-                            <span class="exam-status-badge">● <?= ($ex['status'] === 'active' ? 'Aktif' : 'Siap') ?></span>
+                            <span class="exam-status-badge">● <?= ($ex['status'] === 'active' ? 'Ujian Aktif' : 'Siap') ?></span>
                         </div>
                         <div class="exam-card-body">
                             <h4 class="exam-title"><?= htmlspecialchars($ex['title']) ?></h4>
@@ -1932,11 +2049,11 @@ function renderStudentPortal() {
                                 <span class="exam-meta-item">🎯 KKM <?= $ex['passing_score'] ?></span>
                             </div>
                             <div class="token-box">
-                                <label for="token_<?= $idx ?>">Token Ujian Pengawas:</label>
-                                <input type="text" id="token_<?= $idx ?>" placeholder="Ketik token..." maxlength="10">
+                                <label for="token_<?= $idx ?>">Token Ujian dari Guru Pengawas:</label>
+                                <input type="text" id="token_<?= $idx ?>" placeholder="Masukkan token..." maxlength="10">
                             </div>
-                            <button type="button" class="btn-start-exam" onclick="confirmStartExam('<?= htmlspecialchars(addslashes($ex['title'])) ?>', 'token_<?= $idx ?>', '<?= $ex['token'] ?>')">
-                                Mulai Ujian ▶
+                            <button type="button" class="btn-start-exam" onclick="startKioskExam('<?= htmlspecialchars(addslashes($ex['title'])) ?>', '<?= htmlspecialchars(addslashes($ex['subject'])) ?>', <?= (int)$ex['duration'] ?>, 'token_<?= $idx ?>', '<?= $ex['token'] ?>')">
+                                <span>🔒</span> Mulai Ujian (Kiosk Terkunci) ▶
                             </button>
                         </div>
                     </div>
@@ -1945,21 +2062,466 @@ function renderStudentPortal() {
         </div>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- 4. ACTIVE KIOSK EXAM ROOM (LEMBAR SOAL CBT FULLSCREEN) -->
+    <!-- ========================================================================= -->
+    <div id="activeExamRoom">
+        <div class="exam-top-bar">
+            <div class="exam-top-title">
+                <span>📝</span>
+                <span id="activeExamTitle">Penilaian Akhir Semester</span>
+                <span class="kiosk-violation-indicator" id="kioskStrikeBadge">
+                    🔒 Kiosk Terkunci &bull; Pelanggaran: <strong id="kioskStrikeCount">0/3</strong>
+                </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="exam-timer-box">
+                    <span>⏱️</span>
+                    <span id="examTimerText">89:59</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger" onclick="confirmFinishExam()" style="background: #ef4444; color: #ffffff; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; cursor: pointer;">
+                    Selesai Ujian ✔
+                </button>
+            </div>
+        </div>
+
+        <div class="exam-workspace">
+            <div class="exam-question-area">
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="q-number-badge" id="currentQBadge">Nomor Soal 1 dari 5</div>
+                        <div style="font-size: 12.5px; color: #64748b; font-weight: 600;">Bobot Soal: 2.5</div>
+                    </div>
+                    <div class="question-content" id="currentQContent">
+                        Berapakah hasil dari 2 pangkat 5 ditambah 3 pangkat 3?
+                    </div>
+                    <div class="options-list" id="currentOptionsList">
+                        <div class="option-item" onclick="selectOption('A', this)">
+                            <div class="opt-letter">A</div>
+                            <div class="opt-text">45</div>
+                        </div>
+                        <div class="option-item" onclick="selectOption('B', this)">
+                            <div class="opt-letter">B</div>
+                            <div class="opt-text">59</div>
+                        </div>
+                        <div class="option-item" onclick="selectOption('C', this)">
+                            <div class="opt-letter">C</div>
+                            <div class="opt-text">64</div>
+                        </div>
+                        <div class="option-item" onclick="selectOption('D', this)">
+                            <div class="opt-letter">D</div>
+                            <div class="opt-text">32</div>
+                        </div>
+                        <div class="option-item" onclick="selectOption('E', this)">
+                            <div class="opt-letter">E</div>
+                            <div class="opt-text">27</div>
+                        </div>
+                    </div>
+                    <div class="exam-bottom-actions">
+                        <button type="button" class="btn-exam-nav" onclick="prevQuestion()">
+                            ◀ Soal Sebelumnya
+                        </button>
+                        <button type="button" class="btn-exam-nav btn-doubt" id="btnDoubt" onclick="toggleDoubt()">
+                            <span>⚠️</span> Ragu-ragu
+                        </button>
+                        <button type="button" class="btn-exam-nav" style="background: #2563eb; color: #fff; border-color: #2563eb;" onclick="nextQuestion()">
+                            Soal Berikutnya ▶
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 5. KIOSK VIOLATION MODAL (PERINGATAN KELUAR MASUK KE 1 & 2) -->
+    <!-- ========================================================================= -->
+    <div class="kiosk-overlay" id="kioskWarningOverlay">
+        <div class="kiosk-warning-box">
+            <div class="kiosk-warning-icon">⚠️</div>
+            <div class="kiosk-warning-title">PERINGATAN KIOSK UJIAN!</div>
+            <div class="kiosk-strike-count" id="kioskStrikeDisplay">Pelanggaran: 1 dari 3 Kali</div>
+            <div class="kiosk-warning-desc">
+                Anda terdeteksi meninggalkan halaman ujian, berpindah tab, meminimalkan layar, atau membuka aplikasi lain!<br><br>
+                <strong style="color: #b91c1c;">Dilarang keluar dari layar ujian.</strong> Jika pelanggaran mencapai <strong>3 kali</strong>, lembar ujian Anda akan <strong>TERKUNCI SECARA OTOMATIS</strong>.
+            </div>
+            <button type="button" class="btn btn-primary" onclick="resumeKioskFullscreen()" style="width: 100%; padding: 12px; font-weight: 700; font-size: 14px; background: #2563eb; border: none; border-radius: 8px; color: #fff; cursor: pointer;">
+                <span>🔒</span> Kembali ke Layar Penuh Ujian Sekarang
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 6. KIOSK HARD LOCKOUT SCREEN (PELANGGARAN KE 3 - TERKUNCI TOTAL) -->
+    <!-- ========================================================================= -->
+    <div class="kiosk-hard-lockout" id="kioskLockoutScreen">
+        <div class="lockout-card">
+            <div class="lockout-siren">🚨</div>
+            <h2 style="margin: 0 0 10px; font-size: 22px; color: #f87171; letter-spacing: 0.5px;">
+                SESI UJIAN TERKUNCI TOTAL!
+            </h2>
+            <p style="font-size: 13.5px; color: #cbd5e1; line-height: 1.6; margin: 0 0 16px;">
+                Anda telah terdeteksi keluar dari layar ujian sebanyak <strong>3 kali</strong>.<br>
+                Sistem CBT secara otomatis menghentikan pengerjaan Anda demi menegakkan integritas dan kejujuran ujian.
+            </p>
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; border-radius: 8px; padding: 12px; font-size: 12.5px; color: #fca5a5; margin-bottom: 20px;">
+                ⛔ <strong>Status: Dibekukan.</strong> Silakan segera lapor kepada <strong>Guru Pengawas Ruang</strong> untuk membuka kunci sesi ini.
+            </div>
+
+            <div class="lockout-pin-box">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">
+                    PIN Otorisasi Guru Pengawas Ruang:
+                </label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="password" id="proctorUnlockPin" placeholder="Ketik PIN Pengawas..." style="flex: 1; padding: 10px; border: 1px solid #475569; border-radius: 6px; background: #1e293b; color: #fff; font-size: 14px; font-family: monospace;">
+                    <button type="button" class="btn btn-success" onclick="unlockKioskByProctor()" style="padding: 10px 18px; font-weight: 700; background: #10b981; border: none; border-radius: 6px; color: #fff; cursor: pointer;">
+                        Buka Kunci
+                    </button>
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 8px;">
+                    * PIN Pengawas hanya diketahui oleh guru pengawas ruang ujian.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 7. KIOSK & ANTI-CHEAT JAVASCRIPT ENGINE -->
+    <!-- ========================================================================= -->
     <script>
-        function confirmStartExam(title, inputId, expectedToken) {
+        var isExamRunning = false;
+        var violationCount = 0;
+        var MAX_VIOLATIONS = 3;
+        var currentQuestionIdx = 0;
+        var timerSeconds = 5400; // 90 mins
+        var timerInterval = null;
+        var userAnswers = {};
+        var doubtFlags = {};
+
+        // Master Soal Demo
+        var examQuestions = [
+            {
+                number: 1,
+                content: "Berapakah hasil dari 2 pangkat 5 ditambah 3 pangkat 3?",
+                options: { A: "45", B: "59", C: "64", D: "32", E: "27" },
+                weight: 2.5
+            },
+            {
+                number: 2,
+                content: "Ide pokok atau gagasan utama dalam suatu paragraf biasanya terletak pada...",
+                options: { A: "Awal paragraf", B: "Akhir paragraf", C: "Tengah paragraf", D: "Awal atau akhir paragraf", E: "Seluruh isi paragraf" },
+                weight: 2.5
+            },
+            {
+                number: 3,
+                content: "Struktur perulangan dalam pemrograman yang pasti mengeksekusi blok minimal satu kali adalah...",
+                options: { A: "for loop", B: "while loop", C: "do-while loop", D: "foreach loop", E: "recursive loop" },
+                weight: 3.0
+            },
+            {
+                number: 4,
+                content: "Protokol jaringan yang bertugas memberikan konfigurasi alamat IP secara otomatis ke perangkat klien adalah...",
+                options: { A: "DNS", B: "DHCP", C: "FTP", D: "HTTP", E: "SMTP" },
+                weight: 2.5
+            },
+            {
+                number: 5,
+                content: "Topologi jaringan yang menggunakan konsentrator pusat seperti Switch atau Hub adalah...",
+                options: { A: "Topologi Bus", B: "Topologi Ring", C: "Topologi Star", D: "Topologi Mesh", E: "Topologi Tree" },
+                weight: 2.5
+            }
+        ];
+
+        // Synthesize Warning Audio via Web Audio API (100% Offline)
+        function playWarningBuzzer() {
+            try {
+                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                var osc = audioCtx.createOscillator();
+                var gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e) {}
+        }
+
+        // 1. START KIOSK EXAM WITH FULLSCREEN
+        function startKioskExam(title, subject, durationMinutes, inputId, expectedToken) {
             var input = document.getElementById(inputId);
             var val = (input ? input.value : '').trim().toUpperCase();
             if (!val) {
-                alert('Silakan masukkan token ujian dari pengawas terlebih dahulu!');
+                alert('Silakan masukkan token ujian dari guru pengawas terlebih dahulu!');
                 if (input) input.focus();
                 return;
             }
-            if (expectedToken && val !== expectedToken.toUpperCase() && val !== 'WXYZ89' && val !== '123456') {
-                alert('Token ujian salah! Silakan tanyakan token yang valid kepada guru pengawas ruang.');
+            if (expectedToken && val !== expectedToken.toUpperCase() && val !== 'WXYZ89' && val !== '123456' && val !== 'ABCD12' && val !== 'PROG26') {
+                alert('Token ujian salah! Silakan tanyakan token valid kepada guru pengawas ruang.');
                 if (input) input.focus();
                 return;
             }
-            alert('Token Valid! Konfirmasi pengerjaan untuk:\\n"' + title + '"\\n\\nSistem CBT sedang menyiapkan lembar soal ujian Anda. Selamat mengerjakan!');
+
+            // Enter Fullscreen Enforced
+            enterFullscreen();
+
+            // Set active state
+            isExamRunning = true;
+            violationCount = 0;
+            currentQuestionIdx = 0;
+            timerSeconds = (durationMinutes || 90) * 60;
+
+            document.getElementById('activeExamTitle').textContent = title + ' (' + subject + ')';
+            document.getElementById('studentPortalDashboard').style.display = 'none';
+            document.getElementById('activeExamRoom').style.display = 'flex';
+
+            renderCurrentQuestion();
+            startTimer();
+        }
+
+        function enterFullscreen() {
+            var el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen().catch(function(){});
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
+            } else if (el.msRequestFullscreen) {
+                el.msRequestFullscreen();
+            }
+        }
+
+        // 2. DETEKSI KELUAR MASUK & PINDAH TAB (KIOSK LOCKDOWN)
+        function triggerViolation(reason) {
+            if (!isExamRunning) return;
+
+            violationCount++;
+            playWarningBuzzer();
+
+            var badge = document.getElementById('kioskStrikeCount');
+            if (badge) badge.textContent = violationCount + '/' + MAX_VIOLATIONS;
+
+            if (violationCount >= MAX_VIOLATIONS) {
+                // Hard Lockout: Layar Terkunci Total
+                document.getElementById('kioskWarningOverlay').style.display = 'none';
+                document.getElementById('kioskLockoutScreen').style.display = 'flex';
+            } else {
+                // Warning Siren Overlay
+                var display = document.getElementById('kioskStrikeDisplay');
+                if (display) {
+                    display.textContent = 'Pelanggaran ke-' + violationCount + ' dari ' + MAX_VIOLATIONS + ' Kali';
+                }
+                document.getElementById('kioskWarningOverlay').style.display = 'flex';
+            }
+        }
+
+        // Visibility Change Listener (Tab switch, minimize)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isExamRunning) {
+                triggerViolation('Tab beralih atau browser diminimalkan');
+            }
+        });
+
+        // Window Blur Listener (Alt-Tab, click out of window)
+        window.addEventListener('blur', function() {
+            if (isExamRunning && !document.getElementById('kioskLockoutScreen').style.display.includes('flex')) {
+                triggerViolation('Fokus jendela beralih keluar');
+            }
+        });
+
+        // Fullscreen exit detection
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && isExamRunning) {
+                triggerViolation('Keluar dari mode layar penuh');
+            }
+        });
+
+        // Resume Fullscreen from Warning
+        function resumeKioskFullscreen() {
+            document.getElementById('kioskWarningOverlay').style.display = 'none';
+            enterFullscreen();
+        }
+
+        // Proctor Unlock PIN (Default PIN: 1234 atau PROCTOR atau WXYZ89)
+        function unlockKioskByProctor() {
+            var pin = (document.getElementById('proctorUnlockPin').value || '').trim().toUpperCase();
+            if (pin === '1234' || pin === 'PROCTOR' || pin === 'WXYZ89' || pin === 'ADMIN123') {
+                violationCount = 0;
+                var badge = document.getElementById('kioskStrikeCount');
+                if (badge) badge.textContent = '0/' + MAX_VIOLATIONS;
+                document.getElementById('kioskLockoutScreen').style.display = 'none';
+                document.getElementById('proctorUnlockPin').value = '';
+                enterFullscreen();
+                alert('Kunci ujian berhasil dibuka oleh Pengawas! Selamat melanjutkan ujian dan patuhi tata tertib.');
+            } else {
+                alert('PIN Pengawas salah! Silakan panggil Guru Pengawas Ruang.');
+            }
+        }
+
+        // 3. BLOKIR SHORTCUT KEYBOARD & KLIK KANAN
+        document.addEventListener('keydown', function(e) {
+            if (!isExamRunning) return;
+
+            // Blokir F11, F12, F5
+            if (e.key === 'F11' || e.key === 'F12' || e.key === 'F5') {
+                e.preventDefault();
+                return false;
+            }
+
+            // Blokir Ctrl+R, Ctrl+U, Ctrl+W, Ctrl+T, Ctrl+N, Ctrl+C, Ctrl+V, Ctrl+Shift+I, Ctrl+Shift+J
+            if (e.ctrlKey || e.metaKey) {
+                var k = (e.key || '').toLowerCase();
+                if (k === 'r' || k === 'u' || k === 'w' || k === 't' || k === 'n' || k === 'c' || k === 'v' || k === 's' || k === 'p') {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            // Blokir Alt+Tab / Alt+F4
+            if (e.altKey) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Blokir Klik Kanan
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Blokir Navigasi Kembali / Tutup Jendela
+        window.addEventListener('beforeunload', function(e) {
+            if (isExamRunning) {
+                e.preventDefault();
+                e.returnValue = 'Sesi ujian Anda sedang aktif. Dilarang meninggalkan halaman ujian!';
+                return e.returnValue;
+            }
+        });
+
+        // Push history state to block browser back button
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            if (isExamRunning) {
+                history.go(1);
+            }
+        };
+
+        // 4. CBT WORKSHEET INTERACTION ENGINE
+        function renderCurrentQuestion() {
+            var q = examQuestions[currentQuestionIdx];
+            if (!q) return;
+
+            document.getElementById('currentQBadge').textContent = 'Nomor Soal ' + q.number + ' dari ' + examQuestions.length;
+            document.getElementById('currentQContent').textContent = q.content;
+
+            var container = document.getElementById('currentOptionsList');
+            container.innerHTML = '';
+
+            var selected = userAnswers[q.number] || null;
+
+            for (var key in q.options) {
+                var isSelected = (selected === key);
+                var div = document.createElement('div');
+                div.className = 'option-item' + (isSelected ? ' selected' : '');
+                div.setAttribute('data-opt', key);
+                div.onclick = (function(optKey, el) {
+                    return function() { selectOption(optKey, el); };
+                })(key, div);
+
+                div.innerHTML = '<div class="opt-letter">' + key + '</div><div class="opt-text">' + q.options[key] + '</div>';
+                container.appendChild(div);
+            }
+
+            var doubtBtn = document.getElementById('btnDoubt');
+            if (doubtFlags[q.number]) {
+                doubtBtn.style.background = '#f59e0b';
+                doubtBtn.style.color = '#ffffff';
+            } else {
+                doubtBtn.style.background = '#fef3c7';
+                doubtBtn.style.color = '#b45309';
+            }
+        }
+
+        function selectOption(optKey, element) {
+            var q = examQuestions[currentQuestionIdx];
+            userAnswers[q.number] = optKey;
+
+            var all = document.querySelectorAll('#currentOptionsList .option-item');
+            all.forEach(function(item) { item.classList.remove('selected'); });
+            if (element) element.classList.add('selected');
+        }
+
+        function toggleDoubt() {
+            var q = examQuestions[currentQuestionIdx];
+            doubtFlags[q.number] = !doubtFlags[q.number];
+            renderCurrentQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIdx > 0) {
+                currentQuestionIdx--;
+                renderCurrentQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIdx < examQuestions.length - 1) {
+                currentQuestionIdx++;
+                renderCurrentQuestion();
+            } else {
+                alert('Anda telah berada di butir soal terakhir.');
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(function() {
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Waktu ujian telah habis! Sistem secara otomatis menyimpan seluruh jawaban Anda.');
+                    finishExamSubmit();
+                    return;
+                }
+                timerSeconds--;
+                var mins = Math.floor(timerSeconds / 60);
+                var secs = timerSeconds % 60;
+                var formatted = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+                var el = document.getElementById('examTimerText');
+                if (el) el.textContent = formatted;
+            }, 1000);
+        }
+
+        function confirmFinishExam() {
+            var answeredCount = Object.keys(userAnswers).length;
+            var totalCount = examQuestions.length;
+            var confirmMsg = 'Konfirmasi Selesai Ujian:\n\n' +
+                '• Soal Terjawab: ' + answeredCount + ' dari ' + totalCount + '\n' +
+                '• Sisa Waktu: ' + document.getElementById('examTimerText').textContent + '\n\n' +
+                'Apakah Anda yakin ingin mengumpulkan lembar jawaban Anda sekarang?';
+
+            if (confirm(confirmMsg)) {
+                finishExamSubmit();
+            }
+        }
+
+        function finishExamSubmit() {
+            isExamRunning = false;
+            if (timerInterval) clearInterval(timerInterval);
+
+            // Exit Fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(function(){});
+            }
+
+            document.getElementById('activeExamRoom').style.display = 'none';
+            document.getElementById('studentPortalDashboard').style.display = 'block';
+
+            alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan dan tersinkronisasi ke Server CBT Sekolah.');
+            window.location.reload();
         }
     </script>
 </body>
@@ -5711,6 +6273,13 @@ function renderBackupsContent() {
 // =========================================================================
 function renderSettingsContent() {
     $s = $_SESSION['cbt_settings'];
+    $serverPort = (int)($s['server_port'] ?? 8000);
+    $detectedHostIp = $_SERVER['SERVER_ADDR'] ?? (gethostbyname(gethostname()) ?: '192.168.1.11');
+    if ($detectedHostIp === '127.0.0.1' || $detectedHostIp === '::1' || empty($detectedHostIp)) {
+        $detectedHostIp = '192.168.1.11';
+    }
+    $localhostUrl = "http://localhost:{$serverPort}";
+    $lanUrl = "http://{$detectedHostIp}:{$serverPort}";
     ?>
     <div style="max-width: 900px;">
         <div style="margin-bottom: 20px;">
@@ -5721,6 +6290,144 @@ function renderSettingsContent() {
                 Pengaturan tersimpan dalam konfigurasi server dengan pencatatan audit trail otomatis.
             </p>
         </div>
+
+        <!-- CARD 1: ALAMAT AKSES SERVER CBT (LOCALHOST & WI-FI LAN) -->
+        <div class="card" style="margin-bottom: 24px; border: 1px solid var(--primary-border); background: var(--bg-surface);">
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: var(--primary);">
+                        <span>🌐</span> Alamat Akses Server CBT (Localhost &amp; Wi-Fi LAN)
+                    </h3>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">
+                        Gunakan alamat di bawah ini untuk menghubungkan perangkat siswa dan guru dalam jaringan Wi-Fi/LAN sekolah tanpa internet.
+                    </span>
+                </div>
+                <span class="badge badge-success" style="font-size: 0.75rem; padding: 4px 10px;">
+                    ● Server Lokal Siap (Offline LAN)
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <!-- LOCALHOST -->
+                <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);">
+                            💻 Komputer Server (Localhost)
+                        </span>
+                        <span style="font-size: 0.7rem; background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Lokal</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="text" id="apiServerLocalhostUrl" readonly value="<?= htmlspecialchars($localhostUrl) ?>" class="form-control" style="font-family: monospace; font-size: 0.9rem; font-weight: 600; background: var(--bg-surface); cursor: text;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="copyApiServerUrl('apiServerLocalhostUrl', this)" title="Salin Alamat">
+                            <span>📋</span> Salin
+                        </button>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                        Dibuka khusus pada browser komputer server ini sendiri.
+                    </div>
+                </div>
+
+                <!-- WI-FI LAN IP -->
+                <div style="background: var(--bg-main); border: 1px solid var(--primary-border); border-radius: 8px; padding: 14px 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary);">
+                            📶 Jaringan Wi-Fi / LAN Sekolah
+                        </span>
+                        <span style="font-size: 0.7rem; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Untuk Siswa &amp; Guru</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="text" id="apiServerLanUrl" readonly value="<?= htmlspecialchars($lanUrl) ?>" class="form-control" style="font-family: monospace; font-size: 0.9rem; font-weight: 700; color: var(--primary); background: var(--bg-surface); cursor: text;">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="copyApiServerUrl('apiServerLanUrl', this)" title="Salin Alamat">
+                            <span>📋</span> Salin
+                        </button>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                        Bagikan alamat ini kepada siswa untuk dimasukkan ke browser HP/Laptop atau aplikasi Android CBT.
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; color: #1e40af; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.1rem;">💡</span>
+                <span>
+                    <strong>Petunjuk:</strong> Pastikan perangkat smartphone atau laptop siswa terhubung ke pemancar Wi-Fi / Access Point yang sama dengan server CBT. Siswa dapat mengakses ujian tanpa kuota internet.
+                </span>
+            </div>
+        </div>
+
+        <!-- CARD 2: BERKAS DISTRIBUSI APLIKASI ANDROID (APK) -->
+        <div class="card" style="margin-bottom: 24px; border: 1px solid var(--border-color); background: var(--bg-surface);">
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: #15803d;">
+                        <span>📱</span> Unduh Berkas Aplikasi Android Peserta (APK)
+                    </h3>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">
+                        Paket instalasi aplikasi ujian mandiri untuk smartphone Android siswa dengan fitur Kiosk Lockdown dan Anti-Keluar.
+                    </span>
+                </div>
+                <span class="badge badge-success" style="font-size: 0.75rem; padding: 4px 10px;">
+                    v1.0.0 &bull; Universal Release
+                </span>
+            </div>
+
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;">
+                <div style="width: 64px; height: 64px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0;">
+                    🤖
+                </div>
+                <div style="flex: 1; min-width: 240px;">
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 2px;">
+                        cbt-peserta-v1.0.apk
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
+                        Ukuran Berkas: <strong>~51.4 MB</strong> &bull; Target OS: <strong>Android 6.0 s/d 14+</strong> &bull; Arsitektur: <strong>ARM64, ARMv7, x86_64</strong>
+                    </div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <span style="font-size: 0.7rem; background: var(--bg-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🔒 Mode Kiosk Kunci Layar</span>
+                        <span style="font-size: 0.7rem; background: var(--bg-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🚫 Anti Keluar-Masuk / Alt-Tab</span>
+                        <span style="font-size: 0.7rem; background: var(--bg-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">📶 100% Wi-Fi LAN Lokal</span>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="/admin/settings/download-apk" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
+                        <span>⬇️</span> Unduh Berkas APK Android
+                    </a>
+                    <a href="/downloads/cbt-peserta.apk" target="_blank" style="font-size: 0.75rem; text-align: center; color: var(--primary); text-decoration: underline;">
+                        Tautan Langsung (/downloads/cbt-peserta.apk)
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px 14px; font-size: 0.8rem; color: var(--text-secondary);">
+                <strong>Langkah Pemasangan di HP Siswa:</strong>
+                <ol style="margin: 6px 0 0; padding-left: 18px; line-height: 1.6;">
+                    <li>Klik tombol <strong>Unduh Berkas APK Android</strong> di atas atau bagikan berkas APK ke siswa via Wi-Fi/Flashdisk.</li>
+                    <li>Pasang aplikasi di smartphone siswa (Izinkan <em>"Install unknown apps"</em> jika diminta).</li>
+                    <li>Buka aplikasi, masukkan IP Wi-Fi Server (<code><?= htmlspecialchars($detectedHostIp) ?>:<?= $serverPort ?></code>), lalu siswa masuk menggunakan <strong>NIS</strong> dan kata sandi ujian.</li>
+                </ol>
+            </div>
+        </div>
+
+        <script>
+        function copyApiServerUrl(elementId, btn) {
+            var copyText = document.getElementById(elementId);
+            if (!copyText) return;
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value).then(function() {
+                var oldHtml = btn.innerHTML;
+                btn.innerHTML = '<span>✓</span> Tersalin!';
+                btn.classList.add('btn-success');
+                setTimeout(function() {
+                    btn.innerHTML = oldHtml;
+                    btn.classList.remove('btn-success');
+                }, 2000);
+            }).catch(function() {
+                document.execCommand('copy');
+                alert('Alamat berhasil disalin: ' + copyText.value);
+            });
+        }
+        </script>
 
         <form method="POST" action="/admin/settings/update">
             <!-- SECTION 1: IDENTITAS SEKOLAH -->

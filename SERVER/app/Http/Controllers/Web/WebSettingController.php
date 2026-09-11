@@ -137,4 +137,27 @@ class WebSettingController extends Controller
 
         return redirect()->route('admin.settings.index')->with('success', 'Pengaturan sistem berhasil disimpan.');
     }
+
+    /**
+     * Download Android CBT Peserta APK installer.
+     */
+    public function downloadApk()
+    {
+        $candidatePaths = [
+            public_path('downloads/cbt-peserta-v1.0.apk'),
+            base_path('../ANDROID/build/app/outputs/flutter-apk/app-release.apk'),
+            base_path('../ANDROID/build/app/outputs/apk/release/app-release.apk'),
+        ];
+
+        foreach ($candidatePaths as $path) {
+            if (File::exists($path) && filesize($path) > 1000) {
+                return response()->download($path, 'cbt-peserta-v1.0.apk', [
+                    'Content-Type' => 'application/vnd.android.package-archive',
+                    'Content-Disposition' => 'attachment; filename="cbt-peserta-v1.0.apk"',
+                ]);
+            }
+        }
+
+        abort(404, 'Berkas APK Android CBT belum tersedia atau sedang dikompilasi.');
+    }
 }
