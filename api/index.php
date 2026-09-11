@@ -1532,8 +1532,10 @@ if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin
 
 // --- L. AUTHENTICATION (LOGIN / LOGOUT) ---
 if ($uri === '/logout') {
-    setcookie('cbt_user', '', time() - 3600, '/');
+    setcookie('cbt_user', '', time() - 86400 * 30, '/');
     unset($_SESSION['cbt_user']);
+    unset($_SESSION['active_teacher']);
+    unset($_SESSION['active_test_student']);
     header('Location: /login?logged_out=1');
     exit;
 }
@@ -1601,17 +1603,20 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
     exit;
 }
 
-// Current user check
+// Current user check: Wajib login per perangkat / per browser
 $isLoggedOut = isset($_GET['logged_out']);
-$currentUser = $_COOKIE['cbt_user'] ?? $_SESSION['cbt_user'] ?? null;
+$currentUser = null;
 
-// In standalone serverless deployment, keep user logged in as 'admin' unless explicitly logged out
-if (!$currentUser && !$isLoggedOut) {
-    $currentUser = 'admin';
-    $_SESSION['cbt_user'] = 'admin';
-    setcookie('cbt_user', 'admin', time() + 86400 * 30, '/');
+if (!$isLoggedOut) {
+    if (!empty($_SESSION['cbt_user'])) {
+        $currentUser = $_SESSION['cbt_user'];
+    } elseif (!empty($_COOKIE['cbt_user'])) {
+        $currentUser = $_COOKIE['cbt_user'];
+        $_SESSION['cbt_user'] = $currentUser;
+    }
 }
 
+// Redirect ke dashboard jika sudah login dan mengakses root/login
 if ($uri === '/' || $uri === '/login') {
     if ($currentUser && !$isLoggedOut) {
         header('Location: /admin/dashboard');
@@ -1621,9 +1626,10 @@ if ($uri === '/' || $uri === '/login') {
     exit;
 }
 
-// Protected routes
+// Protected routes: Setiap perangkat baru yang belum login wajib masuk halaman login
 if (strpos($uri, '/admin') === 0 || strpos($uri, '/guru') === 0) {
     if (!$currentUser) {
+        $_SESSION['login_error'] = 'Silakan masuk terlebih dahulu untuk mengakses sistem CBT.';
         header('Location: /login');
         exit;
     }
@@ -1631,7 +1637,13 @@ if (strpos($uri, '/admin') === 0 || strpos($uri, '/guru') === 0) {
     exit;
 }
 
-header('Location: /login');
+// Fallback untuk semua URL lain jika belum login
+if (!$currentUser) {
+    header('Location: /login');
+    exit;
+}
+
+header('Location: /admin/dashboard');
 exit;
 
 // =========================================================================
@@ -1669,12 +1681,12 @@ function renderLoginPage() {
             <?php endif; ?>
             <form action="/login" method="POST">
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Username Login (Admin / Guru)</label>
-                    <input type="text" name="username" class="form-control" placeholder="Contoh: admin atau guru.budi" required autofocus value="admin">
+                    <label class="form-label">Username / Akun Login (Admin / Guru / NIS)</label>
+                    <input type="text" name="username" class="form-control" placeholder="Masukkan username, akun guru, atau NIS..." required autofocus value="">
                 </div>
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label class="form-label">Kata Sandi</label>
-                    <input type="password" name="password" class="form-control" placeholder="Masukkan kata sandi" required value="admin123">
+                    <input type="password" name="password" class="form-control" placeholder="Masukkan kata sandi..." required value="">
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px; font-weight: 700;">
                     Masuk ke Web Portal
