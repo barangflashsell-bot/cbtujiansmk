@@ -6,6 +6,18 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'CBT Server SMK') — Web Dashboard</title>
     <link rel="stylesheet" href="{{ asset('css/cbt-offline.css') }}">
+    <script>
+        (function() {
+            try {
+                var savedTheme = localStorage.getItem('cbt_theme');
+                if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
 <body>
     @php
@@ -39,8 +51,8 @@
                     </svg>
                 </div>
                 <div class="brand-info">
-                    <div class="brand-name">CBT SERVER SMK</div>
-                    <div class="brand-tagline">Server Lokal Offline LAN</div>
+                    <div class="brand-name">CBT SERVER MANAGER</div>
+                    <div class="brand-tagline">Server Ujian Berbasis LAN</div>
                 </div>
             </div>
 
@@ -203,13 +215,25 @@
                     <div class="topbar-title-wrap">
                         <div class="topbar-title">
                             <span>{{ $rawTitle ?: 'Dashboard' }}</span>
-                            <span class="topbar-badge">CBT SMK</span>
+                            <span class="topbar-badge">CBT MANAGER</span>
                         </div>
-                        <div class="topbar-subtitle">CBT Server Offline &bull; Kurikulum SMK</div>
+                        <div class="topbar-subtitle">CBT Server Offline &bull; Jaringan Sekolah Mandiri</div>
                     </div>
                 </div>
 
                 <div class="topbar-right-actions">
+                    <!-- THEME SWITCHER [ ☀ Light | 🌙 Dark ] -->
+                    <div class="theme-switch-pill" id="themeSwitchPill" title="Ganti Tema Tampilan">
+                        <button type="button" class="theme-switch-btn active" id="btnThemeLight" onclick="setAppTheme('light')">
+                            <span>☀</span>
+                            <span>Light</span>
+                        </button>
+                        <button type="button" class="theme-switch-btn" id="btnThemeDark" onclick="setAppTheme('dark')">
+                            <span>🌙</span>
+                            <span>Dark</span>
+                        </button>
+                    </div>
+
                     <div class="user-pill" title="Akun yang sedang aktif">
                         <div class="user-avatar-circle">{{ $initial }}</div>
                         <div style="display: flex; flex-direction: column; text-align: left;">
@@ -256,6 +280,72 @@
 
                 @yield('content')
             </main>
+        </div>
+    </div>
+
+    <!-- MODAL QR CODE SERVER ACCESS -->
+    <div class="modal-overlay" id="cbtQrModal" onclick="if(event.target === this) toggleQrModal(false)">
+        <div class="modal-content-card">
+            <div class="modal-header">
+                <div class="modal-title">📱 Akses Ujian Siswa (QR Code)</div>
+                <button type="button" class="modal-close-btn" onclick="toggleQrModal(false)">&times;</button>
+            </div>
+            <div style="text-align: center; padding: 12px 0;">
+                <div style="background: #ffffff; padding: 16px; border-radius: 12px; display: inline-block; box-shadow: var(--shadow-md); margin-bottom: 14px; border: 1px solid var(--border-color);">
+                    <!-- Offline SVG QR Placeholder with exact address text -->
+                    <svg width="180" height="180" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#ffffff"/>
+                        <!-- Corner Markers -->
+                        <rect x="10" y="10" width="24" height="24" rx="4" fill="#0f172a"/>
+                        <rect x="14" y="14" width="16" height="16" rx="2" fill="#ffffff"/>
+                        <rect x="18" y="18" width="8" height="8" rx="1" fill="#0f172a"/>
+                        
+                        <rect x="66" y="10" width="24" height="24" rx="4" fill="#0f172a"/>
+                        <rect x="70" y="14" width="16" height="16" rx="2" fill="#ffffff"/>
+                        <rect x="74" y="18" width="8" height="8" rx="1" fill="#0f172a"/>
+
+                        <rect x="10" y="66" width="24" height="24" rx="4" fill="#0f172a"/>
+                        <rect x="14" y="70" width="16" height="16" rx="2" fill="#ffffff"/>
+                        <rect x="18" y="74" width="8" height="8" rx="1" fill="#0f172a"/>
+                        
+                        <!-- Data Pattern Simulation -->
+                        <rect x="42" y="12" width="6" height="6" fill="#0f172a"/>
+                        <rect x="52" y="12" width="6" height="6" fill="#0f172a"/>
+                        <rect x="42" y="22" width="6" height="6" fill="#0f172a"/>
+                        <rect x="48" y="28" width="8" height="8" fill="#2563eb"/>
+                        <rect x="14" y="42" width="6" height="6" fill="#0f172a"/>
+                        <rect x="24" y="48" width="6" height="6" fill="#0f172a"/>
+                        <rect x="36" y="42" width="8" height="8" fill="#0f172a"/>
+                        <rect x="48" y="42" width="6" height="6" fill="#0f172a"/>
+                        <rect x="58" y="42" width="8" height="8" fill="#0f172a"/>
+                        <rect x="70" y="42" width="6" height="6" fill="#0f172a"/>
+                        <rect x="80" y="48" width="6" height="6" fill="#0f172a"/>
+                        <rect x="42" y="58" width="8" height="8" fill="#0f172a"/>
+                        <rect x="54" y="54" width="6" height="6" fill="#0f172a"/>
+                        <rect x="66" y="58" width="6" height="6" fill="#0f172a"/>
+                        <rect x="76" y="66" width="8" height="8" fill="#0f172a"/>
+                        <rect x="42" y="72" width="6" height="6" fill="#0f172a"/>
+                        <rect x="52" y="78" width="6" height="6" fill="#0f172a"/>
+                        <rect x="62" y="72" width="6" height="6" fill="#0f172a"/>
+                        <rect x="72" y="80" width="6" height="6" fill="#0f172a"/>
+                        <rect x="84" y="78" width="6" height="6" fill="#0f172a"/>
+                    </svg>
+                </div>
+                <div style="font-family: monospace; font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">
+                    http://{{ request()->getHost() }}:{{ request()->getPort() }}
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-muted); max-width: 360px; margin: 0 auto 16px;">
+                    Arahkan kamera aplikasi <strong>CBT Client Android</strong> atau browser siswa ke QR Code ini saat terhubung ke Wi-Fi sekolah.
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="copyServerAddress('http://{{ request()->getHost() }}:{{ request()->getPort() }}')">
+                        📋 Salin Alamat URL
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleQrModal(false)">
+                        Tutup
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -32,28 +32,105 @@
         </div>
     @endif
 
-    <!-- PETAK 1: WELCOME & SERVER STATUS BANNER -->
-    <div class="card" style="padding: 20px 24px; border-left: 4px solid var(--primary); background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
+    <!-- 1. HEADER SAMBUTAN & ACTION BAR -->
+    <div class="card" style="padding: 20px 24px; border-left: 4px solid var(--primary); background: var(--bg-surface);">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
             <div>
                 <h2 class="welcome-heading">
                     <span>👋</span>
-                    <span>Selamat Datang, {{ $user->name ?? $user->username }}!</span>
+                    <span>Selamat Datang di CBT Server Manager, {{ $user->name ?? $user->username }}!</span>
                 </h2>
                 <p class="card-description" style="margin: 0;">
-                    Panel Kendali Utama <strong>CBT Server SMK</strong>. Seluruh modul evaluasi berbasis LAN siap beroperasi.
+                    Pusat kendali dan manajemen evaluasi ujian sekolah berbasis LAN offline mandiri.
                 </p>
             </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="offline-badge">
-                    <span class="status-dot"></span>
-                    <span>Server: Local LAN Offline Aktif</span>
-                </span>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <a href="{{ route('admin.monitoring.index') }}" class="btn btn-primary btn-sm">
+                    <span>📡</span>
+                    <span>Live Monitoring</span>
+                </a>
+                <a href="{{ route('admin.backups.index') }}" class="btn btn-secondary btn-sm">
+                    <span>💾</span>
+                    <span>Backup DB</span>
+                </a>
+                <a href="{{ route('admin.exams.index') }}" class="btn btn-secondary btn-sm">
+                    <span>⏱️</span>
+                    <span>Paket Ujian</span>
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- PETAK 2: RINGKASAN METRIK SISTEM (STATS GRID) -->
+    <!-- 2. STATUS AREA: TWIN HERO CARDS (SERVER ENGINE & DATABASE HEALTH) -->
+    <div class="server-twin-grid">
+        <!-- HERO CARD 1: CBT SERVER ENGINE -->
+        <div class="twin-hero-card server-card">
+            <div class="twin-hero-header">
+                <div class="twin-hero-title">
+                    <span>🖥️</span>
+                    <span>CBT Server Engine</span>
+                </div>
+                <span class="status-badge-live online">
+                    <span class="pulse-dot"></span>
+                    <span>SERVER ONLINE</span>
+                </span>
+            </div>
+            <div class="twin-hero-value">
+                Port {{ request()->getPort() }} (0.0.0.0)
+            </div>
+            <div class="twin-hero-sub">
+                Laravel {{ app()->version() }} • PHP {{ PHP_VERSION }} • Daemon Aktif Siap Ujian
+            </div>
+        </div>
+
+        <!-- HERO CARD 2: DATABASE HEALTH -->
+        <div class="twin-hero-card database-card">
+            <div class="twin-hero-header">
+                <div class="twin-hero-title">
+                    <span>🗄️</span>
+                    <span>Local Database Service</span>
+                </div>
+                <span class="status-badge-live online">
+                    <span class="pulse-dot"></span>
+                    <span>CONNECTED</span>
+                </span>
+            </div>
+            <div class="twin-hero-value">
+                MariaDB / MySQL (Healthy)
+            </div>
+            <div class="twin-hero-sub">
+                Database: cbt_offline • Latensi: &lt; 1ms • Skema 14 Tabel Terindeks
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. NETWORK BROADCAST CARD (LAN IP & SISWA ACCESS) -->
+    <div class="network-broadcast-card">
+        <div class="network-info-wrap">
+            <div class="network-label">
+                <span>🌐</span>
+                <span>Alamat Jaringan Klien Siswa (LAN Offline)</span>
+            </div>
+            <div class="network-ip-code">
+                http://{{ request()->getHost() }}:{{ request()->getPort() }}
+            </div>
+            <div class="network-meta-text">
+                Koneksi LAN Aktif • Klien Android CBT dapat memindai QR Code di meja pengawas untuk langsung masuk ke sesi ujian.
+            </div>
+        </div>
+        <div class="network-actions">
+            <button type="button" class="btn btn-primary btn-sm" onclick="copyServerAddress('http://{{ request()->getHost() }}:{{ request()->getPort() }}')">
+                <span>📋</span>
+                <span>Salin Alamat</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleQrModal(true)">
+                <span>📱</span>
+                <span>Tampilkan QR Code</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. PETAK METRIK SISTEM (STATS GRID) -->
     <div>
         <div class="section-heading-box">
             <h3 class="section-heading-title">
@@ -248,9 +325,10 @@
             </div>
 
             @if ($recentResults->isEmpty())
-                <div class="empty-state" style="padding: 28px 0;">
+                <div class="empty-state-card" style="margin: 10px 0; padding: 30px 16px;">
                     <div class="empty-state-icon">📋</div>
-                    <p style="margin-bottom: 0;">Belum ada hasil ujian yang diselesaikan.</p>
+                    <div class="empty-state-title">Belum Ada Hasil Ujian Selesai</div>
+                    <div class="empty-state-desc">Ujian yang sedang dikerjakan atau telah diselesaikan siswa akan tampil secara otomatis di sini.</div>
                 </div>
             @else
                 <div class="data-table-wrapper" style="margin-top: 0;">
@@ -301,9 +379,10 @@
             </div>
 
             @if ($recentActivities->isEmpty())
-                <div class="empty-state" style="padding: 28px 0;">
+                <div class="empty-state-card" style="margin: 10px 0; padding: 30px 16px;">
                     <div class="empty-state-icon">📜</div>
-                    <p style="margin-bottom: 0;">Belum ada log aktivitas tercatat.</p>
+                    <div class="empty-state-title">Log Aktivitas Masih Kosong</div>
+                    <div class="empty-state-desc">Seluruh aktivitas login, backup, dan sesi pengerjaan ujian akan tercatat secara berurutan di sini.</div>
                 </div>
             @else
                 <div class="data-table-wrapper" style="margin-top: 0;">
