@@ -1,0 +1,6 @@
+.git
+.github
+tests
+.phpunit.cache
+node_modules
+storage/logs/*.log
