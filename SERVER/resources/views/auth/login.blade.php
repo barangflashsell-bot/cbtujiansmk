@@ -129,23 +129,10 @@
                 </div>
 
                 <!-- SUBMIT BUTTON -->
-                <button type="submit" class="btn btn-primary login-submit-btn">
-                    <span>▶</span>
-                    <span>Masuk ke Dashboard Server</span>
+                <button type="submit" class="btn btn-primary login-submit-btn" style="justify-content: center;">
+                    <span>Masuk</span>
                 </button>
             </form>
-
-            <!-- INFORMATIVE ACCESS NOTICE -->
-            <div class="login-notice-box">
-                <span class="login-notice-icon">⚠️</span>
-                <strong>Khusus Administrator & Guru Pengawas.</strong><br>
-                Peserta ujian hanya dapat mengerjakan soal melalui aplikasi <strong>CBT Client Android</strong>.
-            </div>
-
-            <!-- FOOTER META -->
-            <div class="login-footer-meta">
-                CBT Server Manager &bull; Jaringan Evaluasi Mandiri Sekolah
-            </div>
         </div>
     </div>
 

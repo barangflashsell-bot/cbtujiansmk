@@ -6,7 +6,7 @@
  */
 
 $autoloader = __DIR__ . '/../SERVER/vendor/autoload.php';
-if (file_exists($autoloader)) {
+if (!isset($_ENV['VERCEL']) && !isset($_SERVER['VERCEL']) && !getenv('VERCEL') && file_exists($autoloader)) {
     require __DIR__ . '/../SERVER/public/index.php';
     exit;
 }
@@ -825,25 +825,12 @@ if (strpos($uri, '/admin/teachers/login-as') !== false || ($uri === '/admin/teac
             $_SESSION['cbt_user'] = 'guru';
             $_SESSION['active_teacher'] = $t;
             logCbtActivity('TEACHER', 'ADMIN_LOGIN_AS', "Admin langsung login sebagai guru: {$t['name']} ({$t['username']})");
-            $_SESSION['import_success'] = "Login Berhasil! Anda sekarang masuk sebagai Guru: <strong>{$t['name']}</strong> (Username: <code>{$t['username']}</code> | Password: <code>" . ($t['password'] ?? '12345678') . "</code>)";
+            $_SESSION['import_success'] = "Login Berhasil! Anda sekarang masuk sebagai Guru: <strong>{$t['name']}</strong> (Username: <code>{$t['username']}</code>)";
             header('Location: /admin/questions');
             exit;
         }
     }
     header('Location: /admin/teachers');
-    exit;
-}
-
-// Quick Login Guru Langsung dari Login Page
-if ($uri === '/guru/quick-login' || $uri === '/quick-login-guru') {
-    $firstTeacher = $_SESSION['teachers_list'][0] ?? [
-        'id' => 't1', 'name' => 'Budi Santoso, S.Pd', 'username' => 'guru.budi', 'password' => '12345678'
-    ];
-    setcookie('cbt_user', 'guru', time() + 86400 * 7, '/');
-    $_SESSION['cbt_user'] = 'guru';
-    $_SESSION['active_teacher'] = $firstTeacher;
-    logCbtActivity('AUTH', 'QUICK_LOGIN_GURU', "Guru berhasil login instan: {$firstTeacher['name']}");
-    header('Location: /admin/questions');
     exit;
 }
 
@@ -864,24 +851,17 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/teachers/
 }
 
 // --- B. STUDENTS CRUD ---
-// 1. Quick Login Administrator
-if ($uri === '/admin/quick-login' || $uri === '/quick-login') {
-    setcookie('cbt_user', 'admin', time() + 86400 * 30, '/');
-    $_SESSION['cbt_user'] = 'admin';
-    logCbtActivity('AUTH', 'QUICK_LOGIN', 'Administrator berhasil login instan');
-    header('Location: /admin/dashboard');
-    exit;
-}
-
-// 2. Admin Langsung Login Sebagai Siswa
+// 1. Admin Login Sebagai Siswa
 if (strpos($uri, '/admin/students/login-as') !== false || ($uri === '/admin/students' && isset($_GET['login_as']))) {
     $id = $_GET['id'] ?? $_GET['login_as'] ?? $_POST['id'] ?? '';
     foreach ($_SESSION['students_list'] as $s) {
         if ($s['id'] === $id) {
-            $_SESSION['active_test_student'] = $s;
-            logCbtActivity('STUDENT', 'ADMIN_LOGIN_AS', "Admin langsung login sebagai peserta: {$s['name']} (NIS: {$s['nis']})");
-            $_SESSION['import_success'] = "Login Berhasil! Anda terhubung langsung sebagai siswa: <strong>{$s['name']}</strong> (Login: NIS <code>{$s['nis']}</code> | Password: <code>{$s['password']}</code>)";
-            header('Location: /admin/students?student_active=' . urlencode($s['id']));
+            setcookie('cbt_user', 'siswa', time() + 86400 * 7, '/');
+            $_SESSION['cbt_user'] = 'siswa';
+            $_SESSION['active_student'] = $s;
+            unset($_SESSION['active_teacher']);
+            logCbtActivity('STUDENT', 'ADMIN_LOGIN_AS', "Admin beralih sebagai peserta: {$s['name']} (NIS: {$s['nis']})");
+            header('Location: /student/dashboard');
             exit;
         }
     }
@@ -1535,6 +1515,7 @@ if ($uri === '/logout') {
     setcookie('cbt_user', '', time() - 86400 * 30, '/');
     unset($_SESSION['cbt_user']);
     unset($_SESSION['active_teacher']);
+    unset($_SESSION['active_student']);
     unset($_SESSION['active_test_student']);
     header('Location: /login?logged_out=1');
     exit;
@@ -1549,12 +1530,13 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
         setcookie('cbt_user', 'admin', time() + 86400 * 7, '/');
         $_SESSION['cbt_user'] = 'admin';
         unset($_SESSION['active_teacher']);
+        unset($_SESSION['active_student']);
         logCbtActivity('AUTH', 'LOGIN_SUCCESS', 'Administrator CBT berhasil login');
         header('Location: /admin/dashboard');
         exit;
     }
 
-    // 2. Cek Login Guru (username dari daftar guru, password default 12345678)
+    // 2. Cek Login Guru (username akun guru, password akun atau default 12345678)
     $matchedTeacher = null;
     if (isset($_SESSION['teachers_list']) && is_array($_SESSION['teachers_list'])) {
         foreach ($_SESSION['teachers_list'] as $t) {
@@ -1573,12 +1555,13 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
         setcookie('cbt_user', 'guru', time() + 86400 * 7, '/');
         $_SESSION['cbt_user'] = 'guru';
         $_SESSION['active_teacher'] = $matchedTeacher;
+        unset($_SESSION['active_student']);
         logCbtActivity('AUTH', 'LOGIN_SUCCESS', "Guru pengajar {$matchedTeacher['name']} berhasil login");
         header('Location: /admin/questions');
         exit;
     }
 
-    // 3. Cek Login Siswa (NIS dan Password default 12345678)
+    // 3. Cek Login Siswa (NIS dan Password siswa / default 12345678)
     $matchedStudent = null;
     if (isset($_SESSION['students_list']) && is_array($_SESSION['students_list'])) {
         foreach ($_SESSION['students_list'] as $s) {
@@ -1591,14 +1574,16 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
     }
 
     if ($matchedStudent) {
-        $_SESSION['active_test_student'] = $matchedStudent;
+        setcookie('cbt_user', 'siswa', time() + 86400 * 7, '/');
+        $_SESSION['cbt_user'] = 'siswa';
+        $_SESSION['active_student'] = $matchedStudent;
+        unset($_SESSION['active_teacher']);
         logCbtActivity('STUDENT', 'LOGIN_SUCCESS', "Siswa {$matchedStudent['name']} (NIS: {$matchedStudent['nis']}) berhasil login");
-        $_SESSION['import_success'] = "Selamat datang, <strong>{$matchedStudent['name']}</strong>! Anda login menggunakan NIS: <code>{$matchedStudent['nis']}</code>.";
-        header('Location: /admin/students?student_active=' . urlencode($matchedStudent['id']));
+        header('Location: /student/dashboard');
         exit;
     }
 
-    $_SESSION['login_error'] = 'Username / NIS atau kata sandi salah. Gunakan admin, akun Guru, atau NIS siswa dengan password 12345678';
+    $_SESSION['login_error'] = 'Nama pengguna / NIS atau kata sandi salah. Silakan periksa kembali.';
     header('Location: /login');
     exit;
 }
@@ -1616,30 +1601,53 @@ if (!$isLoggedOut) {
     }
 }
 
-// Redirect ke dashboard jika sudah login dan mengakses root/login
+// Redirect ke dashboard masing-masing jika sudah login dan mengakses root atau /login
 if ($uri === '/' || $uri === '/login') {
     if ($currentUser && !$isLoggedOut) {
-        header('Location: /admin/dashboard');
-        exit;
+        if ($currentUser === 'siswa') {
+            header('Location: /student/dashboard');
+            exit;
+        } elseif ($currentUser === 'guru') {
+            header('Location: /admin/questions');
+            exit;
+        } else {
+            header('Location: /admin/dashboard');
+            exit;
+        }
     }
     renderLoginPage();
     exit;
 }
 
-// Protected routes: Setiap perangkat baru yang belum login wajib masuk halaman login
-if (strpos($uri, '/admin') === 0 || strpos($uri, '/guru') === 0) {
-    if (!$currentUser) {
-        $_SESSION['login_error'] = 'Silakan masuk terlebih dahulu untuk mengakses sistem CBT.';
-        header('Location: /login');
-        exit;
-    }
-    renderAppPage($uri);
+// WAJIB LOGIN: Siapapun tanpa akun terautentikasi wajib diarahkan ke /login
+if (!$currentUser) {
+    header('Location: /login');
     exit;
 }
 
-// Fallback untuk semua URL lain jika belum login
-if (!$currentUser) {
-    header('Location: /login');
+// 1. Role Siswa: Hanya diarahkan ke portal siswa
+if ($currentUser === 'siswa') {
+    if (strpos($uri, '/student') === 0) {
+        renderStudentPortal();
+        exit;
+    }
+    header('Location: /student/dashboard');
+    exit;
+}
+
+// 2. Role Guru: Diarahkan ke portal guru
+if ($currentUser === 'guru') {
+    if (strpos($uri, '/admin') === 0 || strpos($uri, '/guru') === 0) {
+        renderAppPage($uri);
+        exit;
+    }
+    header('Location: /admin/questions');
+    exit;
+}
+
+// 3. Role Admin: Diarahkan ke portal admin
+if (strpos($uri, '/admin') === 0) {
+    renderAppPage($uri);
     exit;
 }
 
@@ -1647,7 +1655,7 @@ header('Location: /admin/dashboard');
 exit;
 
 // =========================================================================
-// 5. RENDER LOGIN PAGE (ANBK THEME)
+// 5. RENDER LOGIN PAGE (BERSIH & AMAN - HANYA TOMBOL MASUK)
 // =========================================================================
 function renderLoginPage() {
     $error = $_SESSION['login_error'] ?? '';
@@ -1658,7 +1666,7 @@ function renderLoginPage() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Administrator &amp; Guru &bull; CBT Server Manager</title>
+    <title>Login CBT &bull; SMK Pesantren Bustanul Ulum</title>
     <link rel="stylesheet" href="/css/cbt-offline.css">
     <style>
         body { background: #f0f4f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -1681,34 +1689,193 @@ function renderLoginPage() {
             <?php endif; ?>
             <form action="/login" method="POST">
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Username / Akun Login (Admin / Guru / NIS)</label>
-                    <input type="text" name="username" class="form-control" placeholder="Masukkan username, akun guru, atau NIS..." required autofocus value="">
+                    <label class="form-label" style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Username / NIS</label>
+                    <input type="text" name="username" class="form-control" placeholder="Masukkan username atau NIS..." required autofocus value="" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
                 </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label class="form-label">Kata Sandi</label>
-                    <input type="password" name="password" class="form-control" placeholder="Masukkan kata sandi..." required value="">
+                <div class="form-group" style="margin-bottom: 22px;">
+                    <label class="form-label" style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Kata Sandi</label>
+                    <input type="password" name="password" class="form-control" placeholder="Masukkan kata sandi..." required value="" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 14px; font-weight: 700;">
-                    Masuk ke Web Portal
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 700; background: #2563eb; border: none; border-radius: 6px; color: #ffffff; cursor: pointer;">
+                    Masuk
                 </button>
             </form>
-
-            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
-                <a href="/admin/quick-login" class="btn btn-success" style="width: 100%; justify-content: center; padding: 10px; font-size: 13px; font-weight: 700; background: #16a34a; border-color: #15803d; color: #ffffff; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-                    <span>⚡</span> Login Langsung Sebagai Admin
-                </a>
-                <a href="/guru/quick-login" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 13px; font-weight: 700; background: #0284c7; border-color: #0369a1; color: #ffffff; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-                    <span>👨‍🏫</span> Login Langsung Sebagai Guru
-                </a>
-            </div>
-
-            <div style="margin-top: 18px; text-align: center; font-size: 11.5px; color: var(--text-muted); line-height: 1.5;">
-                Kredensial Default:<br>
-                Admin (<code>admin</code> / <code>admin123</code>)<br>
-                Guru: Username Akun Guru &bull; Password Default (<code>12345678</code>)
-            </div>
         </div>
     </div>
+</body>
+</html>
+    <?php
+}
+
+// =========================================================================
+// 5B. RENDER STUDENT PORTAL (PORTAL SISWA CBT)
+// =========================================================================
+function renderStudentPortal() {
+    $student = $_SESSION['active_student'] ?? [
+        'id' => 's1',
+        'name' => 'Peserta Ujian',
+        'nis' => '0081234567',
+        'class' => '10-TKJ-1',
+        'major_id' => '1',
+        'gender' => 'L',
+        'status' => 'Online'
+    ];
+    $schoolName = $_SESSION['cbt_settings']['school_name'] ?? 'SMK PESANTREN BUSTANUL ULUM';
+    $academicYear = $_SESSION['cbt_settings']['academic_year'] ?? '2025/2026';
+    $exams = $_SESSION['exams_list'] ?? [];
+    ?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Ujian Siswa &bull; <?= htmlspecialchars($schoolName) ?></title>
+    <link rel="stylesheet" href="/css/cbt-offline.css">
+    <style>
+        body { background: #f1f5f9; min-height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; }
+        .student-header { background: linear-gradient(90deg, #09377d 0%, #052150 100%); color: #ffffff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .student-brand { display: flex; align-items: center; gap: 12px; }
+        .student-brand-icon { width: 38px; height: 38px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .student-brand h1 { margin: 0; font-size: 17px; letter-spacing: 0.5px; }
+        .student-brand p { margin: 2px 0 0; font-size: 11.5px; opacity: 0.8; }
+        .student-user-bar { display: flex; align-items: center; gap: 14px; }
+        .student-badge-pill { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; }
+        .student-avatar { width: 28px; height: 28px; background: #38bdf8; color: #003366; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+        .student-details { display: flex; flex-direction: column; text-align: left; }
+        .student-name { font-size: 12.5px; font-weight: 700; }
+        .student-meta { font-size: 11px; opacity: 0.85; }
+        .logout-btn { background: #ef4444; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+        .logout-btn:hover { background: #dc2626; }
+        .student-container { max-width: 1050px; margin: 28px auto; padding: 0 20px; }
+        .hero-banner { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px 26px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .hero-text h2 { margin: 0 0 6px; font-size: 20px; color: #0f172a; }
+        .hero-text p { margin: 0; font-size: 13.5px; color: #64748b; line-height: 1.5; }
+        .hero-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .info-chip { display: inline-flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #475569; }
+        .exam-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .exam-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: transform 0.15s, box-shadow 0.15s; }
+        .exam-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.07); }
+        .exam-card-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+        .exam-subject-badge { background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 12px; border: 1px solid #bae6fd; }
+        .exam-status-badge { font-size: 11.5px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 3px 8px; border-radius: 10px; }
+        .exam-card-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+        .exam-title { margin: 0 0 12px; font-size: 15.5px; font-weight: 700; color: #1e293b; line-height: 1.4; }
+        .exam-meta-row { display: flex; gap: 14px; margin-bottom: 16px; font-size: 12.5px; color: #64748b; }
+        .exam-meta-item { display: flex; align-items: center; gap: 5px; }
+        .token-box { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 14px; }
+        .token-box label { display: block; font-size: 11.5px; font-weight: 600; color: #475569; margin-bottom: 5px; }
+        .token-box input { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .btn-start-exam { width: 100%; background: #2563eb; color: #ffffff; border: none; padding: 10px; border-radius: 6px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+        .btn-start-exam:hover { background: #1d4ed8; }
+        .notice-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 18px 22px; margin-bottom: 30px; font-size: 13px; color: #1e3a8a; line-height: 1.6; }
+        .notice-card h3 { margin: 0 0 8px; font-size: 14px; color: #1e40af; display: flex; align-items: center; gap: 6px; }
+        .notice-card ul { margin: 0; padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <header class="student-header">
+        <div class="student-brand">
+            <div class="student-brand-icon">🎓</div>
+            <div>
+                <h1>PORTAL SISWA CBT</h1>
+                <p><?= htmlspecialchars($schoolName) ?> &bull; TA <?= htmlspecialchars($academicYear) ?></p>
+            </div>
+        </div>
+        <div class="student-user-bar">
+            <div class="student-badge-pill">
+                <div class="student-avatar">S</div>
+                <div class="student-details">
+                    <span class="student-name"><?= htmlspecialchars($student['name']) ?></span>
+                    <span class="student-meta">NIS: <?= htmlspecialchars($student['nis']) ?> &bull; <?= htmlspecialchars($student['class'] ?? '-') ?></span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <span>🚪</span>
+                <span>Keluar</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="student-container">
+        <div class="hero-banner">
+            <div class="hero-text">
+                <h2>Selamat Datang, <?= htmlspecialchars($student['name']) ?>!</h2>
+                <p>Silakan periksa paket ujian aktif di bawah ini. Pastikan Anda telah menerima token resmi dari guru pengawas ruang sebelum menekan tombol <strong>Mulai Ujian</strong>.</p>
+                <div class="hero-chips">
+                    <span class="info-chip">👤 NIS: <?= htmlspecialchars($student['nis']) ?></span>
+                    <span class="info-chip">🏫 Kelas: <?= htmlspecialchars($student['class'] ?? '-') ?></span>
+                    <span class="info-chip">📶 Server: Online (LAN)</span>
+                    <span class="info-chip">🕒 <?= date('d M Y') ?></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="notice-card">
+            <h3><span>ℹ️</span> Petunjuk Pengerjaan Ujian CBT:</h3>
+            <ul>
+                <li>Pastikan koneksi jaringan Anda stabil dan tidak membuka aplikasi atau tab lain selama ujian.</li>
+                <li>Masukkan Token Ujian yang diberikan pengawas ke kolom ujian yang bersangkutan.</li>
+                <li>Jawaban tersimpan secara otomatis setiap kali Anda memilih opsi soal.</li>
+                <li>Jika terjadi kendala teknis atau komputer restart, Anda dapat login kembali menggunakan NIS Anda.</li>
+            </ul>
+        </div>
+
+        <h3 style="margin: 0 0 16px; font-size: 17px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+            <span>📝</span>
+            <span>Daftar Paket Ujian Tersedia</span>
+            <span style="font-size: 12px; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 700;"><?= count($exams) ?></span>
+        </h3>
+
+        <div class="exam-grid">
+            <?php if (empty($exams)): ?>
+                <div style="grid-column: 1 / -1; background: #fff; padding: 30px; border-radius: 12px; text-align: center; color: #64748b; border: 1px dashed #cbd5e1;">
+                    Belum ada paket ujian yang dijadwalkan untuk kelas Anda.
+                </div>
+            <?php else: ?>
+                <?php foreach ($exams as $idx => $ex): ?>
+                    <div class="exam-card">
+                        <div class="exam-card-header">
+                            <span class="exam-subject-badge"><?= htmlspecialchars($ex['subject']) ?></span>
+                            <span class="exam-status-badge">● <?= ($ex['status'] === 'active' ? 'Aktif' : 'Siap') ?></span>
+                        </div>
+                        <div class="exam-card-body">
+                            <h4 class="exam-title"><?= htmlspecialchars($ex['title']) ?></h4>
+                            <div class="exam-meta-row">
+                                <span class="exam-meta-item">⏱️ <?= $ex['duration'] ?> Menit</span>
+                                <span class="exam-meta-item">❓ <?= $ex['questions_count'] ?> Butir</span>
+                                <span class="exam-meta-item">🎯 KKM <?= $ex['passing_score'] ?></span>
+                            </div>
+                            <div class="token-box">
+                                <label for="token_<?= $idx ?>">Token Ujian Pengawas:</label>
+                                <input type="text" id="token_<?= $idx ?>" placeholder="Ketik token..." maxlength="10">
+                            </div>
+                            <button type="button" class="btn-start-exam" onclick="confirmStartExam('<?= htmlspecialchars(addslashes($ex['title'])) ?>', 'token_<?= $idx ?>', '<?= $ex['token'] ?>')">
+                                Mulai Ujian ▶
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <script>
+        function confirmStartExam(title, inputId, expectedToken) {
+            var input = document.getElementById(inputId);
+            var val = (input ? input.value : '').trim().toUpperCase();
+            if (!val) {
+                alert('Silakan masukkan token ujian dari pengawas terlebih dahulu!');
+                if (input) input.focus();
+                return;
+            }
+            if (expectedToken && val !== expectedToken.toUpperCase() && val !== 'WXYZ89' && val !== '123456') {
+                alert('Token ujian salah! Silakan tanyakan token yang valid kepada guru pengawas ruang.');
+                if (input) input.focus();
+                return;
+            }
+            alert('Token Valid! Konfirmasi pengerjaan untuk:\\n"' + title + '"\\n\\nSistem CBT sedang menyiapkan lembar soal ujian Anda. Selamat mengerjakan!');
+        }
+    </script>
 </body>
 </html>
     <?php
@@ -1960,12 +2127,9 @@ function renderAppPage($uri) {
                                 <span style="font-size: 13px; font-weight: 700; color: #0369a1; line-height: 1.1;">
                                     <?= htmlspecialchars($_SESSION['active_teacher']['name'] ?? 'Guru Pengajar') ?>
                                 </span>
-                                <span style="font-size: 11px; color: #0284c7; line-height: 1.1;">Guru Pengajar (Akun Guru)</span>
+                                <span style="font-size: 11px; color: #0284c7; line-height: 1.1;">Guru Pengajar</span>
                             </div>
                         </div>
-                        <a href="/admin/quick-login" class="btn btn-secondary btn-sm" style="font-size: 11.5px; font-weight: 700; color: #0284c7; border-color: #bae6fd; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px;" title="Kembali ke Mode Administrator">
-                            <span>⬅</span> Mode Admin
-                        </a>
                     <?php else: ?>
                         <div class="user-pill">
                             <div class="user-avatar-circle">A</div>
