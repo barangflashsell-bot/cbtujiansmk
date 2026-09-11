@@ -49,23 +49,23 @@ if (!isset($_SESSION['teachers_list'])) {
 // C. Classes List
 if (!isset($_SESSION['classes_list'])) {
     $_SESSION['classes_list'] = [
-        ['id' => 'c1', 'major_id' => 'TKJ', 'major' => 'Teknik Komputer & Jaringan', 'name' => '10-TKJ-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
-        ['id' => 'c2', 'major_id' => 'RPL', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '10-RPL-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
-        ['id' => 'c3', 'major_id' => 'TKJ', 'major' => 'Teknik Komputer & Jaringan', 'name' => '11-TKJ-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
-        ['id' => 'c4', 'major_id' => 'RPL', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '11-RPL-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
-        ['id' => 'c5', 'major_id' => 'TKJ', 'major' => 'Teknik Komputer & Jaringan', 'name' => '12-TKJ-1', 'level' => '12', 'academic_year' => '2025/2026', 'students_count' => 34, 'status' => 'active'],
+        ['id' => 'c1', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '10-TKJ-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
+        ['id' => 'c2', 'major_id' => '2', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '10-RPL-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
+        ['id' => 'c3', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '11-TKJ-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
+        ['id' => 'c4', 'major_id' => '2', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '11-RPL-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
+        ['id' => 'c5', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '12-TKJ-1', 'level' => '12', 'academic_year' => '2025/2026', 'students_count' => 34, 'status' => 'active'],
     ];
 }
 
 // D. Students List
 if (!isset($_SESSION['students_list'])) {
     $_SESSION['students_list'] = [
-        ['id' => 's1', 'nis' => '0081234567', 'nisn' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'username' => 'peserta01', 'class' => '10-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's2', 'nis' => '0081234568', 'nisn' => '0081234568', 'name' => 'Siti Aminah Zahra', 'username' => 'peserta02', 'class' => '10-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
-        ['id' => 's3', 'nis' => '0081234569', 'nisn' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'username' => 'peserta03', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's4', 'nis' => '0081234570', 'nisn' => '0081234570', 'name' => 'Dewi Lestari', 'username' => 'peserta04', 'class' => '11-TKJ-1', 'gender' => 'P', 'status' => 'Online'],
-        ['id' => 's5', 'nis' => '0081234571', 'nisn' => '0081234571', 'name' => 'Eko Prasetyo', 'username' => 'peserta05', 'class' => '12-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's6', 'nis' => '0081234572', 'nisn' => '0081234572', 'name' => 'Farhan Maulana', 'username' => 'peserta06', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's1', 'nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'username' => 'ahmad0081234567', 'password' => '12345678', 'class' => '10-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's2', 'nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'username' => 'siti0081234568', 'password' => '12345678', 'class' => '10-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's3', 'nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'username' => 'budi0081234569', 'password' => '12345678', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's4', 'nis' => '0081234570', 'name' => 'Dewi Lestari', 'username' => 'dewi0081234570', 'password' => '12345678', 'class' => '11-TKJ-1', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's5', 'nis' => '0081234571', 'name' => 'Eko Prasetyo', 'username' => 'eko0081234571', 'password' => '12345678', 'class' => '12-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's6', 'nis' => '0081234572', 'name' => 'Farhan Maulana', 'username' => 'farhan0081234572', 'password' => '12345678', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
     ];
 }
 
@@ -595,37 +595,106 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/teachers/
     exit;
 }
 
+// Helper: Buat username dari nama depan + NIS (lowercase, alphanum only)
+function getStudentUsernameFromNameNis($name, $nis) {
+    $parts = preg_split('/\s+/', trim($name));
+    $firstName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parts[0] ?? 'siswa'));
+    if (empty($firstName)) $firstName = 'siswa';
+    $cleanNis = preg_replace('/[^a-zA-Z0-9]/', '', (string)$nis);
+    return $firstName . $cleanNis;
+}
+
 // --- B. STUDENTS CRUD ---
+// 1. Quick Login Administrator
+if ($uri === '/admin/quick-login' || $uri === '/quick-login') {
+    setcookie('cbt_user', 'admin', time() + 86400 * 30, '/');
+    $_SESSION['cbt_user'] = 'admin';
+    logCbtActivity('AUTH', 'QUICK_LOGIN', 'Administrator berhasil login instan');
+    header('Location: /admin/dashboard');
+    exit;
+}
+
+// 2. Admin Langsung Login Sebagai Siswa
+if (strpos($uri, '/admin/students/login-as') !== false || ($uri === '/admin/students' && isset($_GET['login_as']))) {
+    $id = $_GET['id'] ?? $_GET['login_as'] ?? $_POST['id'] ?? '';
+    foreach ($_SESSION['students_list'] as $s) {
+        if ($s['id'] === $id) {
+            $_SESSION['active_test_student'] = $s;
+            logCbtActivity('STUDENT', 'ADMIN_LOGIN_AS', "Admin langsung login sebagai peserta: {$s['name']} (NIS: {$s['nis']})");
+            $_SESSION['import_success'] = "Login Berhasil! Anda terhubung langsung sebagai siswa: <strong>{$s['name']}</strong> (NIS: <code>{$s['nis']}</code> | Username: <code>{$s['username']}</code> | Password: <code>{$s['password']}</code>)";
+            header('Location: /admin/students?student_active=' . urlencode($s['id']));
+            exit;
+        }
+    }
+    header('Location: /admin/students');
+    exit;
+}
+
+// 3. Reset Password Peserta Tunggal ke Default 12345678
+if (strpos($uri, '/admin/students/reset-password') !== false || ($uri === '/admin/students' && isset($_GET['reset_id']))) {
+    $id = $_GET['id'] ?? $_GET['reset_id'] ?? $_POST['id'] ?? '';
+    foreach ($_SESSION['students_list'] as &$s) {
+        if ($s['id'] === $id) {
+            $s['password'] = '12345678';
+            logCbtActivity('STUDENT', 'RESET_PASSWORD', "Mereset password peserta: {$s['name']} ke default 12345678");
+            $_SESSION['import_success'] = "Password peserta \"{$s['name']}\" berhasil di-reset ke default: <strong>12345678</strong>!";
+            break;
+        }
+    }
+    header('Location: /admin/students');
+    exit;
+}
+
+// 4. Reset Semua Password Peserta ke Default 12345678
+if ($uri === '/admin/students/reset-all-passwords') {
+    foreach ($_SESSION['students_list'] as &$s) {
+        $s['password'] = '12345678';
+    }
+    unset($s);
+    logCbtActivity('STUDENT', 'RESET_ALL_PASSWORDS', 'Mereset semua password peserta ke default 12345678');
+    $_SESSION['import_success'] = "Semua password peserta (" . count($_SESSION['students_list']) . " siswa) berhasil di-reset ke default: <strong>12345678</strong>!";
+    header('Location: /admin/students');
+    exit;
+}
+
+// 5. Tambah Peserta Baru (NIS Saja, Username: NamaDepan + NIS, Password Default 12345678)
 if ($method === 'POST' && ($uri === '/admin/students/create' || $uri === '/admin/students')) {
     $name = trim($_POST['name'] ?? 'Peserta Baru');
     $nis = trim($_POST['nis'] ?? ('008' . rand(1000000, 9999999)));
-    $nisn = trim($_POST['nisn'] ?? $nis);
-    $username = trim($_POST['username'] ?? ('peserta_' . rand(10, 99)));
+    $username = getStudentUsernameFromNameNis($name, $nis);
+    $password = trim($_POST['password'] ?? '12345678');
+    if (empty($password)) $password = '12345678';
     $class = trim($_POST['class'] ?? '10-TKJ-1');
     $gender = strtoupper(trim($_POST['gender'] ?? 'L'));
     $_SESSION['students_list'][] = [
         'id' => uniqid('s_'),
         'nis' => $nis,
-        'nisn' => $nisn,
         'name' => $name,
         'username' => $username,
+        'password' => $password,
         'class' => $class,
         'gender' => $gender,
         'status' => 'Aktif',
     ];
-    logCbtActivity('STUDENT', 'CREATE_STUDENT', "Menambahkan peserta ujian: {$name} ({$class})");
-    $_SESSION['import_success'] = "Data peserta \"{$name}\" berhasil disimpan!";
+    logCbtActivity('STUDENT', 'CREATE_STUDENT', "Menambahkan peserta: {$name} ({$class})");
+    $_SESSION['import_success'] = "Data peserta \"{$name}\" berhasil disimpan! Username: <code>{$username}</code>, Password: <code>{$password}</code>";
     header('Location: /admin/students');
     exit;
 }
 
+// 6. Edit Data Peserta
 if ($method === 'POST' && $uri === '/admin/students/edit') {
     $id = $_POST['id'] ?? '';
     foreach ($_SESSION['students_list'] as &$s) {
         if ($s['id'] === $id) {
-            $s['name'] = trim($_POST['name'] ?? $s['name']);
-            $s['nis'] = trim($_POST['nis'] ?? $s['nis']);
-            $s['nisn'] = trim($_POST['nisn'] ?? $s['nisn']);
+            $name = trim($_POST['name'] ?? $s['name']);
+            $nis = trim($_POST['nis'] ?? $s['nis']);
+            $s['name'] = $name;
+            $s['nis'] = $nis;
+            $s['username'] = getStudentUsernameFromNameNis($name, $nis);
+            if (!empty($_POST['password'])) {
+                $s['password'] = trim($_POST['password']);
+            }
             $s['class'] = trim($_POST['class'] ?? $s['class']);
             $s['gender'] = strtoupper(trim($_POST['gender'] ?? $s['gender']));
             logCbtActivity('STUDENT', 'EDIT_STUDENT', "Memperbarui data peserta: {$s['name']}");
@@ -637,6 +706,7 @@ if ($method === 'POST' && $uri === '/admin/students/edit') {
     exit;
 }
 
+// 7. Hapus Peserta
 if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/students/delete') !== false || ($uri === '/admin/students' && isset($_GET['delete_id'])))) {
     $id = $_GET['id'] ?? $_GET['delete_id'] ?? $_POST['id'] ?? '';
     foreach ($_SESSION['students_list'] as $k => $s) {
@@ -656,7 +726,8 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/students/
 // --- C. CLASSES CRUD ---
 if ($method === 'POST' && ($uri === '/admin/classes/create' || $uri === '/admin/classes')) {
     $name = trim($_POST['name'] ?? 'Kelas Baru');
-    $major_id = trim($_POST['major_id'] ?? 'TKJ');
+    $rawMajorId = trim($_POST['major_id'] ?? '1');
+    $major_id = is_numeric($rawMajorId) ? (string)$rawMajorId : '1';
     $major = trim($_POST['major'] ?? 'Teknik Komputer & Jaringan');
     $_SESSION['classes_list'][] = [
         'id' => uniqid('c_'),
@@ -668,7 +739,7 @@ if ($method === 'POST' && ($uri === '/admin/classes/create' || $uri === '/admin/
         'students_count' => 36,
         'status' => 'active',
     ];
-    logCbtActivity('CLASS', 'CREATE_CLASS', "Menambahkan kelas: {$name} (Jurusan: {$major})");
+    logCbtActivity('CLASS', 'CREATE_CLASS', "Menambahkan kelas: {$name} (ID Jurusan: {$major_id})");
     $_SESSION['import_success'] = "Data kelas \"{$name}\" berhasil disimpan!";
     header('Location: /admin/classes');
     exit;
@@ -678,10 +749,11 @@ if ($method === 'POST' && $uri === '/admin/classes/edit') {
     $id = $_POST['id'] ?? '';
     foreach ($_SESSION['classes_list'] as &$c) {
         if ($c['id'] === $id) {
-            $c['major_id'] = trim($_POST['major_id'] ?? ($c['major_id'] ?? 'TKJ'));
+            $rawMajorId = trim($_POST['major_id'] ?? ($c['major_id'] ?? '1'));
+            $c['major_id'] = is_numeric($rawMajorId) ? (string)$rawMajorId : '1';
             $c['major'] = trim($_POST['major'] ?? ($c['major'] ?? 'Teknik Komputer & Jaringan'));
             $c['name'] = trim($_POST['name'] ?? $c['name']);
-            logCbtActivity('CLASS', 'EDIT_CLASS', "Memperbarui kelas: {$c['name']} (Jurusan: {$c['major_id']})");
+            logCbtActivity('CLASS', 'EDIT_CLASS', "Memperbarui data kelas: {$c['name']} (ID Jurusan: {$c['major_id']})");
             $_SESSION['import_success'] = "Perubahan data kelas \"{$c['name']}\" berhasil disimpan!";
             break;
         }
@@ -1227,7 +1299,14 @@ function renderLoginPage() {
                     Masuk ke Web Dashboard
                 </button>
             </form>
-            <div style="margin-top: 20px; text-align: center; font-size: 11.5px; color: var(--text-muted);">
+
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e2e8f0; text-align: center;">
+                <a href="/admin/quick-login" class="btn btn-success" style="width: 100%; justify-content: center; padding: 10px; font-size: 13.5px; font-weight: 700; background: #16a34a; border-color: #15803d; color: #ffffff; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                    <span>⚡</span> Login Langsung Sebagai Admin
+                </a>
+            </div>
+
+            <div style="margin-top: 18px; text-align: center; font-size: 11.5px; color: var(--text-muted);">
                 Kredensial Default: Admin (<code>admin</code> / <code>admin123</code>) &bull; Guru (<code>guru</code> / <code>guru123</code>)
             </div>
         </div>
@@ -1847,9 +1926,22 @@ function renderTeachersContent() {
 // =========================================================================
 // 9. MENU 3: DATA PESERTA / SISWA (FULL INTERACTIVE CRUD & CLASS TABS)
 // =========================================================================
+// 9. MENU 3: DATA PESERTA / SISWA (NIS ONLY, USERNAMES, PASSWORD DEFAULT 12345678, RESET PW, LOGIN SISWA)
+// =========================================================================
 function renderStudentsContent() {
     $search = strtolower(trim($_GET['search'] ?? ''));
     $currentClass = $_GET['class_id'] ?? 'all';
+
+    // Pastikan data siswa tersinkronisasi: NIS saja (tanpa NISN), username = nama depan + NIS, password default 12345678
+    foreach ($_SESSION['students_list'] as &$st) {
+        if (empty($st['password'])) {
+            $st['password'] = '12345678';
+        }
+        $st['username'] = getStudentUsernameFromNameNis($st['name'], $st['nis']);
+        unset($st['nisn']);
+    }
+    unset($st);
+
     $students = $_SESSION['students_list'];
 
     if ($currentClass !== 'all') {
@@ -1909,10 +2001,16 @@ function renderStudentsContent() {
             </div>
 
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <a href="/admin/quick-login" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; background: #16a34a; border-color: #15803d; color: #fff;" title="Login langsung sebagai Administrator">
+                    <span>⚡</span> Login Admin Langsung
+                </a>
+                <a href="/admin/students/reset-all-passwords" class="btn btn-secondary" onclick="return confirm('Apakah Anda yakin ingin me-reset SEMUA password peserta ke default 12345678?');" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fde68a; color: #b45309; background: #fffbeb;" title="Reset semua password siswa ke 12345678">
+                    <span>🔑</span> Reset Semua PW (12345678)
+                </a>
                 <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
                     <span>📊</span> Import Data Excel
                 </button>
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('createStudentCard').style.display = 'block'; window.scrollTo({top: document.getElementById('createStudentCard').offsetTop - 80, behavior: 'smooth'});">
+                <button type="button" class="btn btn-primary" onclick="toggleCreateStudentCard()" style="font-weight: 700;">
                     <span>+</span> Tambah Peserta Baru
                 </button>
             </div>
@@ -1921,41 +2019,42 @@ function renderStudentsContent() {
         <!-- CREATE STUDENT CARD (Collapsible) -->
         <div class="card" id="createStudentCard" style="display: none; border-color: var(--primary);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 class="card-title" style="margin-bottom: 0;">Tambah Akun & Data Peserta Baru</h3>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('createStudentCard').style.display = 'none';">&times; Batal</button>
+                <div>
+                    <h3 class="card-title" style="margin-bottom: 2px;">Tambah Akun &amp; Data Peserta Baru</h3>
+                    <div style="font-size: 11.5px; color: var(--text-muted);">
+                        Username otomatis dibuat dari nama depan + NIS (contoh: <code>ahmad0081234567</code>). Password default: <code>12345678</code>.
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateStudentCard()">&times; Batal</button>
             </div>
             <form action="/admin/students/create" method="POST">
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Username / Nomor Peserta *</label>
-                        <input type="text" name="username" class="form-control" placeholder="Contoh: peserta01" required>
+                        <label class="form-label" style="font-weight: 700;">Nama Lengkap Siswa *</label>
+                        <input type="text" name="name" id="new_student_name" class="form-control" placeholder="Contoh: Ahmad Dhani Prasetya" oninput="updateNewStudentUsernamePreview()" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Nama Lengkap Siswa *</label>
-                        <input type="text" name="name" class="form-control" placeholder="Contoh: Ahmad Dhani" required>
+                        <label class="form-label" style="font-weight: 700;">NIS (Nomor Induk Siswa) *</label>
+                        <input type="text" name="nis" id="new_student_nis" class="form-control" placeholder="Contoh: 0081234567" oninput="updateNewStudentUsernamePreview()" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Password Login *</label>
-                        <input type="password" name="password" class="form-control" placeholder="Min. 6 karakter" required>
+                        <label class="form-label" style="font-weight: 700;">Username Otomatis</label>
+                        <input type="text" id="new_student_username_preview" class="form-control" style="background: #f8fafc; font-family: monospace; font-weight: 700; color: #0284c7;" value="ahmad0081234567" readonly>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Kelas / Rombel *</label>
+                        <label class="form-label" style="font-weight: 700;">Kelas / Rombel *</label>
                         <select name="class" class="form-select" required>
                             <?php foreach ($_SESSION['classes_list'] as $c): ?>
-                                <option value="<?= htmlspecialchars($c['name']) ?>"><?= htmlspecialchars($c['name']) ?> (Tingkat <?= htmlspecialchars($c['level']) ?>)</option>
+                                <option value="<?= htmlspecialchars($c['name']) ?>"><?= htmlspecialchars($c['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">NIS (Nomor Induk Siswa) *</label>
-                        <input type="text" name="nis" class="form-control" placeholder="10 Digit NIS" required>
+                        <label class="form-label" style="font-weight: 700;">Password Login (Default 12345678) *</label>
+                        <input type="text" name="password" class="form-control" value="12345678" style="font-family: monospace; font-weight: 700; color: #15803d;" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">NISN (Opsional)</label>
-                        <input type="text" name="nisn" class="form-control" placeholder="10 Digit NISN">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Jenis Kelamin *</label>
+                        <label class="form-label" style="font-weight: 700;">Jenis Kelamin *</label>
                         <select name="gender" class="form-select" required>
                             <option value="L">Laki-laki (L)</option>
                             <option value="P">Perempuan (P)</option>
@@ -1963,31 +2062,32 @@ function renderStudentsContent() {
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('createStudentCard').style.display = 'none';">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan Data Peserta</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleCreateStudentCard()">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Data Peserta</button>
                 </div>
             </form>
         </div>
 
         <!-- STUDENTS TABLE -->
-        <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">No</th>
-                            <th>NIS / NISN</th>
+                            <th style="width: 45px; text-align: center;">No</th>
+                            <th style="width: 130px;">NIS</th>
                             <th>Nama Lengkap Peserta</th>
-                            <th>Kelas</th>
-                            <th>Username Akun</th>
-                            <th>Jenis Kelamin</th>
-                            <th style="width: 150px; text-align: center;">Aksi</th>
+                            <th style="width: 110px;">Kelas</th>
+                            <th>Username (Nama Depan + NIS)</th>
+                            <th style="width: 120px; text-align: center;">Password</th>
+                            <th style="width: 50px; text-align: center;">L/P</th>
+                            <th style="width: 260px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($students)): ?>
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">👥</div>
                                         <p>Tidak ada peserta yang cocok dengan filter yang dipilih.</p>
@@ -1997,21 +2097,60 @@ function renderStudentsContent() {
                         <?php else: ?>
                             <?php foreach ($students as $idx => $s): ?>
                                 <tr>
-                                    <td><?= $idx + 1 ?></td>
+                                    <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td>
-                                        <code><?= htmlspecialchars($s['nis']) ?></code><br>
-                                        <span style="font-size: 11px; color: var(--text-muted);"><?= htmlspecialchars($s['nisn'] ?? $s['nis']) ?></span>
+                                        <code style="font-size: 13px; font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($s['nis']) ?></code>
                                     </td>
-                                    <td><strong><?= htmlspecialchars($s['name']) ?></strong></td>
-                                    <td><span class="badge badge-primary"><?= htmlspecialchars($s['class']) ?></span></td>
-                                    <td><code><?= htmlspecialchars($s['username']) ?></code></td>
-                                    <td><?= ($s['gender'] ?? 'L') === 'L' ? 'Laki-laki' : 'Perempuan' ?></td>
+                                    <td>
+                                        <div style="font-weight: 700; color: var(--text-primary);"><?= htmlspecialchars($s['name']) ?></div>
+                                    </td>
+                                    <td><span class="badge badge-primary" style="font-weight: 700;"><?= htmlspecialchars($s['class']) ?></span></td>
+                                    <td>
+                                        <code style="font-size: 12.5px; color: #0369a1; background: #e0f2fe; padding: 3px 8px; border-radius: 4px; font-weight: 700;">
+                                            <?= htmlspecialchars($s['username']) ?>
+                                        </code>
+                                    </td>
                                     <td style="text-align: center;">
-                                        <div class="action-btns">
-                                            <button type="button" class="btn btn-secondary btn-sm" onclick="openEditStudent('<?= htmlspecialchars($s['id']) ?>', '<?= htmlspecialchars(addslashes($s['name'])) ?>', '<?= htmlspecialchars(addslashes($s['nis'])) ?>', '<?= htmlspecialchars(addslashes($s['nisn'] ?? $s['nis'])) ?>', '<?= htmlspecialchars(addslashes($s['class'])) ?>', '<?= htmlspecialchars($s['gender'] ?? 'L') ?>')">
+                                        <code style="font-size: 12.5px; font-weight: 800; color: #15803d; background: #f0fdf4; padding: 3px 8px; border-radius: 4px; border: 1px solid #bbf7d0;">
+                                            <?= htmlspecialchars($s['password'] ?? '12345678') ?>
+                                        </code>
+                                    </td>
+                                    <td style="text-align: center; font-weight: 700;"><?= ($s['gender'] ?? 'L') === 'L' ? 'L' : 'P' ?></td>
+                                    <td style="text-align: center;">
+                                        <div class="action-btns" style="justify-content: center; gap: 4px;">
+                                            <a 
+                                                href="/admin/students/login-as?id=<?= urlencode($s['id']) ?>" 
+                                                class="btn btn-primary btn-sm" 
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px;"
+                                                title="Login langsung sebagai siswa ini"
+                                            >
+                                                <span>🚀</span> Login Siswa
+                                            </a>
+                                            <a 
+                                                href="/admin/students/reset-password?id=<?= urlencode($s['id']) ?>" 
+                                                class="btn btn-secondary btn-sm" 
+                                                onclick="return confirm('Reset password peserta <?= htmlspecialchars(addslashes($s['name'])) ?> ke default 12345678?');"
+                                                style="padding: 4px 8px; font-size: 11.5px; font-weight: 700; color: #b45309; border-color: #fde68a; background: #fffbeb;"
+                                                title="Reset password ke default 12345678"
+                                            >
+                                                <span>🔑</span> Reset PW
+                                            </a>
+                                            <button 
+                                                type="button" 
+                                                class="btn btn-secondary btn-sm" 
+                                                onclick="openEditStudent('<?= htmlspecialchars($s['id']) ?>', '<?= htmlspecialchars(addslashes($s['name'])) ?>', '<?= htmlspecialchars(addslashes($s['nis'])) ?>', '<?= htmlspecialchars(addslashes($s['class'])) ?>', '<?= htmlspecialchars($s['gender'] ?? 'L') ?>', '<?= htmlspecialchars(addslashes($s['password'] ?? '12345678')) ?>')"
+                                                style="padding: 4px 8px; font-size: 11.5px;"
+                                                title="Edit Peserta"
+                                            >
                                                 Edit
                                             </button>
-                                            <a href="/admin/students/delete?id=<?= urlencode($s['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data peserta <?= htmlspecialchars(addslashes($s['name'])) ?>?');">
+                                            <a 
+                                                href="/admin/students/delete?id=<?= urlencode($s['id']) ?>" 
+                                                class="btn btn-danger btn-sm" 
+                                                onclick="return confirm('Apakah Anda yakin ingin menghapus data peserta <?= htmlspecialchars(addslashes($s['name'])) ?>?');"
+                                                style="padding: 4px 8px; font-size: 11.5px;"
+                                                title="Hapus Peserta"
+                                            >
                                                 Hapus
                                             </a>
                                         </div>
@@ -2026,48 +2165,56 @@ function renderStudentsContent() {
     </div>
 
     <!-- EDIT STUDENT MODAL -->
-    <div class="modal-overlay" id="editStudentModal">
-        <div class="modal-content-card" style="max-width: 520px;">
-            <div class="modal-header">
-                <h3 class="modal-title" style="margin: 0;">Edit Data Peserta</h3>
+    <div class="modal-overlay" id="editStudentModal" style="align-items: center; justify-content: center;">
+        <div class="modal-content-card" style="max-width: 500px; border-radius: 12px;">
+            <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid var(--border-color); padding: 16px 20px;">
+                <h3 class="modal-title" style="margin: 0; font-size: 1.15rem; font-weight: 800;">Edit Data Peserta</h3>
                 <button type="button" class="modal-close-btn" onclick="document.getElementById('editStudentModal').classList.remove('open')">&times;</button>
             </div>
-            <form action="/admin/students/edit" method="POST">
+            <form action="/admin/students/edit" method="POST" style="padding: 20px;">
                 <input type="hidden" name="id" id="edit_student_id">
-                <div style="margin-bottom: 12px;">
-                    <label class="form-label">Nama Lengkap Siswa *</label>
-                    <input type="text" name="name" id="edit_student_name" class="form-control" required>
+                
+                <div style="margin-bottom: 14px;">
+                    <label class="form-label" style="font-weight: 700;">Nama Lengkap Siswa *</label>
+                    <input type="text" name="name" id="edit_student_name" class="form-control" oninput="updateEditStudentUsernamePreview()" required>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                    <div>
-                        <label class="form-label">NIS *</label>
-                        <input type="text" name="nis" id="edit_student_nis" class="form-control" required>
-                    </div>
-                    <div>
-                        <label class="form-label">NISN</label>
-                        <input type="text" name="nisn" id="edit_student_nisn" class="form-control">
-                    </div>
+                
+                <div style="margin-bottom: 14px;">
+                    <label class="form-label" style="font-weight: 700;">NIS (Nomor Induk Siswa) *</label>
+                    <input type="text" name="nis" id="edit_student_nis" class="form-control" oninput="updateEditStudentUsernamePreview()" required>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
-                    <div>
-                        <label class="form-label">Kelas</label>
+
+                <div style="margin-bottom: 14px;">
+                    <label class="form-label" style="font-weight: 700;">Username Terhitung (Nama Depan + NIS)</label>
+                    <input type="text" id="edit_student_username_preview" class="form-control" style="background: #f8fafc; font-family: monospace; font-weight: 700; color: #0284c7;" readonly>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 14px;">
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700;">Kelas / Rombel</label>
                         <select name="class" id="edit_student_class" class="form-select">
                             <?php foreach ($_SESSION['classes_list'] as $c): ?>
                                 <option value="<?= htmlspecialchars($c['name']) ?>"><?= htmlspecialchars($c['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div>
-                        <label class="form-label">Jenis Kelamin</label>
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700;">Jenis Kelamin</label>
                         <select name="gender" id="edit_student_gender" class="form-select">
                             <option value="L">Laki-laki (L)</option>
                             <option value="P">Perempuan (P)</option>
                         </select>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+
+                <div style="margin-bottom: 18px;">
+                    <label class="form-label" style="font-weight: 700;">Password Peserta (Default: 12345678) *</label>
+                    <input type="text" name="password" id="edit_student_password" class="form-control" style="font-family: monospace; font-weight: 700; color: #15803d;" required>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('editStudentModal').classList.remove('open')">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -2077,13 +2224,42 @@ function renderStudentsContent() {
     <?php renderImportModalGeneric('/admin/students/import', '/admin/students/template', 'Peserta', 'template_siswa'); ?>
 
     <script>
-        function openEditStudent(id, name, nis, nisn, className, gender) {
+        function toggleCreateStudentCard() {
+            var c = document.getElementById('createStudentCard');
+            if (c) {
+                if (c.style.display === 'none' || c.style.display === '') {
+                    c.style.display = 'block';
+                    window.scrollTo({ top: c.offsetTop - 80, behavior: 'smooth' });
+                } else {
+                    c.style.display = 'none';
+                }
+            }
+        }
+
+        function updateNewStudentUsernamePreview() {
+            var name = document.getElementById('new_student_name').value || 'siswa';
+            var nis = document.getElementById('new_student_nis').value || '';
+            var first = name.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+            var cleanNis = nis.replace(/[^a-z0-9]/gi, '');
+            document.getElementById('new_student_username_preview').value = (first || 'siswa') + cleanNis;
+        }
+
+        function updateEditStudentUsernamePreview() {
+            var name = document.getElementById('edit_student_name').value || 'siswa';
+            var nis = document.getElementById('edit_student_nis').value || '';
+            var first = name.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+            var cleanNis = nis.replace(/[^a-z0-9]/gi, '');
+            document.getElementById('edit_student_username_preview').value = (first || 'siswa') + cleanNis;
+        }
+
+        function openEditStudent(id, name, nis, className, gender, password) {
             document.getElementById('edit_student_id').value = id;
             document.getElementById('edit_student_name').value = name;
             document.getElementById('edit_student_nis').value = nis;
-            document.getElementById('edit_student_nisn').value = nisn;
             document.getElementById('edit_student_class').value = className;
             document.getElementById('edit_student_gender').value = gender;
+            document.getElementById('edit_student_password').value = password || '12345678';
+            updateEditStudentUsernamePreview();
             document.getElementById('editStudentModal').classList.add('open');
         }
     </script>
@@ -2091,34 +2267,39 @@ function renderStudentsContent() {
 }
 
 // =========================================================================
-// 10. MENU 4: DATA KELAS
+// 10. MENU 4: DATA KELAS (ID JURUSAN ANGKA, NAMA KELAS, EDIT)
 // =========================================================================
 function renderClassesContent() {
     $search = strtolower(trim($_GET['search'] ?? ''));
     $classes = $_SESSION['classes_list'] ?? [];
 
-    // Pastikan ID jurusan dan nama jurusan terisi
+    // Pastikan ID jurusan berupa angka (1, 2, 3, dst.)
+    $majorNumberMap = [
+        'TKJ' => '1',
+        'RPL' => '2',
+        'AKL' => '3',
+        'AK' => '3',
+        'TBSM' => '4',
+        'OTKP' => '5',
+    ];
+
     foreach ($classes as &$c) {
-        if (empty($c['major_id'])) {
-            if (str_contains(strtoupper($c['name']), 'TKJ')) {
-                $c['major_id'] = 'TKJ';
-                $c['major'] = 'Teknik Komputer & Jaringan';
-            } elseif (str_contains(strtoupper($c['name']), 'RPL')) {
-                $c['major_id'] = 'RPL';
-                $c['major'] = 'Rekayasa Perangkat Lunak';
-            } elseif (str_contains(strtoupper($c['name']), 'AK')) {
-                $c['major_id'] = 'AKL';
-                $c['major'] = 'Akuntansi & Keuangan Lembaga';
+        if (empty($c['major_id']) || !is_numeric($c['major_id'])) {
+            $code = strtoupper($c['major_id'] ?? '');
+            if (empty($code) || !isset($majorNumberMap[$code])) {
+                if (str_contains(strtoupper($c['name']), 'TKJ')) $c['major_id'] = '1';
+                elseif (str_contains(strtoupper($c['name']), 'RPL')) $c['major_id'] = '2';
+                elseif (str_contains(strtoupper($c['name']), 'AK')) $c['major_id'] = '3';
+                else $c['major_id'] = '1';
             } else {
-                $c['major_id'] = 'TKJ';
-                $c['major'] = 'Teknik Komputer & Jaringan';
+                $c['major_id'] = $majorNumberMap[$code];
             }
         }
         if (empty($c['major'])) {
-            if ($c['major_id'] === 'TKJ') $c['major'] = 'Teknik Komputer & Jaringan';
-            elseif ($c['major_id'] === 'RPL') $c['major'] = 'Rekayasa Perangkat Lunak';
-            elseif ($c['major_id'] === 'AKL') $c['major'] = 'Akuntansi & Keuangan Lembaga';
-            else $c['major'] = $c['major_id'];
+            if ($c['major_id'] == '1') $c['major'] = 'Teknik Komputer & Jaringan';
+            elseif ($c['major_id'] == '2') $c['major'] = 'Rekayasa Perangkat Lunak';
+            elseif ($c['major_id'] == '3') $c['major'] = 'Akuntansi & Keuangan Lembaga';
+            else $c['major'] = 'Teknik Komputer & Jaringan';
         }
     }
     unset($c);
@@ -2127,7 +2308,7 @@ function renderClassesContent() {
     if ($search !== '') {
         $classes = array_filter($classes, function($c) use ($search) {
             return str_contains(strtolower($c['name']), $search) 
-                || str_contains(strtolower($c['major_id'] ?? ''), $search)
+                || str_contains(strtolower((string)($c['major_id'] ?? '')), $search)
                 || str_contains(strtolower($c['major'] ?? ''), $search);
         });
     }
@@ -2138,7 +2319,7 @@ function renderClassesContent() {
             <div>
                 <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Data Kelas</h1>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Kelola ID jurusan dan nama kelas rombel.
+                    Kelola ID jurusan (angka) dan nama kelas rombel.
                 </p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
@@ -2152,7 +2333,7 @@ function renderClassesContent() {
         <div class="action-bar">
             <div class="filter-group">
                 <form action="/admin/classes" method="GET" style="display: flex; gap: 8px; align-items: center;">
-                    <input type="text" name="search" class="form-control" placeholder="Cari ID jurusan / nama kelas..." value="<?= htmlspecialchars($search) ?>" style="max-width: 280px;">
+                    <input type="text" name="search" class="form-control" placeholder="Cari nomor ID jurusan / nama kelas..." value="<?= htmlspecialchars($search) ?>" style="max-width: 280px;">
                     <button type="submit" class="btn btn-secondary">Cari</button>
                     <?php if ($search !== ''): ?>
                         <a href="/admin/classes" class="btn btn-secondary">Reset</a>
@@ -2173,8 +2354,8 @@ function renderClassesContent() {
             <form action="/admin/classes/create" method="POST">
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label" style="font-weight: 700;">ID Jurusan *</label>
-                        <input type="text" name="major_id" class="form-control" placeholder="Contoh: TKJ, RPL, AKL" required>
+                        <label class="form-label" style="font-weight: 700;">ID Jurusan (Angka) *</label>
+                        <input type="number" min="1" step="1" name="major_id" class="form-control" placeholder="Contoh: 1 (TKJ), 2 (RPL)" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" style="font-weight: 700;">Jurusan *</label>
@@ -2199,7 +2380,7 @@ function renderClassesContent() {
                     <thead>
                         <tr>
                             <th style="width: 50px; text-align: center;">No</th>
-                            <th style="width: 140px;">ID Jurusan</th>
+                            <th style="width: 140px; text-align: center;">ID Jurusan (Angka)</th>
                             <th>Jurusan</th>
                             <th>Nama Kelas</th>
                             <th style="width: 100px; text-align: center;">Aksi</th>
@@ -2219,9 +2400,9 @@ function renderClassesContent() {
                             <?php foreach ($classes as $idx => $c): ?>
                                 <tr>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
-                                    <td>
-                                        <span class="badge badge-primary" style="font-family: monospace; font-size: 12px; font-weight: 700; padding: 4px 8px;">
-                                            <?= htmlspecialchars($c['major_id'] ?? 'TKJ') ?>
+                                    <td style="text-align: center;">
+                                        <span class="badge badge-primary" style="font-family: monospace; font-size: 14px; font-weight: 800; padding: 4px 12px; min-width: 32px; display: inline-block;">
+                                            <?= htmlspecialchars($c['major_id'] ?? '1') ?>
                                         </span>
                                     </td>
                                     <td>
@@ -2238,7 +2419,7 @@ function renderClassesContent() {
                                         <button 
                                             type="button" 
                                             class="btn btn-secondary btn-sm" 
-                                            onclick="openEditClass('<?= htmlspecialchars($c['id']) ?>', '<?= htmlspecialchars(addslashes($c['major_id'] ?? 'TKJ')) ?>', '<?= htmlspecialchars(addslashes($c['major'] ?? 'Teknik Komputer & Jaringan')) ?>', '<?= htmlspecialchars(addslashes($c['name'])) ?>')"
+                                            onclick="openEditClass('<?= htmlspecialchars($c['id']) ?>', '<?= htmlspecialchars(addslashes($c['major_id'] ?? '1')) ?>', '<?= htmlspecialchars(addslashes($c['major'] ?? 'Teknik Komputer & Jaringan')) ?>', '<?= htmlspecialchars(addslashes($c['name'])) ?>')"
                                             style="padding: 5px 14px; font-weight: 600;"
                                         >
                                             Edit
@@ -2264,8 +2445,8 @@ function renderClassesContent() {
                 <input type="hidden" name="id" id="edit_class_id">
                 
                 <div style="margin-bottom: 14px;">
-                    <label class="form-label" style="font-weight: 700;">ID Jurusan *</label>
-                    <input type="text" name="major_id" id="edit_class_major_id" class="form-control" placeholder="Contoh: TKJ, RPL, AKL" required>
+                    <label class="form-label" style="font-weight: 700;">ID Jurusan (Angka) *</label>
+                    <input type="number" min="1" step="1" name="major_id" id="edit_class_major_id" class="form-control" placeholder="Contoh: 1, 2, 3" required>
                 </div>
                 
                 <div style="margin-bottom: 14px;">
