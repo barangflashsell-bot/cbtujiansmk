@@ -286,38 +286,33 @@ class WebQuestionController extends Controller
     }
 
     /**
-     * Download Excel or CSV template for question import.
+     * Download Excel or CSV template for question import (Format Gambar 4).
      */
     public function downloadTemplate(Request $request)
     {
         $headers = [
-            'No',
-            'Mata Pelajaran',
-            'Tipe Soal',
-            'Pertanyaan',
-            'Opsi A',
-            'Opsi B',
-            'Opsi C',
-            'Opsi D',
-            'Opsi E',
-            'Kunci Jawaban',
-            'Bobot',
-            'Tingkat Kesulitan',
+            'NO',
+            'Soal/Pertanyaan',
+            'Jenis ( 1=PG, 2=Essai)',
+            'Jawaban A',
+            'Jawaban B',
+            'Jawaban C',
+            'Jawaban D',
+            'Jawaban E',
+            'Kunci Jawaban (A/B/C/D/E)',
         ];
 
         $sampleRows = [
-            ['1', 'Matematika', 'single_choice', 'Berapakah hasil perhitungan dari 15 + 25?', '30', '35', '40', '45', '50', 'C', '20', 'easy'],
-            ['2', 'Bahasa Indonesia', 'single_choice', 'Ide pokok dalam sebuah paragraf biasanya terletak pada kalimat...', 'Utama', 'Penjelas', 'Pengembang', 'Terakhir', 'Pendukung', 'A', '20', 'medium'],
-            ['3', 'Pemrograman Dasar', 'multiple_choice', 'Manakah di bawah ini yang merupakan tipe data bilangan bulat?', 'Integer', 'Float', 'Long', 'Boolean', 'Double', 'A,C', '20', 'medium'],
-            ['4', 'Matematika', 'essay', 'Tuliskan rumus keliling lingkaran dan jelaskan simbol-simbolnya!', '', '', '', '', '', 'K = 2 x pi x r', '20', 'medium'],
+            ['1', 'Berapakah hasil perhitungan dari 25 x 4?', '1', '50', '75', '100', '125', '150', 'C'],
+            ['2', 'Jelaskan fungsi sistem komputer dan sebutkan komponen utamanya!', '2', '', '', '', '', '', ''],
         ];
-        $colWidths = [40, 140, 110, 280, 120, 120, 120, 120, 120, 110, 80, 110];
+        $colWidths = [45, 360, 160, 130, 130, 130, 130, 130, 180];
 
         if ($request->query('format') === 'csv') {
-            return $this->streamCsvTemplate('template_bank_soal.csv', $headers, $sampleRows);
+            return $this->streamCsvTemplate('format_import_soal.csv', $headers, $sampleRows);
         }
 
-        return $this->streamExcelTemplate('template_bank_soal.xls', $headers, $sampleRows, $colWidths);
+        return $this->streamExcelTemplate('format_import_soal.xls', $headers, $sampleRows, $colWidths);
     }
 
     /**
@@ -369,21 +364,21 @@ class WebQuestionController extends Controller
             $clean = strtolower(trim((string) preg_replace('/[^a-zA-Z0-9]/', '', $header)));
             if (in_array($clean, ['matapelajaran', 'mapel', 'subject', 'subjectname'])) {
                 $map['subject'] = $idx;
-            } elseif (in_array($clean, ['tipesoal', 'tipe', 'type', 'questiontype'])) {
+            } elseif (in_array($clean, ['tipesoal', 'tipe', 'type', 'questiontype', 'jenis', 'jenis1pg2essai', 'jenissoal'])) {
                 $map['type'] = $idx;
-            } elseif (in_array($clean, ['pertanyaan', 'butirsoal', 'soal', 'content', 'question', 'isi'])) {
+            } elseif (in_array($clean, ['pertanyaan', 'butirsoal', 'soal', 'content', 'question', 'isi', 'soalpertanyaan'])) {
                 $map['content'] = $idx;
-            } elseif (in_array($clean, ['opsia', 'pilihana', 'a', 'optiona'])) {
+            } elseif (in_array($clean, ['opsia', 'pilihana', 'a', 'optiona', 'jawabana'])) {
                 $map['opsi_a'] = $idx;
-            } elseif (in_array($clean, ['opsib', 'pilihanb', 'b', 'optionb'])) {
+            } elseif (in_array($clean, ['opsib', 'pilihanb', 'b', 'optionb', 'jawabanb'])) {
                 $map['opsi_b'] = $idx;
-            } elseif (in_array($clean, ['opsic', 'pilihanc', 'c', 'optionc'])) {
+            } elseif (in_array($clean, ['opsic', 'pilihanc', 'c', 'optionc', 'jawabanc'])) {
                 $map['opsi_c'] = $idx;
-            } elseif (in_array($clean, ['opsid', 'pilihand', 'd', 'optiond'])) {
+            } elseif (in_array($clean, ['opsid', 'pilihand', 'd', 'optiond', 'jawaband'])) {
                 $map['opsi_d'] = $idx;
-            } elseif (in_array($clean, ['opsie', 'pilihane', 'e', 'optione'])) {
+            } elseif (in_array($clean, ['opsie', 'pilihane', 'e', 'optione', 'jawabane'])) {
                 $map['opsi_e'] = $idx;
-            } elseif (in_array($clean, ['kuncijawaban', 'kunci', 'jawaban', 'correct', 'answer', 'key'])) {
+            } elseif (in_array($clean, ['kuncijawaban', 'kunci', 'jawaban', 'correct', 'answer', 'key', 'kuncijawabanabcde'])) {
                 $map['correct'] = $idx;
             } elseif (in_array($clean, ['bobot', 'bobotnilai', 'skor', 'nilai', 'weight', 'scoreweight'])) {
                 $map['weight'] = $idx;
@@ -392,8 +387,20 @@ class WebQuestionController extends Controller
             }
         }
 
+        // Positional fallback for exact Gambar 4 format: [NO, Soal, Jenis, Opsi A, B, C, D, E, Kunci]
+        if (! isset($map['content']) && count($headerRow) >= 9) {
+            $map['content'] = 1;
+            $map['type'] = 2;
+            $map['opsi_a'] = 3;
+            $map['opsi_b'] = 4;
+            $map['opsi_c'] = 5;
+            $map['opsi_d'] = 6;
+            $map['opsi_e'] = 7;
+            $map['correct'] = 8;
+        }
+
         if (! isset($map['content'])) {
-            return back()->with('error', 'Format kolom file tidak sesuai. Pastikan terdapat kolom "Pertanyaan" / "Butir Soal".');
+            return back()->with('error', 'Format kolom file tidak sesuai. Pastikan terdapat kolom "Soal/Pertanyaan".');
         }
 
         $defaultSubjectId = $request->input('default_subject_id');
@@ -451,9 +458,9 @@ class WebQuestionController extends Controller
                     continue;
                 }
 
-                // Determine question type
+                // Determine question type (1 = PG, 2 = Essai)
                 $rawType = isset($map['type']) ? strtolower(trim((string) ($row[$map['type']] ?? ''))) : 'single_choice';
-                if (str_contains($rawType, 'essay') || str_contains($rawType, 'uraian')) {
+                if ($rawType === '2' || str_contains($rawType, 'essay') || str_contains($rawType, 'essai') || str_contains($rawType, 'uraian')) {
                     $questionType = 'essay';
                 } elseif (str_contains($rawType, 'multiple') || str_contains($rawType, 'majemuk') || str_contains($rawType, 'kompleks')) {
                     $questionType = 'multiple_choice';
