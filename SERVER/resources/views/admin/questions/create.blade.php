@@ -21,7 +21,7 @@
                 <select name="subject_id" id="subject_id" class="form-select @error('subject_id') is-invalid @enderror" required>
                     <option value="">-- Pilih Mata Pelajaran --</option>
                     @foreach($subjects as $sb)
-                        <option value="{{ $sb->id }}" {{ old('subject_id') == $sb->id ? 'selected' : '' }}>
+                        <option value="{{ $sb->id }}" {{ (old('subject_id', request('subject_id')) == $sb->id) ? 'selected' : '' }}>
                             {{ $sb->name }} ({{ $sb->code }})
                         </option>
                     @endforeach

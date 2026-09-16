@@ -47,7 +47,25 @@ class WebQuestionController extends Controller
         }
 
         $questions = $query->paginate(15)->withQueryString();
-        $subjects = Subject::where('status', 'active')->orderBy('name')->get();
+
+        $subjectsQuery = Subject::where('status', 'active');
+        if ($userRole !== 'admin') {
+            $subjectsQuery->withCount(['questions' => function ($q) use ($teacher) {
+                $q->where('created_by', $teacher?->id ?? 0);
+            }]);
+        } else {
+            $subjectsQuery->withCount('questions');
+        }
+
+        if ($request->filled('search_subject')) {
+            $searchSubject = $request->query('search_subject');
+            $subjectsQuery->where(function ($q) use ($searchSubject) {
+                $q->where('name', 'like', "%{$searchSubject}%")
+                  ->orWhere('code', 'like', "%{$searchSubject}%");
+            });
+        }
+
+        $subjects = $subjectsQuery->orderBy('name')->get();
 
         $viewName = ($userRole === 'admin') ? 'admin.questions.index' : 'guru.questions.index';
 

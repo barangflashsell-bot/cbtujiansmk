@@ -23,8 +23,13 @@ class ExamRepository {
     final url = '${ApiConfig.baseUrl}/api/v1/exams';
 
     final json = await _networkClient.getJson(url, token: token);
-    final data = json['data'] as Map<String, dynamic>;
-    final items = (data['items'] as List<dynamic>?) ?? [];
+    List<dynamic> items = [];
+    if (json['data'] is Map<String, dynamic>) {
+      final data = json['data'] as Map<String, dynamic>;
+      items = (data['items'] as List<dynamic>?) ?? [];
+    } else if (json['data'] is List) {
+      items = json['data'] as List<dynamic>;
+    }
 
     return items
         .map((e) => ExamListItem.fromJson(e as Map<String, dynamic>))

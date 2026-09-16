@@ -29,14 +29,14 @@ class HealthResponse {
 
     final status = data['status'] as String?;
     final apiVersion = data['api_version'] as String?;
-    final timestamp = data['timestamp'] as String?;
+    final timestamp = (data['timestamp'] as String?) ?? (data['server_time'] as String?);
 
     if (status == null || apiVersion == null || timestamp == null) {
       throw const InvalidResponseException('Properti status, api_version, atau timestamp hilang');
     }
 
     return HealthResponse(
-      success: json['success'] as bool,
+      success: json['success'] == true,
       message: (json['message'] as String?) ?? 'Healthy',
       status: status,
       apiVersion: apiVersion,
@@ -44,5 +44,8 @@ class HealthResponse {
     );
   }
 
-  bool get isHealthy => status.toLowerCase() == 'healthy';
+  bool get isHealthy =>
+      status.toLowerCase() == 'healthy' ||
+      status.toLowerCase() == 'online' ||
+      status.toLowerCase() == 'ok';
 }

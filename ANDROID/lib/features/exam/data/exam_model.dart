@@ -26,16 +26,27 @@ class ExamListItem {
 
   factory ExamListItem.fromJson(Map<String, dynamic> json) {
     final subject = json['subject'] as Map<String, dynamic>?;
+    final parsedId = json['id'] is num
+        ? (json['id'] as num).toInt()
+        : (int.tryParse(json['id']?.toString() ?? '1') ?? 1);
+    final duration = json['duration_minutes'] ?? json['duration'];
+    final parsedDuration = duration is num
+        ? (duration as num).toInt()
+        : (int.tryParse(duration?.toString() ?? '60') ?? 60);
+    final questionsCount = json['questions_count'] is num
+        ? (json['questions_count'] as num).toInt()
+        : (int.tryParse(json['questions_count']?.toString() ?? '0') ?? 0);
+
     return ExamListItem(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      description: json['description'] as String?,
-      instructions: json['instructions'] as String?,
-      durationMinutes: (json['duration_minutes'] as int?) ?? 60,
-      questionsCount: (json['questions_count'] as int?) ?? 0,
-      status: json['status'] as String? ?? 'active',
-      subjectName: subject?['name'] as String?,
-      subjectCode: subject?['code'] as String?,
+      id: parsedId,
+      title: json['title']?.toString() ?? 'Ujian CBT',
+      description: json['description']?.toString(),
+      instructions: json['instructions']?.toString(),
+      durationMinutes: parsedDuration,
+      questionsCount: questionsCount,
+      status: json['status']?.toString() ?? 'active',
+      subjectName: subject?['name']?.toString() ?? json['subject']?.toString(),
+      subjectCode: subject?['code']?.toString(),
       hasToken: json['token'] != null && json['token'].toString().isNotEmpty,
     );
   }
@@ -54,10 +65,13 @@ class QuestionOptionItem {
   });
 
   factory QuestionOptionItem.fromJson(Map<String, dynamic> json) {
+    final parsedId = json['id'] is num
+        ? (json['id'] as num).toInt()
+        : (int.tryParse(json['id']?.toString() ?? '0') ?? 0);
     return QuestionOptionItem(
-      id: json['id'] as int,
-      label: json['label'] as String,
-      content: json['content'] as String,
+      id: parsedId,
+      label: json['label']?.toString() ?? '',
+      content: json['content']?.toString() ?? '',
     );
   }
 
@@ -90,13 +104,23 @@ class ExamQuestionItem {
 
   factory ExamQuestionItem.fromJson(Map<String, dynamic> json) {
     final rawOptions = (json['options'] as List<dynamic>?) ?? [];
+    final parsedId = json['id'] is num
+        ? (json['id'] as num).toInt()
+        : (int.tryParse(json['id']?.toString() ?? '1') ?? 1);
+    final parsedOrder = json['order_index'] is num
+        ? (json['order_index'] as num).toInt()
+        : (int.tryParse(json['order_index']?.toString() ?? '1') ?? 1);
+    final parsedWeight = json['weight'] is num
+        ? (json['weight'] as num).toInt()
+        : (int.tryParse(json['weight']?.toString() ?? '1') ?? 1);
+
     return ExamQuestionItem(
-      id: json['id'] as int,
-      orderIndex: (json['order_index'] as int?) ?? 1,
-      weight: (json['weight'] as int?) ?? 1,
-      questionType: json['question_type'] as String? ?? 'multiple_choice',
-      content: json['content'] as String,
-      mediaPath: json['media_path'] as String?,
+      id: parsedId,
+      orderIndex: parsedOrder,
+      weight: parsedWeight,
+      questionType: json['question_type']?.toString() ?? 'multiple_choice',
+      content: json['content']?.toString() ?? '',
+      mediaPath: json['media_path']?.toString(),
       options: rawOptions
           .map((opt) => QuestionOptionItem.fromJson(opt as Map<String, dynamic>))
           .toList(),
@@ -141,13 +165,26 @@ class ExamAttemptSession {
       answersMap[ans.questionId] = ans;
     }
 
+    final parsedAttemptId = data['attempt_id'] is num
+        ? (data['attempt_id'] as num).toInt()
+        : (int.tryParse(data['attempt_id']?.toString() ?? '1') ?? 1);
+    final parsedExamId = data['exam_id'] is num
+        ? (data['exam_id'] as num).toInt()
+        : (int.tryParse(data['exam_id']?.toString() ?? '1') ?? 1);
+    final durSec = data['duration_seconds'] is num
+        ? (data['duration_seconds'] as num).toInt()
+        : (int.tryParse(data['duration_seconds']?.toString() ?? '3600') ?? 3600);
+    final remSec = data['remaining_seconds'] is num
+        ? (data['remaining_seconds'] as num).toInt()
+        : (int.tryParse(data['remaining_seconds']?.toString() ?? '3600') ?? 3600);
+
     return ExamAttemptSession(
-      attemptId: data['attempt_id'] as int,
-      examId: data['exam_id'] as int,
+      attemptId: parsedAttemptId,
+      examId: parsedExamId,
       title: examTitle,
-      durationSeconds: (data['duration_seconds'] as int?) ?? 3600,
-      remainingSeconds: (data['remaining_seconds'] as int?) ?? 3600,
-      status: data['status'] as String? ?? 'in_progress',
+      durationSeconds: durSec,
+      remainingSeconds: remSec,
+      status: data['status']?.toString() ?? 'in_progress',
       questions: questions,
       savedAnswers: answersMap,
     );
@@ -169,9 +206,18 @@ class SavedAnswerItem {
   });
 
   factory SavedAnswerItem.fromJson(Map<String, dynamic> json) {
+    final parsedQId = json['question_id'] is num
+        ? (json['question_id'] as num).toInt()
+        : (int.tryParse(json['question_id']?.toString() ?? '0') ?? 0);
+    final optId = json['selected_option_id'] != null
+        ? (json['selected_option_id'] is num
+            ? (json['selected_option_id'] as num).toInt()
+            : int.tryParse(json['selected_option_id'].toString()))
+        : null;
+
     return SavedAnswerItem(
-      questionId: json['question_id'] as int,
-      selectedOptionId: json['selected_option_id'] as int?,
+      questionId: parsedQId,
+      selectedOptionId: optId,
       essayAnswer: json['essay_answer'] as String?,
       isFlagged: json['is_flagged'] == true ||
           json['is_flagged'] == 1 ||

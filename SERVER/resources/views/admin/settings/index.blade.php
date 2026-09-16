@@ -16,12 +16,39 @@
 
 @php
     $serverPort = (int)($settings['server_port'] ?? 8000);
-    $detectedHostIp = request()->server('SERVER_ADDR', gethostbyname(gethostname()));
-    if ($detectedHostIp === '127.0.0.1' || $detectedHostIp === '::1' || empty($detectedHostIp)) {
-        $detectedHostIp = '192.168.1.11';
+    $detectedIps = [];
+
+    // 1. Deteksi semua alamat IP IPv4 aktif pada antarmuka jaringan komputer ini
+    $hostIps = @gethostbynamel(gethostname());
+    if (is_array($hostIps)) {
+        foreach ($hostIps as $hip) {
+            if ($hip !== '127.0.0.1' && !str_starts_with($hip, '169.254.') && filter_var($hip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $detectedIps[] = $hip;
+            }
+        }
     }
+
+    // 2. Deteksi dari header request server jika diakses via IP jaringan
+    $serverAddr = request()->server('SERVER_ADDR');
+    if ($serverAddr && $serverAddr !== '127.0.0.1' && !str_starts_with($serverAddr, '169.254.') && !in_array($serverAddr, $detectedIps)) {
+        $detectedIps[] = $serverAddr;
+    }
+
+    $reqHost = request()->getHost();
+    if ($reqHost && $reqHost !== 'localhost' && $reqHost !== '127.0.0.1' && filter_var($reqHost, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if (!in_array($reqHost, $detectedIps)) {
+            array_unshift($detectedIps, $reqHost);
+        }
+    }
+
+    // 3. Fallback jika komputer benar-benar belum tersambung ke jaringan manapun
+    if (empty($detectedIps)) {
+        $detectedIps[] = '192.168.1.11';
+    }
+
+    $primaryHostIp = $detectedIps[0];
     $localhostUrl = "http://localhost:{$serverPort}";
-    $lanUrl = "http://{$detectedHostIp}:{$serverPort}";
+    $lanUrl = "http://{$primaryHostIp}:{$serverPort}";
 @endphp
 
     <!-- CARD: ALAMAT AKSES SERVER CBT (LOCALHOST & WI-FI LAN) -->
@@ -29,10 +56,10 @@
         <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div>
                 <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: var(--primary);">
-                    <span>🌐</span> Alamat Akses Server CBT (Localhost &amp; Wi-Fi LAN)
+                    <span>🌐</span> Alamat Akses Server CBT (Otomatis Mendeteksi Jaringan Wi-Fi/LAN)
                 </h3>
                 <span style="font-size: 0.8rem; color: var(--text-muted);">
-                    Gunakan alamat di bawah ini untuk menghubungkan perangkat siswa dan guru dalam jaringan Wi-Fi/LAN sekolah tanpa internet.
+                    Sistem mendeteksi alamat IP komputer ini secara real-time. Jika Anda berpindah Wi-Fi atau ganti komputer, alamat ini akan menyesuaikan otomatis.
                 </span>
             </div>
             <span class="badge badge-success" style="font-size: 0.75rem; padding: 4px 10px;">
@@ -64,7 +91,7 @@
             <div style="background: var(--bg-main); border: 1px solid var(--primary-border); border-radius: var(--radius-sm); padding: 14px 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary);">
-                        📶 Jaringan Wi-Fi / LAN Sekolah
+                        📶 Jaringan Wi-Fi / LAN Aktif
                     </span>
                     <span style="font-size: 0.7rem; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Untuk Siswa &amp; Guru</span>
                 </div>
@@ -80,11 +107,32 @@
             </div>
         </div>
 
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; color: #1e40af; display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.1rem;">💡</span>
-            <span>
-                <strong>Petunjuk:</strong> Pastikan perangkat smartphone atau laptop siswa terhubung ke pemancar Wi-Fi / Access Point yang sama dengan komputer server CBT. Ujian berjalan 100% lokal tanpa memerlukan kuota internet.
+        @if(count($detectedIps) > 1)
+        <div style="margin-bottom: 14px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+                Alamat Antarmuka Lain yang Terdeteksi di Komputer Ini:
             </span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+                @foreach($detectedIps as $idx => $altIp)
+                    @if($altIp !== $primaryHostIp)
+                    <span style="font-family: monospace; font-size: 0.8rem; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>📡</span> http://{{ $altIp }}:{{ $serverPort }}
+                    </span>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px 14px; font-size: 0.8rem; color: #1e40af;">
+            <div style="font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 1rem;">🔄</span> Panduan Jika Berpindah Wi-Fi atau Ganti Komputer Server:
+            </div>
+            <ul style="margin: 0; padding-left: 18px; line-height: 1.6;">
+                <li><strong>Jika ganti jaringan Wi-Fi / Router:</strong> Komputer server akan mendapatkan alamat IP baru secara otomatis. Cukup refresh halaman ini atau lihat jendela <code>JALANKAN_SERVER_CBT.bat</code>, alamat baru akan otomatis muncul untuk dibagikan ke siswa.</li>
+                <li><strong>Jika pindah ke laptop / komputer lain:</strong> Cukup salin seluruh folder <code>CBT V1</code> ini ke laptop baru, lalu klik ganda berkas <code>JALANKAN_SERVER_CBT.bat</code>. Server akan langsung menyala tanpa perlu konfigurasi ulang.</li>
+                <li><strong>Di HP Siswa:</strong> Siswa hanya perlu mengganti Server URL di aplikasi HP sesuai alamat yang tertera di atas, lalu klik <strong>"Cek Koneksi"</strong>.</li>
+            </ul>
         </div>
     </div>
 
@@ -113,7 +161,7 @@
                     cbt-peserta-v1.0.apk
                 </div>
                 <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
-                    Ukuran Berkas: <strong>17.3 MB</strong> &bull; Target OS: <strong>Android 6.0 s/d 14+</strong> &bull; Arsitektur: <strong>ARM64-v8a</strong>
+                    Ukuran Berkas: <strong>51.3 MB</strong> &bull; Target OS: <strong>Android 6.0 s/d 14+</strong> &bull; Arsitektur: <strong>Universal Release (ARM & x86)</strong>
                 </div>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     <span style="font-size: 0.7rem; background: var(--bg-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🔒 Mode Kiosk Kunci Layar</span>
@@ -123,7 +171,7 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <a href="/downloads/cbt-peserta-v1.0.apk" download="cbt-peserta-v1.0.apk" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
-                    <span>⬇️</span> Unduh Berkas APK Android (17.3 MB)
+                    <span>⬇️</span> Unduh Berkas APK Android (51.3 MB)
                 </a>
                 <a href="/downloads/cbt-peserta-v1.0.apk" download style="font-size: 0.75rem; text-align: center; color: var(--primary); text-decoration: underline;">
                     Tautan Langsung (/downloads/cbt-peserta-v1.0.apk)

@@ -4,8 +4,12 @@ composer.phar
 .vscode/
 .idea/
 *.log
+*.apk
+SERVER/public/downloads/*.apk
+!SERVER/public/downloads/cbt-peserta-v1.0.apk
 .DS_Store
 Thumbs.db
+scratch/
 
 # Server Laravel
 SERVER/.env
