@@ -249,6 +249,14 @@
                 <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0;">
                     Daftar Soal Ujian: {{ $selectedSubject->name }}
                 </h2>
+                <div style="margin-top: 8px; font-size: 13px; color: #475569; display: flex; gap: 16px; flex-wrap: wrap;">
+                    <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <strong style="color: #334155;">Nama Guru Mapel:</strong> <span style="color: #2563eb; font-weight: 600;">{{ $selectedSubject->teacher ?? 'Budi Santoso, S.Pd' }}</span>
+                    </span>
+                    <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <strong style="color: #334155;">Mapel / Kelas:</strong> <span style="color: #2563eb; font-weight: 600;">{{ $selectedSubject->name }} - Kelas X</span>
+                    </span>
+                </div>
             </div>
             <div style="text-align: right;">
                 <span style="font-size: 14px; font-weight: 700; color: #475569;">
@@ -414,15 +422,24 @@
                 <button type="button" onclick="closeImportModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">&times;</button>
             </div>
             <div style="padding: 20px 24px;">
-                <!-- PREVIEW FORMAT PERSIS GAMBAR 4 -->
+                <!-- PREVIEW FORMAT PERSIS GAMBAR 4 DENGAN NAMA GURU MAPEL & MAPEL KELAS DI ATASNYA -->
                 <div style="margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
                         <strong style="font-size: 13.5px; color: #334155;">Format Kolom Excel (Wajib sesuai contoh di bawah):</strong>
-                        <a href="{{ route('admin.questions.template') }}" class="btn btn-sm btn-success" style="background: #15803d; border-color: #15803d; font-weight: 700;">
+                        <a href="{{ route('admin.questions.template', ['subject_id' => $selectedSubject->id]) }}" class="btn btn-sm btn-success" style="background: #15803d; border-color: #15803d; font-weight: 700;">
                             📥 Download Format Excel
                         </a>
                     </div>
-                    <div style="overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px;">
+
+                    <!-- KETERANGAN NAMA GURU MAPEL DAN MAPEL KELAS PERSIS DI ATAS TABEL EXCEL -->
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-bottom: none; border-radius: 6px 6px 0 0; padding: 10px 16px; font-size: 13px;">
+                        <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                            <div><strong style="color: #1e293b;">Nama Guru Mapel :</strong> <span style="font-weight: 600; color: #0052cc;">{{ $selectedSubject->teacher ?? 'Budi Santoso, S.Pd' }}</span></div>
+                            <div><strong style="color: #1e293b;">Mapel / Kelas :</strong> <span style="font-weight: 600; color: #0052cc;">{{ $selectedSubject->name }} - Kelas X</span></div>
+                        </div>
+                    </div>
+
+                    <div style="overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 0 0 6px 6px;">
                         <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: center;">
                             <thead>
                                 <tr style="background: #70ad47; color: #000000; font-weight: 700;">

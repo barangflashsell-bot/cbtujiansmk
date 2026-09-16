@@ -290,6 +290,16 @@ class WebQuestionController extends Controller
      */
     public function downloadTemplate(Request $request)
     {
+        $subjectId = $request->query('subject_id');
+        $subject = $subjectId ? Subject::find($subjectId) : null;
+        $teacherName = $subject?->teacher ?? 'Budi Santoso, S.Pd';
+        $subjectName = $subject ? ($subject->name . ' - Kelas X') : 'Matematika - Kelas X';
+
+        $metaRows = [
+            ['Nama Guru Mapel :', $teacherName],
+            ['Mapel / Kelas :', $subjectName],
+        ];
+
         $headers = [
             'NO',
             'Soal/Pertanyaan',
@@ -309,10 +319,10 @@ class WebQuestionController extends Controller
         $colWidths = [45, 360, 160, 130, 130, 130, 130, 130, 180];
 
         if ($request->query('format') === 'csv') {
-            return $this->streamCsvTemplate('format_import_soal.csv', $headers, $sampleRows);
+            return $this->streamCsvTemplate('format_import_soal.csv', $headers, $sampleRows, $metaRows);
         }
 
-        return $this->streamExcelTemplate('format_import_soal.xls', $headers, $sampleRows, $colWidths);
+        return $this->streamExcelTemplate('format_import_soal.xls', $headers, $sampleRows, $colWidths, $metaRows, '#70AD47', '#000000');
     }
 
     /**
@@ -356,6 +366,22 @@ class WebQuestionController extends Controller
 
         if (empty($rawRows)) {
             return back()->with('error', 'File yang diunggah kosong atau tidak memiliki data.');
+        }
+
+        // Search for the actual header row (ignoring metadata lines above it like Nama Guru Mapel & Mapel/Kelas)
+        $headerRowIndex = 0;
+        foreach ($rawRows as $rIdx => $r) {
+            foreach ($r as $c) {
+                $clean = strtolower(trim((string) preg_replace('/[^a-zA-Z0-9]/', '', $c)));
+                if (in_array($clean, ['soalpertanyaan', 'soal', 'pertanyaan', 'butirsoal', 'content', 'question', 'isi'])) {
+                    $headerRowIndex = $rIdx;
+                    break 2;
+                }
+            }
+        }
+
+        for ($i = 0; $i < $headerRowIndex; $i++) {
+            array_shift($rawRows);
         }
 
         $headerRow = array_shift($rawRows);

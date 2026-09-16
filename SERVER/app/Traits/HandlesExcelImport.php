@@ -28,7 +28,10 @@ trait HandlesExcelImport
     /**
      * Stream an Excel Spreadsheet (.xls) template with styled headers, borders, and column widths.
      */
-    protected function streamExcelTemplate(string $filename, array $headers, array $sampleRows, array $colWidths = []): StreamedResponse
+    /**
+     * Stream an Excel Spreadsheet (.xls) template with styled headers, borders, and column widths.
+     */
+    protected function streamExcelTemplate(string $filename, array $headers, array $sampleRows, array $colWidths = [], array $metaRows = [], string $headerColor = '#0095FF', string $headerTextColor = '#FFFFFF'): StreamedResponse
     {
         $responseHeaders = [
             'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
@@ -36,8 +39,8 @@ trait HandlesExcelImport
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
         ];
 
-        $callback = function () use ($headers, $sampleRows, $colWidths) {
-            echo $this->buildExcelXmlString($headers, $sampleRows, $colWidths);
+        $callback = function () use ($headers, $sampleRows, $colWidths, $metaRows, $headerColor, $headerTextColor) {
+            echo $this->buildExcelXmlString($headers, $sampleRows, $colWidths, $metaRows, $headerColor, $headerTextColor);
         };
 
         return response()->stream($callback, 200, $responseHeaders);
@@ -46,7 +49,7 @@ trait HandlesExcelImport
     /**
      * Stream a standard CSV file with UTF-8 BOM for Microsoft Excel Windows compatibility.
      */
-    protected function streamCsvTemplate(string $filename, array $headers, array $sampleRows): StreamedResponse
+    protected function streamCsvTemplate(string $filename, array $headers, array $sampleRows, array $metaRows = []): StreamedResponse
     {
         $responseHeaders = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -54,10 +57,17 @@ trait HandlesExcelImport
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
         ];
 
-        $callback = function () use ($headers, $sampleRows) {
+        $callback = function () use ($headers, $sampleRows, $metaRows) {
             $handle = fopen('php://output', 'w');
             // UTF-8 BOM
             fputs($handle, "\xEF\xBB\xBF");
+
+            if (!empty($metaRows)) {
+                foreach ($metaRows as $mRow) {
+                    fputcsv($handle, $mRow, ';');
+                }
+                fputcsv($handle, [], ';');
+            }
 
             // Use semicolon for seamless Indonesian/European Excel auto-column splitting
             fputcsv($handle, $headers, ';');
@@ -74,7 +84,7 @@ trait HandlesExcelImport
     /**
      * Build native Excel 2003 XML spreadsheet string.
      */
-    protected function buildExcelXmlString(array $headers, array $rows, array $colWidths = []): string
+    protected function buildExcelXmlString(array $headers, array $rows, array $colWidths = [], array $metaRows = [], string $headerColor = '#0095FF', string $headerTextColor = '#FFFFFF'): string
     {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<?mso-application progid="Excel.Sheet"?>' . "\n";
@@ -84,14 +94,23 @@ trait HandlesExcelImport
         $xml .= ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
         $xml .= ' <Styles>' . "\n";
         $xml .= '  <Style ss:ID="Header">' . "\n";
-        $xml .= '   <Font ss:Bold="1" ss:Color="#FFFFFF" ss:FontName="Calibri" ss:Size="11"/>' . "\n";
-        $xml .= '   <Interior ss:Color="#0095FF" ss:Pattern="Solid"/>' . "\n";
-        $xml .= '   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>' . "\n";
+        $xml .= '   <Font ss:Bold="1" ss:Color="' . $headerTextColor . '" ss:FontName="Calibri" ss:Size="11"/>' . "\n";
+        $xml .= '   <Interior ss:Color="' . $headerColor . '" ss:Pattern="Solid"/>' . "\n";
+        $xml .= '   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>' . "\n";
         $xml .= '   <Borders>' . "\n";
-        $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0066CC"/>' . "\n";
-        $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBE2FF"/>' . "\n";
-        $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BBE2FF"/>' . "\n";
+        $xml .= '    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#000000"/>' . "\n";
+        $xml .= '    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#000000"/>' . "\n";
+        $xml .= '    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#000000"/>' . "\n";
+        $xml .= '    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#000000"/>' . "\n";
         $xml .= '   </Borders>' . "\n";
+        $xml .= '  </Style>' . "\n";
+        $xml .= '  <Style ss:ID="MetaLabel">' . "\n";
+        $xml .= '   <Font ss:Bold="1" ss:FontName="Calibri" ss:Size="11" ss:Color="#1E293B"/>' . "\n";
+        $xml .= '   <Alignment ss:Vertical="Center"/>' . "\n";
+        $xml .= '  </Style>' . "\n";
+        $xml .= '  <Style ss:ID="MetaValue">' . "\n";
+        $xml .= '   <Font ss:Bold="1" ss:FontName="Calibri" ss:Size="11" ss:Color="#0052CC"/>' . "\n";
+        $xml .= '   <Alignment ss:Vertical="Center"/>' . "\n";
         $xml .= '  </Style>' . "\n";
         $xml .= '  <Style ss:ID="TextCell">' . "\n";
         $xml .= '   <NumberFormat ss:Format="@"/>' . "\n";
@@ -122,7 +141,19 @@ trait HandlesExcelImport
             $xml .= '   <Column ss:Width="' . $w . '"/>' . "\n";
         }
 
-        $xml .= '   <Row ss:Height="26">' . "\n";
+        if (!empty($metaRows)) {
+            foreach ($metaRows as $mRow) {
+                $xml .= '   <Row ss:Height="22">' . "\n";
+                $label = $mRow[0] ?? '';
+                $val = $mRow[1] ?? '';
+                $xml .= '    <Cell ss:StyleID="MetaLabel"><Data ss:Type="String">' . htmlspecialchars((string)$label) . '</Data></Cell>' . "\n";
+                $xml .= '    <Cell ss:StyleID="MetaValue"><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+                $xml .= '   </Row>' . "\n";
+            }
+            $xml .= '   <Row ss:Height="12"></Row>' . "\n";
+        }
+
+        $xml .= '   <Row ss:Height="28">' . "\n";
         foreach ($headers as $h) {
             $xml .= '    <Cell ss:StyleID="Header"><Data ss:Type="String">' . htmlspecialchars($h) . '</Data></Cell>' . "\n";
         }
@@ -131,7 +162,7 @@ trait HandlesExcelImport
         foreach ($rows as $row) {
             $xml .= '   <Row ss:Height="22">' . "\n";
             foreach ($row as $colIdx => $val) {
-                $style = ($colIdx === 0 || $colIdx === 4 || $colIdx === 7) ? 'CenterCell' : 'TextCell';
+                $style = ($colIdx === 0 || $colIdx === 2 || $colIdx === 8) ? 'CenterCell' : 'TextCell';
                 $xml .= '    <Cell ss:StyleID="' . $style . '"><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
             }
             $xml .= '   </Row>' . "\n";

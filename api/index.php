@@ -426,6 +426,22 @@ if ($uri === '/admin/subjects/template') {
 }
 
 if ($uri === '/admin/questions/template') {
+    $subjId = $_GET['subject_id'] ?? 'sb1';
+    $teacherName = 'Budi Santoso, S.Pd';
+    $subjectName = 'Matematika - Kelas X';
+    if (!empty($_SESSION['subjects_list'])) {
+        foreach ($_SESSION['subjects_list'] as $sb) {
+            if ($sb['id'] === $subjId || $sb['name'] === $subjId) {
+                $teacherName = $sb['teacher'] ?? 'Budi Santoso, S.Pd';
+                $subjectName = $sb['name'] . ' - Kelas X';
+                break;
+            }
+        }
+    }
+    $metaRows = [
+        ['Nama Guru Mapel :', $teacherName],
+        ['Mapel / Kelas :', $subjectName],
+    ];
     $headers = ['NO', 'Soal/Pertanyaan', "Jenis ( 1=PG,\n2=Essai)", 'Jawaban A', 'Jawaban B', 'Jawaban C', 'Jawaban D', 'Jawaban E', 'Kunci Jawaban (A/B/C/D/E)'];
     $sampleRows = [
         ['1', 'Berapakah hasil dari 25 x 4?', '1', '50', '75', '100', '125', '150', 'C'],
@@ -433,14 +449,14 @@ if ($uri === '/admin/questions/template') {
     ];
     $colWidths = [45, 300, 110, 110, 110, 110, 110, 110, 140];
     if ($reqFormat === 'csv') {
-        streamCsvTemplate('template_bank_soal.csv', $headers, $sampleRows);
+        streamCsvTemplate('template_bank_soal.csv', $headers, $sampleRows, $metaRows);
     } else {
-        streamExcelTemplate('template_bank_soal.xls', $headers, $sampleRows, $colWidths, '#70AD47', '#000000');
+        streamExcelTemplate('template_bank_soal.xls', $headers, $sampleRows, $colWidths, '#70AD47', '#000000', $metaRows);
     }
     exit;
 }
 
-function streamExcelTemplate($filename, $headers, $sampleRows, $colWidths = [], $headerColor = '#0095FF', $headerTextColor = '#FFFFFF') {
+function streamExcelTemplate($filename, $headers, $sampleRows, $colWidths = [], $headerColor = '#0095FF', $headerTextColor = '#FFFFFF', $metaRows = []) {
     header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -461,6 +477,14 @@ function streamExcelTemplate($filename, $headers, $sampleRows, $colWidths = [], 
     $xml .= "    <Border ss:Position=\"Left\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#000000\"/>\n";
     $xml .= "    <Border ss:Position=\"Right\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#000000\"/>\n";
     $xml .= "   </Borders>\n";
+    $xml .= "  </Style>\n";
+    $xml .= "  <Style ss:ID=\"MetaLabel\">\n";
+    $xml .= "   <Font ss:Bold=\"1\" ss:FontName=\"Calibri\" ss:Size=\"11\" ss:Color=\"#1E293B\"/>\n";
+    $xml .= "   <Alignment ss:Vertical=\"Center\"/>\n";
+    $xml .= "  </Style>\n";
+    $xml .= "  <Style ss:ID=\"MetaValue\">\n";
+    $xml .= "   <Font ss:Bold=\"1\" ss:FontName=\"Calibri\" ss:Size=\"11\" ss:Color=\"#0052CC\"/>\n";
+    $xml .= "   <Alignment ss:Vertical=\"Center\"/>\n";
     $xml .= "  </Style>\n";
     $xml .= "  <Style ss:ID=\"TextCell\">\n";
     $xml .= "   <NumberFormat ss:Format=\"@\"/>\n";
@@ -487,6 +511,17 @@ function streamExcelTemplate($filename, $headers, $sampleRows, $colWidths = [], 
         $w = $colWidths[$i] ?? 130;
         $xml .= "   <Column ss:Width=\"{$w}\"/>\n";
     }
+    if (!empty($metaRows)) {
+        foreach ($metaRows as $mRow) {
+            $xml .= "   <Row ss:Height=\"22\">\n";
+            $label = $mRow[0] ?? '';
+            $val = $mRow[1] ?? '';
+            $xml .= "    <Cell ss:StyleID=\"MetaLabel\"><Data ss:Type=\"String\">" . htmlspecialchars((string)$label) . "</Data></Cell>\n";
+            $xml .= "    <Cell ss:StyleID=\"MetaValue\"><Data ss:Type=\"String\">" . htmlspecialchars((string)$val) . "</Data></Cell>\n";
+            $xml .= "   </Row>\n";
+        }
+        $xml .= "   <Row ss:Height=\"12\"></Row>\n";
+    }
     $xml .= "   <Row ss:Height=\"26\">\n";
     foreach ($headers as $h) {
         $xml .= "    <Cell ss:StyleID=\"Header\"><Data ss:Type=\"String\">" . htmlspecialchars($h) . "</Data></Cell>\n";
@@ -510,12 +545,18 @@ function streamExcelTemplate($filename, $headers, $sampleRows, $colWidths = [], 
     echo $xml;
 }
 
-function streamCsvTemplate($filename, $headers, $sampleRows) {
+function streamCsvTemplate($filename, $headers, $sampleRows, $metaRows = []) {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     $out = fopen('php://output', 'w');
     fputs($out, "\xEF\xBB\xBF");
     fputs($out, "sep=;\n");
+    if (!empty($metaRows)) {
+        foreach ($metaRows as $mRow) {
+            fputcsv($out, $mRow, ';');
+        }
+        fputcsv($out, [], ';');
+    }
     fputcsv($out, $headers, ';');
     foreach ($sampleRows as $row) {
         fputcsv($out, $row, ';');
@@ -1092,6 +1133,36 @@ if ($method === 'POST' && strpos($uri, '/import') !== false) {
         } elseif (strpos($uri, 'questions') !== false) {
             $subjId = $_POST['default_subject_id'] ?? $_POST['subject_id'] ?? $_GET['subject_id'] ?? 'sb1';
             $subjName = 'Matematika X';
+
+            // Filter out metadata rows (e.g. Nama Guru Mapel, Mapel / Kelas) and table header
+            $cleanItems = [];
+            $headerIdx = -1;
+            foreach ($importedItems as $idx => $row) {
+                foreach ($row as $cell) {
+                    $c = strtolower(trim((string)preg_replace('/[^a-zA-Z0-9]/', '', $cell)));
+                    if (in_array($c, ['soalpertanyaan', 'soal', 'pertanyaan', 'butirsoal', 'question', 'content'])) {
+                        $headerIdx = $idx;
+                        break 2;
+                    }
+                }
+            }
+            if ($headerIdx !== -1) {
+                $importedItems = array_slice($importedItems, $headerIdx + 1);
+            }
+            foreach ($importedItems as $item) {
+                $firstCol = strtolower(trim((string)($item[0] ?? '')));
+                $secondCol = strtolower(trim((string)($item[1] ?? '')));
+                if (stripos($firstCol, 'nama guru') !== false || stripos($firstCol, 'mapel') !== false || stripos($firstCol, 'soal') !== false) {
+                    continue;
+                }
+                if (empty($secondCol) && empty($firstCol)) {
+                    continue;
+                }
+                $cleanItems[] = $item;
+            }
+            $importedItems = $cleanItems;
+            $count = count($importedItems);
+
             foreach ($_SESSION['subjects_list'] as &$sb) {
                 if ($sb['id'] === $subjId || $sb['name'] === $subjId) {
                     $subjId = $sb['id'];
@@ -5180,6 +5251,14 @@ function renderQuestionsContent() {
                         <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0;">
                             Daftar Soal Ujian: <?= htmlspecialchars($activeSubjectObj['name']) ?>
                         </h2>
+                        <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; font-size: 12.5px;">
+                            <span style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 3px 10px; border-radius: 6px; color: #334155;">
+                                <strong>Nama Guru Mapel :</strong> <?= htmlspecialchars($activeSubjectObj['teacher'] ?? 'Budi Santoso, S.Pd') ?>
+                            </span>
+                            <span style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 3px 10px; border-radius: 6px; color: #1e40af;">
+                                <strong>Mapel / Kelas :</strong> <?= htmlspecialchars($activeSubjectObj['name']) ?> - Kelas X
+                            </span>
+                        </div>
                     </div>
                     <div style="text-align: right;">
                         <span style="font-size: 14px; font-weight: 700; color: #475569;">
@@ -5500,9 +5579,15 @@ function renderQuestionsContent() {
                         <div style="margin-bottom: 20px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
                                 <strong style="font-size: 13.5px; color: #334155;">Format Kolom Excel (Wajib sesuai contoh di bawah):</strong>
-                                <a href="/admin/questions/template" class="btn btn-sm btn-success" style="background: #15803d; border-color: #15803d; font-weight: 700; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                                <a href="/admin/questions/template?subject_id=<?= urlencode($activeSubjectObj['id']) ?>" class="btn btn-sm btn-success" style="background: #15803d; border-color: #15803d; font-weight: 700; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
                                     📥 Download Format Excel
                                 </a>
+                            </div>
+
+                            <!-- INFORMASI GURU MAPEL & KELAS DI ATAS TABEL EXCEL -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 4px;">
+                                <div><strong style="color: #334155;">Nama Guru Mapel :</strong> <span style="color: #0052cc; font-weight: 700;"><?= htmlspecialchars($activeSubjectObj['teacher'] ?? 'Budi Santoso, S.Pd') ?></span></div>
+                                <div><strong style="color: #334155;">Mapel / Kelas :</strong> <span style="color: #0052cc; font-weight: 700;"><?= htmlspecialchars($activeSubjectObj['name']) ?> - Kelas X</span></div>
                             </div>
                             <div style="overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px;">
                                 <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: center;">
