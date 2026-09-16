@@ -56,7 +56,7 @@
             </div>
 
             <div class="form-group" style="flex: 1;">
-                <label class="form-label" for="score_weight">Bobot Nilai <span style="color:var(--color-rose-500)">*</span></label>
+                <label class="form-label" for="score_weight" id="label_score_weight">Bobot Nilai <span style="color:var(--color-rose-500)">*</span></label>
                 <input type="number" step="0.1" min="0.1" max="100" name="score_weight" id="score_weight" class="form-control @error('score_weight') is-invalid @enderror" value="{{ old('score_weight', '2.0') }}" required>
                 @error('score_weight')
                     <div class="form-error">{{ $message }}</div>
@@ -114,11 +114,14 @@
 <script>
     function toggleQuestionType(type) {
         var optContainer = document.getElementById('options-container');
+        var weightLabel = document.getElementById('label_score_weight');
         if (optContainer) {
             if (type === 'essay') {
                 optContainer.style.display = 'none';
+                if (weightLabel) weightLabel.innerHTML = 'Bobot Soal Essai <span style="color:var(--color-rose-500)">*</span>';
             } else {
                 optContainer.style.display = 'block';
+                if (weightLabel) weightLabel.innerHTML = 'Bobot Nilai <span style="color:var(--color-rose-500)">*</span>';
             }
         }
     }

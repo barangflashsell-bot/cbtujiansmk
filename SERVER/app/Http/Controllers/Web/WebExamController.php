@@ -464,4 +464,106 @@ class WebExamController extends Controller
 
         return back()->with('success', "Hak ujian ulang peserta berhasil {$statusMsg}.");
     }
+
+    /**
+     * Set start schedule and activate exam room.
+     */
+    public function setSchedule(Request $request, int $id): RedirectResponse
+    {
+        $user = $request->user();
+        $userRole = strtolower($user->role->name ?? '');
+
+        $exam = Exam::findOrFail($id);
+
+        if ($userRole !== 'admin' && $exam->created_by !== $user->id) {
+            abort(403, 'Anda tidak memiliki izin untuk mengatur jadwal ujian ini.');
+        }
+
+        $validated = $request->validate([
+            'start_window' => ['required', 'date'],
+        ]);
+
+        $startDt = \Carbon\Carbon::parse($validated['start_window']);
+        $endDt = (clone $startDt)->addMinutes($exam->duration_minutes ?? 120);
+
+        $exam->update([
+            'start_window' => $startDt,
+            'end_window' => $endDt,
+            'status' => 'published',
+        ]);
+
+        $formatted = $startDt->format('d-m-Y') . ' Pukul ' . $startDt->format('H:i') . ' (GMT+07:00)';
+        return back()->with('success', "Selesai, ruang ujian sudah dibuat dan bisa dikerjakan mulai {$formatted}");
+    }
+
+    /**
+     * Export exam results/scores to CSV/Excel.
+     */
+    public function exportScores(Request $request, int $id)
+    {
+        $user = $request->user();
+        $userRole = strtolower($user->role->name ?? '');
+
+        $exam = Exam::with(['subject'])->findOrFail($id);
+
+        if ($userRole !== 'admin' && $exam->created_by !== $user->id) {
+            abort(403, 'Anda tidak memiliki izin untuk mengunduh hasil ujian ini.');
+        }
+
+        $attempts = DB::table('exam_attempts')
+            ->join('students', 'exam_attempts.student_id', '=', 'students.id')
+            ->leftJoin('classes', 'students.class_id', '=', 'classes.id')
+            ->where('exam_attempts.exam_id', $exam->id)
+            ->select([
+                'students.nis',
+                'students.name as student_name',
+                'classes.name as class_name',
+                'exam_attempts.score',
+                'exam_attempts.status',
+                'exam_attempts.started_at',
+                'exam_attempts.finished_at'
+            ])
+            ->orderBy('students.name')
+            ->get();
+
+        $filename = 'rekap_nilai_' . \Illuminate\Support\Str::slug($exam->title) . '_' . date('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($exam, $attempts) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
+            fputcsv($handle, ['REKAPITULASI NILAI RUANG UJIAN']);
+            fputcsv($handle, ['Judul Ruang Ujian', $exam->title]);
+            fputcsv($handle, ['Mata Pelajaran', $exam->subject->name ?? '-']);
+            fputcsv($handle, ['Kode Kelas Ujian', $exam->token]);
+            fputcsv($handle, ['Tanggal Export', date('d-m-Y H:i:s')]);
+            fputcsv($handle, []);
+            fputcsv($handle, ['NO', 'NIS', 'NAMA SISWA', 'KELAS', 'NILAI AKHIR', 'STATUS PENGERJAAN', 'MULAI', 'SELESAI']);
+
+            $no = 1;
+            foreach ($attempts as $row) {
+                fputcsv($handle, [
+                    $no++,
+                    $row->nis,
+                    $row->student_name,
+                    $row->class_name ?? '-',
+                    $row->score ?? 0,
+                    strtoupper($row->status ?? 'BELUM'),
+                    $row->started_at ?? '-',
+                    $row->finished_at ?? '-'
+                ]);
+            }
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }
+

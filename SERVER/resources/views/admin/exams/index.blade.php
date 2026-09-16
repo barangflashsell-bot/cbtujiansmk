@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Paket Ujian - CBT Administrator')
+@section('title', 'Ruang Ujian - CBT Administrator')
 
 @section('content')
 <div class="content-header">
     <div>
-        <h1 class="page-title">Paket Ujian</h1>
-        <p class="page-subtitle">Kelola jadwal ujian, konfigurasi durasi, token, butir soal, dan peserta</p>
+        <h1 class="page-title">Ruang Ujian</h1>
+        <p class="page-subtitle">Kelola ruang ujian, setting waktu pelaksanaan, token kode kelas ujian, dan export nilai</p>
     </div>
-    <a href="{{ route('admin.exams.create') }}" class="btn btn-primary">+ Buat Paket Ujian</a>
+    <a href="{{ route('admin.exams.create') }}" class="btn btn-primary">+ Tambah Baru</a>
 </div>
 
 <div class="card">

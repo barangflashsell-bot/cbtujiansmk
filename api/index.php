@@ -127,14 +127,14 @@ if (isset($_SESSION['students_list']) && is_array($_SESSION['students_list'])) {
     unset($sItem);
 }
 
-// E. Subjects List
+// E. Subjects List (Bank Soal)
 if (!isset($_SESSION['subjects_list'])) {
     $_SESSION['subjects_list'] = [
-        ['id' => 'sb1', 'code' => 'MAT', 'name' => 'Matematika X', 'teacher' => 'Budi Santoso, S.Pd', 'questions_count' => 40, 'exams_count' => 3, 'status' => 'active'],
-        ['id' => 'sb2', 'code' => 'BIND', 'name' => 'Bahasa Indonesia X', 'teacher' => 'Dra. Nurul Hidayati', 'questions_count' => 45, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb3', 'code' => 'PROG', 'name' => 'Dasar Pemrograman RPL', 'teacher' => 'Siti Aminah, M.Kom', 'questions_count' => 50, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb4', 'code' => 'JARKOM', 'name' => 'Jaringan Komputer Dasar TKJ', 'teacher' => 'Ahmad Fauzi, S.T', 'questions_count' => 40, 'exams_count' => 1, 'status' => 'active'],
-        ['id' => 'sb5', 'code' => 'PAI', 'name' => 'Pendidikan Agama Islam', 'teacher' => 'Drs. H. Bambang Sutrisno', 'questions_count' => 40, 'exams_count' => 1, 'status' => 'active'],
+        ['id' => 'sb1', 'code' => 'MAT', 'name' => 'Matematika X', 'teacher' => 'Budi Santoso, S.Pd', 'format' => 'tryout', 'description' => 'Bank Soal Ujian Matematika Umum Kelas X Semester Ganjil', 'duration' => 120, 'weight_pg' => 60, 'weight_pg_multi' => 0, 'weight_essay' => 40, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 3, 'status' => 'active'],
+        ['id' => 'sb2', 'code' => 'BIND', 'name' => 'Bahasa Indonesia X', 'teacher' => 'Dra. Nurul Hidayati', 'format' => 'standard', 'description' => 'Bank Soal Asesmen Sumatif Bahasa Indonesia Kelas X', 'duration' => 90, 'weight_pg' => 50, 'weight_pg_multi' => 0, 'weight_essay' => 50, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 45, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb3', 'code' => 'PROG', 'name' => 'Dasar Pemrograman RPL', 'teacher' => 'Siti Aminah, M.Kom', 'format' => 'standard', 'description' => 'Bank Soal Kejuruan RPL Pemrograman Berorientasi Objek', 'duration' => 120, 'weight_pg' => 70, 'weight_pg_multi' => 0, 'weight_essay' => 30, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 50, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb4', 'code' => 'JARKOM', 'name' => 'Jaringan Komputer Dasar TKJ', 'teacher' => 'Ahmad Fauzi, S.T', 'format' => 'standard', 'description' => 'Bank Soal Perakitan & Konfigurasi Jaringan Komputer', 'duration' => 120, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 1, 'status' => 'active'],
+        ['id' => 'sb5', 'code' => 'PAI', 'name' => 'Pendidikan Agama Islam', 'teacher' => 'Drs. H. Bambang Sutrisno', 'format' => 'standard', 'description' => 'Bank Soal Pendidikan Agama Islam dan Budi Pekerti', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 1, 'status' => 'active'],
     ];
 }
 
@@ -152,6 +152,7 @@ if (!isset($_SESSION['questions_list'])) {
             'creator' => 'Budi Santoso, S.Pd',
             'options' => ['A' => '45', 'B' => '59', 'C' => '64', 'D' => '32', 'E' => '27'],
             'correct_option' => 'B',
+            'status' => 'active',
         ],
         [
             'id' => 'q2',
@@ -164,6 +165,7 @@ if (!isset($_SESSION['questions_list'])) {
             'creator' => 'Dra. Nurul Hidayati',
             'options' => ['A' => 'Awal paragraf', 'B' => 'Akhir paragraf', 'C' => 'Tengah paragraf', 'D' => 'Awal atau akhir paragraf', 'E' => 'Seluruh isi paragraf'],
             'correct_option' => 'D',
+            'status' => 'active',
         ],
         [
             'id' => 'q3',
@@ -176,6 +178,7 @@ if (!isset($_SESSION['questions_list'])) {
             'creator' => 'Siti Aminah, M.Kom',
             'options' => ['A' => 'for loop', 'B' => 'while loop', 'C' => 'do-while loop', 'D' => 'foreach loop', 'E' => 'recursive loop'],
             'correct_option' => 'C',
+            'status' => 'active',
         ],
         [
             'id' => 'q4',
@@ -188,6 +191,20 @@ if (!isset($_SESSION['questions_list'])) {
             'creator' => 'Ahmad Fauzi, S.T',
             'options' => ['A' => 'DNS', 'B' => 'DHCP', 'C' => 'FTP', 'D' => 'HTTP', 'E' => 'SMTP'],
             'correct_option' => 'B',
+            'status' => 'active',
+        ],
+        [
+            'id' => 'q5',
+            'subject_id' => 'sb1',
+            'subject_name' => 'Matematika X',
+            'question_type' => 'essay',
+            'difficulty' => 'medium',
+            'content' => 'Jelaskan langkah-langkah dalam menyelesaikan persamaan linear satu variabel dan berikan contoh perhitungannya secara sistematis!',
+            'score_weight' => 20.0,
+            'creator' => 'Budi Santoso, S.Pd',
+            'options' => [],
+            'correct_option' => '-',
+            'status' => 'active',
         ],
     ];
 }
@@ -1464,23 +1481,42 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/classes/d
     exit;
 }
 
-// --- D. SUBJECTS CRUD & CLASS ALLOCATION ---
+// --- D. SUBJECTS / BANK SOAL CRUD & CLASS ALLOCATION ---
 if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin/subjects')) {
     $code = strtoupper(trim($_POST['code'] ?? 'MAPEL'));
-    $name = trim($_POST['name'] ?? 'Mata Pelajaran Baru');
+    $name = trim($_POST['name'] ?? 'Bank Soal Baru');
     $teacher = trim($_POST['teacher'] ?? 'Budi Santoso, S.Pd');
+    $format = trim($_POST['format'] ?? 'standard');
+    $desc = trim($_POST['description'] ?? '');
+    $duration = (int)($_POST['duration'] ?? 120);
+    $wPg = (float)($_POST['weight_pg'] ?? 100);
+    $wPgMulti = (float)($_POST['weight_pg_multi'] ?? 0);
+    $wEssay = (float)($_POST['weight_essay'] ?? 0);
+    $wTf = (float)($_POST['weight_tf'] ?? 0);
+    $wMatch = (float)($_POST['weight_match'] ?? 0);
     $classes = $_POST['classes'] ?? ['10-TKJ-1'];
     if (!is_array($classes)) $classes = [$classes];
+
     $_SESSION['subjects_list'][] = [
         'id' => uniqid('sb_'),
         'code' => $code,
         'name' => $name,
         'teacher' => $teacher,
+        'format' => $format,
+        'description' => $desc,
+        'duration' => $duration,
+        'weight_pg' => $wPg,
+        'weight_pg_multi' => $wPgMulti,
+        'weight_essay' => $wEssay,
+        'weight_tf' => $wTf,
+        'weight_match' => $wMatch,
         'classes' => $classes,
+        'questions_count' => 0,
+        'exams_count' => 0,
         'status' => 'active',
     ];
-    logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan mata pelajaran: {$name} ({$code}) dengan alokasi kelas");
-    $_SESSION['import_success'] = "Mata pelajaran \"{$name}\" berhasil disimpan dengan alokasi kelas!";
+    logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan bank soal: {$name} ({$code}) oleh guru {$teacher}");
+    $_SESSION['import_success'] = "Bank Soal \"{$name}\" berhasil disimpan!";
     header('Location: /admin/questions');
     exit;
 }
@@ -1494,11 +1530,25 @@ if ($method === 'POST' && $uri === '/admin/subjects/edit') {
             if (isset($_POST['teacher'])) {
                 $sb['teacher'] = trim($_POST['teacher']);
             }
+            if (isset($_POST['format'])) {
+                $sb['format'] = trim($_POST['format']);
+            }
+            if (isset($_POST['description'])) {
+                $sb['description'] = trim($_POST['description']);
+            }
+            if (isset($_POST['duration'])) {
+                $sb['duration'] = (int)$_POST['duration'];
+            }
+            if (isset($_POST['weight_pg'])) $sb['weight_pg'] = (float)$_POST['weight_pg'];
+            if (isset($_POST['weight_pg_multi'])) $sb['weight_pg_multi'] = (float)$_POST['weight_pg_multi'];
+            if (isset($_POST['weight_essay'])) $sb['weight_essay'] = (float)$_POST['weight_essay'];
+            if (isset($_POST['weight_tf'])) $sb['weight_tf'] = (float)$_POST['weight_tf'];
+            if (isset($_POST['weight_match'])) $sb['weight_match'] = (float)$_POST['weight_match'];
             if (isset($_POST['classes'])) {
                 $sb['classes'] = is_array($_POST['classes']) ? $_POST['classes'] : [$_POST['classes']];
             }
-            logCbtActivity('SUBJECT', 'EDIT_SUBJECT', "Memperbarui mata pelajaran dan alokasi kelas: {$sb['name']}");
-            $_SESSION['import_success'] = "Perubahan mata pelajaran & alokasi kelas \"{$sb['name']}\" berhasil disimpan!";
+            logCbtActivity('SUBJECT', 'EDIT_SUBJECT', "Memperbarui bank soal: {$sb['name']}");
+            $_SESSION['import_success'] = "Perubahan bank soal \"{$sb['name']}\" berhasil disimpan!";
             break;
         }
     }
@@ -1532,8 +1582,8 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/
             $deletedName = $sb['name'];
             unset($_SESSION['subjects_list'][$k]);
             $_SESSION['subjects_list'] = array_values($_SESSION['subjects_list']);
-            logCbtActivity('SUBJECT', 'DELETE_SUBJECT', "Menghapus mata pelajaran: {$deletedName}");
-            $_SESSION['import_success'] = "Mata pelajaran \"{$deletedName}\" berhasil dihapus!";
+            logCbtActivity('SUBJECT', 'DELETE_SUBJECT', "Menghapus/mengarsipkan bank soal: {$deletedName}");
+            $_SESSION['import_success'] = "Bank Soal \"{$deletedName}\" berhasil diarsipkan!";
             break;
         }
     }
@@ -1541,30 +1591,41 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/
     exit;
 }
 
-// --- E. QUESTIONS CRUD ---
+// --- E. QUESTIONS CRUD & TOGGLE STATUS (IKON MATA) ---
 if ($method === 'POST' && ($uri === '/admin/questions/create' || $uri === '/admin/questions')) {
-    $subjName = trim($_POST['subject_name'] ?? 'Matematika X');
-    $content = trim($_POST['content'] ?? 'Butir Pertanyaan Baru');
-    $qType = $_POST['question_type'] ?? 'single_choice';
-    $diff = $_POST['difficulty'] ?? 'medium';
-    $weight = (float)($_POST['score_weight'] ?? 2.5);
-    $correct = strtoupper(trim($_POST['correct_option'] ?? 'A'));
-    $options = [
-        'A' => trim($_POST['opt_a'] ?? 'Pilihan A'),
-        'B' => trim($_POST['opt_b'] ?? 'Pilihan B'),
-        'C' => trim($_POST['opt_c'] ?? 'Pilihan C'),
-        'D' => trim($_POST['opt_d'] ?? 'Pilihan D'),
-        'E' => trim($_POST['opt_e'] ?? 'Pilihan E'),
-    ];
-    $subjId = 'sb1';
+    $subjId = trim($_POST['subject_id'] ?? 'sb1');
+    $subjName = 'Matematika X';
     foreach ($_SESSION['subjects_list'] as &$sb) {
-        if ($sb['name'] === $subjName || $sb['id'] === $subjName) {
+        if ($sb['id'] === $subjId || $sb['name'] === $subjId) {
             $subjId = $sb['id'];
             $subjName = $sb['name'];
             $sb['questions_count'] = ($sb['questions_count'] ?? 0) + 1;
             break;
         }
     }
+    $content = trim($_POST['content'] ?? 'Butir Pertanyaan Baru');
+    $qType = $_POST['question_type'] ?? 'single_choice';
+    $diff = $_POST['difficulty'] ?? 'medium';
+    
+    // Perhatian: Jika soal essai, pilihan A-E wajib dikosongkan dan isi bagian bobot soal essai
+    if ($qType === 'essay') {
+        $weight = (float)($_POST['score_weight_essay'] ?? $_POST['score_weight'] ?? 10.0);
+        $options = [];
+        $correct = '-';
+    } else {
+        $weight = (float)($_POST['score_weight'] ?? 2.5);
+        $options = [
+            'A' => trim($_POST['option_a'] ?? $_POST['opt_a'] ?? 'Pilihan A'),
+            'B' => trim($_POST['option_b'] ?? $_POST['opt_b'] ?? 'Pilihan B'),
+            'C' => trim($_POST['option_c'] ?? $_POST['opt_c'] ?? 'Pilihan C'),
+            'D' => trim($_POST['option_d'] ?? $_POST['opt_d'] ?? 'Pilihan D'),
+            'E' => trim($_POST['option_e'] ?? $_POST['opt_e'] ?? ''),
+        ];
+        $correct = strtoupper(trim($_POST['correct_option'] ?? 'A'));
+    }
+
+    $teacherName = ($_SESSION['cbt_user'] ?? 'admin') === 'guru' ? ($_SESSION['teachers_list'][0]['name'] ?? 'Guru Pengajar') : 'Administrator CBT';
+
     $_SESSION['questions_list'][] = [
         'id' => uniqid('q_'),
         'subject_id' => $subjId,
@@ -1573,37 +1634,67 @@ if ($method === 'POST' && ($uri === '/admin/questions/create' || $uri === '/admi
         'difficulty' => $diff,
         'content' => $content,
         'score_weight' => $weight,
-        'creator' => 'Administrator CBT',
+        'creator' => $teacherName,
         'options' => $options,
         'correct_option' => $correct,
+        'status' => 'active',
     ];
-    logCbtActivity('QUESTION', 'CREATE_QUESTION', "Menambahkan butir soal baru mapel {$subjName}");
-    $_SESSION['import_success'] = "Butir soal baru untuk mapel \"{$subjName}\" berhasil disimpan ke Bank Soal!";
-    header('Location: /admin/questions?subject_name=' . urlencode($subjName));
+    logCbtActivity('QUESTION', 'CREATE_QUESTION', "Menambahkan butir soal ({$qType}) baru mapel {$subjName}");
+    $_SESSION['import_success'] = "Pertanyaan berhasil ditambahkan ke Bank Soal \"{$subjName}\"!";
+    header('Location: /admin/questions?subject_id=' . urlencode($subjId) . '#detail-soal');
+    exit;
+}
+
+// TOGGLE STATUS SOAL (IKON MATA: AKTIF / NONAKTIF DICORET)
+if (strpos($uri, '/admin/questions/toggle-status') !== false || ($uri === '/admin/questions' && isset($_GET['toggle_id']))) {
+    $id = $_GET['id'] ?? $_GET['toggle_id'] ?? '';
+    $currentSubjectId = $_GET['subject_id'] ?? '';
+    foreach ($_SESSION['questions_list'] as &$q) {
+        if ($q['id'] === $id) {
+            $q['status'] = ($q['status'] ?? 'active') === 'active' ? 'inactive' : 'active';
+            $isAktif = $q['status'] === 'active';
+            $msg = $isAktif ? 'diaktifkan kembali dan tampil di siswa' : 'dinonaktifkan (pertanyaan dicoret & tidak tampil di siswa)';
+            logCbtActivity('QUESTION', 'TOGGLE_STATUS', "Mengubah status butir soal ID {$id} menjadi {$q['status']}");
+            $_SESSION['import_success'] = "Butir soal berhasil {$msg}!";
+            if (empty($currentSubjectId)) {
+                $currentSubjectId = $q['subject_id'] ?? '';
+            }
+            break;
+        }
+    }
+    $targetUrl = '/admin/questions' . (!empty($currentSubjectId) ? '?subject_id=' . urlencode($currentSubjectId) . '#detail-soal' : '');
+    header('Location: ' . $targetUrl);
     exit;
 }
 
 if ($method === 'POST' && $uri === '/admin/questions/edit') {
     $id = $_POST['id'] ?? '';
+    $subjId = '';
     foreach ($_SESSION['questions_list'] as &$q) {
         if ($q['id'] === $id) {
             $q['content'] = trim($_POST['content'] ?? $q['content']);
             $q['difficulty'] = $_POST['difficulty'] ?? $q['difficulty'];
             $q['score_weight'] = (float)($_POST['score_weight'] ?? $q['score_weight']);
-            $q['correct_option'] = strtoupper(trim($_POST['correct_option'] ?? $q['correct_option']));
+            if (isset($_POST['correct_option'])) {
+                $q['correct_option'] = strtoupper(trim($_POST['correct_option']));
+            }
+            $subjId = $q['subject_id'] ?? '';
             logCbtActivity('QUESTION', 'EDIT_QUESTION', "Memperbarui butir soal ID: {$id}");
             $_SESSION['import_success'] = "Perubahan butir soal berhasil disimpan!";
             break;
         }
     }
-    header('Location: /admin/questions');
+    $targetUrl = '/admin/questions' . (!empty($subjId) ? '?subject_id=' . urlencode($subjId) . '#detail-soal' : '');
+    header('Location: ' . $targetUrl);
     exit;
 }
 
 if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/questions/delete') !== false || ($uri === '/admin/questions' && isset($_GET['delete_id'])))) {
     $id = $_GET['id'] ?? $_GET['delete_id'] ?? $_POST['id'] ?? '';
+    $subjId = '';
     foreach ($_SESSION['questions_list'] as $k => $q) {
         if ($q['id'] === $id) {
+            $subjId = $q['subject_id'] ?? '';
             unset($_SESSION['questions_list'][$k]);
             $_SESSION['questions_list'] = array_values($_SESSION['questions_list']);
             logCbtActivity('QUESTION', 'DELETE_QUESTION', "Menghapus butir soal ID {$id}");
@@ -1611,30 +1702,71 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/questions
             break;
         }
     }
-    header('Location: /admin/questions');
+    $targetUrl = '/admin/questions' . (!empty($subjId) ? '?subject_id=' . urlencode($subjId) . '#detail-soal' : '');
+    header('Location: ' . $targetUrl);
     exit;
 }
 
-// --- F. EXAMS CRUD ---
+// --- F. RUANG UJIAN (EXAMS) CRUD, SETTING WAKTU & EXPORT ---
 if ($method === 'POST' && ($uri === '/admin/exams/create' || $uri === '/admin/exams')) {
+    $subjName = trim($_POST['subject'] ?? 'Matematika X');
+    $examTitle = trim($_POST['title'] ?? 'Ruang Ujian Baru');
+    $targetClass = trim($_POST['class'] ?? '10-TKJ-1');
+    $duration = (int)($_POST['duration'] ?? 120);
+    $token = strtoupper(trim($_POST['token'] ?? ('RU-' . rand(1000, 9999))));
+    $teacherName = ($_SESSION['cbt_user'] ?? 'admin') === 'guru' ? ($_SESSION['teachers_list'][0]['name'] ?? 'Guru Pengajar') : 'Administrator CBT';
+
     $newExam = [
         'id' => 'ex-' . (count($_SESSION['exams_list']) + 1),
-        'title' => trim($_POST['title'] ?? 'Paket Ujian Baru'),
-        'subject' => trim($_POST['subject'] ?? 'Matematika X'),
-        'creator' => 'Administrator CBT',
-        'start' => date('d/m/Y') . ' ' . ($_POST['start_time'] ?? '08:00'),
-        'end' => date('d/m/Y') . ' ' . ($_POST['end_time'] ?? '10:00'),
-        'duration' => (int)($_POST['duration'] ?? 90),
-        'token' => strtoupper(trim($_POST['token'] ?? substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6))),
-        'questions_count' => (int)($_POST['questions_count'] ?? 40),
-        'participants_count' => (int)($_POST['participants_count'] ?? 36),
+        'title' => $examTitle,
+        'subject' => $subjName,
+        'class' => $targetClass,
+        'creator' => $teacherName,
+        'start' => date('d-m-Y') . ' Pukul 07:00 (GMT+07:00)',
+        'end' => date('d-m-Y') . ' Pukul ' . sprintf('%02d:00', (7 + ceil($duration / 60))) . ' (GMT+07:00)',
+        'duration' => $duration,
+        'token' => $token,
+        'questions_count' => 40,
+        'participants_count' => 36,
         'passing_score' => (float)($_POST['passing_score'] ?? 75.0),
-        'status' => $_POST['status'] ?? 'active',
+        'status' => 'active',
     ];
     array_unshift($_SESSION['exams_list'], $newExam);
-    logCbtActivity('EXAM', 'CREATE_EXAM', 'Membuat paket ujian baru: ' . $newExam['title']);
-    $_SESSION['import_success'] = "Paket Ujian \"" . htmlspecialchars($newExam['title']) . "\" berhasil dibuat dan aktif!";
+    logCbtActivity('EXAM', 'CREATE_ROOM', "Membuat ruang ujian baru: {$newExam['title']} (Kode: {$newExam['token']})");
+    $_SESSION['import_success'] = "Ruang Ujian \"{$newExam['title']}\" berhasil dibuat dengan Kode Unik: {$newExam['token']}!";
     header('Location: /admin/exams');
+    exit;
+}
+
+// SETTING WAKTU UJIAN
+if ($method === 'POST' && $uri === '/admin/exams/set-schedule') {
+    $id = $_POST['id'] ?? '';
+    $startRaw = $_POST['start_datetime'] ?? '';
+    $duration = (int)($_POST['duration'] ?? 120);
+    
+    // Format datetime Indonesia GMT+07:00
+    if (!empty($startRaw)) {
+        $ts = strtotime($startRaw);
+        $formattedStart = date('d-m-Y \P\u\k\u\l H:i', $ts) . ' (GMT+07:00)';
+        $endTs = $ts + ($duration * 60);
+        $formattedEnd = date('d-m-Y \P\u\k\u\l H:i', $endTs) . ' (GMT+07:00)';
+    } else {
+        $formattedStart = date('d-m-Y \P\u\k\u\l 07:00') . ' (GMT+07:00)';
+        $formattedEnd = date('d-m-Y \P\u\k\u\l 09:00') . ' (GMT+07:00)';
+    }
+
+    foreach ($_SESSION['exams_list'] as &$ex) {
+        if ($ex['id'] === $id) {
+            $ex['start'] = $formattedStart;
+            $ex['end'] = $formattedEnd;
+            $ex['duration'] = $duration;
+            $ex['status'] = 'active';
+            logCbtActivity('EXAM', 'SET_SCHEDULE', "Mengatur waktu ujian {$ex['title']}: Mulai {$formattedStart}");
+            $_SESSION['import_success'] = "Ruang ujian sudah dibuat dan bisa dikerjakan mulai {$formattedStart}";
+            break;
+        }
+    }
+    header('Location: /admin/exams?action=show&id=' . urlencode($id));
     exit;
 }
 
@@ -1647,8 +1779,8 @@ if ($method === 'POST' && $uri === '/admin/exams/edit') {
             $ex['token'] = strtoupper(trim($_POST['token'] ?? $ex['token']));
             $ex['passing_score'] = (float)($_POST['passing_score'] ?? $ex['passing_score']);
             $ex['status'] = $_POST['status'] ?? $ex['status'];
-            logCbtActivity('EXAM', 'EDIT_EXAM', "Memperbarui paket ujian: {$ex['title']}");
-            $_SESSION['import_success'] = "Perubahan paket ujian \"{$ex['title']}\" berhasil disimpan!";
+            logCbtActivity('EXAM', 'EDIT_EXAM', "Memperbarui ruang ujian: {$ex['title']}");
+            $_SESSION['import_success'] = "Perubahan ruang ujian \"{$ex['title']}\" berhasil disimpan!";
             break;
         }
     }
@@ -1663,8 +1795,8 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/exams/del
             $deletedName = $ex['title'];
             unset($_SESSION['exams_list'][$k]);
             $_SESSION['exams_list'] = array_values($_SESSION['exams_list']);
-            logCbtActivity('EXAM', 'DELETE_EXAM', "Menghapus paket ujian: {$deletedName}");
-            $_SESSION['import_success'] = "Paket ujian \"{$deletedName}\" berhasil dihapus!";
+            logCbtActivity('EXAM', 'DELETE_EXAM', "Menghapus ruang ujian: {$deletedName}");
+            $_SESSION['import_success'] = "Ruang ujian \"{$deletedName}\" berhasil dihapus!";
             break;
         }
     }
@@ -2905,14 +3037,14 @@ function renderAppPage($uri) {
                 <a href="/admin/questions" class="nav-link <?= in_array($activeMenu, ['questions', 'subjects']) ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box orange">📝</span>
-                        <span>Bank Soal &amp; Mapel</span>
+                        <span>Bank Soal</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['questions_list']) ?></span>
                 </a>
                 <a href="/admin/exams" class="nav-link <?= $activeMenu === 'exams' ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box emerald">⏱️</span>
-                        <span>Paket Ujian</span>
+                        <span>Ruang Ujian</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['exams_list']) ?></span>
                 </a>
@@ -4740,174 +4872,173 @@ function renderQuestionsContent() {
     </style>
 
     <div style="display: flex; flex-direction: column; gap: 20px;">
-        <!-- CONTENT HEADER (HANYA JUDUL & + TAMBAH MAPEL, HILANGKAN IMPORT SOAL EXCEL & TAMBAH BUTIR SOAL) -->
+        <!-- CONTENT HEADER: BERSIH (HANYA JUDUL & + TAMBAH BANK SOAL, TANPA TOMBOL IMPORT & TAMBAH BUTIR SOAL DI HEADER) -->
         <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Bank Soal</h1>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Daftar bank soal ujian, komposisi butir pertanyaan, dan aksi kelola
+                    Kelola bank soal ujian, format penilaian standard/tryout, dan daftar butir pertanyaan
                 </p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <button type="button" class="btn btn-secondary" onclick="toggleCreateSubjectCard()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fbcfe8; color: #db2777; font-weight: 600;">
-                    <span>📚</span> + Tambah Mapel
+                <button type="button" class="btn btn-secondary" onclick="toggleCreateSubjectCard()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fbcfe8; color: #db2777; font-weight: 600; padding: 7px 16px;">
+                    <span>📚</span> + Tambah Bank Soal
                 </button>
             </div>
         </div>
 
-        <!-- CREATE SUBJECT CARD (Collapsible) -->
-        <div class="card" id="createSubjectCard" style="display: none; border-color: #db2777;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <!-- FORM TAMBAH BANK SOAL (SESUAI SPESIFIKASI: GURU, JUDUL, FORMAT PENILAIAN, DESKRIPSI, WAKTU, BOBOT TOTAL 100%) -->
+        <div class="card" id="createSubjectCard" style="display: none; border-color: #db2777; box-shadow: 0 6px 20px rgba(219, 39, 119, 0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #fce7f3; padding-bottom: 12px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 18px;">📚</span>
-                    <h3 class="card-title" style="margin-bottom: 0;">Tambah Mata Pelajaran Baru</h3>
+                    <span style="font-size: 20px;">📚</span>
+                    <div>
+                        <h3 class="card-title" style="margin: 0; color: #be185d;">Tambah Bank Soal Baru</h3>
+                        <p style="margin: 2px 0 0; font-size: 12px; color: #9d174d;">Lengkapi data bank soal beserta pembobotan tipe soal (total 100%).</p>
+                    </div>
                 </div>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateSubjectCard()">&times; Batal</button>
             </div>
-            <form action="/admin/subjects/create" method="POST">
+            <form action="/admin/subjects/create" method="POST" id="formCreateSubject">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Kode Mata Pelajaran *</label>
-                        <input type="text" name="code" class="form-control" placeholder="Contoh: MAT, BIND, RPL" style="text-transform: uppercase;" required>
+                    <?php 
+                    $currentUserRole = $_SESSION['cbt_user'] ?? 'admin';
+                    if ($currentUserRole === 'admin'): 
+                    ?>
+                        <!-- GURU: Muncul jika Admin yang membuat -->
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label" style="font-weight: 700;">Guru Pengampu / Akses *</label>
+                            <select name="teacher" class="form-select" required>
+                                <?php foreach ($_SESSION['teachers_list'] as $t): ?>
+                                    <option value="<?= htmlspecialchars($t['name']) ?>"><?= htmlspecialchars($t['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small style="color: var(--text-muted); font-size: 11px;">Guru yang akan memiliki akses ke bank soal ini.</small>
+                        </div>
+                    <?php else: ?>
+                        <!-- GURU: Otomatis terisi jika Guru yang login, menu tidak muncul -->
+                        <input type="hidden" name="teacher" value="<?= htmlspecialchars($_SESSION['teachers_list'][0]['name'] ?? 'Guru Pengajar') ?>">
+                    <?php endif; ?>
+
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label" style="font-weight: 700;">Judul Bank Soal *</label>
+                        <input type="text" name="name" class="form-control" placeholder="Contoh: Testing Ujian Tryout, Matematika X Penilaian Akhir" required>
+                        <small style="color: var(--text-muted); font-size: 11px;">Merupakan nama atau identitas bank soal.</small>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Nama Mata Pelajaran *</label>
-                        <input type="text" name="name" class="form-control" placeholder="Contoh: Testing Ujian Tryout, Matematika X" required>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700;">Kode Bank Soal *</label>
+                        <input type="text" name="code" class="form-control" placeholder="Contoh: MAT-X, TRYOUT-1" style="text-transform: uppercase;" required>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
+
+                <div class="form-row" style="margin-top: 14px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700;">Format Penilaian *</label>
+                        <select name="format" class="form-select" required>
+                            <option value="standard">Standard (Metode Penilaian Sekolah Biasa)</option>
+                            <option value="tryout">Tryout (Format UTBK / SNMPTN / CPNS)</option>
+                        </select>
+                        <small style="font-size: 11px; margin-top: 4px; display: block;">
+                            <a href="https://e-ujian.id/panduan-menggunakan-cbt-eujian/membuat-soal-tryout-utbk-snmptn-dan-cpns-online/" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline;">
+                                ℹ️ Lihat penjelasan format tryout
+                            </a>
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700;">Waktu / Durasi Pengerjaan *</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" name="duration" class="form-control" value="120" min="5" max="360" required style="max-width: 140px;">
+                            <span style="font-weight: 600; color: var(--text-secondary);">Menit</span>
+                        </div>
+                        <small style="color: var(--text-muted); font-size: 11px;">Durasi atau timer berapa lama ujian dapat dilakukan oleh siswa.</small>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label class="form-label" style="font-weight: 700;">Deskripsi</label>
+                    <textarea name="description" class="form-control" rows="2" placeholder="Penjelasan singkat tentang bank soal yang akan dibuat..."></textarea>
+                </div>
+
+                <!-- BOBOT MACAM-MACAM TIPE SOAL (TOTAL HARUS 100%) -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-top: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <strong style="font-size: 13.5px; color: #1e293b;">Bobot Macam-Macam Tipe Soal</strong>
+                            <p style="margin: 2px 0 0; font-size: 11.5px; color: #64748b;">
+                                Total bobot harus <strong>100%</strong>. Jika ada tipe soal yang tidak digunakan, silakan beri bobot <strong>0</strong>.
+                            </p>
+                        </div>
+                        <div id="badgeTotalBobot" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; background: #dcfce7; color: #166534; border: 1px solid #86efac;">
+                            Total: 100% ✓
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: #334155;">Bobot PG (%)</label>
+                            <input type="number" name="weight_pg" id="input_w_pg" class="form-control weight-calc-input" value="60" min="0" max="100" oninput="calculateTotalWeight()">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: #334155;">Bobot PG Multi (%)</label>
+                            <input type="number" name="weight_pg_multi" id="input_w_pg_multi" class="form-control weight-calc-input" value="0" min="0" max="100" oninput="calculateTotalWeight()">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: #334155;">Bobot Essai (%)</label>
+                            <input type="number" name="weight_essay" id="input_w_essay" class="form-control weight-calc-input" value="40" min="0" max="100" oninput="calculateTotalWeight()">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: #334155;">Bobot B/S (%)</label>
+                            <input type="number" name="weight_tf" id="input_w_tf" class="form-control weight-calc-input" value="0" min="0" max="100" oninput="calculateTotalWeight()">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; color: #334155;">Bobot Jodoh (%)</label>
+                            <input type="number" name="weight_match" id="input_w_match" class="form-control weight-calc-input" value="0" min="0" max="100" oninput="calculateTotalWeight()">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
                     <button type="button" class="btn btn-secondary" onclick="toggleCreateSubjectCard()">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Mata Pelajaran</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 8px 24px;">Simpan Bank Soal</button>
                 </div>
             </form>
         </div>
 
-        <!-- CREATE QUESTION CARD (Collapsible) -->
-        <div class="card" id="createQuestionCard" style="display: none; border-color: var(--primary);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 18px;">📝</span>
-                    <h3 class="card-title" style="margin-bottom: 0;">Buat Butir Soal Baru</h3>
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateQuestionCard()">&times; Batal</button>
-            </div>
-            <form action="/admin/questions/create" method="POST">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Mata Pelajaran *</label>
-                        <select name="subject_id" id="create_q_subject_id" class="form-control" required>
-                            <?php foreach ($subjects as $sb): ?>
-                                <option value="<?= htmlspecialchars($sb['id']) ?>" <?= $filterSubject === $sb['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($sb['name']) ?> (<?= htmlspecialchars($sb['code']) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tipe Soal *</label>
-                        <select name="question_type" class="form-control">
-                            <option value="single_choice">Pilihan Ganda (Single Choice)</option>
-                            <option value="multiple_choice">Pilihan Majemuk</option>
-                            <option value="essay">Esai / Uraian</option>
-                            <option value="true_false">Benar / Salah</option>
-                            <option value="matching">Menjodohkan</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tingkat Kesulitan</label>
-                        <select name="difficulty" class="form-control">
-                            <option value="easy">Mudah</option>
-                            <option value="medium" selected>Sedang</option>
-                            <option value="hard">Sukar / HOTS</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-top: 10px;">
-                    <label class="form-label">Isi / Pertanyaan Soal *</label>
-                    <textarea name="content" class="form-control" rows="3" placeholder="Tuliskan teks pertanyaan soal..." required></textarea>
-                </div>
-
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 12px;">
-                    <strong style="font-size: 13px; color: var(--text-primary); display: block; margin-bottom: 8px;">Pilihan Jawaban (Opsi A - E) &amp; Kunci:</strong>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
-                        <div>
-                            <label style="font-size: 11.5px; font-weight: 700;">Opsi A</label>
-                            <input type="text" name="option_a" class="form-control" placeholder="Pilihan A" required>
-                        </div>
-                        <div>
-                            <label style="font-size: 11.5px; font-weight: 700;">Opsi B</label>
-                            <input type="text" name="option_b" class="form-control" placeholder="Pilihan B" required>
-                        </div>
-                        <div>
-                            <label style="font-size: 11.5px; font-weight: 700;">Opsi C</label>
-                            <input type="text" name="option_c" class="form-control" placeholder="Pilihan C" required>
-                        </div>
-                        <div>
-                            <label style="font-size: 11.5px; font-weight: 700;">Opsi D</label>
-                            <input type="text" name="option_d" class="form-control" placeholder="Pilihan D" required>
-                        </div>
-                        <div>
-                            <label style="font-size: 11.5px; font-weight: 700;">Opsi E</label>
-                            <input type="text" name="option_e" class="form-control" placeholder="Pilihan E">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-row" style="margin-top: 12px;">
-                    <div class="form-group">
-                        <label class="form-label">Kunci Jawaban Benar *</label>
-                        <select name="correct_option" class="form-control" style="font-weight: 700; color: #16a34a;" required>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Bobot Nilai / Skor *</label>
-                        <input type="number" step="0.5" name="score_weight" class="form-control" value="2.5" required>
-                    </div>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-                    <button type="button" class="btn btn-secondary" onclick="toggleCreateQuestionCard()">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Butir Soal</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- TABEL UTAMA PERSIS SEPERTI CONTOH (NO, GURU, JUDUL, PG, PG MULTI, ESSAI, B/S, JODOH, WAKTU, DAFTAR PERTANYAAN, AKSI) -->
-        <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm); border-radius: 10px;">
-            <div class="data-table-wrapper">
-                <table class="table example-table" style="margin: 0; background: #ffffff;">
+        <!-- TABEL BANK SOAL: 11 KOLOM PERSIS CONTOH GAMBAR -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
+            <div class="table-responsive">
+                <table class="table example-table" style="margin-bottom: 0;">
                     <thead>
-                        <tr>
-                            <th style="width: 50px; text-align: center;">NO. <span class="sort-icon">⇅</span></th>
+                        <tr style="background: #f8fafc;">
+                            <th style="width: 55px; text-align: center;">NO. <span class="sort-icon">⇅</span></th>
                             <th>GURU <span class="sort-icon">⇅</span></th>
                             <th>JUDUL <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 60px;">PG <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 85px;">PG MULTI <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 70px;">ESSAI <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 60px;">B/S <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 75px;">JODOH <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 110px;">WAKTU <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 160px;">DAFTAR PERTANYAAN <span class="sort-icon">⇅</span></th>
-                            <th style="text-align: center; width: 120px;">AKSI <span class="sort-icon">⇅</span></th>
+                            <th style="width: 50px; text-align: center;">PG <span class="sort-icon">⇅</span></th>
+                            <th style="width: 85px; text-align: center;">PG MULTI <span class="sort-icon">⇅</span></th>
+                            <th style="width: 65px; text-align: center;">ESSAI <span class="sort-icon">⇅</span></th>
+                            <th style="width: 55px; text-align: center;">B/S <span class="sort-icon">⇅</span></th>
+                            <th style="width: 70px; text-align: center;">JODOH <span class="sort-icon">⇅</span></th>
+                            <th style="width: 95px; text-align: center;">WAKTU <span class="sort-icon">⇅</span></th>
+                            <th style="width: 150px; text-align: center;">DAFTAR PERTANYAAN <span class="sort-icon">⇅</span></th>
+                            <th style="width: 110px; text-align: center;">AKSI <span class="sort-icon">⇅</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($subjects)): ?>
                             <tr>
-                                <td colspan="11" style="text-align: center; padding: 35px; color: #94a3b8;">
-                                    Belum ada data mata pelajaran / bank soal.
+                                <td colspan="11" style="text-align: center; padding: 40px 20px;">
+                                    <div style="font-size: 28px; margin-bottom: 8px;">📚</div>
+                                    <div style="font-weight: 700; color: #475569;">Belum ada bank soal</div>
+                                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Klik "+ Tambah Bank Soal" di atas untuk membuat bank soal baru.</div>
                                 </td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($subjects as $idx => $sb): 
-                                $counts = $subjectCounts[$sb['id']] ?? ['pg' => 0, 'pg_multi' => 0, 'essai' => 0, 'bs' => 0, 'jodoh' => 0, 'total' => 0];
+                                $counts = $typeCounts[$sb['id']] ?? ['pg' => 0, 'pg_multi' => 0, 'essai' => 0, 'bs' => 0, 'jodoh' => 0];
                                 $teacherName = $sb['teacher'] ?? 'Demo';
+                                $durationText = ($sb['duration'] ?? 120) . ' menit';
                             ?>
                                 <tr style="vertical-align: middle;">
                                     <td style="text-align: center; color: #475569; font-weight: 600; padding: 18px 10px;">
@@ -4921,7 +5052,7 @@ function renderQuestionsContent() {
                                             <?= htmlspecialchars($sb['name']) ?>
                                         </div>
                                         <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">
-                                            Kode: <?= htmlspecialchars($sb['code']) ?>
+                                            Kode: <?= htmlspecialchars($sb['code']) ?> &bull; Format: <?= ucfirst($sb['format'] ?? 'Standard') ?>
                                         </div>
                                     </td>
                                     <td style="text-align: center; color: #64748b; font-weight: 500; font-size: 14px; padding: 18px 8px;">
@@ -4940,19 +5071,21 @@ function renderQuestionsContent() {
                                         <?= $counts['jodoh'] ?>
                                     </td>
                                     <td style="text-align: center; color: #475569; font-size: 13px; white-space: nowrap; padding: 18px 10px;">
-                                        120 menit
+                                        <?= htmlspecialchars($durationText) ?>
                                     </td>
                                     <td style="text-align: center; padding: 18px 12px;">
-                                        <button type="button" class="btn-buat-soal-purple" onclick="toggleCreateQuestionCard('<?= htmlspecialchars($sb['id']) ?>')">
+                                        <!-- TOMBOL BUAT SOAL UNGU PERSIS CONTOH -->
+                                        <a href="/admin/questions?subject_id=<?= urlencode($sb['id']) ?>#detail-soal" class="btn-buat-soal-purple" onclick="openQuestionRepository('<?= htmlspecialchars($sb['id']) ?>')">
                                             Buat Soal
-                                        </button>
+                                        </a>
                                     </td>
                                     <td style="text-align: center; padding: 14px 10px;">
+                                        <!-- TOMBOL AKSI VERTIKAL PERSIS CONTOH: UBAH, ARSIPKAN, CETAK -->
                                         <div class="action-stack">
                                             <button type="button" class="btn-action-ubah" onclick="openEditSubjectModal('<?= htmlspecialchars($sb['id']) ?>', '<?= htmlspecialchars(addslashes($sb['code'])) ?>', '<?= htmlspecialchars(addslashes($sb['name'])) ?>')">
                                                 Ubah
                                             </button>
-                                            <a href="/admin/subjects/delete?id=<?= urlencode($sb['id']) ?>" class="btn-action-arsipkan" onclick="return confirm('Arsipkan atau hapus mata pelajaran <?= htmlspecialchars(addslashes($sb['name'])) ?>?');">
+                                            <a href="/admin/subjects/delete?id=<?= urlencode($sb['id']) ?>" class="btn-action-arsipkan" onclick="return confirm('Arsipkan atau hapus bank soal <?= htmlspecialchars(addslashes($sb['name'])) ?>?');">
                                                 Arsipkan
                                             </a>
                                             <button type="button" class="btn-action-cetak" onclick="window.print()">
@@ -4968,103 +5101,254 @@ function renderQuestionsContent() {
             </div>
         </div>
 
-        <!-- DETAIL BUTIR SOAL KETIKA MATA PELAJARAN DIKLIK ATAU CARI SOAL AKTIF -->
+        <!-- DETAIL & REPOSITORY BUTIR SOAL KETIKA TOMBOL UNGU "BUAT SOAL" DIKLIK -->
         <?php if ($activeSubjectObj || $search !== ''): ?>
-            <div class="card" id="detail-soal" style="border: 1px solid #bae6fd; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08); padding: 0; overflow: hidden;">
-                <div style="padding: 16px 20px; border-bottom: 1px solid #e0f2fe; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div class="card" id="detail-soal" style="border: 1px solid #bae6fd; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.1); padding: 0; overflow: hidden; margin-top: 10px;">
+                <div style="padding: 18px 22px; border-bottom: 1px solid #e0f2fe; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800;">
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: #5b47fb; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; box-shadow: 0 4px 12px rgba(91, 71, 251, 0.3);">
                             📝
                         </div>
                         <div>
-                            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #0284c7; letter-spacing: 0.5px;">Repository Butir Soal</div>
-                            <div style="font-size: 16px; font-weight: 800; color: #0369a1; margin-top: 1px;">
-                                <?= $activeSubjectObj ? htmlspecialchars($activeSubjectObj['name']) . ' (' . htmlspecialchars($activeSubjectObj['code']) . ')' : 'Hasil Pencarian Butir Soal' ?>
+                            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #5b47fb; letter-spacing: 0.5px;">Daftar Pertanyaan &amp; Butir Soal</div>
+                            <div style="font-size: 17px; font-weight: 800; color: #1e293b; margin-top: 1px;">
+                                <?= $activeSubjectObj ? htmlspecialchars($activeSubjectObj['name']) . ' (' . htmlspecialchars($activeSubjectObj['code']) . ')' : 'Semua Butir Soal' ?>
                             </div>
-                            <div style="font-size: 12px; color: #475569; margin-top: 2px;">
-                                Total: <strong><?= count($filteredQuestions) ?> Butir Soal</strong>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                Total Pertanyaan: <strong><?= count($filteredQuestions) ?> Soal</strong> &bull; Guru: <strong><?= htmlspecialchars($activeSubjectObj['teacher'] ?? 'Demo') ?></strong>
                             </div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; align-items: center;">
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                         <?php if ($activeSubjectObj): ?>
-                            <button type="button" class="btn btn-sm btn-primary" onclick="toggleCreateQuestionCard('<?= htmlspecialchars($activeSubjectObj['id']) ?>')">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="toggleCreateQuestionCard('<?= htmlspecialchars($activeSubjectObj['id']) ?>')" style="font-weight: 700; background: #0095ff;">
                                 <span>➕</span> Tambah Soal
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="openImportModalWithSubject('<?= htmlspecialchars($activeSubjectObj['id']) ?>')" style="border-color: #bae6fd; color: #0284c7; font-weight: 600;">
+                                <span>📥</span> Import Excel
                             </button>
                         <?php endif; ?>
                         <a href="/admin/questions" class="btn btn-sm btn-secondary">
-                            <span>✕</span> Tutup Detail
+                            <span>✕</span> Tutup Soal
                         </a>
                     </div>
                 </div>
 
+                <!-- FORM TAMBAH SOAL (INTERAKTIF: PILIHAN GANDA & ESSAI) -->
+                <div id="createQuestionCard" style="display: none; padding: 20px 22px; background: #ffffff; border-bottom: 2px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #1e293b;">
+                            ➕ Masukkan Pertanyaan Baru untuk <?= $activeSubjectObj ? htmlspecialchars($activeSubjectObj['name']) : 'Bank Soal' ?>
+                        </h4>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateQuestionCard()">&times; Batal</button>
+                    </div>
+
+                    <form action="/admin/questions/create" method="POST">
+                        <input type="hidden" name="subject_id" id="create_q_subject_id" value="<?= $activeSubjectObj ? htmlspecialchars($activeSubjectObj['id']) : '' ?>">
+                        
+                        <div class="form-row" style="margin-bottom: 14px;">
+                            <div class="form-group" style="flex: 2;">
+                                <label class="form-label" style="font-weight: 700;">Tipe Soal *</label>
+                                <select name="question_type" id="question_type_selector" class="form-select" onchange="handleQuestionTypeChange(this.value)" required>
+                                    <option value="single_choice" selected>Pilihan Ganda (Single Choice)</option>
+                                    <option value="essay">Essai / Uraian</option>
+                                </select>
+                                <small style="color: var(--text-muted); font-size: 11px;">
+                                    Pilih bentuk soal. Untuk essai, pilihan A-E wajib dikosongkan dan isi bagian bobot soal essai.
+                                </small>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" style="font-weight: 700;">Tingkat Kesulitan</label>
+                                <select name="difficulty" class="form-select">
+                                    <option value="easy">Mudah</option>
+                                    <option value="medium" selected>Sedang</option>
+                                    <option value="hard">Sukar / HOTS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label class="form-label" style="font-weight: 700;">Teks Soal / Pertanyaan *</label>
+                            <textarea name="content" class="form-control" rows="3" placeholder="Masukkan soal atau pertanyaan yang akan dikerjakan siswa..." required></textarea>
+                        </div>
+
+                        <!-- OPSI JAWABAN PILIHAN GANDA (A - E) -->
+                        <div id="section_single_choice_options" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+                            <div style="font-weight: 700; font-size: 13px; color: #1e293b; margin-bottom: 10px;">
+                                Pilihan Jawaban (A - E) &amp; Kunci Jawaban:
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: #475569;">Pilihan A *</label>
+                                    <input type="text" name="option_a" id="opt_a_input" class="form-control" placeholder="Teks opsi A">
+                                </div>
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: #475569;">Pilihan B *</label>
+                                    <input type="text" name="option_b" id="opt_b_input" class="form-control" placeholder="Teks opsi B">
+                                </div>
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: #475569;">Pilihan C *</label>
+                                    <input type="text" name="option_c" id="opt_c_input" class="form-control" placeholder="Teks opsi C">
+                                </div>
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: #475569;">Pilihan D *</label>
+                                    <input type="text" name="option_d" id="opt_d_input" class="form-control" placeholder="Teks opsi D">
+                                </div>
+                                <div>
+                                    <label style="font-size: 11.5px; font-weight: 700; color: #475569;">Pilihan E</label>
+                                    <input type="text" name="option_e" id="opt_e_input" class="form-control" placeholder="Teks opsi E (Opsional)">
+                                </div>
+                            </div>
+
+                            <div class="form-row" style="margin-top: 12px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label class="form-label" style="font-weight: 700;">Kunci Jawaban Benar *</label>
+                                    <select name="correct_option" class="form-select" style="font-weight: 700; color: #16a34a;">
+                                        <option value="A">Opsi A</option>
+                                        <option value="B">Opsi B</option>
+                                        <option value="C">Opsi C</option>
+                                        <option value="D">Opsi D</option>
+                                        <option value="E">Opsi E</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label class="form-label" style="font-weight: 700;">Bobot Poin Soal PG</label>
+                                    <input type="number" step="0.5" name="score_weight" class="form-control" value="2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KHUSUS ESSAI: BAGIAN BOBOT SOAL ESSAI -->
+                        <div id="section_essay_weight" style="display: none; background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+                            <div style="font-weight: 700; font-size: 13px; color: #854d0e; margin-bottom: 4px;">
+                                ✍️ Pengaturan Soal Essai / Uraian
+                            </div>
+                            <p style="margin: 0 0 10px; font-size: 12px; color: #a16207;">
+                                Untuk membuat soal essai, bagian pilihan A, B, C, D dan E wajib dikosongkan. Masukkan bobot nilai soal essai di bawah ini.
+                            </p>
+                            <div style="max-width: 240px;">
+                                <label style="font-size: 12px; font-weight: 700; color: #713f12;">Bobot Soal Essai (Poin) *</label>
+                                <input type="number" step="0.5" name="score_weight_essay" class="form-control" value="20.0" min="1" max="100">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                            <button type="button" class="btn btn-secondary" onclick="toggleCreateQuestionCard()">Batal</button>
+                            <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 8px 24px;">Simpan Pertanyaan</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- PENCARIAN DALAM DAFTAR SOAL -->
                 <div style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); background: #fafafa;">
                     <form action="/admin/questions" method="GET" style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <?php if ($activeSubjectObj): ?>
                             <input type="hidden" name="subject_id" value="<?= htmlspecialchars($activeSubjectObj['id']) ?>">
                         <?php endif; ?>
-                        <input type="text" name="search" class="form-control" placeholder="Cari isi butir pertanyaan..." value="<?= htmlspecialchars($search) ?>" style="max-width: 280px;">
+                        <input type="text" name="search" class="form-control" placeholder="Cari isi butir pertanyaan..." value="<?= htmlspecialchars($search) ?>" style="max-width: 320px;">
                         <button type="submit" class="btn btn-secondary">Cari</button>
                         <?php if ($search !== ''): ?>
-                            <a href="/admin/questions<?= $activeSubjectObj ? '?subject_id=' . urlencode($activeSubjectObj['id']) : '' ?>" class="btn btn-secondary">Reset</a>
+                            <a href="/admin/questions<?= $activeSubjectObj ? '?subject_id=' . urlencode($activeSubjectObj['id']) . '#detail-soal' : '' ?>" class="btn btn-secondary">Reset</a>
                         <?php endif; ?>
                     </form>
                 </div>
 
+                <!-- TABEL PERTANYAAN: DILENGKAPI FITUR STATUS IKON MATA (AKTIF / NONAKTIF DICORET) -->
                 <div class="data-table-wrapper">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th style="width: 45px; text-align: center;">No</th>
-                                <th style="width: 140px;">Mata Pelajaran</th>
+                                <th style="width: 110px;">Tipe</th>
                                 <th>Pertanyaan Soal</th>
-                                <th style="width: 180px;">Opsi Jawaban</th>
-                                <th style="width: 90px; text-align: center;">Kunci</th>
-                                <th style="width: 80px; text-align: center;">Bobot</th>
-                                <th style="width: 130px; text-align: center;">Aksi</th>
+                                <th style="width: 170px;">Opsi / Keterangan</th>
+                                <th style="width: 80px; text-align: center;">Kunci</th>
+                                <th style="width: 75px; text-align: center;">Bobot</th>
+                                <th style="width: 110px; text-align: center;">Status (Mata)</th>
+                                <th style="width: 120px; text-align: center;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($filteredQuestions)): ?>
                                 <tr>
-                                    <td colspan="7">
-                                        <div class="empty-state">
+                                    <td colspan="8">
+                                        <div class="empty-state" style="padding: 30px;">
                                             <div class="empty-state-icon">📝</div>
-                                            <p>Belum ada butir soal pada kriteria ini.</p>
+                                            <p style="font-weight: 700; color: #475569;">Belum ada butir soal pada bank soal ini.</p>
+                                            <p style="font-size: 12px; color: #94a3b8;">Klik tombol "+ Tambah Soal" di atas untuk menambahkan pertanyaan satu per satu atau import menggunakan excel.</p>
                                         </div>
                                     </td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($filteredQuestions as $idx => $q): 
                                     $opts = $q['options'] ?? [];
+                                    $isEssay = ($q['question_type'] ?? '') === 'essay';
+                                    $isInactive = ($q['status'] ?? 'active') === 'inactive';
                                 ?>
-                                    <tr>
+                                    <tr style="<?= $isInactive ? 'background: #f8fafc;' : '' ?>">
                                         <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                         <td>
-                                            <span class="badge badge-primary"><?= htmlspecialchars($q['subject_name']) ?></span>
+                                            <?php if ($isEssay): ?>
+                                                <span class="badge" style="background: #fef08a; color: #854d0e; font-weight: 700;">Essai</span>
+                                            <?php else: ?>
+                                                <span class="badge badge-primary">PG</span>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
-                                            <div style="font-weight: 600; font-size: 13.5px; color: var(--text-primary); line-height: 1.4;">
+                                            <!-- JIKA STATUS NONAKTIF: PERTANYAAN DICORET DAN WARNA PUDAR -->
+                                            <div style="font-weight: 600; font-size: 13.5px; line-height: 1.4; <?= $isInactive ? 'text-decoration: line-through; opacity: 0.55; color: #94a3b8; font-style: italic;' : 'color: var(--text-primary);' ?>">
                                                 <?= htmlspecialchars($q['content']) ?>
                                             </div>
+                                            <?php if ($isInactive): ?>
+                                                <div style="font-size: 11px; color: #dc2626; margin-top: 3px; font-weight: 600;">
+                                                    🚫 Soal dinonaktifkan (tidak tampil di siswa saat ujian)
+                                                </div>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
-                                            <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.3;">
-                                                <?php foreach (['A', 'B', 'C', 'D', 'E'] as $k): ?>
-                                                    <?php if (!empty($opts[$k])): ?>
-                                                        <div><strong><?= $k ?>.</strong> <?= htmlspecialchars($opts[$k]) ?></div>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </div>
+                                            <?php if ($isEssay): ?>
+                                                <span style="font-size: 11.5px; color: #854d0e; font-style: italic;">Jawaban uraian siswa</span>
+                                            <?php else: ?>
+                                                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.35;">
+                                                    <?php foreach (['A', 'B', 'C', 'D', 'E'] as $k): ?>
+                                                        <?php if (!empty($opts[$k])): ?>
+                                                            <div><strong><?= $k ?>.</strong> <?= htmlspecialchars($opts[$k]) ?></div>
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </td>
                                         <td style="text-align: center;">
-                                            <span class="badge badge-success" style="font-size: 12px; font-weight: 800;">
-                                                <?= htmlspecialchars($q['correct_option'] ?? 'A') ?>
-                                            </span>
+                                            <?php if ($isEssay): ?>
+                                                <span style="color: #94a3b8; font-weight: 700;">-</span>
+                                            <?php else: ?>
+                                                <span class="badge badge-success" style="font-size: 12px; font-weight: 800;">
+                                                    <?= htmlspecialchars($q['correct_option'] ?? 'A') ?>
+                                                </span>
+                                            <?php endif; ?>
                                         </td>
                                         <td style="text-align: center; font-weight: 700; color: var(--text-primary);">
-                                            <?= htmlspecialchars($q['score_weight'] ?? 2.5) ?>
+                                            <?= htmlspecialchars($q['score_weight'] ?? ($isEssay ? 20.0 : 2.5)) ?>
                                         </td>
+                                        
+                                        <!-- FITUR IKON MATA: TOGGLE AKTIF / NONAKTIF (DICORET) -->
+                                        <td style="text-align: center;">
+                                            <a 
+                                                href="/admin/questions/toggle-status?id=<?= urlencode($q['id']) ?>&subject_id=<?= urlencode($activeSubjectObj['id'] ?? '') ?>" 
+                                                class="btn btn-sm <?= $isInactive ? 'btn-secondary' : 'btn-light' ?>" 
+                                                title="<?= $isInactive ? 'Klik untuk mengaktifkan kembali soal ini' : 'Klik ikon mata untuk menonaktifkan soal (soal akan dicoret dan tidak tampil di siswa)' ?>"
+                                                style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 14px; text-decoration: none;"
+                                            >
+                                                <?php if ($isInactive): ?>
+                                                    <span style="font-size: 14px;">🙈</span>
+                                                    <span style="font-size: 11px; color: #dc2626; font-weight: 700;">Nonaktif</span>
+                                                <?php else: ?>
+                                                    <span style="font-size: 14px;">👁️</span>
+                                                    <span style="font-size: 11px; color: #16a34a; font-weight: 700;">Aktif</span>
+                                                <?php endif; ?>
+                                            </a>
+                                        </td>
+
                                         <td style="text-align: center;">
                                             <div class="action-btns" style="justify-content: center; gap: 4px;">
                                                 <button 
@@ -5078,7 +5362,7 @@ function renderQuestionsContent() {
                                                 <a 
                                                     href="/admin/questions/delete?id=<?= urlencode($q['id']) ?>" 
                                                     class="btn btn-danger btn-sm" 
-                                                    onclick="return confirm('Hapus butir soal ini?');"
+                                                    onclick="return confirm('Hapus butir soal ini dari bank soal?');"
                                                     title="Hapus Butir Soal"
                                                 >
                                                     Hapus
@@ -5106,23 +5390,24 @@ function renderQuestionsContent() {
                 <input type="hidden" name="id" id="edit_q_id">
                 
                 <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label">Teks Pertanyaan *</label>
+                    <label class="form-label" style="font-weight: 700;">Teks Pertanyaan *</label>
                     <textarea name="content" id="edit_q_content" class="form-control" rows="3" required></textarea>
                 </div>
 
                 <div class="form-row" style="margin-bottom: 16px;">
                     <div class="form-group">
-                        <label class="form-label">Kunci Jawaban Benar *</label>
-                        <select name="correct_option" id="edit_q_key" class="form-control" style="font-weight: 700; color: #16a34a;">
+                        <label class="form-label" style="font-weight: 700;">Kunci Jawaban Benar</label>
+                        <select name="correct_option" id="edit_q_key" class="form-select" style="font-weight: 700; color: #16a34a;">
                             <option value="A">A</option>
                             <option value="B">B</option>
                             <option value="C">C</option>
                             <option value="D">D</option>
                             <option value="E">E</option>
+                            <option value="-">- (Essai)</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Bobot Nilai / Skor</label>
+                        <label class="form-label" style="font-weight: 700;">Bobot Nilai / Skor</label>
                         <input type="number" step="0.5" name="score_weight" id="edit_q_weight" class="form-control" required>
                     </div>
                 </div>
@@ -5135,21 +5420,21 @@ function renderQuestionsContent() {
         </div>
     </div>
 
-    <!-- EDIT SUBJECT MODAL -->
+    <!-- EDIT BANK SOAL (SUBJECT) MODAL -->
     <div class="modal-overlay" id="editSubjectModal" style="align-items: center; justify-content: center;">
         <div class="modal-content-card" style="max-width: 480px; border-radius: 12px;">
             <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid var(--border-color); padding: 16px 20px;">
-                <h3 class="modal-title" style="margin: 0; font-size: 1.15rem; font-weight: 800;">Edit Mata Pelajaran</h3>
+                <h3 class="modal-title" style="margin: 0; font-size: 1.15rem; font-weight: 800;">Ubah Bank Soal</h3>
                 <button type="button" class="modal-close-btn" onclick="document.getElementById('editSubjectModal').classList.remove('open')">&times;</button>
             </div>
             <form action="/admin/subjects/edit" method="POST" style="padding: 20px;">
                 <input type="hidden" name="id" id="edit_sb_id">
                 <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label">Kode Mata Pelajaran *</label>
+                    <label class="form-label" style="font-weight: 700;">Kode Bank Soal *</label>
                     <input type="text" name="code" id="edit_sb_code" class="form-control" style="text-transform: uppercase;" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Nama Mata Pelajaran *</label>
+                    <label class="form-label" style="font-weight: 700;">Judul Bank Soal *</label>
                     <input type="text" name="name" id="edit_sb_name" class="form-control" required>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
@@ -5172,6 +5457,48 @@ function renderQuestionsContent() {
                 } else {
                     c.style.display = 'none';
                 }
+            }
+        }
+
+        function calculateTotalWeight() {
+            var pg = parseFloat(document.getElementById('input_w_pg').value) || 0;
+            var pgMulti = parseFloat(document.getElementById('input_w_pg_multi').value) || 0;
+            var essay = parseFloat(document.getElementById('input_w_essay').value) || 0;
+            var tf = parseFloat(document.getElementById('input_w_tf').value) || 0;
+            var match = parseFloat(document.getElementById('input_w_match').value) || 0;
+            var total = pg + pgMulti + essay + tf + match;
+            var badge = document.getElementById('badgeTotalBobot');
+            if (badge) {
+                if (Math.abs(total - 100) < 0.01) {
+                    badge.innerHTML = 'Total: 100% ✓';
+                    badge.style.background = '#dcfce7';
+                    badge.style.color = '#166534';
+                    badge.style.borderColor = '#86efac';
+                } else {
+                    badge.innerHTML = 'Total: ' + total + '% (Wajib 100%)';
+                    badge.style.background = '#fee2e2';
+                    badge.style.color = '#991b1b';
+                    badge.style.borderColor = '#fca5a5';
+                }
+            }
+        }
+
+        function handleQuestionTypeChange(type) {
+            var optSec = document.getElementById('section_single_choice_options');
+            var essaySec = document.getElementById('section_essay_weight');
+            if (type === 'essay') {
+                if (optSec) optSec.style.display = 'none';
+                if (essaySec) essaySec.style.display = 'block';
+                // Kosongkan value pilihan A-E
+                document.getElementById('opt_a_input').value = '';
+                document.getElementById('opt_b_input').value = '';
+                document.getElementById('opt_c_input').value = '';
+                document.getElementById('opt_d_input').value = '';
+                var optE = document.getElementById('opt_e_input');
+                if (optE) optE.value = '';
+            } else {
+                if (optSec) optSec.style.display = 'block';
+                if (essaySec) essaySec.style.display = 'none';
             }
         }
 
@@ -5201,6 +5528,10 @@ function renderQuestionsContent() {
             }
         }
 
+        function openQuestionRepository(subjectId) {
+            // Smoothly navigate or open repository
+        }
+
         function openImportModalWithSubject(subjectId) {
             if (typeof openImportModal === 'function') {
                 openImportModal();
@@ -5219,7 +5550,7 @@ function renderQuestionsContent() {
 }
 
 // =========================================================================
-// 13. MENU 7: PAKET UJIAN (FULL INTERACTIVE CRUD & DETAIL VIEW)
+// 13. MENU 7: RUANG UJIAN (KELAS UJIAN, SETTING WAKTU, KREDENSIAL & EXPORT)
 // =========================================================================
 function renderExamsContent() {
     $search = strtolower(trim($_GET['search'] ?? ''));
@@ -5248,25 +5579,86 @@ function renderExamsContent() {
     <div style="display: flex; flex-direction: column; gap: 20px;">
         <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Paket Ujian &amp; Penilaian</h1>
+                <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Ruang Ujian</h1>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Kelola jadwal ujian, konfigurasi durasi, token, butir soal, dan peserta
+                    Ruang ujian adalah kode ujian yang nantinya akan digunakan oleh siswa saat ujian. Satu Bank Soal bisa untuk banyak ruang ujian sesuai kebutuhan.
                 </p>
             </div>
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('createExamCard').style.display = 'block'; window.scrollTo({top: document.getElementById('createExamCard').offsetTop - 80, behavior: 'smooth'});">
-                <span>+</span> Buat Paket Ujian
+            <button type="button" class="btn btn-primary" onclick="toggleCreateExamCard()" style="font-weight: 700;">
+                <span>+</span> Tambah Baru
             </button>
+        </div>
+
+        <!-- FORM MEMBUAT RUANG UJIAN (KELAS UJIAN) BARU -->
+        <div class="card" id="createExamCard" style="display: none; border-color: #059669; box-shadow: 0 6px 20px rgba(5, 150, 105, 0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #d1fae5; padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">🚪</span>
+                    <div>
+                        <h3 class="card-title" style="margin: 0; color: #047857;">Buat Ruang Ujian Baru</h3>
+                        <p style="margin: 2px 0 0; font-size: 12px; color: #065f46;">
+                            Setiap kelas ujian akan memiliki kode unik yang kemudian dapat dibagikan ke calon peserta ujian.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateExamCard()">&times; Batal</button>
+            </div>
+            <form action="/admin/exams/create" method="POST">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label" style="font-weight: 700;">Pilih Bank Soal *</label>
+                        <select name="subject" id="exam_subject_select" class="form-select" onchange="updateDurationFromSubject(this)" required>
+                            <option value="">-- Pilih Bank Soal yang Telah Dibuat --</option>
+                            <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
+                                <option value="<?= htmlspecialchars($sb['name']) ?>" data-duration="<?= $sb['duration'] ?? 120 ?>">
+                                    <?= htmlspecialchars($sb['name']) ?> (<?= htmlspecialchars($sb['code']) ?>) &bull; Format: <?= ucfirst($sb['format'] ?? 'Standard') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small style="color: var(--text-muted); font-size: 11px;">Satu Bank Soal yang kita buat bisa untuk banyak ruang ujian.</small>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label" style="font-weight: 700;">Nama Ruang / Kelas Ujian *</label>
+                        <input type="text" name="title" class="form-control" placeholder="Contoh: Ruang Ujian 1 - Kelas X TKJ 1" required>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 14px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700;">Rombel / Kelas Peserta *</label>
+                        <select name="class" class="form-select" required>
+                            <?php foreach ($_SESSION['classes_list'] as $c): ?>
+                                <option value="<?= htmlspecialchars($c['name']) ?>"><?= htmlspecialchars($c['name']) ?> (<?= htmlspecialchars($c['department']) ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700;">Kode Kelas Ujian / Kode Unik *</label>
+                        <input type="text" name="token" id="create_exam_token" class="form-control" value="<?= substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6) ?>" style="font-weight: 800; letter-spacing: 1px; color: #0284c7;" required>
+                        <small style="color: var(--text-muted); font-size: 11px;">Kode unik yang dibagikan ke siswa calon peserta.</small>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700;">Durasi Pengerjaan (Menit) *</label>
+                        <input type="number" name="duration" id="create_exam_duration" class="form-control" value="120" min="10" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
+                    <button type="button" class="btn btn-secondary" onclick="toggleCreateExamCard()">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700; background: #059669; border-color: #059669; padding: 8px 24px;">Simpan Ruang Ujian</button>
+                </div>
+            </form>
         </div>
 
         <!-- SEARCH & FILTER BAR -->
         <div class="card" style="padding: 14px 18px;">
             <form method="GET" action="/admin/exams" class="search-filter-bar" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                 <div class="search-input-group" style="flex: 2; min-width: 200px;">
-                    <input type="text" name="search" class="form-control" placeholder="Cari judul ujian..." value="<?= htmlspecialchars($search) ?>">
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama ruang ujian..." value="<?= htmlspecialchars($search) ?>">
                 </div>
                 <div class="filter-select-group" style="display: flex; gap: 8px; flex: 3; min-width: 240px;">
                     <select name="subject_id" class="form-select" onchange="this.form.submit()">
-                        <option value="">Semua Mapel</option>
+                        <option value="">Semua Bank Soal</option>
                         <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
                             <option value="<?= htmlspecialchars($sb['name']) ?>" <?= $subjectId === $sb['name'] ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($sb['name']) ?>
@@ -5275,66 +5667,15 @@ function renderExamsContent() {
                     </select>
                     <select name="status" class="form-select" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
-                        <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>>Draft</option>
-                        <option value="published" <?= $status === 'published' ? 'selected' : '' ?>>Published</option>
-                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>>Completed</option>
+                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active (Bisa Dikerjakan)</option>
+                        <option value="published" <?= $status === 'published' ? 'selected' : '' ?>>Published (Terjadwal)</option>
+                        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>>Completed (Selesai)</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-secondary">Filter</button>
                 <?php if ($search !== '' || $subjectId !== '' || $status !== ''): ?>
                     <a href="/admin/exams" class="btn btn-secondary">Reset</a>
                 <?php endif; ?>
-            </form>
-        </div>
-
-        <!-- CREATE EXAM CARD (Collapsible) -->
-        <div class="card" id="createExamCard" style="display: none; border-color: var(--primary);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 class="card-title" style="margin-bottom: 0;">Buat Paket Jadwal Ujian Baru</h3>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('createExamCard').style.display = 'none';">&times; Batal</button>
-            </div>
-            <form action="/admin/exams/create" method="POST">
-                <div class="form-row">
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label class="form-label">Judul Paket Ujian *</label>
-                        <input type="text" name="title" class="form-control" placeholder="Contoh: Asesmen Sumatif Akhir Semester Genap" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Mata Pelajaran *</label>
-                        <select name="subject" class="form-select" required>
-                            <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
-                                <option value="<?= htmlspecialchars($sb['name']) ?>"><?= htmlspecialchars($sb['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row" style="margin-top: 12px;">
-                    <div class="form-group">
-                        <label class="form-label">Durasi Pengerjaan (Menit) *</label>
-                        <input type="number" name="duration" class="form-control" value="90" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Token Ujian *</label>
-                        <input type="text" name="token" class="form-control" value="<?= substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6) ?>" style="font-weight: 700; letter-spacing: 1px;" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">KKM / Standar Kelulusan *</label>
-                        <input type="number" step="0.5" name="passing_score" class="form-control" value="75.0" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Status Awal</label>
-                        <select name="status" class="form-select">
-                            <option value="active">Active (Langsung Berjalan)</option>
-                            <option value="published">Published (Terjadwal)</option>
-                            <option value="draft">Draft</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('createExamCard').style.display = 'none';">Batal</button>
-                    <button type="submit" class="btn btn-primary">Terbitkan Paket Ujian</button>
-                </div>
             </form>
         </div>
 
@@ -5345,21 +5686,23 @@ function renderExamsContent() {
                     <thead>
                         <tr>
                             <th style="width: 50px;">No</th>
-                            <th>Judul Ujian &amp; Mapel</th>
+                            <th>Nama Ruang &amp; Bank Soal</th>
+                            <th>Kode Kelas Ujian</th>
                             <th>Jadwal Pelaksanaan</th>
-                            <th>Durasi / Token</th>
+                            <th>Durasi</th>
                             <th>Soal / Peserta</th>
                             <th>Status</th>
-                            <th style="width: 180px; text-align: center;">Aksi</th>
+                            <th style="width: 170px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($exams)): ?>
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
-                                        <div class="empty-state-icon">⏱️</div>
-                                        <p>Belum ada jadwal paket ujian.</p>
+                                        <div class="empty-state-icon">🚪</div>
+                                        <p style="font-weight: 700; color: #475569;">Belum ada ruang ujian yang dibuat.</p>
+                                        <p style="font-size: 12px; color: #94a3b8;">Klik "+ Tambah Baru" di atas untuk membuat ruang ujian baru.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -5368,44 +5711,52 @@ function renderExamsContent() {
                                 <tr>
                                     <td><?= $idx + 1 ?></td>
                                     <td>
-                                        <div style="font-weight: 700; font-size: 0.95rem;"><?= htmlspecialchars($ex['title']) ?></div>
+                                        <div style="font-weight: 700; font-size: 0.95rem;">
+                                            <a href="/admin/exams?action=show&id=<?= urlencode($ex['id']) ?>" style="color: #0369a1; text-decoration: none;">
+                                                <?= htmlspecialchars($ex['title']) ?>
+                                            </a>
+                                        </div>
                                         <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
-                                            <span class="badge badge-info"><?= htmlspecialchars($ex['subject']) ?></span>
-                                            <span style="margin-left: 6px;">Oleh: <?= htmlspecialchars($ex['creator'] ?? 'Admin') ?></span>
+                                            <span class="badge badge-info">Bank: <?= htmlspecialchars($ex['subject']) ?></span>
+                                            <span style="margin-left: 6px;">Guru: <?= htmlspecialchars($ex['creator'] ?? 'Admin') ?></span>
                                         </div>
                                     </td>
+                                    <td>
+                                        <!-- KODE RUANG UJIAN YANG DIKLIK UNTUK AKTIFKAN / LIHAT DETAIL -->
+                                        <a href="/admin/exams?action=show&id=<?= urlencode($ex['id']) ?>" class="badge badge-primary" style="font-size: 13px; font-weight: 800; letter-spacing: 1.5px; padding: 6px 12px; text-decoration: none;" title="Klik untuk membuka detail & setting waktu ujian">
+                                            <?= htmlspecialchars($ex['token']) ?>
+                                        </a>
+                                    </td>
                                     <td style="font-size: 0.85rem;">
-                                        <div>Mulai: <strong><?= htmlspecialchars($ex['start']) ?></strong></div>
-                                        <div style="color: var(--text-muted);">Selesai: <?= htmlspecialchars($ex['end']) ?></div>
+                                        <div style="color: #047857; font-weight: 600;"><?= htmlspecialchars($ex['start']) ?></div>
                                     </td>
                                     <td>
                                         <div><strong><?= (int)$ex['duration'] ?> Menit</strong></div>
-                                        <span class="badge badge-secondary" style="letter-spacing: 1px;">TOKEN: <?= htmlspecialchars($ex['token']) ?></span>
                                     </td>
                                     <td style="font-size: 0.85rem;">
-                                        <strong><?= (int)$ex['questions_count'] ?></strong> Butir Soal<br>
+                                        <strong><?= (int)$ex['questions_count'] ?></strong> Soal &bull; 
                                         <strong><?= (int)$ex['participants_count'] ?></strong> Peserta
                                     </td>
                                     <td>
                                         <?php if ($ex['status'] === 'active'): ?>
-                                            <span class="badge badge-success">Active</span>
+                                            <span class="badge badge-success">Aktif</span>
                                         <?php elseif ($ex['status'] === 'published'): ?>
-                                            <span class="badge badge-info">Published</span>
+                                            <span class="badge badge-info">Terjadwal</span>
                                         <?php elseif ($ex['status'] === 'completed'): ?>
-                                            <span class="badge badge-secondary">Completed</span>
+                                            <span class="badge badge-secondary">Selesai</span>
                                         <?php else: ?>
                                             <span class="badge badge-warning">Draft</span>
                                         <?php endif; ?>
                                     </td>
                                     <td style="text-align: center;">
                                         <div class="action-btns">
-                                            <a href="/admin/exams?action=show&id=<?= urlencode($ex['id']) ?>" class="btn btn-sm btn-primary" title="Kelola Soal &amp; Peserta">
+                                            <a href="/admin/exams?action=show&id=<?= urlencode($ex['id']) ?>" class="btn btn-sm btn-primary" title="Buka Detail &amp; Setting Waktu Ujian">
                                                 Detail
                                             </a>
                                             <button type="button" class="btn btn-sm btn-secondary" onclick="openEditExam('<?= htmlspecialchars($ex['id']) ?>', '<?= htmlspecialchars(addslashes($ex['title'])) ?>', <?= (int)$ex['duration'] ?>, '<?= htmlspecialchars($ex['token']) ?>', <?= (float)($ex['passing_score'] ?? 75.0) ?>, '<?= htmlspecialchars($ex['status']) ?>')">
                                                 Edit
                                             </button>
-                                            <a href="/admin/exams/delete?id=<?= urlencode($ex['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus paket ujian <?= htmlspecialchars(addslashes($ex['title'])) ?>?');">
+                                            <a href="/admin/exams/delete?id=<?= urlencode($ex['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus ruang ujian <?= htmlspecialchars(addslashes($ex['title'])) ?>?');">
                                                 Hapus
                                             </a>
                                         </div>
@@ -5423,13 +5774,13 @@ function renderExamsContent() {
     <div class="modal-overlay" id="editExamModal">
         <div class="modal-content-card" style="max-width: 520px;">
             <div class="modal-header">
-                <h3 class="modal-title" style="margin: 0;">Edit Paket Ujian</h3>
+                <h3 class="modal-title" style="margin: 0;">Edit Ruang Ujian</h3>
                 <button type="button" class="modal-close-btn" onclick="document.getElementById('editExamModal').classList.remove('open')">&times;</button>
             </div>
             <form action="/admin/exams/edit" method="POST">
                 <input type="hidden" name="id" id="edit_exam_id">
                 <div style="margin-bottom: 12px;">
-                    <label class="form-label">Judul Ujian *</label>
+                    <label class="form-label">Nama Ruang Ujian *</label>
                     <input type="text" name="title" id="edit_exam_title" class="form-control" required>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
@@ -5438,7 +5789,7 @@ function renderExamsContent() {
                         <input type="number" name="duration" id="edit_exam_duration" class="form-control" required>
                     </div>
                     <div>
-                        <label class="form-label">Token Ujian</label>
+                        <label class="form-label">Kode Kelas Ujian</label>
                         <input type="text" name="token" id="edit_exam_token" class="form-control" style="font-weight: 700;" required>
                     </div>
                 </div>
@@ -5450,9 +5801,9 @@ function renderExamsContent() {
                     <div>
                         <label class="form-label">Status Ujian</label>
                         <select name="status" id="edit_exam_status" class="form-select">
+                            <option value="active">Active (Bisa Dikerjakan)</option>
+                            <option value="published">Published (Terjadwal)</option>
                             <option value="draft">Draft</option>
-                            <option value="published">Published</option>
-                            <option value="active">Active</option>
                             <option value="completed">Completed</option>
                         </select>
                     </div>
@@ -5466,6 +5817,25 @@ function renderExamsContent() {
     </div>
 
     <script>
+        function toggleCreateExamCard() {
+            var el = document.getElementById('createExamCard');
+            if (el) {
+                if (el.style.display === 'none' || el.style.display === '') {
+                    el.style.display = 'block';
+                    window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+                } else {
+                    el.style.display = 'none';
+                }
+            }
+        }
+
+        function updateDurationFromSubject(sel) {
+            var opt = sel.options[sel.selectedIndex];
+            if (opt && opt.getAttribute('data-duration')) {
+                document.getElementById('create_exam_duration').value = opt.getAttribute('data-duration');
+            }
+        }
+
         function openEditExam(id, title, duration, token, kkm, status) {
             document.getElementById('edit_exam_id').value = id;
             document.getElementById('edit_exam_title').value = title;
@@ -5480,7 +5850,7 @@ function renderExamsContent() {
 }
 
 // =========================================================================
-// 13B. EXAM DETAIL VIEW (MATCHING LOCALHOST show.blade.php)
+// 13B. RUANG UJIAN DETAIL VIEW (AKTIFKAN RUANG UJIAN, SETTING WAKTU, KREDENSIAL LOGIN & EXPORT)
 // =========================================================================
 function renderExamDetailContent($examId) {
     $exam = null;
@@ -5491,25 +5861,90 @@ function renderExamDetailContent($examId) {
         }
     }
     if (!$exam) {
-        $exam = $_SESSION['exams_list'][0] ?? ['title' => 'Paket Ujian', 'subject' => 'Matematika X', 'duration' => 90, 'token' => 'WXYZ89', 'status' => 'active'];
+        $exam = $_SESSION['exams_list'][0] ?? ['title' => 'Ruang Ujian', 'subject' => 'Matematika X', 'duration' => 120, 'token' => 'RU-8921', 'status' => 'active', 'start' => '23-09-2026 Pukul 07:00 (GMT+07:00)'];
     }
     $questions = $_SESSION['questions_list'];
     ?>
     <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- CONTENT HEADER DETAIL RUANG UJIAN -->
         <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h1 class="page-title" style="margin: 0; font-size: 1.25rem;"><?= htmlspecialchars($exam['title']) ?></h1>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem;">
-                    <span class="badge badge-info"><?= htmlspecialchars($exam['subject']) ?></span>
+                    <span class="badge badge-info">Bank: <?= htmlspecialchars($exam['subject']) ?></span>
                     <span style="margin-left: 8px;">Durasi: <strong><?= (int)$exam['duration'] ?> Menit</strong></span>
-                    <span class="badge badge-secondary" style="margin-left: 8px;">TOKEN: <?= htmlspecialchars($exam['token']) ?></span>
+                    <span class="badge badge-primary" style="margin-left: 8px; font-weight: 800; letter-spacing: 1px;">KODE: <?= htmlspecialchars($exam['token']) ?></span>
                     <span class="badge badge-success" style="margin-left: 8px;"><?= ucfirst($exam['status']) ?></span>
                 </p>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <a href="/admin/monitoring?action=show&id=<?= urlencode($exam['id']) ?>" class="btn btn-primary">📡 Live Monitoring</a>
-                <a href="/admin/results" class="btn btn-secondary">🎯 Rekap Hasil</a>
-                <a href="/admin/exams" class="btn btn-secondary">&larr; Kembali ke Daftar Ujian</a>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <!-- TOMBOL SETTING WAKTU UJIAN PERSIS SESUAI SPESIFIKASI PANDUAN -->
+                <button type="button" class="btn btn-primary" onclick="openSettingWaktuModal()" style="font-weight: 700; background: #2563eb; border-color: #2563eb;">
+                    <span>⚙️</span> Setting Waktu Ujian
+                </button>
+                <!-- TOMBOL EXPORT HASIL UJIAN (REKAP NILAI EXCEL) -->
+                <a href="/admin/monitoring/export-scores?id=<?= urlencode($exam['id']) ?>" class="btn btn-secondary" style="font-weight: 700; color: #0284c7; border-color: #bae6fd;">
+                    <span>📥</span> Export Hasil
+                </a>
+                <a href="/admin/monitoring?action=show&id=<?= urlencode($exam['id']) ?>" class="btn btn-secondary">
+                    <span>📡</span> Live Monitoring
+                </a>
+                <a href="/admin/exams" class="btn btn-secondary">&larr; Daftar Ruang Ujian</a>
+            </div>
+        </div>
+
+        <!-- BANNER STATUS RESMI: "Ruang ujian sudah dibuat dan bisa dikerjakan mulai..." -->
+        <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #6ee7b7; border-radius: 10px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.08);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 42px; height: 42px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    ✓
+                </div>
+                <div>
+                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #047857; letter-spacing: 0.5px;">Status Pelaksanaan Ruang Ujian</div>
+                    <div style="font-size: 15px; font-weight: 800; color: #065f46; margin-top: 2px;">
+                        Ruang ujian sudah dibuat dan bisa dikerjakan mulai <span style="text-decoration: underline;"><?= htmlspecialchars($exam['start']) ?></span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="openSettingWaktuModal()" style="background: #ffffff; color: #047857; border-color: #a7f3d0; font-weight: 700;">
+                    Ubah Waktu Pelaksanaan
+                </button>
+            </div>
+        </div>
+
+        <!-- CARD 8: BERIKAN NIS, PASSWORD, KODE KELAS UJIAN & MULAI UJIAN -->
+        <div class="card" style="border: 1px solid #bae6fd; background: #f0f9ff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">🔑</span>
+                    <h3 class="card-title" style="margin: 0; color: #0369a1;">Akses &amp; Kredensial Login Siswa Peserta Ujian</h3>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary" onclick="copyExamCredentials('<?= htmlspecialchars($exam['token']) ?>', '<?= htmlspecialchars($exam['title']) ?>')" style="background: #0284c7; border-color: #0284c7;">
+                    📋 Salin Format Informasi Siswa
+                </button>
+            </div>
+            <p style="margin: 0 0 14px; font-size: 13px; color: #334155; line-height: 1.5;">
+                Berikan NIS/NIM dan password kepada siswa calon peserta ujian. Selanjutnya, peserta akan dapat login dan langsung dapat mulai mengikuti ujian yang dapat secara langsung dipantau oleh Admin dan Guru.
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px;">
+                <div>
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">1. Username / Akun</div>
+                    <div style="font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 2px;">NIS / NIM Siswa</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Sesuai data peserta terdaftar</div>
+                </div>
+                <div>
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">2. Password Standar</div>
+                    <div style="font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 2px;"><code>12345678</code></div>
+                    <div style="font-size: 11px; color: #94a3b8;">Bawaan sistem CBT</div>
+                </div>
+                <div>
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">3. Kode Kelas Ujian</div>
+                    <div style="font-size: 17px; font-weight: 900; color: #2563eb; letter-spacing: 1px; margin-top: 2px;">
+                        <?= htmlspecialchars($exam['token']) ?>
+                    </div>
+                    <div style="font-size: 11px; color: #94a3b8;">Wajib dimasukkan saat mulai</div>
+                </div>
             </div>
         </div>
 
@@ -5518,9 +5953,9 @@ function renderExamDetailContent($examId) {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div>
                     <h3 class="card-title" style="margin: 0;">Butir Soal Terlampir (<?= count($questions) ?> Butir)</h3>
-                    <span style="font-size: 0.85rem; color: var(--text-muted);">Total Bobot Ujian: <strong>100 Poin</strong></span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Diambil dari Bank Soal: <strong><?= htmlspecialchars($exam['subject']) ?></strong></span>
                 </div>
-                <a href="/admin/questions" class="btn btn-sm btn-primary">+ Tambah dari Bank Soal</a>
+                <a href="/admin/questions" class="btn btn-sm btn-primary">+ Kelola di Bank Soal</a>
             </div>
 
             <div class="table-responsive">
@@ -5538,9 +5973,15 @@ function renderExamDetailContent($examId) {
                         <?php foreach ($questions as $idx => $q): ?>
                             <tr>
                                 <td><strong>#<?= $idx + 1 ?></strong></td>
-                                <td><span class="badge badge-info"><?= ($q['question_type'] ?? 'single_choice') === 'single_choice' ? 'Pilihan Ganda' : 'Uraian' ?></span></td>
+                                <td>
+                                    <?php if (($q['question_type'] ?? '') === 'essay'): ?>
+                                        <span class="badge" style="background: #fef08a; color: #854d0e; font-weight: 700;">Essai</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-info">Pilihan Ganda</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?= htmlspecialchars($q['content']) ?></td>
-                                <td><strong style="color: var(--success);"><?= htmlspecialchars($q['correct_option'] ?? 'A') ?></strong></td>
+                                <td><strong style="color: var(--success);"><?= htmlspecialchars($q['correct_option'] ?? '-') ?></strong></td>
                                 <td><strong><?= number_format((float)($q['score_weight'] ?? 2.5), 1) ?></strong></td>
                             </tr>
                         <?php endforeach; ?>
@@ -5551,7 +5992,15 @@ function renderExamDetailContent($examId) {
 
         <!-- PESERTA TERDAFTAR -->
         <div class="card">
-            <h3 class="card-title" style="margin-bottom: 14px;">Peserta Terdaftar Pada Ujian Ini</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <div>
+                    <h3 class="card-title" style="margin: 0;">Peserta Terdaftar Pada Ruang Ujian Ini</h3>
+                    <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">Siswa yang memiliki hak akses pengerjaan ruang ujian.</p>
+                </div>
+                <a href="/admin/monitoring/export-scores?id=<?= urlencode($exam['id']) ?>" class="btn btn-sm btn-secondary" style="color: #0284c7; border-color: #bae6fd;">
+                    📥 Download Rekap Nilai
+                </a>
+            </div>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -5570,7 +6019,7 @@ function renderExamDetailContent($examId) {
                                 <td><code><?= htmlspecialchars($s['nis']) ?></code></td>
                                 <td><strong><?= htmlspecialchars($s['name']) ?></strong></td>
                                 <td><span class="badge badge-primary"><?= htmlspecialchars($s['class']) ?></span></td>
-                                <td><span class="badge badge-success">Terdaftar Siap</span></td>
+                                <td><span class="badge badge-success">Siap Mengerjakan</span></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -5578,8 +6027,73 @@ function renderExamDetailContent($examId) {
             </div>
         </div>
     </div>
+
+    <!-- MODAL SETTING WAKTU UJIAN -->
+    <div class="modal-overlay" id="settingWaktuModal">
+        <div class="modal-content-card" style="max-width: 480px; border-radius: 12px;">
+            <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid var(--border-color); padding: 16px 20px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">⚙️</span>
+                    <h3 class="modal-title" style="margin: 0; font-size: 1.15rem; font-weight: 800;">Setting Waktu Ujian</h3>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeSettingWaktuModal()">&times;</button>
+            </div>
+            <form action="/admin/exams/set-schedule" method="POST" style="padding: 20px;">
+                <input type="hidden" name="id" value="<?= htmlspecialchars($exam['id']) ?>">
+                
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.45;">
+                    Pilih tanggal dan jam kapan ruang ujian bisa mulai dikerjakan oleh siswa.
+                </p>
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" style="font-weight: 700;">Tanggal &amp; Jam Mulai Ujian *</label>
+                    <input type="datetime-local" name="start_datetime" class="form-control" value="<?= date('Y-m-d\T07:00') ?>" required>
+                    <small style="font-size: 11px; color: var(--text-muted);">Format zona waktu GMT+07:00 (WIB)</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 18px;">
+                    <label class="form-label" style="font-weight: 700;">Durasi Pengerjaan Siswa (Menit) *</label>
+                    <input type="number" name="duration" class="form-control" value="<?= (int)$exam['duration'] ?>" min="10" max="360" required>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeSettingWaktuModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 8px 22px;">Save / Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openSettingWaktuModal() {
+            var m = document.getElementById('settingWaktuModal');
+            if (m) m.classList.add('open');
+        }
+
+        function closeSettingWaktuModal() {
+            var m = document.getElementById('settingWaktuModal');
+            if (m) m.classList.remove('open');
+        }
+
+        function copyExamCredentials(token, title) {
+            var text = "INFORMASI UJIAN ONLINE CBT\n" +
+                       "Ruang Ujian: " + title + "\n" +
+                       "Login Siswa: Gunakan NIS masing-masing\n" +
+                       "Password: 12345678\n" +
+                       "Kode Kelas Ujian: " + token + "\n" +
+                       "Harap masuk tepat waktu.";
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    alert("Kredensial dan Kode Ujian (" + token + ") berhasil disalin ke clipboard!");
+                });
+            } else {
+                alert(text);
+            }
+        }
+    </script>
     <?php
 }
+
 
 // =========================================================================
 // 14. MENU 8: LIVE MONITORING UJIAN (TABLE & TELEMETRI)

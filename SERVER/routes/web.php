@@ -86,6 +86,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/', [WebQuestionController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [WebQuestionController::class, 'edit'])->name('edit');
             Route::match(['put', 'patch'], '/{id}', [WebQuestionController::class, 'update'])->name('update');
+            Route::post('/{id}/toggle-status', [WebQuestionController::class, 'toggleStatus'])->name('toggle-status');
             Route::delete('/{id}', [WebQuestionController::class, 'destroy'])->name('destroy');
         });
 
@@ -97,6 +98,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}', [WebExamController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [WebExamController::class, 'edit'])->name('edit');
             Route::match(['put', 'patch'], '/{id}', [WebExamController::class, 'update'])->name('update');
+            Route::post('/{id}/set-schedule', [WebExamController::class, 'setSchedule'])->name('set-schedule');
+            Route::get('/{id}/export', [WebExamController::class, 'exportScores'])->name('export');
             Route::delete('/{id}', [WebExamController::class, 'destroy'])->name('destroy');
 
             // Exam Questions attachment
@@ -172,6 +175,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/', [WebQuestionController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [WebQuestionController::class, 'edit'])->name('edit');
             Route::match(['put', 'patch'], '/{id}', [WebQuestionController::class, 'update'])->name('update');
+            Route::post('/{id}/toggle-status', [WebQuestionController::class, 'toggleStatus'])->name('toggle-status');
             Route::delete('/{id}', [WebQuestionController::class, 'destroy'])->name('destroy');
         });
 
@@ -183,6 +187,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}', [WebExamController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [WebExamController::class, 'edit'])->name('edit');
             Route::match(['put', 'patch'], '/{id}', [WebExamController::class, 'update'])->name('update');
+            Route::post('/{id}/set-schedule', [WebExamController::class, 'setSchedule'])->name('set-schedule');
+            Route::get('/{id}/export', [WebExamController::class, 'exportScores'])->name('export');
             Route::delete('/{id}', [WebExamController::class, 'destroy'])->name('destroy');
 
             // Exam Questions attachment

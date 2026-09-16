@@ -26,15 +26,62 @@
         </p>
     </div>
     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-primary" onclick="openScheduleModal()" style="background: #10b981; border-color: #059669;">
+            ⚙️ Setting Waktu Ujian
+        </button>
+        <a href="{{ route('admin.exams.export', $exam->id) }}" class="btn btn-secondary" style="background: #3b82f6; color: #fff; border-color: #2563eb;">
+            📥 Export
+        </a>
         <a href="{{ route('admin.monitoring.show', $exam->id) }}" class="btn btn-primary">📡 Live Monitoring</a>
         <a href="{{ route('admin.results.index', ['exam_id' => $exam->id]) }}" class="btn btn-secondary">🎯 Rekap Hasil</a>
-        <a href="{{ route('admin.exams.edit', $exam->id) }}" class="btn btn-secondary">Edit Ujian</a>
-        <a href="{{ route('admin.exams.index') }}" class="btn btn-secondary">&larr; Daftar Ujian</a>
+        <a href="{{ route('admin.exams.edit', $exam->id) }}" class="btn btn-secondary">Edit</a>
+        <a href="{{ route('admin.exams.index') }}" class="btn btn-secondary">&larr; Ruang Ujian</a>
     </div>
 </div>
 
-<!-- SECTION 1: BUTIR SOAL UJIAN -->
-<div class="card" style="margin-bottom: 24px;">
+@if($exam->start_window)
+    <div style="background: #ecfdf5; border: 1px solid #6ee7b7; border-left: 5px solid #10b981; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 22px;">🗓️</span>
+            <div>
+                <strong style="color: #065f46; font-size: 14px;">Status Jadwal Aktif</strong>
+                <div style="color: #047857; font-size: 13.5px; margin-top: 2px;">
+                    Selesai, ruang ujian sudah dibuat dan bisa dikerjakan mulai <strong>{{ \Carbon\Carbon::parse($exam->start_window)->format('d-m-Y') }} Pukul {{ \Carbon\Carbon::parse($exam->start_window)->format('H:i') }} (GMT+07:00)</strong>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-sm btn-secondary" onclick="openScheduleModal()">Ubah Jadwal</button>
+    </div>
+@endif
+
+<!-- INFORMASI KREDENSIAL LOGIN SISWA (NOMOR 8 PANDUAN) -->
+<div class="card" style="margin-bottom: 24px; border-left: 4px solid #6366f1; background: linear-gradient(to right, #f8fafc, #ffffff);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">🔑</span>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #1e293b;">Kredensial Login Siswa &amp; Kode Kelas Ujian</h3>
+            </div>
+            <div style="font-size: 13px; color: #64748b; margin-top: 4px;">
+                Berikan NIS/NIM, Password, dan Kode Kelas Ujian berikut kepada siswa calon peserta ujian:
+            </div>
+            <div style="display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; font-size: 13px;">
+                <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    Username/Login: <strong>NIS masing-masing</strong>
+                </span>
+                <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    Password Default: <strong>12345678</strong>
+                </span>
+                <span style="background: #eef2ff; color: #4338ca; padding: 4px 12px; border-radius: 6px; border: 1px solid #c7d2fe; font-weight: 700; letter-spacing: 1px;">
+                    Kode Kelas Ujian: {{ $exam->token ?? 'RU-'.substr(md5($exam->id), 0, 5) }}
+                </span>
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="copyExamCredentials('{{ $exam->token ?? 'RU-'.substr(md5($exam->id), 0, 5) }}', '{{ addslashes($exam->title) }}')" style="font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <span>📋</span> Salin Format Informasi Siswa
+        </button>
+    </div>
+</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div>
             <h2 style="font-size: 1.15rem; font-weight: 600; color: var(--color-slate-800); margin: 0;">
@@ -231,6 +278,42 @@
     @endif
 </div>
 
+<!-- MODAL SETTING WAKTU UJIAN (NOMOR 7 PANDUAN) -->
+<div class="modal-overlay" id="scheduleModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="modal-content-card" style="background: #ffffff; border-radius: 12px; max-width: 480px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); overflow: hidden;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">⚙️</span>
+                <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #1e293b;">Setting Waktu Ujian</h3>
+            </div>
+            <button type="button" onclick="closeScheduleModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">&times;</button>
+        </div>
+        <form method="POST" action="{{ route('admin.exams.set-schedule', $exam->id) }}">
+            @csrf
+            <div style="padding: 24px;">
+                <p style="margin: 0 0 16px 0; font-size: 13.5px; color: #64748b; line-height: 1.5;">
+                    Pilih Tanggal dan jam kapan ruang ujian bisa mulai dikerjakan oleh siswa. Ruang ujian akan langsung aktif pada waktu yang ditentukan.
+                </p>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" style="font-weight: 600; color: #334155; margin-bottom: 6px; display: block;">
+                        Tanggal dan Jam Mulai (GMT+07:00) *
+                    </label>
+                    <input type="datetime-local" name="start_window" class="form-control" value="{{ $exam->start_window ? \Carbon\Carbon::parse($exam->start_window)->format('Y-m-d\TH:i') : date('Y-m-d\TH:i') }}" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                </div>
+                <div style="background: #f1f5f9; padding: 12px; border-radius: 6px; font-size: 12.5px; color: #475569; margin-bottom: 20px;">
+                    💡 Durasi ujian ini adalah <strong>{{ $exam->duration_minutes }} menit</strong>. Timer pengerjaan siswa akan otomatis menyesuaikan durasi tersebut.
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeScheduleModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="background: #10b981; border-color: #059669; font-weight: 700;">
+                        Save / Simpan Waktu
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function toggleElement(id) {
         var el = document.getElementById(id);
@@ -238,5 +321,40 @@
             el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
         }
     }
+
+    function openScheduleModal() {
+        var modal = document.getElementById('scheduleModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closeScheduleModal() {
+        var modal = document.getElementById('scheduleModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function copyExamCredentials(token, title) {
+        var text = "INFORMASI UJIAN ONLINE CBT\n" +
+                   "Ruang Ujian: " + title + "\n" +
+                   "Login Siswa: Gunakan NIS masing-masing\n" +
+                   "Password: 12345678\n" +
+                   "Kode Kelas Ujian: " + token + "\n" +
+                   "Harap masuk tepat waktu.";
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert("Kredensial dan Kode Ujian (" + token + ") berhasil disalin ke clipboard!");
+            });
+        } else {
+            alert(text);
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        var m = document.getElementById('scheduleModal');
+        if (e.target === m) closeScheduleModal();
+    });
 </script>
 @endsection

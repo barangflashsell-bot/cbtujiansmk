@@ -78,12 +78,14 @@ class WebQuestionController extends Controller
         }
 
         $subjects = $subjectsQuery->orderBy('name')->get();
+        $teachers = ($userRole === 'admin') ? Teacher::with('user')->get() : collect();
 
         $viewName = ($userRole === 'admin') ? 'admin.questions.index' : 'guru.questions.index';
 
         return view($viewName, [
             'questions' => $questions,
             'subjects' => $subjects,
+            'teachers' => $teachers,
             'userRole' => $userRole,
         ]);
     }
@@ -521,5 +523,31 @@ class WebQuestionController extends Controller
 
         return redirect()->route($redirectRoute)->with('success', $msg);
     }
+
+    /**
+     * Toggle active/inactive status of a question.
+     */
+    public function toggleStatus(Request $request, int $id): RedirectResponse
+    {
+        $user = $request->user();
+        $userRole = strtolower($user->role->name ?? '');
+
+        $question = Question::findOrFail($id);
+
+        if ($userRole !== 'admin' && $question->created_by !== ($user->teacher?->id ?? 0)) {
+            abort(403, 'Anda tidak memiliki izin untuk mengubah status butir soal ini.');
+        }
+
+        $newStatus = ($question->status === 'inactive') ? 'active' : 'inactive';
+        $question->update(['status' => $newStatus]);
+
+        $redirectRoute = ($userRole === 'admin') ? 'admin.questions.index' : 'guru.questions.index';
+        $msg = ($newStatus === 'active')
+            ? 'Soal berhasil diaktifkan kembali dan akan tampil pada siswa.'
+            : 'Soal berhasil dinonaktifkan (teks dicoret) dan tidak akan tampil pada siswa.';
+
+        return redirect()->back()->with('success', $msg);
+    }
 }
+
 

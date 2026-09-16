@@ -97,13 +97,13 @@
                     <a href="{{ route('admin.questions.index') }}" class="nav-link {{ request()->routeIs('admin.questions.*') || request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
                             <span class="menu-icon-box orange">📝</span>
-                            <span>Bank Soal &amp; Mapel</span>
+                            <span>Bank Soal</span>
                         </span>
                     </a>
                     <a href="{{ route('admin.exams.index') }}" class="nav-link {{ request()->routeIs('admin.exams.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
                             <span class="menu-icon-box emerald">⏱️</span>
-                            <span>Paket Ujian</span>
+                            <span>Ruang Ujian</span>
                         </span>
                     </a>
                     <a href="{{ route('admin.monitoring.index') }}" class="nav-link {{ request()->routeIs('admin.monitoring.*') ? 'active' : '' }}">
@@ -141,7 +141,7 @@
                     </a>
                     <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
-                            <span class="menu-icon-box amber">📜</span>
+                            <span class="menu-icon-box slate">📋</span>
                             <span>Log Aktivitas</span>
                         </span>
                     </a>
@@ -160,13 +160,13 @@
                     <a href="{{ route('guru.questions.index') }}" class="nav-link {{ request()->routeIs('guru.questions.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
                             <span class="menu-icon-box orange">📝</span>
-                            <span>Bank Soal Saya</span>
+                            <span>Bank Soal</span>
                         </span>
                     </a>
                     <a href="{{ route('guru.exams.index') }}" class="nav-link {{ request()->routeIs('guru.exams.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
                             <span class="menu-icon-box emerald">⏱️</span>
-                            <span>Paket Ujian Saya</span>
+                            <span>Ruang Ujian</span>
                         </span>
                     </a>
                     <a href="{{ route('guru.monitoring.index') }}" class="nav-link {{ request()->routeIs('guru.monitoring.*') ? 'active' : '' }}">
