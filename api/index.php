@@ -5635,23 +5635,26 @@ function renderQuestionsContent() {
                                     <span>Table</span>
                                 </div>
                                 <div class="word-ribbon-toolbar" style="display: flex; gap: 4px; padding: 6px 10px; background: #ffffff; border-bottom: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
-                                    <button type="button" class="tb-btn" title="Undo" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'undo')">&#8630;</button>
-                                    <button type="button" class="tb-btn" title="Redo" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'redo')">&#8631;</button>
+                                    <button type="button" class="tb-btn" title="Undo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'undo')">&#8630;</button>
+                                    <button type="button" class="tb-btn" title="Redo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'redo')">&#8631;</button>
                                     <div class="tb-separator"></div>
 
                                     <!-- FONT FAMILY SELECT (GAMBAR DUA) -->
-                                    <select onmousedown="saveWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontFamily', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
+                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontName', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
                                         <option value="" disabled selected>Aptos (Body) ▼</option>
-                                        <option value="Aptos, sans-serif">Aptos</option>
-                                        <option value="Arial, sans-serif">Arial</option>
-                                        <option value="'Times New Roman', serif">Times New Roman</option>
-                                        <option value="'Courier New', monospace">Courier New</option>
-                                        <option value="Consolas, monospace">Consolas</option>
+                                        <option value="Aptos">Aptos</option>
+                                        <option value="Calibri">Calibri</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Courier New">Courier New</option>
+                                        <option value="Verdana">Verdana</option>
+                                        <option value="Consolas">Consolas</option>
                                     </select>
 
                                     <!-- FONT SIZE SELECT (GAMBAR DUA) -->
-                                    <select onmousedown="saveWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
+                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
                                         <option value="" disabled selected>12 ▼</option>
+                                        <option value="10px">10</option>
                                         <option value="11px">11</option>
                                         <option value="12px">12 (Normal)</option>
                                         <option value="14px">14</option>
@@ -5663,18 +5666,18 @@ function renderQuestionsContent() {
                                     <div class="tb-separator"></div>
 
                                     <!-- FONT STYLES (GAMBAR 1 & 2) -->
-                                    <button type="button" class="tb-btn" title="Bold (Tebal)" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'bold')" style="font-weight: bold;">B</button>
-                                    <button type="button" class="tb-btn" title="Italic (Miring)" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'italic')" style="font-style: italic;">I</button>
-                                    <button type="button" class="tb-btn" title="Underline (Garis Bawah)" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'underline')"><u>U</u></button>
-                                    <button type="button" class="tb-btn" title="Strikethrough (Coret)" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'strikeThrough')"><s>S</s></button>
+                                    <button type="button" class="tb-btn" title="Bold (Tebal)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'bold')" style="font-weight: bold;">B</button>
+                                    <button type="button" class="tb-btn" title="Italic (Miring)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'italic')" style="font-style: italic;">I</button>
+                                    <button type="button" class="tb-btn" title="Underline (Garis Bawah)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'underline')"><u>U</u></button>
+                                    <button type="button" class="tb-btn" title="Strikethrough (Coret)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'strikeThrough')"><s>S</s></button>
                                     <div class="tb-separator"></div>
-                                    <button type="button" class="tb-btn" title="Subscript / Indeks (x₂)" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'subscript')">x₂</button>
-                                    <button type="button" class="tb-btn" title="Superscript / Pangkat (x²)" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'superscript')">x²</button>
+                                    <button type="button" class="tb-btn" title="Subscript / Indeks (x₂)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'subscript')">x₂</button>
+                                    <button type="button" class="tb-btn" title="Superscript / Pangkat (x²)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'superscript')">x²</button>
 
                                     <div class="tb-separator"></div>
 
                                     <!-- WARNA TEKS & HIGHLIGHT (GAMBAR DUA) -->
-                                    <select onmousedown="saveWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
+                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
                                         <option value="" disabled selected>A (Warna) ▼</option>
                                         <option value="#000000" style="color: #000000;">Hitam (Normal)</option>
                                         <option value="#dc2626" style="color: #dc2626;">Merah</option>
@@ -5684,7 +5687,7 @@ function renderQuestionsContent() {
                                         <option value="#7c3aed" style="color: #7c3aed;">Ungu</option>
                                     </select>
 
-                                    <select onmousedown="saveWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
+                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
                                         <option value="" disabled selected>🖍️ Sorot ▼</option>
                                         <option value="#fef08a" style="background: #fef08a;">Kuning</option>
                                         <option value="#bbf7d0" style="background: #bbf7d0;">Hijau Muda</option>
@@ -5695,48 +5698,48 @@ function renderQuestionsContent() {
                                     <div class="tb-separator"></div>
 
                                     <!-- ALIGNMENT -->
-                                    <button type="button" class="tb-btn" title="Align Left" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'justifyLeft')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Align Center" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'justifyCenter')">&#8788;</button>
-                                    <button type="button" class="tb-btn" title="Align Right" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'justifyRight')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Justify" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'justifyFull')">&#9776;</button>
+                                    <button type="button" class="tb-btn" title="Align Left" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyLeft')">&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Align Center" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyCenter')">&#8788;</button>
+                                    <button type="button" class="tb-btn" title="Align Right" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyRight')">&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Justify" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyFull')">&#9776;</button>
 
                                     <div class="tb-separator"></div>
 
                                     <!-- LISTS -->
-                                    <button type="button" class="tb-btn" title="Bullet List" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'insertUnorderedList')">&#8226;&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Numbered List" onmousedown="event.preventDefault();" onclick="formatWordDoc('editor_content', 'insertOrderedList')">1.&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Bullet List" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertUnorderedList')">&#8226;&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Numbered List" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertOrderedList')">1.&#8801;</button>
 
                                     <div class="tb-separator"></div>
 
                                     <!-- MATH & SCIENCE SYMBOLS (GAMBAR 1 + GAMBAR 2) -->
-                                    <button type="button" class="tb-btn" title="Akar (√)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '√')">√x</button>
-                                    <button type="button" class="tb-btn" title="Pi (π)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', 'π')">π</button>
-                                    <button type="button" class="tb-btn" title="Plus-Minus (±)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '±')">±</button>
-                                    <button type="button" class="tb-btn" title="Kali (×)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '×')">×</button>
-                                    <button type="button" class="tb-btn" title="Bagi (÷)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '÷')">÷</button>
-                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '≤')">≤</button>
-                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '≥')">≥</button>
-                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '≠')">≠</button>
-                                    <button type="button" class="tb-btn" title="Derajat (°)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '°')">°</button>
-                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '∞')">∞</button>
-                                    <button type="button" class="tb-btn" title="Sigma / Penjumlahan (∑)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '∑')">∑</button>
-                                    <button type="button" class="tb-btn" title="Integral (∫)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '∫')">∫</button>
-                                    <button type="button" class="tb-btn" title="Alpha (α)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', 'α')">α</button>
-                                    <button type="button" class="tb-btn" title="Beta (β)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', 'β')">β</button>
-                                    <button type="button" class="tb-btn" title="Theta (θ)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', 'θ')">θ</button>
-                                    <button type="button" class="tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', 'Δ')">Δ</button>
-                                    <button type="button" class="tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', 'Ω')">Ω</button>
-                                    <button type="button" class="tb-btn" title="Mendekati (≈)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('editor_content', '≈')">≈</button>
+                                    <button type="button" class="tb-btn" title="Akar (√)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '√')">√x</button>
+                                    <button type="button" class="tb-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'π')">π</button>
+                                    <button type="button" class="tb-btn" title="Plus-Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '±')">±</button>
+                                    <button type="button" class="tb-btn" title="Kali (×)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '×')">×</button>
+                                    <button type="button" class="tb-btn" title="Bagi (÷)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '÷')">÷</button>
+                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≤')">≤</button>
+                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≥')">≥</button>
+                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≠')">≠</button>
+                                    <button type="button" class="tb-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '°')">°</button>
+                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∞')">∞</button>
+                                    <button type="button" class="tb-btn" title="Sigma / Penjumlahan (∑)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∑')">∑</button>
+                                    <button type="button" class="tb-btn" title="Integral (∫)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∫')">∫</button>
+                                    <button type="button" class="tb-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'α')">α</button>
+                                    <button type="button" class="tb-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'β')">β</button>
+                                    <button type="button" class="tb-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'θ')">θ</button>
+                                    <button type="button" class="tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Δ')">Δ</button>
+                                    <button type="button" class="tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Ω')">Ω</button>
+                                    <button type="button" class="tb-btn" title="Mendekati (≈)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≈')">≈</button>
 
                                     <div class="tb-separator"></div>
 
                                     <!-- INSERT MEDIA & TABLE -->
-                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onmousedown="event.preventDefault();" onclick="insertWordTable('editor_content')">⊞ Tabel</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Link" onmousedown="event.preventDefault();" onclick="insertWordLink('editor_content')">&#128279;</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onmousedown="event.preventDefault();" onclick="insertWordImage('editor_content')">&#128444;</button>
-                                    <button type="button" class="tb-btn" title="Hapus Format" onmousedown="event.preventDefault();" onclick="clearWordFormat('editor_content')">Tx</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordTable('editor_content')">⊞ Tabel</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Link" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordLink('editor_content')">&#128279;</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordImage('editor_content')">&#128444;</button>
+                                    <button type="button" class="tb-btn" title="Hapus Format" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="clearWordFormat('editor_content')">Tx</button>
                                 </div>
-                                <div id="editor_content" contenteditable="true" class="word-content-editable" placeholder="Tuliskan pertanyaan soal di sini..." oninput="syncWordContent('editor_content')" onfocus="setWordEditorActive('editor_content')"></div>
+                                <div id="editor_content" contenteditable="true" class="word-content-editable" placeholder="Tuliskan pertanyaan soal di sini..." oninput="syncWordContent('editor_content')" onfocus="setWordEditorActive('editor_content')" onmouseup="syncWordSelection('editor_content')" onkeyup="syncWordSelection('editor_content')"></div>
                                 <textarea name="content" id="raw_editor_content" style="display:none;"></textarea>
                                 <div class="word-statusbar" style="padding: 6px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; font-size: 11px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
                                     <span id="status_editor_content">0 WORDS &bull; POWERED BY TINYMCE &bull; MICROSOFT WORD TOOLS</span>
@@ -5804,18 +5807,21 @@ function renderQuestionsContent() {
 
                                 <div class="word-ribbon-toolbar" style="display: flex; gap: 3px; padding: 5px 10px; background: #fcfcfd; border-bottom: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
                                     <!-- FONT SELECT -->
-                                    <select onmousedown="saveWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontFamily', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
+                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontName', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
                                         <option value="" disabled selected>Aptos ▼</option>
-                                        <option value="Aptos, sans-serif">Aptos</option>
-                                        <option value="Arial, sans-serif">Arial</option>
-                                        <option value="'Times New Roman', serif">Times New Roman</option>
-                                        <option value="'Courier New', monospace">Courier New</option>
-                                        <option value="Consolas, monospace">Consolas</option>
+                                        <option value="Aptos">Aptos</option>
+                                        <option value="Calibri">Calibri</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Courier New">Courier New</option>
+                                        <option value="Verdana">Verdana</option>
+                                        <option value="Consolas">Consolas</option>
                                     </select>
 
                                     <!-- FONT SIZE -->
-                                    <select onmousedown="saveWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
+                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
                                         <option value="" disabled selected>12 ▼</option>
+                                        <option value="10px">10</option>
                                         <option value="11px">11</option>
                                         <option value="12px">12 (Normal)</option>
                                         <option value="14px">14</option>
@@ -5826,18 +5832,18 @@ function renderQuestionsContent() {
                                     <div class="tb-separator"></div>
 
                                     <!-- STYLES -->
-                                    <button type="button" class="tb-btn" title="Tebal" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'bold')" style="font-weight: bold;">B</button>
-                                    <button type="button" class="tb-btn" title="Miring" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'italic')" style="font-style: italic;">I</button>
-                                    <button type="button" class="tb-btn" title="Garis Bawah" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'underline')"><u>U</u></button>
-                                    <button type="button" class="tb-btn" title="Coret" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'strikeThrough')"><s>S</s></button>
+                                    <button type="button" class="tb-btn" title="Tebal" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'bold')" style="font-weight: bold;">B</button>
+                                    <button type="button" class="tb-btn" title="Miring" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'italic')" style="font-style: italic;">I</button>
+                                    <button type="button" class="tb-btn" title="Garis Bawah" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'underline')"><u>U</u></button>
+                                    <button type="button" class="tb-btn" title="Coret" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'strikeThrough')"><s>S</s></button>
                                     <div class="tb-separator"></div>
-                                    <button type="button" class="tb-btn" title="Subscript (x₂)" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'subscript')">x₂</button>
-                                    <button type="button" class="tb-btn" title="Superscript (x²)" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'superscript')">x²</button>
+                                    <button type="button" class="tb-btn" title="Subscript (x₂)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'subscript')">x₂</button>
+                                    <button type="button" class="tb-btn" title="Superscript (x²)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'superscript')">x²</button>
 
                                     <div class="tb-separator"></div>
 
                                     <!-- WARNA & HIGHLIGHT -->
-                                    <select onmousedown="saveWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
+                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
                                         <option value="" disabled selected>A ▼</option>
                                         <option value="#000000" style="color: #000000;">Hitam</option>
                                         <option value="#dc2626" style="color: #dc2626;">Merah</option>
@@ -5847,7 +5853,7 @@ function renderQuestionsContent() {
                                         <option value="#7c3aed" style="color: #7c3aed;">Ungu</option>
                                     </select>
 
-                                    <select onmousedown="saveWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
+                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
                                         <option value="" disabled selected>🖍️ ▼</option>
                                         <option value="#fef08a" style="background: #fef08a;">Kuning</option>
                                         <option value="#bbf7d0" style="background: #bbf7d0;">Hijau Muda</option>
@@ -5857,40 +5863,40 @@ function renderQuestionsContent() {
                                     <div class="tb-separator"></div>
 
                                     <!-- ALIGN -->
-                                    <button type="button" class="tb-btn" title="Rata Kiri" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'justifyLeft')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Rata Tengah" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'justifyCenter')">&#8788;</button>
-                                    <button type="button" class="tb-btn" title="Rata Kanan" onmousedown="event.preventDefault();" onclick="formatWordDoc('<?= $edId ?>', 'justifyRight')">&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Rata Kiri" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyLeft')">&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Rata Tengah" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyCenter')">&#8788;</button>
+                                    <button type="button" class="tb-btn" title="Rata Kanan" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyRight')">&#8801;</button>
 
                                     <div class="tb-separator"></div>
 
                                     <!-- MATH & SCIENCE SYMBOLS -->
-                                    <button type="button" class="tb-btn" title="Akar (√)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '√')">√x</button>
-                                    <button type="button" class="tb-btn" title="Pi (π)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', 'π')">π</button>
-                                    <button type="button" class="tb-btn" title="Plus Minus (±)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '±')">±</button>
-                                    <button type="button" class="tb-btn" title="Kali (×)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '×')">×</button>
-                                    <button type="button" class="tb-btn" title="Bagi (÷)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '÷')">÷</button>
-                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '≤')">≤</button>
-                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '≥')">≥</button>
-                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '≠')">≠</button>
-                                    <button type="button" class="tb-btn" title="Derajat (°)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '°')">°</button>
-                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '∞')">∞</button>
-                                    <button type="button" class="tb-btn" title="Sigma (∑)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '∑')">∑</button>
-                                    <button type="button" class="tb-btn" title="Integral (∫)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', '∫')">∫</button>
-                                    <button type="button" class="tb-btn" title="Alpha (α)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', 'α')">α</button>
-                                    <button type="button" class="tb-btn" title="Beta (β)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', 'β')">β</button>
-                                    <button type="button" class="tb-btn" title="Theta (θ)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', 'θ')">θ</button>
-                                    <button type="button" class="tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', 'Δ')">Δ</button>
-                                    <button type="button" class="tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault();" onclick="insertWordSymbol('<?= $edId ?>', 'Ω')">Ω</button>
+                                    <button type="button" class="tb-btn" title="Akar (√)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '√')">√x</button>
+                                    <button type="button" class="tb-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'π')">π</button>
+                                    <button type="button" class="tb-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '±')">±</button>
+                                    <button type="button" class="tb-btn" title="Kali (×)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '×')">×</button>
+                                    <button type="button" class="tb-btn" title="Bagi (÷)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '÷')">÷</button>
+                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≤')">≤</button>
+                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≥')">≥</button>
+                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≠')">≠</button>
+                                    <button type="button" class="tb-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '°')">°</button>
+                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '∞')">∞</button>
+                                    <button type="button" class="tb-btn" title="Sigma (∑)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '∑')">∑</button>
+                                    <button type="button" class="tb-btn" title="Integral (∫)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '∫')">∫</button>
+                                    <button type="button" class="tb-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'α')">α</button>
+                                    <button type="button" class="tb-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'β')">β</button>
+                                    <button type="button" class="tb-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'θ')">θ</button>
+                                    <button type="button" class="tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'Δ')">Δ</button>
+                                    <button type="button" class="tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'Ω')">Ω</button>
 
                                     <div class="tb-separator"></div>
 
                                     <!-- INSERT & CLEAR -->
-                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onmousedown="event.preventDefault();" onclick="insertWordTable('<?= $edId ?>')">⊞ Tabel</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onmousedown="event.preventDefault();" onclick="insertWordImage('<?= $edId ?>')">&#128444;</button>
-                                    <button type="button" class="tb-btn" title="Hapus Format" onmousedown="event.preventDefault();" onclick="clearWordFormat('<?= $edId ?>')">Tx</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordTable('<?= $edId ?>')">⊞ Tabel</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordImage('<?= $edId ?>')">&#128444;</button>
+                                    <button type="button" class="tb-btn" title="Hapus Format" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="clearWordFormat('<?= $edId ?>')">Tx</button>
                                 </div>
 
-                                <div id="<?= $edId ?>" contenteditable="true" class="word-content-editable" style="min-height: 80px; padding: 10px 14px;" placeholder="Tuliskan pilihan jawaban <?= $optInfo['label'] ?> di sini..." oninput="syncWordContent('<?= $edId ?>')" onfocus="setWordEditorActive('<?= $edId ?>')"></div>
+                                <div id="<?= $edId ?>" contenteditable="true" class="word-content-editable" style="min-height: 80px; padding: 10px 14px;" placeholder="Tuliskan pilihan jawaban <?= $optInfo['label'] ?> di sini..." oninput="syncWordContent('<?= $edId ?>')" onfocus="setWordEditorActive('<?= $edId ?>')" onmouseup="syncWordSelection('<?= $edId ?>')" onkeyup="syncWordSelection('<?= $edId ?>')"></div>
                                 <textarea name="<?= $fieldNm ?>" id="raw_<?= $edId ?>" style="display:none;"></textarea>
 
                                 <div class="word-statusbar" style="padding: 4px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; font-size: 10.5px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
@@ -6477,14 +6483,16 @@ function renderQuestionsContent() {
             lastActiveWordEditor = editorId;
         }
 
-        function saveWordSelection(editorId) {
+        function syncWordSelection(editorId) {
             var targetId = editorId || lastActiveWordEditor || 'editor_content';
+            var el = document.getElementById(targetId);
+            if (!el) return;
             var sel = window.getSelection();
             if (sel && sel.rangeCount > 0) {
-                var el = document.getElementById(targetId);
                 var r = sel.getRangeAt(0);
-                if (el && (el === r.commonAncestorContainer || el.contains(r.commonAncestorContainer))) {
+                if (el === r.commonAncestorContainer || el.contains(r.commonAncestorContainer)) {
                     savedWordRanges[targetId] = r.cloneRange();
+                    lastActiveWordEditor = targetId;
                 }
             }
         }
@@ -6493,15 +6501,46 @@ function renderQuestionsContent() {
             var targetId = editorId || lastActiveWordEditor || 'editor_content';
             var el = document.getElementById(targetId);
             if (!el) return;
+
+            var sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                var r = sel.getRangeAt(0);
+                // Jika selection aktif berada di dalam editor target DAN range memiliki teks terseleksi:
+                // JANGAN restore savedWordRanges, pertahankan selection aktif tersebut!
+                if (!r.collapsed && (el === r.commonAncestorContainer || el.contains(r.commonAncestorContainer))) {
+                    return;
+                }
+            }
+
+            // Jika selection aktif tidak valid/tidak berada di editor target:
+            // baru gunakan savedWordRanges[targetId] jika tersedia
             el.focus();
             if (savedWordRanges[targetId]) {
                 try {
-                    var sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(savedWordRanges[targetId]);
+                    var currentSel = window.getSelection();
+                    currentSel.removeAllRanges();
+                    currentSel.addRange(savedWordRanges[targetId]);
                 } catch (e) {}
             }
         }
+
+        // Event listener global untuk memantau selection pada semua editor CBT
+        document.addEventListener('selectionchange', function() {
+            var sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return;
+            var r = sel.getRangeAt(0);
+            var editorIds = ['editor_content', 'opt_editor_a', 'opt_editor_b', 'opt_editor_c', 'opt_editor_d', 'opt_editor_e'];
+            for (var i = 0; i < editorIds.length; i++) {
+                var el = document.getElementById(editorIds[i]);
+                if (el && (el === r.commonAncestorContainer || el.contains(r.commonAncestorContainer))) {
+                    if (!r.collapsed || document.activeElement === el) {
+                        savedWordRanges[editorIds[i]] = r.cloneRange();
+                        lastActiveWordEditor = editorIds[i];
+                    }
+                    break;
+                }
+            }
+        });
 
         function syncWordContent(editorId) {
             var el = document.getElementById(editorId);
@@ -6517,7 +6556,7 @@ function renderQuestionsContent() {
                 }
             }
             updateWordDocStatus(editorId);
-            saveWordSelection(editorId);
+            syncWordSelection(editorId);
         }
 
         function updateWordDocStatus(editorId) {
@@ -6556,7 +6595,12 @@ function renderQuestionsContent() {
                         newRange.selectNodeContents(span);
                         sel.addRange(newRange);
                     } catch (e) {
-                        document.execCommand('fontSize', false, '4');
+                        document.execCommand('fontSize', false, '7');
+                        var fontTags = el.querySelectorAll('font[size="7"]');
+                        for (var fi = 0; fi < fontTags.length; fi++) {
+                            fontTags[fi].removeAttribute('size');
+                            fontTags[fi].style.fontSize = val;
+                        }
                     }
                 } else {
                     document.execCommand('fontSize', false, '4');
@@ -6572,7 +6616,7 @@ function renderQuestionsContent() {
             }
 
             syncWordContent(el.id);
-            saveWordSelection(el.id);
+            syncWordSelection(el.id);
         }
 
         function insertWordSymbol(editorId, sym) {
@@ -6582,7 +6626,7 @@ function renderQuestionsContent() {
             restoreWordSelection(el.id);
             document.execCommand('insertHTML', false, ' ' + sym + ' ');
             syncWordContent(el.id);
-            saveWordSelection(el.id);
+            syncWordSelection(el.id);
         }
 
         function insertWordTable(editorId) {
@@ -6593,7 +6637,7 @@ function renderQuestionsContent() {
             var tableHtml = '<table border="1" cellpadding="8" style="border-collapse:collapse; width:100%; margin:8px 0; border:1px solid #cbd5e1;"><thead><tr style="background:#f8fafc;"><th style="border:1px solid #cbd5e1; padding:6px 10px;">Kolom 1</th><th style="border:1px solid #cbd5e1; padding:6px 10px;">Kolom 2</th></tr></thead><tbody><tr><td style="border:1px solid #cbd5e1; padding:6px 10px;">Data A</td><td style="border:1px solid #cbd5e1; padding:6px 10px;">Data B</td></tr><tr><td style="border:1px solid #cbd5e1; padding:6px 10px;">Data C</td><td style="border:1px solid #cbd5e1; padding:6px 10px;">Data D</td></tr></tbody></table><p><br></p>';
             document.execCommand('insertHTML', false, tableHtml);
             syncWordContent(el.id);
-            saveWordSelection(el.id);
+            syncWordSelection(el.id);
         }
 
         function insertWordImage(editorId) {
@@ -6606,7 +6650,7 @@ function renderQuestionsContent() {
                 var imgHtml = '<img src="' + url + '" alt="Gambar Soal" style="max-width:100%; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin:6px 0;" /><p><br></p>';
                 document.execCommand('insertHTML', false, imgHtml);
                 syncWordContent(el.id);
-                saveWordSelection(el.id);
+                syncWordSelection(el.id);
             }
         }
 
@@ -6619,7 +6663,7 @@ function renderQuestionsContent() {
             if (url && url !== 'https://') {
                 document.execCommand('createLink', false, url);
                 syncWordContent(el.id);
-                saveWordSelection(el.id);
+                syncWordSelection(el.id);
             }
         }
 
@@ -6630,7 +6674,7 @@ function renderQuestionsContent() {
             restoreWordSelection(el.id);
             document.execCommand('removeFormat', false, null);
             syncWordContent(el.id);
-            saveWordSelection(el.id);
+            syncWordSelection(el.id);
         }
 
         function validateAndSyncQuestionForm() {
