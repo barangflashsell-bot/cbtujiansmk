@@ -1,14 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Bank Soal - CBT Administrator')
+@section('title', 'Bank Soal & Mata Pelajaran - CBT Administrator')
 
 @section('content')
 <div class="content-header">
     <div>
-        <h1 class="page-title">Bank Soal</h1>
-        <p class="page-subtitle">Kelola butir soal ujian per-mata pelajaran, pilihan jawaban, bobot nilai, dan kunci jawaban</p>
+        <h1 class="page-title">Bank Soal &amp; Mata Pelajaran</h1>
+        <p class="page-subtitle">Kelola mata pelajaran, pembuatan butir soal ujian, pilihan jawaban, bobot nilai, dan kunci jawaban</p>
     </div>
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" onclick="openCreateSubjectModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fbcfe8; color: #db2777; font-weight: 600;">
+            <span>📚</span> + Tambah Mapel
+        </button>
         <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
             <span>📊</span> Import Soal Excel
         </button>
@@ -30,7 +33,7 @@
             <span style="font-size: 20px;">📚</span>
             <div>
                 <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary);">Daftar Mata Pelajaran &amp; Bank Soal</h3>
-                <span style="font-size: 12px; color: var(--text-muted);">Pilih mata pelajaran untuk membuat soal spesifik atau kelola butir soal</span>
+                <span style="font-size: 12px; color: var(--text-muted);">Kelola mata pelajaran dan buat soal spesifik per mapel</span>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -54,7 +57,7 @@
                     <th style="width: 60px; text-align: center;">No</th>
                     <th>Mata Pelajaran</th>
                     <th style="width: 280px; text-align: center;">Buat Soal Per-Mata Pelajaran</th>
-                    <th style="width: 220px; text-align: center;">Aksi</th>
+                    <th style="width: 240px; text-align: center;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,7 +90,7 @@
                             </a>
                         </td>
                         <td style="text-align: center;">
-                            <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: center;">
+                            <div style="display: inline-flex; gap: 5px; align-items: center; justify-content: center;">
                                 @if($selectedSubjectId == $sb->id)
                                     <a href="{{ route('admin.questions.index') }}" class="btn btn-sm btn-secondary" title="Sembunyikan daftar butir soal">
                                         <span>✕</span> Tutup Soal
@@ -97,6 +100,16 @@
                                         <span>📋</span> Kelola Soal ({{ $sb->questions_count }})
                                     </a>
                                 @endif
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="openEditSubjectModal('{{ $sb->id }}', '{{ addslashes($sb->code) }}', '{{ addslashes($sb->name) }}')" title="Edit Mata Pelajaran">
+                                    <span>✏️</span>
+                                </button>
+                                <form method="POST" action="{{ route('admin.subjects.destroy', $sb->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus mata pelajaran {{ $sb->name }}?');" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" style="padding: 5px 8px;" title="Hapus Mata Pelajaran">
+                                        <span>🗑️</span>
+                                    </button>
+                                </form>
                                 <button type="button" class="btn btn-sm btn-secondary" onclick="openImportModalWithSubject('{{ $sb->id }}')" title="Import Soal Excel untuk Mapel Ini">
                                     <span>📥</span>
                                 </button>
@@ -108,7 +121,7 @@
                         <td colspan="4" class="empty-state">
                             <div class="empty-icon">&#128218;</div>
                             <div class="empty-title">Belum ada mata pelajaran</div>
-                            <div class="empty-desc">Tambahkan mata pelajaran terlebih dahulu melalui menu Data Mata Pelajaran.</div>
+                            <div class="empty-desc">Klik tombol "+ Tambah Mapel" di atas untuk menambahkan mata pelajaran baru.</div>
                         </td>
                     </tr>
                 @endforelse
@@ -277,6 +290,68 @@
     </div>
 @endif
 
+<!-- MODAL TAMBAH MATA PELAJARAN -->
+<div class="modal-overlay" id="createSubjectModal">
+    <div class="modal-content-card" style="max-width: 480px;">
+        <div class="modal-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">📚</span>
+                <h3 class="modal-title" style="margin: 0;">Tambah Mata Pelajaran Baru</h3>
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeCreateSubjectModal()">&times;</button>
+        </div>
+        <form action="{{ route('admin.subjects.store') }}" method="POST">
+            @csrf
+            <div style="padding: 20px;">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">Kode Mata Pelajaran *</label>
+                    <input type="text" name="code" class="form-control" placeholder="Contoh: MAT, BIND, RPL" style="text-transform: uppercase;" required>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Singkatan atau kode unik mapel.</div>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Nama Mata Pelajaran *</label>
+                    <input type="text" name="name" class="form-control" placeholder="Contoh: Matematika X, Bahasa Indonesia" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateSubjectModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Mata Pelajaran</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDIT MATA PELAJARAN -->
+<div class="modal-overlay" id="editSubjectModal">
+    <div class="modal-content-card" style="max-width: 480px;">
+        <div class="modal-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">✏️</span>
+                <h3 class="modal-title" style="margin: 0;">Edit Mata Pelajaran</h3>
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeEditSubjectModal()">&times;</button>
+        </div>
+        <form id="editSubjectForm" action="" method="POST">
+            @csrf
+            @method('PUT')
+            <div style="padding: 20px;">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">Kode Mata Pelajaran *</label>
+                    <input type="text" name="code" id="edit_sb_code" class="form-control" style="text-transform: uppercase;" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Nama Mata Pelajaran *</label>
+                    <input type="text" name="name" id="edit_sb_name" class="form-control" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditSubjectModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- MODAL IMPORT SOAL EXCEL / CSV -->
 <div class="modal-overlay" id="importQuestionModal">
     <div class="modal-content-card" style="max-width: 540px;">
@@ -343,6 +418,32 @@
 </div>
 
 <script>
+function openCreateSubjectModal() {
+    const modal = document.getElementById('createSubjectModal');
+    if (modal) modal.classList.add('active');
+}
+
+function closeCreateSubjectModal() {
+    const modal = document.getElementById('createSubjectModal');
+    if (modal) modal.classList.remove('active');
+}
+
+function openEditSubjectModal(id, code, name) {
+    const form = document.getElementById('editSubjectForm');
+    if (form) form.action = '/admin/subjects/' + id;
+    const codeInput = document.getElementById('edit_sb_code');
+    const nameInput = document.getElementById('edit_sb_name');
+    if (codeInput) codeInput.value = code;
+    if (nameInput) nameInput.value = name;
+    const modal = document.getElementById('editSubjectModal');
+    if (modal) modal.classList.add('active');
+}
+
+function closeEditSubjectModal() {
+    const modal = document.getElementById('editSubjectModal');
+    if (modal) modal.classList.remove('active');
+}
+
 function openImportModal() {
     const modal = document.getElementById('importQuestionModal');
     if (modal) modal.classList.add('active');
@@ -362,8 +463,12 @@ function closeImportModal() {
 }
 
 document.addEventListener('click', function(e) {
-    const modal = document.getElementById('importQuestionModal');
-    if (modal && e.target === modal) closeImportModal();
+    const importModal = document.getElementById('importQuestionModal');
+    if (importModal && e.target === importModal) closeImportModal();
+    const createSubjectModal = document.getElementById('createSubjectModal');
+    if (createSubjectModal && e.target === createSubjectModal) closeCreateSubjectModal();
+    const editSubjectModal = document.getElementById('editSubjectModal');
+    if (editSubjectModal && e.target === editSubjectModal) closeEditSubjectModal();
 });
 </script>
 @endsection

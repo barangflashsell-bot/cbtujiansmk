@@ -1481,7 +1481,7 @@ if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin
     ];
     logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan mata pelajaran: {$name} ({$code}) dengan alokasi kelas");
     $_SESSION['import_success'] = "Mata pelajaran \"{$name}\" berhasil disimpan dengan alokasi kelas!";
-    header('Location: /admin/subjects');
+    header('Location: /admin/questions');
     exit;
 }
 
@@ -1502,7 +1502,7 @@ if ($method === 'POST' && $uri === '/admin/subjects/edit') {
             break;
         }
     }
-    header('Location: /admin/subjects');
+    header('Location: /admin/questions');
     exit;
 }
 
@@ -1521,7 +1521,7 @@ if ($method === 'POST' && $uri === '/admin/subjects/set-classes') {
             break;
         }
     }
-    header('Location: /admin/subjects');
+    header('Location: /admin/questions');
     exit;
 }
 
@@ -1537,7 +1537,7 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/
             break;
         }
     }
-    header('Location: /admin/subjects');
+    header('Location: /admin/questions');
     exit;
 }
 
@@ -2899,20 +2899,13 @@ function renderAppPage($uri) {
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['teachers_list']) ?></span>
                 </a>
-                <a href="/admin/subjects" class="nav-link <?= $activeMenu === 'subjects' ? 'active' : '' ?>">
-                    <span class="nav-link-content">
-                        <span class="menu-icon-box rose">📚</span>
-                        <span>Mata Pelajaran</span>
-                    </span>
-                    <span class="nav-badge-pill"><?= count($_SESSION['subjects_list']) ?></span>
-                </a>
 
                 <!-- 3. AKADEMIK & UJIAN -->
                 <div class="nav-section-title">Akademik & Ujian</div>
-                <a href="/admin/questions" class="nav-link <?= $activeMenu === 'questions' ? 'active' : '' ?>">
+                <a href="/admin/questions" class="nav-link <?= in_array($activeMenu, ['questions', 'subjects']) ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box orange">📝</span>
-                        <span>Bank Soal</span>
+                        <span>Bank Soal &amp; Mapel</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['questions_list']) ?></span>
                 </a>
@@ -4625,14 +4618,17 @@ function renderQuestionsContent() {
         <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Bank Soal Ujian</h1>
+                    <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Bank Soal &amp; Mata Pelajaran</h1>
                     <span class="badge badge-primary" style="font-size: 11px;">REPOSITORI BUTIR SOAL</span>
                 </div>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Kelola dan buat butir soal ujian per mata pelajaran (Pilihan Ganda &amp; Esai)
+                    Kelola mata pelajaran dan buat butir soal ujian (Pilihan Ganda &amp; Esai)
                 </p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" onclick="toggleCreateSubjectCard()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fbcfe8; color: #db2777; font-weight: 600;">
+                    <span>📚</span> + Tambah Mapel
+                </button>
                 <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
                     <span>📊</span> Import Soal Excel
                 </button>
@@ -4640,6 +4636,33 @@ function renderQuestionsContent() {
                     <span>+</span> Tambah Butir Soal
                 </button>
             </div>
+        </div>
+
+        <!-- CREATE SUBJECT CARD (Collapsible) -->
+        <div class="card" id="createSubjectCard" style="display: none; border-color: #db2777;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">📚</span>
+                    <h3 class="card-title" style="margin-bottom: 0;">Tambah Mata Pelajaran Baru</h3>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCreateSubjectCard()">&times; Batal</button>
+            </div>
+            <form action="/admin/subjects/create" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Kode Mata Pelajaran *</label>
+                        <input type="text" name="code" class="form-control" placeholder="Contoh: MAT, BIND, RPL" style="text-transform: uppercase;" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Mata Pelajaran *</label>
+                        <input type="text" name="name" class="form-control" placeholder="Contoh: Matematika X, Bahasa Indonesia" required>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
+                    <button type="button" class="btn btn-secondary" onclick="toggleCreateSubjectCard()">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Mata Pelajaran</button>
+                </div>
+            </form>
         </div>
 
         <!-- CREATE QUESTION CARD (Collapsible) -->
@@ -4742,7 +4765,7 @@ function renderQuestionsContent() {
                     <span style="font-size: 20px;">📚</span>
                     <div>
                         <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary);">Daftar Mata Pelajaran &amp; Bank Soal</h3>
-                        <span style="font-size: 12px; color: var(--text-muted);">Kelola dan buat butir soal per mata pelajaran</span>
+                        <span style="font-size: 12px; color: var(--text-muted);">Kelola mata pelajaran dan buat butir soal per mapel</span>
                     </div>
                 </div>
                 <div style="font-size: 13px; color: var(--text-muted);">
@@ -4756,7 +4779,7 @@ function renderQuestionsContent() {
                             <th style="width: 60px; text-align: center;">No</th>
                             <th>Mata Pelajaran</th>
                             <th style="width: 280px; text-align: center;">Buat Soal Per-Mata Pelajaran</th>
-                            <th style="width: 220px; text-align: center;">Aksi</th>
+                            <th style="width: 240px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -4765,7 +4788,7 @@ function renderQuestionsContent() {
                                 <td colspan="4">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">📚</div>
-                                        <p>Belum ada mata pelajaran.</p>
+                                        <p>Belum ada mata pelajaran. Klik tombol "+ Tambah Mapel" di atas untuk menambahkan.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -4800,7 +4823,7 @@ function renderQuestionsContent() {
                                         </button>
                                     </td>
                                     <td style="text-align: center;">
-                                        <div class="action-btns" style="justify-content: center; gap: 6px;">
+                                        <div class="action-btns" style="justify-content: center; gap: 4px;">
                                             <?php if ($isSelected): ?>
                                                 <a href="/admin/questions" class="btn btn-sm btn-secondary" title="Sembunyikan detail soal">
                                                     <span>✕</span> Tutup Soal
@@ -4810,6 +4833,12 @@ function renderQuestionsContent() {
                                                     <span>📋</span> Kelola Soal (<?= $cnt ?>)
                                                 </a>
                                             <?php endif; ?>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="openEditSubjectModal('<?= htmlspecialchars($sb['id']) ?>', '<?= htmlspecialchars(addslashes($sb['code'])) ?>', '<?= htmlspecialchars(addslashes($sb['name'])) ?>')" title="Edit Mata Pelajaran">
+                                                <span>✏️</span>
+                                            </button>
+                                            <a href="/admin/subjects/delete?id=<?= urlencode($sb['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus mata pelajaran <?= htmlspecialchars(addslashes($sb['name'])) ?>?');" style="padding: 4px 8px;" title="Hapus Mata Pelajaran">
+                                                <span>🗑️</span>
+                                            </a>
                                             <button type="button" class="btn btn-sm btn-secondary" onclick="openImportModalWithSubject('<?= htmlspecialchars($sb['id']) ?>')" title="Import Soal Excel">
                                                 <span>📥</span>
                                             </button>
@@ -4990,9 +5019,53 @@ function renderQuestionsContent() {
         </div>
     </div>
 
+    <!-- EDIT SUBJECT MODAL -->
+    <div class="modal-overlay" id="editSubjectModal" style="align-items: center; justify-content: center;">
+        <div class="modal-content-card" style="max-width: 480px; border-radius: 12px;">
+            <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid var(--border-color); padding: 16px 20px;">
+                <h3 class="modal-title" style="margin: 0; font-size: 1.15rem; font-weight: 800;">Edit Mata Pelajaran</h3>
+                <button type="button" class="modal-close-btn" onclick="document.getElementById('editSubjectModal').classList.remove('open')">&times;</button>
+            </div>
+            <form action="/admin/subjects/edit" method="POST" style="padding: 20px;">
+                <input type="hidden" name="id" id="edit_sb_id">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">Kode Mata Pelajaran *</label>
+                    <input type="text" name="code" id="edit_sb_code" class="form-control" style="text-transform: uppercase;" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Nama Mata Pelajaran *</label>
+                    <input type="text" name="name" id="edit_sb_name" class="form-control" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('editSubjectModal').classList.remove('open')">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <?php renderImportModalGeneric('/admin/questions/import', '/admin/questions/template', 'Butir Soal', 'template_soal'); ?>
 
     <script>
+        function toggleCreateSubjectCard() {
+            var c = document.getElementById('createSubjectCard');
+            if (c) {
+                if (c.style.display === 'none' || c.style.display === '') {
+                    c.style.display = 'block';
+                    window.scrollTo({ top: c.offsetTop - 80, behavior: 'smooth' });
+                } else {
+                    c.style.display = 'none';
+                }
+            }
+        }
+
+        function openEditSubjectModal(id, code, name) {
+            document.getElementById('edit_sb_id').value = id;
+            document.getElementById('edit_sb_code').value = code;
+            document.getElementById('edit_sb_name').value = name;
+            document.getElementById('editSubjectModal').classList.add('open');
+        }
+
         function toggleCreateQuestionCard(subjectId) {
             var c = document.getElementById('createQuestionCard');
             if (c) {

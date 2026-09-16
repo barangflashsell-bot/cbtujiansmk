@@ -53,7 +53,7 @@ class WebSubjectController extends Controller
             'status' => $validated['status'] ?? 'active',
         ]);
 
-        return redirect()->route('admin.subjects.index')->with('success', 'Mata pelajaran baru berhasil ditambahkan.');
+        return redirect()->route('admin.questions.index')->with('success', 'Mata pelajaran baru berhasil ditambahkan.');
     }
 
     /**
@@ -75,7 +75,7 @@ class WebSubjectController extends Controller
             'status' => $validated['status'] ?? 'active',
         ]);
 
-        return redirect()->route('admin.subjects.index')->with('success', 'Mata pelajaran berhasil diperbarui.');
+        return redirect()->route('admin.questions.index')->with('success', 'Mata pelajaran berhasil diperbarui.');
     }
 
     /**
@@ -86,13 +86,13 @@ class WebSubjectController extends Controller
         $subject = Subject::withCount(['questions', 'exams'])->findOrFail($id);
 
         if ($subject->questions_count > 0 || $subject->exams_count > 0) {
-            return redirect()->route('admin.subjects.index')
+            return redirect()->route('admin.questions.index')
                 ->with('error', 'Mata pelajaran tidak dapat dihapus karena masih terkait dengan soal atau ujian.');
         }
 
         $subject->delete();
 
-        return redirect()->route('admin.subjects.index')->with('success', 'Mata pelajaran berhasil dihapus.');
+        return redirect()->route('admin.questions.index')->with('success', 'Mata pelajaran berhasil dihapus.');
     }
 
     /**

@@ -91,19 +91,13 @@
                             <span>Data Guru</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.subjects.index') }}" class="nav-link {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
-                        <span class="nav-link-content">
-                            <span class="menu-icon-box rose">📚</span>
-                            <span>Mata Pelajaran</span>
-                        </span>
-                    </a>
 
                     <!-- 3. AKADEMIK & UJIAN -->
                     <div class="nav-section-title">Akademik & Ujian</div>
-                    <a href="{{ route('admin.questions.index') }}" class="nav-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.questions.index') }}" class="nav-link {{ request()->routeIs('admin.questions.*') || request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
                             <span class="menu-icon-box orange">📝</span>
-                            <span>Bank Soal</span>
+                            <span>Bank Soal &amp; Mapel</span>
                         </span>
                     </a>
                     <a href="{{ route('admin.exams.index') }}" class="nav-link {{ request()->routeIs('admin.exams.*') ? 'active' : '' }}">
