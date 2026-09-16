@@ -5145,39 +5145,88 @@ function renderQuestionsContent() {
         .tb-btn:hover {
             background: #f1f5f9;
             border-color: #cbd5e1;
+            color: #1e293b;
         }
-        .opt-btn {
-            background: #f8fafc;
+        .tb-separator {
+            width: 1px;
+            height: 18px;
+            background: #e2e8f0;
+            margin: 0 3px;
+        }
+        .word-select {
+            font-size: 11.5px;
+            padding: 2px 6px;
             border: 1px solid #cbd5e1;
-            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
             color: #334155;
+            background: #f8fafc;
+            cursor: pointer;
+            height: 26px;
+            outline: none;
+        }
+        .word-select:hover {
+            border-color: #94a3b8;
+            background: #ffffff;
+        }
+        .word-editor-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+        }
+        .word-editor-box:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+        }
+        .google-auth-card {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .google-signin-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s ease;
+            gap: 12px;
+            background: #ffffff;
+            color: #3c4043;
+            border: 1px solid #dadce0;
+            border-radius: 24px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(60,64,67,0.08);
+            transition: all 0.2s ease;
         }
-        .opt-btn:hover {
-            background: #eff6ff;
-            border-color: #3b82f6;
-            color: #1d4ed8;
+        .google-signin-btn:hover {
+            background: #f8fafd;
+            border-color: #c2c7d0;
+            box-shadow: 0 2px 6px rgba(60,64,67,0.15);
+            transform: translateY(-1px);
         }
-        .choice-mini-btn {
+        .google-chip {
             background: #f1f5f9;
             border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            padding: 3px 7px;
-            font-size: 11px;
+            color: #334155;
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 12px;
             cursor: pointer;
-            color: #475569;
             transition: all 0.15s ease;
+            display: inline-block;
         }
-        .choice-mini-btn:hover {
-            background: #e0e7ff;
-            border-color: #6366f1;
-            color: #3730a3;
+        .google-chip:hover {
+            background: #e0f2fe;
+            border-color: #38bdf8;
+            color: #0284c7;
+            transform: translateY(-1px);
         }
         .ai-chip {
             background: #f3e8ff;
@@ -5518,73 +5567,139 @@ function renderQuestionsContent() {
                             </div>
                         </div>
 
-                        <!-- KARTU PERTANYAAN DENGAN EDITOR PERSIS GAMBAR TIGA & MICROSOFT WORD TOOLS -->
-                        <div style="margin-bottom: 20px;">
+                        <!-- KARTU PERTANYAAN DENGAN TOOLS MICROSOFT WORD LENGKAP (GAMBAR 1 + GAMBAR 2) -->
+                        <div style="margin-bottom: 24px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                                <h4 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">
-                                    Pertanyaan
+                                <h4 style="font-size: 1.05rem; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <span>📝</span> Lembar Pertanyaan
                                 </h4>
                                 <button type="button" class="btn btn-sm" onclick="openAiQuestionModal()" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; border: none; border-radius: 6px; padding: 7px 16px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; transition: all 0.2s ease;">
                                     <span>✨</span> Buat Soal dengan AI
                                 </button>
                             </div>
 
-                            <!-- WYSIWYG EDITOR TOOLBAR MICROSOFT WORD PERSIS GAMBAR 3 -->
-                            <div class="tinymce-mock-container" style="border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; background: #ffffff;">
-                                <div class="tinymce-menubar" style="display: flex; gap: 12px; padding: 6px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 12.5px; color: #334155;">
-                                    <span style="cursor: pointer; padding: 2px 6px; border-radius: 4px;">File</span>
-                                    <span style="cursor: pointer; padding: 2px 6px; border-radius: 4px;">Edit</span>
-                                    <span style="cursor: pointer; padding: 2px 6px; border-radius: 4px;">View</span>
-                                    <span style="cursor: pointer; padding: 2px 6px; border-radius: 4px;">Insert</span>
-                                    <span style="cursor: pointer; padding: 2px 6px; border-radius: 4px;">Format</span>
-                                    <span style="cursor: pointer; padding: 2px 6px; border-radius: 4px;">Tools</span>
-                                    <span style="cursor: pointer; padding: 2px 6px; border-radius: 4px;">Table</span>
+                            <!-- WYSIWYG EDITOR TOOLBAR MICROSOFT WORD PERSIS GAMBAR 1 & 2 -->
+                            <div class="word-editor-box">
+                                <div class="word-menubar" style="display: flex; gap: 12px; padding: 5px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #334155;">
+                                    <span>File</span>
+                                    <span>Edit</span>
+                                    <span>View</span>
+                                    <span>Insert</span>
+                                    <span>Format</span>
+                                    <span>Tools</span>
+                                    <span>Table</span>
                                 </div>
-                                <div class="tinymce-toolbar" style="display: flex; gap: 4px; padding: 6px 10px; background: #ffffff; border-bottom: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
-                                    <button type="button" class="tb-btn" title="Undo" onclick="formatDoc('undo')">&#8630;</button>
-                                    <button type="button" class="tb-btn" title="Redo" onclick="formatDoc('redo')">&#8631;</button>
-                                    <div style="width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px;"></div>
-                                    <button type="button" class="tb-btn" title="Bold (Tebal)" onclick="formatDoc('bold')" style="font-weight: bold;">B</button>
-                                    <button type="button" class="tb-btn" title="Italic (Miring)" onclick="formatDoc('italic')" style="font-style: italic;">I</button>
-                                    <button type="button" class="tb-btn" title="Underline (Garis Bawah)" onclick="formatDoc('underline')"><u>U</u></button>
-                                    <button type="button" class="tb-btn" title="Strikethrough (Coret)" onclick="formatDoc('strikeThrough')"><s>S</s></button>
-                                    <div style="width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px;"></div>
-                                    <button type="button" class="tb-btn" title="Superscript / Pangkat (x²)" onclick="formatDoc('superscript')">x²</button>
-                                    <button type="button" class="tb-btn" title="Subscript / Indeks (x₂)" onclick="formatDoc('subscript')">x₂</button>
-                                    <div style="width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px;"></div>
-                                    <button type="button" class="tb-btn" title="Align Left" onclick="formatDoc('justifyLeft')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Align Center" onclick="formatDoc('justifyCenter')">&#8788;</button>
-                                    <button type="button" class="tb-btn" title="Align Right" onclick="formatDoc('justifyRight')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Justify" onclick="formatDoc('justifyFull')">&#9776;</button>
-                                    <div style="width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px;"></div>
-                                    <button type="button" class="tb-btn" title="Bullet List" onclick="formatDoc('insertUnorderedList')">&#8226;&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Numbered List" onclick="formatDoc('insertOrderedList')">1.&#8801;</button>
-                                    <div style="width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px;"></div>
-                                    <button type="button" class="tb-btn" title="Simbol Akar (√)" onclick="insertMathSymbol('√')">√x</button>
-                                    <button type="button" class="tb-btn" title="Simbol Pi (π)" onclick="insertMathSymbol('π')">π</button>
-                                    <button type="button" class="tb-btn" title="Simbol Plus-Minus (±)" onclick="insertMathSymbol('±')">±</button>
-                                    <button type="button" class="tb-btn" title="Simbol Kali (×)" onclick="insertMathSymbol('×')">×</button>
-                                    <button type="button" class="tb-btn" title="Simbol Bagi (÷)" onclick="insertMathSymbol('÷')">÷</button>
-                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onclick="insertMathSymbol('≤')">≤</button>
-                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onclick="insertMathSymbol('≥')">≥</button>
-                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onclick="insertMathSymbol('≠')">≠</button>
-                                    <button type="button" class="tb-btn" title="Derajat (°)" onclick="insertMathSymbol('°')">°</button>
-                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onclick="insertMathSymbol('∞')">∞</button>
-                                    <div style="width: 1px; height: 18px; background: #e2e8f0; margin: 0 3px;"></div>
-                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onclick="insertTable(2, 2)">⊞ Tabel</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Link" onclick="insertLink()">&#128279;</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onclick="insertImage()">&#128444;</button>
-                                    <button type="button" class="tb-btn" title="Hapus Format" onclick="clearFormat()">Tx</button>
+                                <div class="word-ribbon-toolbar" style="display: flex; gap: 4px; padding: 6px 10px; background: #ffffff; border-bottom: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
+                                    <button type="button" class="tb-btn" title="Undo" onclick="formatWordDoc('editor_content', 'undo')">&#8630;</button>
+                                    <button type="button" class="tb-btn" title="Redo" onclick="formatWordDoc('editor_content', 'redo')">&#8631;</button>
+                                    <div class="tb-separator"></div>
+
+                                    <!-- FONT FAMILY SELECT (GAMBAR DUA) -->
+                                    <select onchange="formatWordDoc('editor_content', 'fontFamily', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
+                                        <option value="" disabled selected>Aptos (Body) ▼</option>
+                                        <option value="Aptos, sans-serif">Aptos</option>
+                                        <option value="Arial, sans-serif">Arial</option>
+                                        <option value="'Times New Roman', serif">Times New Roman</option>
+                                        <option value="'Courier New', monospace">Courier New</option>
+                                        <option value="Consolas, monospace">Consolas</option>
+                                    </select>
+
+                                    <!-- FONT SIZE SELECT (GAMBAR DUA) -->
+                                    <select onchange="formatWordDoc('editor_content', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
+                                        <option value="" disabled selected>12 ▼</option>
+                                        <option value="11px">11</option>
+                                        <option value="12px">12 (Normal)</option>
+                                        <option value="14px">14</option>
+                                        <option value="16px">16</option>
+                                        <option value="18px">18 (Judul)</option>
+                                        <option value="22px">22</option>
+                                    </select>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- FONT STYLES (GAMBAR 1 & 2) -->
+                                    <button type="button" class="tb-btn" title="Bold (Tebal)" onclick="formatWordDoc('editor_content', 'bold')" style="font-weight: bold;">B</button>
+                                    <button type="button" class="tb-btn" title="Italic (Miring)" onclick="formatWordDoc('editor_content', 'italic')" style="font-style: italic;">I</button>
+                                    <button type="button" class="tb-btn" title="Underline (Garis Bawah)" onclick="formatWordDoc('editor_content', 'underline')"><u>U</u></button>
+                                    <button type="button" class="tb-btn" title="Strikethrough (Coret)" onclick="formatWordDoc('editor_content', 'strikeThrough')"><s>S</s></button>
+                                    <div class="tb-separator"></div>
+                                    <button type="button" class="tb-btn" title="Subscript / Indeks (x₂)" onclick="formatWordDoc('editor_content', 'subscript')">x₂</button>
+                                    <button type="button" class="tb-btn" title="Superscript / Pangkat (x²)" onclick="formatWordDoc('editor_content', 'superscript')">x²</button>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- WARNA TEKS & HIGHLIGHT (GAMBAR DUA) -->
+                                    <select onchange="formatWordDoc('editor_content', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
+                                        <option value="" disabled selected>A (Warna) ▼</option>
+                                        <option value="#000000" style="color: #000000;">Hitam (Normal)</option>
+                                        <option value="#dc2626" style="color: #dc2626;">Merah</option>
+                                        <option value="#2563eb" style="color: #2563eb;">Biru</option>
+                                        <option value="#16a34a" style="color: #16a34a;">Hijau</option>
+                                        <option value="#d97706" style="color: #d97706;">Oranye</option>
+                                        <option value="#7c3aed" style="color: #7c3aed;">Ungu</option>
+                                    </select>
+
+                                    <select onchange="formatWordDoc('editor_content', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
+                                        <option value="" disabled selected>🖍️ Sorot ▼</option>
+                                        <option value="#fef08a" style="background: #fef08a;">Kuning</option>
+                                        <option value="#bbf7d0" style="background: #bbf7d0;">Hijau Muda</option>
+                                        <option value="#bfdbfe" style="background: #bfdbfe;">Biru Muda</option>
+                                        <option value="#fbcfe8" style="background: #fbcfe8;">Merah Muda</option>
+                                    </select>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- ALIGNMENT -->
+                                    <button type="button" class="tb-btn" title="Align Left" onclick="formatWordDoc('editor_content', 'justifyLeft')">&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Align Center" onclick="formatWordDoc('editor_content', 'justifyCenter')">&#8788;</button>
+                                    <button type="button" class="tb-btn" title="Align Right" onclick="formatWordDoc('editor_content', 'justifyRight')">&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Justify" onclick="formatWordDoc('editor_content', 'justifyFull')">&#9776;</button>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- LISTS -->
+                                    <button type="button" class="tb-btn" title="Bullet List" onclick="formatWordDoc('editor_content', 'insertUnorderedList')">&#8226;&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Numbered List" onclick="formatWordDoc('editor_content', 'insertOrderedList')">1.&#8801;</button>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- MATH & SCIENCE SYMBOLS (GAMBAR 1 + GAMBAR 2) -->
+                                    <button type="button" class="tb-btn" title="Akar (√)" onclick="insertWordSymbol('editor_content', '√')">√x</button>
+                                    <button type="button" class="tb-btn" title="Pi (π)" onclick="insertWordSymbol('editor_content', 'π')">π</button>
+                                    <button type="button" class="tb-btn" title="Plus-Minus (±)" onclick="insertWordSymbol('editor_content', '±')">±</button>
+                                    <button type="button" class="tb-btn" title="Kali (×)" onclick="insertWordSymbol('editor_content', '×')">×</button>
+                                    <button type="button" class="tb-btn" title="Bagi (÷)" onclick="insertWordSymbol('editor_content', '÷')">÷</button>
+                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onclick="insertWordSymbol('editor_content', '≤')">≤</button>
+                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onclick="insertWordSymbol('editor_content', '≥')">≥</button>
+                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onclick="insertWordSymbol('editor_content', '≠')">≠</button>
+                                    <button type="button" class="tb-btn" title="Derajat (°)" onclick="insertWordSymbol('editor_content', '°')">°</button>
+                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onclick="insertWordSymbol('editor_content', '∞')">∞</button>
+                                    <button type="button" class="tb-btn" title="Sigma / Penjumlahan (∑)" onclick="insertWordSymbol('editor_content', '∑')">∑</button>
+                                    <button type="button" class="tb-btn" title="Integral (∫)" onclick="insertWordSymbol('editor_content', '∫')">∫</button>
+                                    <button type="button" class="tb-btn" title="Alpha (α)" onclick="insertWordSymbol('editor_content', 'α')">α</button>
+                                    <button type="button" class="tb-btn" title="Beta (β)" onclick="insertWordSymbol('editor_content', 'β')">β</button>
+                                    <button type="button" class="tb-btn" title="Theta (θ)" onclick="insertWordSymbol('editor_content', 'θ')">θ</button>
+                                    <button type="button" class="tb-btn" title="Delta (Δ)" onclick="insertWordSymbol('editor_content', 'Δ')">Δ</button>
+                                    <button type="button" class="tb-btn" title="Omega (Ω)" onclick="insertWordSymbol('editor_content', 'Ω')">Ω</button>
+                                    <button type="button" class="tb-btn" title="Mendekati (≈)" onclick="insertWordSymbol('editor_content', '≈')">≈</button>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- INSERT MEDIA & TABLE -->
+                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onclick="insertWordTable('editor_content')">⊞ Tabel</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Link" onclick="insertWordLink('editor_content')">&#128279;</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onclick="insertWordImage('editor_content')">&#128444;</button>
+                                    <button type="button" class="tb-btn" title="Hapus Format" onclick="clearWordFormat('editor_content')">Tx</button>
                                 </div>
-                                <textarea name="content" id="editor_content" class="form-control" rows="7" style="width: 100%; border: none; border-radius: 0; outline: none; padding: 14px; font-size: 14px; line-height: 1.6; resize: vertical;" placeholder="Tuliskan pertanyaan soal di sini..." oninput="updateWordCount(this.value)" required></textarea>
-                                <div class="tinymce-statusbar" style="padding: 6px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; font-size: 11px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
-                                    <span id="word_count_status">0 WORDS &bull; POWERED BY TINYMCE &bull; MICROSOFT WORD TOOLS</span>
+                                <textarea name="content" id="editor_content" class="form-control" rows="7" style="width: 100%; border: none; border-radius: 0; outline: none; padding: 14px; font-size: 14px; line-height: 1.6; resize: vertical;" placeholder="Tuliskan pertanyaan soal di sini..." oninput="updateWordDocStatus('editor_content')" required></textarea>
+                                <div class="word-statusbar" style="padding: 6px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; font-size: 11px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    <span id="status_editor_content">0 WORDS &bull; POWERED BY TINYMCE &bull; MICROSOFT WORD TOOLS</span>
                                 </div>
                             </div>
 
                             <!-- PERHATIAN TEXT SESUAI GAMBAR 3 & PANDUAN PENGGUNAAN -->
-                            <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #475569;">
-                                <strong style="color: #1e293b; font-size: 13.5px; display: block; margin-bottom: 6px;">Perhatian:</strong>
+                            <div style="margin-top: 14px; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12.5px; color: #475569;">
+                                <strong style="color: #1e293b; font-size: 13px; display: block; margin-bottom: 4px;">Perhatian:</strong>
                                 <p style="margin: 0 0 4px 0; line-height: 1.5;">Disini Anda bisa membuat soal ujian berbentuk pilihan ganda dan essai.</p>
                                 <p style="margin: 0 0 4px 0; line-height: 1.5;">Untuk membuat soal pilihan ganda, silahkan masukan soal / pertanyaan, pilihan jawaban beserta kunci jawabannya.</p>
                                 <p style="margin: 0 0 4px 0; line-height: 1.5;">Sedangkan untuk membuat soal essai, silahkan masukan soal / pertanyaan dan isi bagian bobot soal essai, sedangkan bagian pilihan A, B, C, D dan E nya wajib dikosongkan.</p>
@@ -5592,123 +5707,150 @@ function renderQuestionsContent() {
                             </div>
                         </div>
 
-                        <!-- SECTION PILIHAN JAWABAN (DENGAN TOOLS MENU MICROSOFT WORD) -->
-                        <div id="section_single_choice_options" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 18px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-                                <div style="font-weight: 700; font-size: 13.5px; color: #1e293b;">
-                                    Pilihan Jawaban (A - E) &amp; Kunci Jawaban:
-                                </div>
-                                <div style="font-size: 12px; color: #64748b;">
-                                    Pilih radio lingkaran untuk menentukan <b>Kunci Jawaban yang Benar</b>
-                                </div>
-                            </div>
-
-                            <!-- TOOLBAR FORMAT WORD UNTUK PILIHAN JAWABAN -->
-                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-                                <span style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;">Tools Jawaban:</span>
-                                <button type="button" class="opt-btn" onclick="formatChoice('bold')" title="Tebal (Bold)"><b>B</b></button>
-                                <button type="button" class="opt-btn" onclick="formatChoice('italic')" title="Miring (Italic)"><i>I</i></button>
-                                <button type="button" class="opt-btn" onclick="formatChoice('underline')" title="Garis Bawah (Underline)"><u>U</u></button>
-                                <div style="width: 1px; height: 16px; background: #e2e8f0; margin: 0 2px;"></div>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('²')" title="Pangkat 2 (x²)">x²</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('³')" title="Pangkat 3 (x³)">x³</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('₁')" title="Indeks 1 (x₁)">x₁</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('₂')" title="Indeks 2 (x₂)">x₂</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('√')" title="Akar (√)">√x</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('π')" title="Pi (π)">π</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('±')" title="Plus-Minus (±)">±</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('×')" title="Kali (×)">×</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('÷')" title="Bagi (÷)">÷</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('≤')" title="Kurang dari sama dengan (≤)">≤</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('≥')" title="Lebih dari sama dengan (≥)">≥</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('≠')" title="Tidak sama dengan (≠)">≠</button>
-                                <button type="button" class="opt-btn" onclick="insertChoiceSymbol('°')" title="Derajat (°)">°</button>
-                                <div style="width: 1px; height: 16px; background: #e2e8f0; margin: 0 2px;"></div>
-                                <button type="button" class="opt-btn" onclick="insertChoiceImage()" title="Sisipkan Gambar Opsi">🖼️ Gambar</button>
-                                <button type="button" class="opt-btn" onclick="clearChoiceFormat()" title="Bersihkan Format">Tx</button>
-                            </div>
-
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <!-- PILIHAN A -->
-                                <div class="choice-row" style="display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 50px; margin: 0;">
-                                        <input type="radio" name="correct_option" value="A" checked style="accent-color: #16a34a; width: 18px; height: 18px;">
-                                        <span style="font-weight: 800; font-size: 14px; color: #1e293b;">A.</span>
-                                    </label>
-                                    <input type="text" name="option_a" id="opt_a_input" class="form-control" placeholder="Teks pilihan A" onfocus="setActiveChoice(this)" required style="border: none; box-shadow: none; padding: 6px 8px; font-size: 13.5px;">
-                                    <div style="display: flex; gap: 3px;">
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_a_input', 'bold')" title="Tebal"><b>B</b></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_a_input', 'italic')" title="Miring"><i>I</i></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_a_input', '²')" title="Pangkat 2">x²</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_a_input', '√')" title="Akar">√</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertImage('opt_a_input')" title="Gambar">🖼️</button>
-                                    </div>
-                                </div>
-
-                                <!-- PILIHAN B -->
-                                <div class="choice-row" style="display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 50px; margin: 0;">
-                                        <input type="radio" name="correct_option" value="B" style="accent-color: #16a34a; width: 18px; height: 18px;">
-                                        <span style="font-weight: 800; font-size: 14px; color: #1e293b;">B.</span>
-                                    </label>
-                                    <input type="text" name="option_b" id="opt_b_input" class="form-control" placeholder="Teks pilihan B" onfocus="setActiveChoice(this)" required style="border: none; box-shadow: none; padding: 6px 8px; font-size: 13.5px;">
-                                    <div style="display: flex; gap: 3px;">
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_b_input', 'bold')" title="Tebal"><b>B</b></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_b_input', 'italic')" title="Miring"><i>I</i></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_b_input', '²')" title="Pangkat 2">x²</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_b_input', '√')" title="Akar">√</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertImage('opt_b_input')" title="Gambar">🖼️</button>
-                                    </div>
-                                </div>
-
-                                <!-- PILIHAN C -->
-                                <div class="choice-row" style="display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 50px; margin: 0;">
-                                        <input type="radio" name="correct_option" value="C" style="accent-color: #16a34a; width: 18px; height: 18px;">
-                                        <span style="font-weight: 800; font-size: 14px; color: #1e293b;">C.</span>
-                                    </label>
-                                    <input type="text" name="option_c" id="opt_c_input" class="form-control" placeholder="Teks pilihan C" onfocus="setActiveChoice(this)" required style="border: none; box-shadow: none; padding: 6px 8px; font-size: 13.5px;">
-                                    <div style="display: flex; gap: 3px;">
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_c_input', 'bold')" title="Tebal"><b>B</b></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_c_input', 'italic')" title="Miring"><i>I</i></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_c_input', '²')" title="Pangkat 2">x²</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_c_input', '√')" title="Akar">√</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertImage('opt_c_input')" title="Gambar">🖼️</button>
-                                    </div>
-                                </div>
-
-                                <!-- PILIHAN D -->
-                                <div class="choice-row" style="display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 50px; margin: 0;">
-                                        <input type="radio" name="correct_option" value="D" style="accent-color: #16a34a; width: 18px; height: 18px;">
-                                        <span style="font-weight: 800; font-size: 14px; color: #1e293b;">D.</span>
-                                    </label>
-                                    <input type="text" name="option_d" id="opt_d_input" class="form-control" placeholder="Teks pilihan D" onfocus="setActiveChoice(this)" required style="border: none; box-shadow: none; padding: 6px 8px; font-size: 13.5px;">
-                                    <div style="display: flex; gap: 3px;">
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_d_input', 'bold')" title="Tebal"><b>B</b></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_d_input', 'italic')" title="Miring"><i>I</i></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_d_input', '²')" title="Pangkat 2">x²</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_d_input', '√')" title="Akar">√</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertImage('opt_d_input')" title="Gambar">🖼️</button>
-                                    </div>
-                                </div>
-
-                                <!-- PILIHAN E -->
-                                <div class="choice-row" style="display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 50px; margin: 0;">
-                                        <input type="radio" name="correct_option" value="E" style="accent-color: #16a34a; width: 18px; height: 18px;">
-                                        <span style="font-weight: 800; font-size: 14px; color: #1e293b;">E.</span>
-                                    </label>
-                                    <input type="text" name="option_e" id="opt_e_input" class="form-control" placeholder="Teks pilihan E (Opsional)" onfocus="setActiveChoice(this)" style="border: none; box-shadow: none; padding: 6px 8px; font-size: 13.5px;">
-                                    <div style="display: flex; gap: 3px;">
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_e_input', 'bold')" title="Tebal"><b>B</b></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickFormatChoice('opt_e_input', 'italic')" title="Miring"><i>I</i></button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_e_input', '²')" title="Pangkat 2">x²</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertSymbol('opt_e_input', '√')" title="Akar">√</button>
-                                        <button type="button" class="choice-mini-btn" onclick="quickInsertImage('opt_e_input')" title="Gambar">🖼️</button>
-                                    </div>
+                        <!-- SECTION PILIHAN JAWABAN: TIAP JAWABAN DILENGKAPI TOOLS MICROSOFT WORD LENGKAP -->
+                        <div id="section_single_choice_options" style="margin-bottom: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h4 style="font-size: 1rem; font-weight: 800; color: #1e293b; margin: 0;">
+                                        Pilihan Jawaban (A - E) &amp; Kunci Jawaban
+                                    </h4>
+                                    <span style="font-size: 12px; color: #64748b;">
+                                        Setiap pilihan jawaban dilengkapi lembar tools Microsoft Word. Pilih tombol radio lingkaran untuk menentukan <b>Kunci Jawaban yang Benar</b>.
+                                    </span>
                                 </div>
                             </div>
+
+                            <?php
+                            $optLabels = [
+                                'a' => ['label' => 'A', 'title' => 'PILIHAN JAWABAN A', 'default_checked' => true],
+                                'b' => ['label' => 'B', 'title' => 'PILIHAN JAWABAN B', 'default_checked' => false],
+                                'c' => ['label' => 'C', 'title' => 'PILIHAN JAWABAN C', 'default_checked' => false],
+                                'd' => ['label' => 'D', 'title' => 'PILIHAN JAWABAN D', 'default_checked' => false],
+                                'e' => ['label' => 'E', 'title' => 'PILIHAN JAWABAN E', 'default_checked' => false],
+                            ];
+                            foreach ($optLabels as $key => $optInfo):
+                                $edId = "opt_editor_" . $key;
+                                $statusId = "status_" . $edId;
+                                $fieldNm = "option_" . $key;
+                            ?>
+                            <!-- WORD EDITOR UNTUK PILIHAN <?= $optInfo['label'] ?> -->
+                            <div class="word-editor-box">
+                                <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center;">
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                                        <input type="radio" name="correct_option" value="<?= $optInfo['label'] ?>" <?= $optInfo['default_checked'] ? 'checked' : '' ?> style="accent-color: #16a34a; width: 18px; height: 18px;">
+                                        <span style="font-weight: 800; font-size: 13.5px; color: #1e293b;"><?= $optInfo['title'] ?></span>
+                                        <span class="correct-badge" style="font-size: 11px; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px; font-weight: 700; border: 1px solid #86efac;">
+                                            <?= $optInfo['default_checked'] ? '✓ Kunci Jawaban' : 'Pilih sebagai Kunci' ?>
+                                        </span>
+                                    </label>
+                                    <span style="font-size: 11.5px; color: #64748b; font-weight: 600;">Opsi <?= $optInfo['label'] ?></span>
+                                </div>
+
+                                <div class="word-menubar" style="display: flex; gap: 10px; padding: 4px 12px; background: #ffffff; border-bottom: 1px solid #e2e8f0; font-size: 11.5px; color: #475569;">
+                                    <span>File</span>
+                                    <span>Edit</span>
+                                    <span>View</span>
+                                    <span>Insert</span>
+                                    <span>Format</span>
+                                    <span>Tools</span>
+                                    <span>Table</span>
+                                </div>
+
+                                <div class="word-ribbon-toolbar" style="display: flex; gap: 3px; padding: 5px 10px; background: #fcfcfd; border-bottom: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
+                                    <!-- FONT SELECT -->
+                                    <select onchange="formatWordDoc('<?= $edId ?>', 'fontFamily', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
+                                        <option value="" disabled selected>Aptos ▼</option>
+                                        <option value="Aptos, sans-serif">Aptos</option>
+                                        <option value="Arial, sans-serif">Arial</option>
+                                        <option value="'Times New Roman', serif">Times New Roman</option>
+                                        <option value="'Courier New', monospace">Courier New</option>
+                                        <option value="Consolas, monospace">Consolas</option>
+                                    </select>
+
+                                    <!-- FONT SIZE -->
+                                    <select onchange="formatWordDoc('<?= $edId ?>', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
+                                        <option value="" disabled selected>12 ▼</option>
+                                        <option value="11px">11</option>
+                                        <option value="12px">12 (Normal)</option>
+                                        <option value="14px">14</option>
+                                        <option value="16px">16</option>
+                                        <option value="18px">18</option>
+                                    </select>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- STYLES -->
+                                    <button type="button" class="tb-btn" title="Tebal" onclick="formatWordDoc('<?= $edId ?>', 'bold')" style="font-weight: bold;">B</button>
+                                    <button type="button" class="tb-btn" title="Miring" onclick="formatWordDoc('<?= $edId ?>', 'italic')" style="font-style: italic;">I</button>
+                                    <button type="button" class="tb-btn" title="Garis Bawah" onclick="formatWordDoc('<?= $edId ?>', 'underline')"><u>U</u></button>
+                                    <button type="button" class="tb-btn" title="Coret" onclick="formatWordDoc('<?= $edId ?>', 'strikeThrough')"><s>S</s></button>
+                                    <div class="tb-separator"></div>
+                                    <button type="button" class="tb-btn" title="Subscript (x₂)" onclick="formatWordDoc('<?= $edId ?>', 'subscript')">x₂</button>
+                                    <button type="button" class="tb-btn" title="Superscript (x²)" onclick="formatWordDoc('<?= $edId ?>', 'superscript')">x²</button>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- WARNA & HIGHLIGHT -->
+                                    <select onchange="formatWordDoc('<?= $edId ?>', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
+                                        <option value="" disabled selected>A ▼</option>
+                                        <option value="#000000" style="color: #000000;">Hitam</option>
+                                        <option value="#dc2626" style="color: #dc2626;">Merah</option>
+                                        <option value="#2563eb" style="color: #2563eb;">Biru</option>
+                                        <option value="#16a34a" style="color: #16a34a;">Hijau</option>
+                                        <option value="#d97706" style="color: #d97706;">Oranye</option>
+                                        <option value="#7c3aed" style="color: #7c3aed;">Ungu</option>
+                                    </select>
+
+                                    <select onchange="formatWordDoc('<?= $edId ?>', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
+                                        <option value="" disabled selected>🖍️ ▼</option>
+                                        <option value="#fef08a" style="background: #fef08a;">Kuning</option>
+                                        <option value="#bbf7d0" style="background: #bbf7d0;">Hijau Muda</option>
+                                        <option value="#bfdbfe" style="background: #bfdbfe;">Biru Muda</option>
+                                    </select>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- ALIGN -->
+                                    <button type="button" class="tb-btn" title="Rata Kiri" onclick="formatWordDoc('<?= $edId ?>', 'justifyLeft')">&#8801;</button>
+                                    <button type="button" class="tb-btn" title="Rata Tengah" onclick="formatWordDoc('<?= $edId ?>', 'justifyCenter')">&#8788;</button>
+                                    <button type="button" class="tb-btn" title="Rata Kanan" onclick="formatWordDoc('<?= $edId ?>', 'justifyRight')">&#8801;</button>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- MATH & SCIENCE SYMBOLS -->
+                                    <button type="button" class="tb-btn" title="Akar (√)" onclick="insertWordSymbol('<?= $edId ?>', '√')">√x</button>
+                                    <button type="button" class="tb-btn" title="Pi (π)" onclick="insertWordSymbol('<?= $edId ?>', 'π')">π</button>
+                                    <button type="button" class="tb-btn" title="Plus Minus (±)" onclick="insertWordSymbol('<?= $edId ?>', '±')">±</button>
+                                    <button type="button" class="tb-btn" title="Kali (×)" onclick="insertWordSymbol('<?= $edId ?>', '×')">×</button>
+                                    <button type="button" class="tb-btn" title="Bagi (÷)" onclick="insertWordSymbol('<?= $edId ?>', '÷')">÷</button>
+                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onclick="insertWordSymbol('<?= $edId ?>', '≤')">≤</button>
+                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onclick="insertWordSymbol('<?= $edId ?>', '≥')">≥</button>
+                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onclick="insertWordSymbol('<?= $edId ?>', '≠')">≠</button>
+                                    <button type="button" class="tb-btn" title="Derajat (°)" onclick="insertWordSymbol('<?= $edId ?>', '°')">°</button>
+                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onclick="insertWordSymbol('<?= $edId ?>', '∞')">∞</button>
+                                    <button type="button" class="tb-btn" title="Sigma (∑)" onclick="insertWordSymbol('<?= $edId ?>', '∑')">∑</button>
+                                    <button type="button" class="tb-btn" title="Integral (∫)" onclick="insertWordSymbol('<?= $edId ?>', '∫')">∫</button>
+                                    <button type="button" class="tb-btn" title="Alpha (α)" onclick="insertWordSymbol('<?= $edId ?>', 'α')">α</button>
+                                    <button type="button" class="tb-btn" title="Beta (β)" onclick="insertWordSymbol('<?= $edId ?>', 'β')">β</button>
+                                    <button type="button" class="tb-btn" title="Theta (θ)" onclick="insertWordSymbol('<?= $edId ?>', 'θ')">θ</button>
+                                    <button type="button" class="tb-btn" title="Delta (Δ)" onclick="insertWordSymbol('<?= $edId ?>', 'Δ')">Δ</button>
+                                    <button type="button" class="tb-btn" title="Omega (Ω)" onclick="insertWordSymbol('<?= $edId ?>', 'Ω')">Ω</button>
+
+                                    <div class="tb-separator"></div>
+
+                                    <!-- INSERT & CLEAR -->
+                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onclick="insertWordTable('<?= $edId ?>')">⊞ Tabel</button>
+                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onclick="insertWordImage('<?= $edId ?>')">&#128444;</button>
+                                    <button type="button" class="tb-btn" title="Hapus Format" onclick="clearWordFormat('<?= $edId ?>')">Tx</button>
+                                </div>
+
+                                <textarea name="<?= $fieldNm ?>" id="<?= $edId ?>" class="form-control" rows="3" style="width: 100%; border: none; border-radius: 0; outline: none; padding: 10px 14px; font-size: 13.5px; line-height: 1.5; resize: vertical;" placeholder="Tuliskan pilihan jawaban <?= $optInfo['label'] ?> di sini..." oninput="updateWordDocStatus('<?= $edId ?>')" <?= ($key !== 'e') ? 'required' : '' ?>></textarea>
+
+                                <div class="word-statusbar" style="padding: 4px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; font-size: 10.5px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    <span id="<?= $statusId ?>">0 WORDS &bull; PILIHAN <?= $optInfo['label'] ?> &bull; MICROSOFT WORD TOOLS</span>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
 
                         <!-- SECTION ESSAI: PEMBERITAHUAN ESSAI -->
@@ -5954,35 +6096,120 @@ function renderQuestionsContent() {
                             </div>
                         </form>
                     </div>
-            <!-- MODAL BUAT SOAL DENGAN AI (GEMINI AI ENGINE) -->
+            <!-- MODAL BUAT SOAL DENGAN AI (GEMINI AI ENGINE & GOOGLE ACCOUNT GATE) -->
             <div class="modal-overlay" id="aiQuestionModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-                <div style="background: #ffffff; border-radius: 14px; max-width: 680px; width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-                    <div style="padding: 18px 22px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%);">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 24px;">✨</span>
+                <div style="background: #ffffff; border-radius: 16px; max-width: 720px; width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e2e8f0;">
+                    
+                    <!-- MODAL HEADER -->
+                    <div style="padding: 18px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC05 75%, #EA4335 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(66, 133, 244, 0.25);">
+                                <span style="font-size: 20px;">✨</span>
+                            </div>
                             <div>
-                                <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #1e1b4b;">AI Generator Butir Soal CBT</h3>
-                                <div style="font-size: 12px; color: #6b21a8; margin-top: 2px;">
-                                    Didukung Gemini 2.5 AI &bull; Mapel: <strong><?= htmlspecialchars($activeSubjectObj['name']) ?></strong>
+                                <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                                    AI Generator Butir Soal CBT
+                                    <span style="font-size: 11px; background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">Gemini 2.5 Pro</span>
+                                </h3>
+                                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                    Didukung Google Gemini AI &bull; Mapel: <strong style="color: #2563eb;"><?= htmlspecialchars($activeSubjectObj['name']) ?></strong>
                                 </div>
                             </div>
                         </div>
-                        <button type="button" onclick="closeAiQuestionModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+                        <button type="button" onclick="closeAiQuestionModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
                     </div>
-                    <div style="padding: 22px;">
+
+                    <!-- SCREEN 1: WAJIB LOGIN DENGAN AKUN GOOGLE -->
+                    <div id="ai_google_login_screen" style="display: block; padding: 32px 28px; text-align: center;">
+                        <div style="width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
+                            <svg width="36" height="36" viewBox="0 0 48 48">
+                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.79l7.97-6.2z"/>
+                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                            </svg>
+                        </div>
+                        <h4 style="font-size: 20px; font-weight: 800; color: #1e293b; margin: 0 0 8px;">Masuk dengan Akun Google</h4>
+                        <p style="color: #64748b; font-size: 13.5px; max-width: 480px; margin: 0 auto 24px; line-height: 1.5;">
+                            Untuk menggunakan fitur <strong>Google Gemini AI</strong> dalam pembuatan soal otomatis, silakan hubungkan akun Google Anda terlebih dahulu.
+                        </p>
+
+                        <!-- PILIHAN AKUN CEPAT ATAU CUSTOM -->
+                        <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 20px; max-width: 460px; margin: 0 auto 20px; text-align: left;">
+                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">Pilih Akun Google Guru / Pengajar:</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                                <div onclick="loginWithGoogle('guru.cbt@gmail.com', 'Guru Mata Pelajaran')" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#4285F4'; this.style.background='#eff6ff';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='#ffffff';">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #4285F4; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">G</div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 700; font-size: 13px; color: #1e293b;">Guru Mata Pelajaran</div>
+                                        <div style="font-size: 11.5px; color: #64748b;">guru.cbt@gmail.com</div>
+                                    </div>
+                                    <span style="font-size: 12px; color: #2563eb; font-weight: 700;">Pilih &rarr;</span>
+                                </div>
+                                <div onclick="loginWithGoogle('admin.sekolah@gmail.com', 'Admin Kurikulum CBT')" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#4285F4'; this.style.background='#eff6ff';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='#ffffff';">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #0f9d58; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">A</div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 700; font-size: 13px; color: #1e293b;">Admin Kurikulum CBT</div>
+                                        <div style="font-size: 11.5px; color: #64748b;">admin.sekolah@gmail.com</div>
+                                    </div>
+                                    <span style="font-size: 12px; color: #2563eb; font-weight: 700;">Pilih &rarr;</span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="email" id="custom_google_email" class="form-control" placeholder="atau ketik email Google Anda..." style="font-size: 12.5px;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="loginWithCustomGoogle()" style="font-weight: 700; white-space: nowrap;">Masuk</button>
+                            </div>
+                        </div>
+
+                        <!-- OFFICIAL GOOGLE SIGN IN BUTTON -->
+                        <div style="display: flex; justify-content: center; gap: 12px;">
+                            <button type="button" class="google-signin-btn" onclick="loginWithGoogle('user.google@gmail.com', 'Akun Google')">
+                                <svg width="20" height="20" viewBox="0 0 48 48">
+                                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.79l7.97-6.2z"/>
+                                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                                </svg>
+                                Lanjutkan dengan Akun Google
+                            </button>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="closeAiQuestionModal()">Batal</button>
+                        </div>
+                    </div>
+
+                    <!-- SCREEN 2: GEMINI AI QUESTION GENERATOR SCREEN (ACTIVE ONCE LOGGED IN) -->
+                    <div id="ai_generator_screen" style="display: none; padding: 22px 24px;">
+                        
+                        <!-- GOOGLE USER PROFILE CHIP BAR -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 14px; margin-bottom: 18px;">
+                            <div class="google-chip">
+                                <span class="google-avatar" id="google_user_avatar">G</span>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-weight: 700; color: #1e293b; font-size: 12.5px;" id="google_user_name">Guru CBT</span>
+                                    <span style="font-size: 11px; color: #64748b;" id="google_user_email">guru.cbt@gmail.com</span>
+                                </div>
+                                <span style="font-size: 11px; background: #dcfce7; color: #15803d; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">✓ Terhubung</span>
+                            </div>
+                            <button type="button" onclick="logoutGoogle()" style="background: none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; font-size: 11.5px; color: #64748b; cursor: pointer; font-weight: 600;" onmouseover="this.style.color='#ef4444'; this.style.borderColor='#fca5a5';" onmouseout="this.style.color='#64748b'; this.style.borderColor='#cbd5e1';">
+                                Ganti Akun Google
+                            </button>
+                        </div>
+
                         <!-- QUICK SUGGESTED TOPICS CHIPS -->
                         <div style="margin-bottom: 16px;">
                             <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">
                                 Pilihan Topik Cepat (Klik untuk memilih):
                             </label>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Persamaan Kuadrat &amp; Akar</span>
-                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Determinan Matriks 2x2</span>
-                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Teorema Pythagoras &amp; Geometri</span>
-                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Trigonometri Sudut Istimewa</span>
-                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Peluang &amp; Kombinasi</span>
-                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Konsep Pemrograman OOP</span>
-                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">IP Address &amp; Subnetting /27</span>
+                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Persamaan Kuadrat &amp; Rumus ABC</span>
+                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Determinan Matriks 2x2 &amp; Invers</span>
+                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Teorema Pythagoras &amp; Trigonometri</span>
+                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Hukum Newton &amp; Gerak Lurus</span>
+                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Peluang Kombinatorika &amp; Permutasi</span>
+                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">Konsep Pemrograman OOP &amp; Database</span>
+                                <span class="ai-chip" onclick="setAiTopic(this.innerText)">IP Address, Subnetting &amp; Mikrotik</span>
                             </div>
                         </div>
 
@@ -5991,9 +6218,9 @@ function renderQuestionsContent() {
                             <label style="font-size: 13px; font-weight: 700; color: #1e293b; display: block; margin-bottom: 6px;">
                                 Topik, Materi, atau Instruksi Khusus:
                             </label>
-                            <textarea id="ai_topic_input" rows="3" class="form-control" placeholder="Contoh: Buatkan soal menghitung determinan matriks 2x2 ordo [4, -2; 3, 5] dengan pilihan jawaban A-E dan kunci yang tepat..." style="font-size: 13.5px;"></textarea>
+                            <textarea id="ai_topic_input" rows="3" class="form-control" placeholder="Contoh: Buatkan soal menghitung determinan matriks 2x2 ordo [4, -2; 3, 5] dengan 5 pilihan jawaban A-E yang bervariasi dan kunci jawaban yang tepat..." style="font-size: 13.5px;"></textarea>
                             <small style="color: #64748b; font-size: 11.5px; margin-top: 4px; display: block;">
-                                Anda bisa mengosongkan jika ingin AI memilih materi terbaik otomatis untuk <?= htmlspecialchars($activeSubjectObj['name']) ?>.
+                                Anda bisa mengosongkan jika ingin Gemini AI menyusun materi otomatis untuk <?= htmlspecialchars($activeSubjectObj['name']) ?>.
                             </small>
                         </div>
 
@@ -6001,7 +6228,7 @@ function renderQuestionsContent() {
                             <div class="form-group" style="flex: 1;">
                                 <label style="font-size: 12.5px; font-weight: 700; color: #1e293b;">Tipe Soal:</label>
                                 <select id="ai_type_input" class="form-select">
-                                    <option value="single_choice" selected>Pilihan Ganda (1 Jawaban)</option>
+                                    <option value="single_choice" selected>Pilihan Ganda (Pilihan A s/d E)</option>
                                     <option value="essay">Essai / Uraian</option>
                                 </select>
                             </div>
@@ -6010,46 +6237,48 @@ function renderQuestionsContent() {
                                 <select id="ai_difficulty_input" class="form-select">
                                     <option value="easy">Mudah</option>
                                     <option value="medium" selected>Sedang</option>
-                                    <option value="hard">Sukar / HOTS</option>
+                                    <option value="hard">Sukar / Standar HOTS</option>
                                 </select>
                             </div>
                         </div>
 
                         <!-- TOMBOL GENERATE -->
                         <div style="text-align: center; margin-bottom: 20px;">
-                            <button type="button" id="btnRunAi" onclick="generateAiQuestion()" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 800; font-size: 14px; border: none; border-radius: 8px; padding: 10px 28px; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); transition: all 0.2s ease;">
-                                🚀 Generate Soal dengan AI Sekarang
+                            <button type="button" id="btnRunAi" onclick="generateAiQuestion()" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: #ffffff; font-weight: 800; font-size: 14px; border: none; border-radius: 9999px; padding: 12px 32px; cursor: pointer; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35); transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px;">
+                                <span>🚀</span> Generate Soal dengan Gemini AI Sekarang
                             </button>
-                            <div id="ai_loading_indicator" style="display: none; margin-top: 12px; font-size: 13px; color: #7c3aed; font-weight: 700;">
-                                <span style="display: inline-block; animation: pulse 1s infinite;">🤖</span> Gemini AI sedang menyusun butir soal &amp; pilihan jawaban...
+                            <div id="ai_loading_indicator" style="display: none; margin-top: 14px; font-size: 13px; color: #2563eb; font-weight: 700;">
+                                <span style="display: inline-block; animation: pulse 1s infinite;">🤖</span> Google Gemini AI sedang menyusun butir soal, rumus, &amp; 5 pilihan jawaban...
                             </div>
                         </div>
 
                         <!-- HASIL GENERATE PREVIEW -->
-                        <div id="ai_result_box" style="display: none; background: #faf5ff; border: 1.5px solid #d8b4fe; border-radius: 10px; padding: 18px; margin-bottom: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e9d5ff; padding-bottom: 8px;">
-                                <span style="font-weight: 800; color: #6b21a8; font-size: 13px;">Hasil Generate AI:</span>
-                                <span class="badge" id="ai_preview_badge" style="background: #e9d5ff; color: #6b21a8;">Pilihan Ganda</span>
+                        <div id="ai_result_box" style="display: none; background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 12px; padding: 18px; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e0f2fe; padding-bottom: 8px;">
+                                <span style="font-weight: 800; color: #0369a1; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
+                                    <span>✨</span> Hasil Generate Gemini AI:
+                                </span>
+                                <span class="badge" id="ai_preview_badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">Pilihan Ganda</span>
                             </div>
 
-                            <div style="margin-bottom: 12px;">
+                            <div style="margin-bottom: 14px;">
                                 <strong style="font-size: 12px; color: #475569; display: block; margin-bottom: 4px;">Pertanyaan:</strong>
-                                <div id="ai_preview_content" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 13.5px; line-height: 1.6;"></div>
+                                <div id="ai_preview_content" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 14px; font-size: 13.5px; line-height: 1.6;"></div>
                             </div>
 
-                            <div id="ai_preview_options_sec" style="margin-bottom: 12px;">
-                                <strong style="font-size: 12px; color: #475569; display: block; margin-bottom: 4px;">Pilihan Jawaban:</strong>
+                            <div id="ai_preview_options_sec" style="margin-bottom: 14px;">
+                                <strong style="font-size: 12px; color: #475569; display: block; margin-bottom: 6px;">Pilihan Jawaban (A s/d E):</strong>
                                 <div id="ai_preview_options" style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;"></div>
                             </div>
 
-                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px;">
-                                <div><strong style="color: #166534;">Kunci Jawaban:</strong> <span id="ai_preview_key" style="color: #15803d; font-weight: 800; font-size: 15px;">-</span></div>
-                                <div style="margin-top: 4px; color: #166534;"><strong style="color: #166534;">Pembahasan:</strong> <span id="ai_preview_explanation">-</span></div>
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px;">
+                                <div><strong style="color: #166534;">Kunci Jawaban Benar:</strong> <span id="ai_preview_key" style="color: #15803d; font-weight: 800; font-size: 15px;">-</span></div>
+                                <div style="margin-top: 4px; color: #166534;"><strong style="color: #166534;">Penjelasan / Pembahasan:</strong> <span id="ai_preview_explanation">-</span></div>
                             </div>
 
                             <div style="display: flex; justify-content: flex-end; gap: 10px;">
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="generateAiQuestion()">🔄 Generate Ulang</button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="applyAiQuestion()" style="background: #15803d; border-color: #15803d; font-weight: 700; padding: 8px 20px;">
+                                <button type="button" class="btn btn-success btn-sm" onclick="applyAiQuestion()" style="background: #15803d; border-color: #15803d; font-weight: 800; padding: 8px 22px; border-radius: 6px;">
                                     ✅ Terapkan ke Form Soal
                                 </button>
                             </div>
@@ -6191,161 +6420,297 @@ function renderQuestionsContent() {
             if (m) m.style.display = 'none';
         }
 
-        function updateWordCount(val) {
-            var words = val.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
-            var el = document.getElementById('word_count_status');
-            if (el) {
-                el.innerText = words + ' WORDS • POWERED BY TINYMCE';
+        // ==========================================
+        // WORD RIBBON & DOCUMENT EDITOR ENGINE (QUESTION & CHOICES A-E)
+        // ==========================================
+        var lastActiveWordEditor = 'editor_content';
+
+        function setWordEditorActive(editorId) {
+            lastActiveWordEditor = editorId;
+        }
+
+        function updateWordDocStatus(editorId) {
+            var el = document.getElementById(editorId);
+            if (!el) return;
+            var text = el.value || '';
+            var words = text.trim() ? text.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length : 0;
+            var chars = text.length;
+            
+            var statusEl = document.getElementById('word_status_' + editorId);
+            if (statusEl) {
+                var label = (editorId === 'editor_content') ? 'BUTIR SOAL' : ('OPSI ' + editorId.slice(-1).toUpperCase());
+                statusEl.innerText = words + ' KATA • ' + chars + ' KARAKTER • ' + label + ' • WORD EDITOR PRO';
+            }
+            if (editorId === 'editor_content') {
+                var oldStatus = document.getElementById('word_count_status');
+                if (oldStatus) oldStatus.innerText = words + ' WORDS • WORD EDITOR PRO';
             }
         }
 
-        var lastActiveChoiceInput = null;
-        function setActiveChoice(input) {
-            lastActiveChoiceInput = input;
-        }
-
-        function formatChoice(type) {
-            var input = lastActiveChoiceInput || document.getElementById('opt_a_input');
-            if (!input) return;
-            var start = input.selectionStart || 0;
-            var end = input.selectionEnd || 0;
-            var sel = input.value.substring(start, end);
-            if (type === 'bold') {
-                input.setRangeText('**' + (sel || 'tebal') + '**', start, end, 'end');
-            } else if (type === 'italic') {
-                input.setRangeText('*' + (sel || 'miring') + '*', start, end, 'end');
-            } else if (type === 'underline') {
-                input.setRangeText('<u>' + (sel || 'garis bawah') + '</u>', start, end, 'end');
-            }
-            input.focus();
-        }
-
-        function insertChoiceSymbol(sym) {
-            var input = lastActiveChoiceInput || document.getElementById('opt_a_input');
-            if (!input) return;
-            var start = input.selectionStart || 0;
-            var end = input.selectionEnd || 0;
-            input.setRangeText(sym, start, end, 'end');
-            input.focus();
-        }
-
-        function insertChoiceImage() {
-            var input = lastActiveChoiceInput || document.getElementById('opt_a_input');
-            if (!input) return;
-            var url = prompt('Masukkan URL Gambar untuk Opsi Jawaban:', 'https://');
-            if (url) {
-                var start = input.selectionStart || 0;
-                var end = input.selectionEnd || 0;
-                input.setRangeText(' [🖼️ ' + url + '] ', start, end, 'end');
-                input.focus();
-            }
-        }
-
-        function clearChoiceFormat() {
-            var input = lastActiveChoiceInput || document.getElementById('opt_a_input');
-            if (!input) return;
-            input.value = input.value.replace(/[*_~`]/g, '').replace(/<[^>]*>/g, '');
-            input.focus();
-        }
-
-        function quickFormatChoice(id, type) {
-            var input = document.getElementById(id);
-            if (!input) return;
-            lastActiveChoiceInput = input;
-            formatChoice(type);
-        }
-
-        function quickInsertSymbol(id, sym) {
-            var input = document.getElementById(id);
-            if (!input) return;
-            lastActiveChoiceInput = input;
-            insertChoiceSymbol(sym);
-        }
-
-        function quickInsertImage(id) {
-            var input = document.getElementById(id);
-            if (!input) return;
-            lastActiveChoiceInput = input;
-            insertChoiceImage();
-        }
-
-        function formatDoc(cmd) {
-            var textarea = document.getElementById('editor_content');
+        function formatWordDoc(editorId, cmd, val) {
+            var textarea = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
             if (!textarea) return;
-            var start = textarea.selectionStart;
-            var end = textarea.selectionEnd;
+            lastActiveWordEditor = textarea.id;
+
+            var start = textarea.selectionStart || 0;
+            var end = textarea.selectionEnd || 0;
             var selected = textarea.value.substring(start, end);
-            if (cmd === 'bold') {
-                textarea.setRangeText('**' + (selected || 'teks tebal') + '**', start, end, 'end');
-            } else if (cmd === 'italic') {
-                textarea.setRangeText('*' + (selected || 'teks miring') + '*', start, end, 'end');
-            } else if (cmd === 'underline') {
-                textarea.setRangeText('<u>' + (selected || 'teks garis bawah') + '</u>', start, end, 'end');
-            } else if (cmd === 'strikeThrough') {
-                textarea.setRangeText('~~' + (selected || 'teks dicoret') + '~~', start, end, 'end');
-            } else if (cmd === 'superscript') {
-                textarea.setRangeText('^' + (selected || '2') + '^', start, end, 'end');
-            } else if (cmd === 'subscript') {
-                textarea.setRangeText('~' + (selected || '1') + '~', start, end, 'end');
-            } else if (cmd === 'justifyLeft') {
-                textarea.setRangeText('\n<div align="left">\n' + (selected || 'Teks rata kiri') + '\n</div>\n', start, end, 'end');
-            } else if (cmd === 'justifyCenter') {
-                textarea.setRangeText('\n<div align="center">\n' + (selected || 'Teks rata tengah') + '\n</div>\n', start, end, 'end');
-            } else if (cmd === 'justifyRight') {
-                textarea.setRangeText('\n<div align="right">\n' + (selected || 'Teks rata kanan') + '\n</div>\n', start, end, 'end');
-            } else if (cmd === 'justifyFull') {
-                textarea.setRangeText('\n<div align="justify">\n' + (selected || 'Teks rata kanan-kiri') + '\n</div>\n', start, end, 'end');
-            } else if (cmd === 'insertUnorderedList') {
-                textarea.setRangeText('\n- ' + (selected || 'item daftar'), start, end, 'end');
-            } else if (cmd === 'insertOrderedList') {
-                textarea.setRangeText('\n1. ' + (selected || 'item nomor'), start, end, 'end');
-            } else if (cmd === 'undo' || cmd === 'redo') {
-                document.execCommand(cmd);
+            var rep = '';
+
+            switch (cmd) {
+                case 'bold':
+                    rep = '**' + (selected || 'teks tebal') + '**';
+                    break;
+                case 'italic':
+                    rep = '*' + (selected || 'teks miring') + '*';
+                    break;
+                case 'underline':
+                    rep = '<u>' + (selected || 'garis bawah') + '</u>';
+                    break;
+                case 'strikeThrough':
+                    rep = '~~' + (selected || 'teks dicoret') + '~~';
+                    break;
+                case 'subscript':
+                    rep = '<sub>' + (selected || '2') + '</sub>';
+                    break;
+                case 'superscript':
+                    rep = '<sup>' + (selected || '2') + '</sup>';
+                    break;
+                case 'fontName':
+                    rep = '<span style="font-family:' + val + ';">' + (selected || 'teks') + '</span>';
+                    break;
+                case 'fontSize':
+                    rep = '<span style="font-size:' + val + 'px;">' + (selected || 'teks') + '</span>';
+                    break;
+                case 'foreColor':
+                    rep = '<span style="color:' + val + ';">' + (selected || 'teks berwarna') + '</span>';
+                    break;
+                case 'hiliteColor':
+                    rep = '<mark style="background-color:' + val + '; padding:1px 4px; border-radius:2px;">' + (selected || 'sorotan teks') + '</mark>';
+                    break;
+                case 'justifyLeft':
+                    rep = '\n<div align="left">' + (selected || 'Teks rata kiri') + '</div>\n';
+                    break;
+                case 'justifyCenter':
+                    rep = '\n<div align="center">' + (selected || 'Teks rata tengah') + '</div>\n';
+                    break;
+                case 'justifyRight':
+                    rep = '\n<div align="right">' + (selected || 'Teks rata kanan') + '</div>\n';
+                    break;
+                case 'justifyFull':
+                    rep = '\n<div align="justify">' + (selected || 'Teks rata kanan-kiri') + '</div>\n';
+                    break;
+                case 'insertUnorderedList':
+                    rep = '\n• ' + (selected || 'Butir daftar');
+                    break;
+                case 'insertOrderedList':
+                    rep = '\n1. ' + (selected || 'Poin nomor');
+                    break;
+                case 'undo':
+                case 'redo':
+                    document.execCommand(cmd);
+                    updateWordDocStatus(textarea.id);
+                    return;
+                default:
+                    rep = selected;
             }
-            updateWordCount(textarea.value);
+
+            textarea.setRangeText(rep, start, end, 'end');
+            updateWordDocStatus(textarea.id);
+            textarea.focus();
         }
 
-        function insertMathSymbol(sym) {
-            var textarea = document.getElementById('editor_content');
+        function insertWordSymbol(editorId, sym) {
+            var textarea = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
             if (!textarea) return;
-            var start = textarea.selectionStart;
-            var end = textarea.selectionEnd;
+            var start = textarea.selectionStart || 0;
+            var end = textarea.selectionEnd || 0;
             textarea.setRangeText(' ' + sym + ' ', start, end, 'end');
-            updateWordCount(textarea.value);
+            updateWordDocStatus(textarea.id);
             textarea.focus();
         }
 
-        function insertTable(rows, cols) {
-            var textarea = document.getElementById('editor_content');
+        function insertWordTable(editorId) {
+            var textarea = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
             if (!textarea) return;
-            var table = '\n| Kolom 1 | Kolom 2 |\n| --- | --- |\n| Data A | Data B |\n';
-            var start = textarea.selectionStart;
-            var end = textarea.selectionEnd;
+            var table = '\n<table border="1" cellpadding="6" style="border-collapse:collapse; width:100%; margin:8px 0;">\n  <tr><th>Kolom 1</th><th>Kolom 2</th></tr>\n  <tr><td>Data A</td><td>Data B</td></tr>\n</table>\n';
+            var start = textarea.selectionStart || 0;
+            var end = textarea.selectionEnd || 0;
             textarea.setRangeText(table, start, end, 'end');
-            updateWordCount(textarea.value);
+            updateWordDocStatus(textarea.id);
             textarea.focus();
         }
 
-        function clearFormat() {
-            var textarea = document.getElementById('editor_content');
+        function insertWordImage(editorId) {
+            var textarea = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
             if (!textarea) return;
-            var start = textarea.selectionStart;
-            var end = textarea.selectionEnd;
+            var url = prompt('Masukkan URL Gambar (HTTP/HTTPS):', 'https://');
+            if (url && url !== 'https://') {
+                var start = textarea.selectionStart || 0;
+                var end = textarea.selectionEnd || 0;
+                var imgTag = '\n<img src="' + url + '" alt="Gambar Soal" style="max-width:100%; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin:6px 0;" />\n';
+                textarea.setRangeText(imgTag, start, end, 'end');
+                updateWordDocStatus(textarea.id);
+                textarea.focus();
+            }
+        }
+
+        function insertWordLink(editorId) {
+            var textarea = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
+            if (!textarea) return;
+            var start = textarea.selectionStart || 0;
+            var end = textarea.selectionEnd || 0;
+            var sel = textarea.value.substring(start, end);
+            var url = prompt('Masukkan Tautan URL:', 'https://');
+            if (url && url !== 'https://') {
+                var label = sel || prompt('Masukkan Label Link:', 'Kunjungi Tautan') || url;
+                var aTag = '<a href="' + url + '" target="_blank" style="color:#2563eb; text-decoration:underline;">' + label + '</a>';
+                textarea.setRangeText(aTag, start, end, 'end');
+                updateWordDocStatus(textarea.id);
+                textarea.focus();
+            }
+        }
+
+        function clearWordFormat(editorId) {
+            var textarea = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
+            if (!textarea) return;
+            var start = textarea.selectionStart || 0;
+            var end = textarea.selectionEnd || 0;
             var sel = textarea.value.substring(start, end);
             if (sel) {
                 var clean = sel.replace(/[*_~`^]/g, '').replace(/<[^>]*>/g, '');
                 textarea.setRangeText(clean, start, end, 'end');
-                updateWordCount(textarea.value);
+            } else {
+                textarea.value = textarea.value.replace(/[*_~`^]/g, '').replace(/<[^>]*>/g, '');
+            }
+            updateWordDocStatus(textarea.id);
+            textarea.focus();
+        }
+
+        // BACKWARD COMPATIBILITY HELPERS
+        function updateWordCount(val) {
+            updateWordDocStatus('editor_content');
+        }
+        function formatDoc(cmd) {
+            formatWordDoc('editor_content', cmd);
+        }
+        function insertMathSymbol(sym) {
+            insertWordSymbol('editor_content', sym);
+        }
+        function insertTable() {
+            insertWordTable('editor_content');
+        }
+        function clearFormat() {
+            clearWordFormat('editor_content');
+        }
+        function formatChoice(type) {
+            formatWordDoc(lastActiveWordEditor, type);
+        }
+        function insertChoiceSymbol(sym) {
+            insertWordSymbol(lastActiveWordEditor, sym);
+        }
+        function insertChoiceImage() {
+            insertWordImage(lastActiveWordEditor);
+        }
+        function clearChoiceFormat() {
+            clearWordFormat(lastActiveWordEditor);
+        }
+        function quickFormatChoice(id, type) {
+            formatWordDoc(id, type);
+        }
+        function quickInsertSymbol(id, sym) {
+            insertWordSymbol(id, sym);
+        }
+        function quickInsertImage(id) {
+            insertWordImage(id);
+        }
+
+        // ==========================================
+        // GOOGLE AUTH STATE & GEMINI AI ENGINE
+        // ==========================================
+        function getGoogleUser() {
+            try {
+                var u = localStorage.getItem('cbt_google_user');
+                return u ? JSON.parse(u) : null;
+            } catch (e) {
+                return null;
             }
         }
 
-        // AI Question Generator Handler
+        function saveGoogleUser(user) {
+            try {
+                localStorage.setItem('cbt_google_user', JSON.stringify(user));
+            } catch (e) {}
+        }
+
+        function loginWithGoogle(email, name) {
+            var user = {
+                name: name || 'Guru Mata Pelajaran',
+                email: email || 'guru.cbt@gmail.com',
+                avatar: (name || 'G').charAt(0).toUpperCase(),
+                loginAt: new Date().toISOString()
+            };
+            saveGoogleUser(user);
+            updateGoogleUserUi(user);
+            showAiGeneratorScreen();
+        }
+
+        function loginWithCustomGoogle() {
+            var inp = document.getElementById('custom_google_email');
+            var val = (inp ? inp.value.trim() : '');
+            if (!val || val.indexOf('@') === -1) {
+                alert('Silakan masukkan alamat email Google yang valid (contoh: guru@gmail.com)');
+                return;
+            }
+            var namePart = val.split('@')[0].replace(/[._-]/g, ' ');
+            var name = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+            loginWithGoogle(val, name);
+        }
+
+        function logoutGoogle() {
+            try {
+                localStorage.removeItem('cbt_google_user');
+            } catch (e) {}
+            showAiLoginScreen();
+        }
+
+        function updateGoogleUserUi(user) {
+            if (!user) return;
+            var av = document.getElementById('google_user_avatar');
+            var nm = document.getElementById('google_user_name');
+            var em = document.getElementById('google_user_email');
+            if (av) av.innerText = user.avatar || (user.name ? user.name.charAt(0).toUpperCase() : 'G');
+            if (nm) nm.innerText = user.name || 'Guru CBT';
+            if (em) em.innerText = user.email || 'guru.cbt@gmail.com';
+        }
+
+        function showAiLoginScreen() {
+            var logScreen = document.getElementById('ai_google_login_screen');
+            var genScreen = document.getElementById('ai_generator_screen');
+            if (logScreen) logScreen.style.display = 'block';
+            if (genScreen) genScreen.style.display = 'none';
+        }
+
+        function showAiGeneratorScreen() {
+            var logScreen = document.getElementById('ai_google_login_screen');
+            var genScreen = document.getElementById('ai_generator_screen');
+            if (logScreen) logScreen.style.display = 'none';
+            if (genScreen) genScreen.style.display = 'block';
+        }
+
         var currentAiResult = null;
 
         function openAiQuestionModal() {
             var m = document.getElementById('aiQuestionModal');
             if (m) {
                 m.style.display = 'flex';
+                var user = getGoogleUser();
+                if (user) {
+                    updateGoogleUserUi(user);
+                    showAiGeneratorScreen();
+                } else {
+                    showAiLoginScreen();
+                }
                 var rb = document.getElementById('ai_result_box');
                 if (rb) rb.style.display = 'none';
             }
@@ -6404,7 +6769,7 @@ function renderQuestionsContent() {
                     type: type,
                     difficulty: diff,
                     score_weight: (type === 'essay') ? 10.0 : 2.5,
-                    content: 'Diberikan permasalahan terkait <b>' + (topic || subjName) + '</b>. Berapakah hasil perhitungan nilai optimal yang memenuhi kondisi batas sistem?',
+                    content: 'Diberikan permasalahan terkait materi <b>' + (topic || subjName) + '</b>. Berapakah hasil perhitungan nilai optimal yang memenuhi kondisi batas sistem?',
                     options: {
                         'A': '12.5 satuan',
                         'B': '25.0 satuan',
@@ -6424,7 +6789,7 @@ function renderQuestionsContent() {
             var resBox = document.getElementById('ai_result_box');
             if (!resBox) return;
 
-            document.getElementById('ai_preview_badge').innerText = (data.type === 'essay') ? 'Essai / Uraian' : 'Pilihan Ganda';
+            document.getElementById('ai_preview_badge').innerText = (data.type === 'essay') ? 'Essai / Uraian' : 'Pilihan Ganda (A s/d E)';
             document.getElementById('ai_preview_content').innerHTML = data.content;
 
             var optSec = document.getElementById('ai_preview_options_sec');
@@ -6439,22 +6804,22 @@ function renderQuestionsContent() {
                     if (data.options && data.options[k]) {
                         var isKunci = (data.correct_option === k);
                         var div = document.createElement('div');
-                        div.style.padding = '5px 10px';
-                        div.style.borderRadius = '5px';
-                        div.style.border = '1px solid ' + (isKunci ? '#86efac' : '#e2e8f0');
+                        div.style.padding = '7px 12px';
+                        div.style.borderRadius = '6px';
+                        div.style.border = '1.5px solid ' + (isKunci ? '#86efac' : '#e2e8f0');
                         div.style.background = isKunci ? '#dcfce7' : '#ffffff';
                         if (isKunci) {
                             div.style.fontWeight = '700';
                             div.style.color = '#15803d';
                         }
-                        div.innerHTML = '<strong>' + k + '.</strong> ' + data.options[k] + (isKunci ? ' <span style="font-size: 11px;">✓ (Kunci)</span>' : '');
+                        div.innerHTML = '<strong>' + k + '.</strong> ' + data.options[k] + (isKunci ? ' <span style="font-size: 11px; background:#16a34a; color:#fff; padding:1px 6px; border-radius:4px; margin-left:6px;">✓ KUNCI</span>' : '');
                         optBox.appendChild(div);
                     }
                 });
             }
 
-            document.getElementById('ai_preview_key').innerText = data.correct_option;
-            document.getElementById('ai_preview_explanation').innerText = data.explanation || 'Dibuat otomatis oleh AI CBT.';
+            document.getElementById('ai_preview_key').innerText = data.correct_option || '-';
+            document.getElementById('ai_preview_explanation').innerText = data.explanation || 'Disusun otomatis oleh Google Gemini AI CBT.';
             resBox.style.display = 'block';
         }
 
@@ -6465,7 +6830,7 @@ function renderQuestionsContent() {
                 var tempDiv = document.createElement('div');
                 tempDiv.innerHTML = currentAiResult.content;
                 ed.value = tempDiv.innerText || tempDiv.textContent || currentAiResult.content;
-                updateWordCount(ed.value);
+                updateWordDocStatus('editor_content');
             }
 
             var typeSel = document.getElementById('question_type_selector');
@@ -6480,11 +6845,25 @@ function renderQuestionsContent() {
             }
 
             if (currentAiResult.type !== 'essay' && currentAiResult.options) {
-                if (document.getElementById('opt_a_input')) document.getElementById('opt_a_input').value = currentAiResult.options['A'] || '';
-                if (document.getElementById('opt_b_input')) document.getElementById('opt_b_input').value = currentAiResult.options['B'] || '';
-                if (document.getElementById('opt_c_input')) document.getElementById('opt_c_input').value = currentAiResult.options['C'] || '';
-                if (document.getElementById('opt_d_input')) document.getElementById('opt_d_input').value = currentAiResult.options['D'] || '';
-                if (document.getElementById('opt_e_input')) document.getElementById('opt_e_input').value = currentAiResult.options['E'] || '';
+                var mapKeys = {
+                    'A': ['opt_editor_a', 'opt_a_input'],
+                    'B': ['opt_editor_b', 'opt_b_input'],
+                    'C': ['opt_editor_c', 'opt_c_input'],
+                    'D': ['opt_editor_d', 'opt_d_input'],
+                    'E': ['opt_editor_e', 'opt_e_input']
+                };
+
+                ['A', 'B', 'C', 'D', 'E'].forEach(function(letter) {
+                    var val = currentAiResult.options[letter] || '';
+                    var ids = mapKeys[letter];
+                    ids.forEach(function(id) {
+                        var input = document.getElementById(id);
+                        if (input) {
+                            input.value = val;
+                            updateWordDocStatus(id);
+                        }
+                    });
+                });
 
                 var r = document.querySelector('input[name="correct_option"][value="' + currentAiResult.correct_option + '"]');
                 if (r) r.checked = true;
@@ -6496,12 +6875,12 @@ function renderQuestionsContent() {
             if (card) {
                 card.style.display = 'block';
                 card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                card.style.borderColor = '#8b5cf6';
-                card.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.3)';
+                card.style.borderColor = '#2563eb';
+                card.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.35)';
                 setTimeout(function() {
                     card.style.borderColor = '#cbd5e1';
                     card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
-                }, 1500);
+                }, 1600);
             }
         }
 
