@@ -1,23 +1,128 @@
 @extends('layouts.app')
 
-@section('title', 'Bank Soal & Mata Pelajaran - CBT Administrator')
+@section('title', 'Bank Soal - CBT Administrator')
 
 @section('content')
+<style>
+    .example-table th {
+        color: #2563eb !important;
+        font-weight: 800 !important;
+        font-size: 12px !important;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e2e8f0 !important;
+        white-space: nowrap;
+        padding: 14px 12px !important;
+    }
+    .sort-icon {
+        display: inline-block;
+        font-size: 10px;
+        color: #94a3b8;
+        margin-left: 3px;
+        vertical-align: middle;
+    }
+    .btn-buat-soal-purple {
+        background: #5b47fb !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 8px 18px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 6px 16px rgba(91, 71, 251, 0.35) !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease;
+    }
+    .btn-buat-soal-purple:hover {
+        background: #4935e8 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(91, 71, 251, 0.45) !important;
+        color: #ffffff !important;
+    }
+    .action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-action-ubah {
+        background: #2563eb !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 6px 18px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25) !important;
+        width: 86px;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none !important;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    .btn-action-ubah:hover {
+        background: #1d4ed8 !important;
+        transform: translateY(-1px);
+        color: #ffffff !important;
+    }
+    .btn-action-arsipkan {
+        background: #e59324 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 6px 18px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 10px rgba(229, 147, 36, 0.28) !important;
+        width: 86px;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none !important;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    .btn-action-arsipkan:hover {
+        background: #c97d1b !important;
+        transform: translateY(-1px);
+        color: #ffffff !important;
+    }
+    .btn-action-cetak {
+        background: #0ea5e9 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 6px 18px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 10px rgba(14, 165, 233, 0.25) !important;
+        width: 86px;
+        text-align: center;
+        cursor: pointer;
+        text-decoration: none !important;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    .btn-action-cetak:hover {
+        background: #0284c7 !important;
+        transform: translateY(-1px);
+        color: #ffffff !important;
+    }
+</style>
+
 <div class="content-header">
     <div>
-        <h1 class="page-title">Bank Soal &amp; Mata Pelajaran</h1>
-        <p class="page-subtitle">Kelola mata pelajaran, pembuatan butir soal ujian, pilihan jawaban, bobot nilai, dan kunci jawaban</p>
+        <h1 class="page-title">Bank Soal</h1>
+        <p class="page-subtitle">Daftar bank soal ujian, komposisi butir pertanyaan, dan aksi kelola</p>
     </div>
     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
         <button type="button" class="btn btn-secondary" onclick="openCreateSubjectModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fbcfe8; color: #db2777; font-weight: 600;">
             <span>📚</span> + Tambah Mapel
         </button>
-        <button type="button" class="btn btn-secondary" onclick="openImportModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: #bae6fd; color: #0284c7;">
-            <span>📊</span> Import Soal Excel
-        </button>
-        <a href="{{ route('admin.questions.create') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
-            <span>+</span> Buat Soal Baru
-        </a>
     </div>
 </div>
 
@@ -26,102 +131,89 @@
     $selectedSubject = $subjects->firstWhere('id', $selectedSubjectId);
 @endphp
 
-<!-- CARD DAFTAR MATA PELAJARAN (HANYA 4 KOLOM: NO, MATA PELAJARAN, BUAT SOAL PER-MATA PELAJARAN, AKSI) -->
-<div class="card" style="margin-bottom: 24px;">
-    <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 20px;">📚</span>
-            <div>
-                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary);">Daftar Mata Pelajaran &amp; Bank Soal</h3>
-                <span style="font-size: 12px; color: var(--text-muted);">Kelola mata pelajaran dan buat soal spesifik per mapel</span>
-            </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <form method="GET" action="{{ route('admin.questions.index') }}" style="display: flex; gap: 6px; align-items: center;">
-                @if(request('subject_id'))
-                    <input type="hidden" name="subject_id" value="{{ request('subject_id') }}">
-                @endif
-                <input type="text" name="search_subject" class="form-control" placeholder="Cari mata pelajaran..." value="{{ request('search_subject') }}" style="padding: 6px 12px; font-size: 13px; width: 200px;">
-                <button type="submit" class="btn btn-sm btn-secondary">Cari</button>
-                @if(request('search_subject'))
-                    <a href="{{ route('admin.questions.index') }}" class="btn btn-sm btn-secondary">Reset</a>
-                @endif
-            </form>
-        </div>
-    </div>
-
+<!-- TABEL UTAMA PERSIS SEPERTI CONTOH -->
+<div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden; border-radius: 10px;">
     <div class="table-responsive">
-        <table class="table" style="margin: 0;">
+        <table class="table example-table" style="margin: 0; background: #ffffff;">
             <thead>
                 <tr>
-                    <th style="width: 60px; text-align: center;">No</th>
-                    <th>Mata Pelajaran</th>
-                    <th style="width: 280px; text-align: center;">Buat Soal Per-Mata Pelajaran</th>
-                    <th style="width: 240px; text-align: center;">Aksi</th>
+                    <th style="width: 50px; text-align: center;">NO. <span class="sort-icon">⇅</span></th>
+                    <th>GURU <span class="sort-icon">⇅</span></th>
+                    <th>JUDUL <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 60px;">PG <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 85px;">PG MULTI <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 70px;">ESSAI <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 60px;">B/S <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 75px;">JODOH <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 110px;">WAKTU <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 160px;">DAFTAR PERTANYAAN <span class="sort-icon">⇅</span></th>
+                    <th style="text-align: center; width: 120px;">AKSI <span class="sort-icon">⇅</span></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($subjects as $idx => $sb)
-                    <tr class="{{ $selectedSubjectId == $sb->id ? 'table-row-selected' : '' }}" style="{{ $selectedSubjectId == $sb->id ? 'background-color: rgba(2, 132, 199, 0.06);' : '' }}">
-                        <td style="text-align: center; font-weight: 600; color: var(--text-secondary);">
+                    <tr style="vertical-align: middle;">
+                        <td style="text-align: center; color: #475569; font-weight: 600; padding: 18px 10px;">
                             {{ $idx + 1 }}
                         </td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(2, 132, 199, 0.1); color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0;">
-                                    📖
-                                </div>
-                                <div>
-                                    <div style="font-weight: 700; font-size: 14.5px; color: var(--text-primary);">
-                                        {{ $sb->name }}
-                                    </div>
-                                    <div style="display: flex; gap: 6px; align-items: center; margin-top: 3px;">
-                                        <span class="badge badge-secondary" style="font-size: 11px;">Kode: {{ $sb->code }}</span>
-                                        <span class="badge {{ $sb->questions_count > 0 ? 'badge-info' : 'badge-light' }}" style="font-size: 11px;">
-                                            {{ $sb->questions_count }} Butir Soal
-                                        </span>
-                                    </div>
-                                </div>
+                        <td style="color: #475569; font-size: 13.5px; padding: 18px 12px;">
+                            {{ $sb->teacher ?? 'Demo' }}
+                        </td>
+                        <td style="padding: 18px 12px;">
+                            <div style="font-weight: 600; font-size: 14px; color: #334155; line-height: 1.4;">
+                                {{ $sb->name }}
+                            </div>
+                            <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">
+                                Kode: {{ $sb->code }}
                             </div>
                         </td>
-                        <td style="text-align: center;">
-                            <a href="{{ route('admin.questions.create', ['subject_id' => $sb->id]) }}" class="btn btn-sm btn-primary" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; padding: 6px 14px;">
-                                <span>➕</span> Buat Soal {{ $sb->name }}
+                        <td style="text-align: center; color: #64748b; font-weight: 500; font-size: 14px; padding: 18px 8px;">
+                            {{ $sb->pg_count ?? 0 }}
+                        </td>
+                        <td style="text-align: center; color: #64748b; font-weight: 500; font-size: 14px; padding: 18px 8px;">
+                            {{ $sb->pg_multi_count ?? 0 }}
+                        </td>
+                        <td style="text-align: center; color: #64748b; font-weight: 500; font-size: 14px; padding: 18px 8px;">
+                            {{ $sb->essay_count ?? 0 }}
+                        </td>
+                        <td style="text-align: center; color: #64748b; font-weight: 500; font-size: 14px; padding: 18px 8px;">
+                            {{ $sb->tf_count ?? 0 }}
+                        </td>
+                        <td style="text-align: center; color: #64748b; font-weight: 500; font-size: 14px; padding: 18px 8px;">
+                            {{ $sb->match_count ?? 0 }}
+                        </td>
+                        <td style="text-align: center; color: #475569; font-size: 13px; white-space: nowrap; padding: 18px 10px;">
+                            120 menit
+                        </td>
+                        <td style="text-align: center; padding: 18px 12px;">
+                            <a href="{{ route('admin.questions.create', ['subject_id' => $sb->id]) }}" class="btn-buat-soal-purple" title="Buat Butir Soal untuk {{ $sb->name }}">
+                                Buat Soal
                             </a>
                         </td>
-                        <td style="text-align: center;">
-                            <div style="display: inline-flex; gap: 5px; align-items: center; justify-content: center;">
-                                @if($selectedSubjectId == $sb->id)
-                                    <a href="{{ route('admin.questions.index') }}" class="btn btn-sm btn-secondary" title="Sembunyikan daftar butir soal">
-                                        <span>✕</span> Tutup Soal
-                                    </a>
-                                @else
-                                    <a href="{{ route('admin.questions.index', ['subject_id' => $sb->id]) }}#detail-soal" class="btn btn-sm btn-secondary" style="border-color: #bae6fd; color: #0284c7;" title="Lihat dan kelola butir soal mata pelajaran ini">
-                                        <span>📋</span> Kelola Soal ({{ $sb->questions_count }})
-                                    </a>
-                                @endif
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="openEditSubjectModal('{{ $sb->id }}', '{{ addslashes($sb->code) }}', '{{ addslashes($sb->name) }}')" title="Edit Mata Pelajaran">
-                                    <span>✏️</span>
+                        <td style="text-align: center; padding: 14px 10px;">
+                            <div class="action-stack">
+                                <button type="button" class="btn-action-ubah" onclick="openEditSubjectModal('{{ $sb->id }}', '{{ addslashes($sb->code) }}', '{{ addslashes($sb->name) }}')">
+                                    Ubah
                                 </button>
-                                <form method="POST" action="{{ route('admin.subjects.destroy', $sb->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus mata pelajaran {{ $sb->name }}?');" style="display:inline;">
+                                <form method="POST" action="{{ route('admin.subjects.destroy', $sb->id) }}" onsubmit="return confirm('Arsipkan atau hapus mata pelajaran {{ $sb->name }}?');" style="margin: 0;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" style="padding: 5px 8px;" title="Hapus Mata Pelajaran">
-                                        <span>🗑️</span>
+                                    <button type="submit" class="btn-action-arsipkan">
+                                        Arsipkan
                                     </button>
                                 </form>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="openImportModalWithSubject('{{ $sb->id }}')" title="Import Soal Excel untuk Mapel Ini">
-                                    <span>📥</span>
+                                <button type="button" class="btn-action-cetak" onclick="window.print()">
+                                    Cetak
                                 </button>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="empty-state">
-                            <div class="empty-icon">&#128218;</div>
-                            <div class="empty-title">Belum ada mata pelajaran</div>
-                            <div class="empty-desc">Klik tombol "+ Tambah Mapel" di atas untuk menambahkan mata pelajaran baru.</div>
+                        <td colspan="11" class="empty-state" style="padding: 40px; text-align: center;">
+                            <div class="empty-icon" style="font-size: 32px; margin-bottom: 8px;">📝</div>
+                            <div class="empty-title" style="font-weight: 700; color: #334155;">Belum ada data mata pelajaran / bank soal</div>
+                            <div class="empty-desc" style="color: #94a3b8; font-size: 13px;">Klik tombol "+ Tambah Mapel" di atas untuk menambahkan.</div>
                         </td>
                     </tr>
                 @endforelse
@@ -129,166 +221,6 @@
         </table>
     </div>
 </div>
-
-<!-- DETAIL DAFTAR BUTIR SOAL KETIKA MATA PELAJARAN DIKLIK ATAU CARI SOAL AKTIF -->
-@if($selectedSubject || request('search') || request('type'))
-    <div class="card" id="detail-soal" style="border: 1px solid #bae6fd; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08); margin-bottom: 24px;">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e0f2fe; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 42px; height: 42px; border-radius: 8px; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800;">
-                    📝
-                </div>
-                <div>
-                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #0284c7; letter-spacing: 0.5px;">Repository Butir Soal</div>
-                    <div style="font-size: 17px; font-weight: 800; color: #0369a1; margin-top: 1px;">
-                        @if($selectedSubject)
-                            {{ $selectedSubject->name }} <span style="font-size: 13px; font-weight: 600; opacity: 0.85;">({{ $selectedSubject->code }})</span>
-                        @else
-                            Hasil Pencarian Butir Soal
-                        @endif
-                    </div>
-                    <div style="font-size: 12px; color: #475569; margin-top: 2px;">
-                        Total: <strong>{{ $questions->total() }} Butir Soal</strong> ditemukan
-                    </div>
-                </div>
-            </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
-                @if($selectedSubject)
-                    <a href="{{ route('admin.questions.create', ['subject_id' => $selectedSubject->id]) }}" class="btn btn-sm btn-primary" style="font-weight: 700;">
-                        <span>+</span> Buat Soal {{ $selectedSubject->name }}
-                    </a>
-                @endif
-                <a href="{{ route('admin.questions.index') }}" class="btn btn-sm btn-secondary">
-                    <span>✕</span> Tutup Detail
-                </a>
-            </div>
-        </div>
-
-        <div style="padding: 14px 20px; border-bottom: 1px solid var(--border-color);">
-            <form method="GET" action="{{ route('admin.questions.index') }}" class="search-filter-bar" style="margin: 0;">
-                @if($selectedSubject)
-                    <input type="hidden" name="subject_id" value="{{ $selectedSubject->id }}">
-                @endif
-                <div class="search-input-group">
-                    <span class="search-icon">&#128269;</span>
-                    <input type="text" name="search" class="form-control" placeholder="Cari isi butir pertanyaan..." value="{{ request('search') }}">
-                </div>
-                <div class="filter-select-group">
-                    <select name="type" class="form-select" onchange="this.form.submit()">
-                        <option value="">Semua Tipe Soal</option>
-                        <option value="single_choice" {{ request('type') == 'single_choice' ? 'selected' : '' }}>Pilihan Ganda</option>
-                        <option value="multiple_choice" {{ request('type') == 'multiple_choice' ? 'selected' : '' }}>Pilihan Majemuk</option>
-                        <option value="essay" {{ request('type') == 'essay' ? 'selected' : '' }}>Uraian / Essay</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                @if(request('search') || request('type'))
-                    <a href="{{ route('admin.questions.index', $selectedSubject ? ['subject_id' => $selectedSubject->id] : []) }}" class="btn btn-secondary">Reset</a>
-                @endif
-            </form>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table" style="margin: 0;">
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">No</th>
-                        <th>Mata Pelajaran</th>
-                        <th>Tipe &amp; Tingkat</th>
-                        <th>Isi Pertanyaan Soal</th>
-                        <th>Bobot</th>
-                        <th>Pembuat</th>
-                        <th style="width: 140px; text-align: center;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($questions as $idx => $q)
-                        <tr>
-                            <td>{{ $questions->firstItem() + $idx }}</td>
-                            <td>
-                                <span class="badge badge-info">{{ $q->subject->name ?? '-' }}</span>
-                            </td>
-                            <td>
-                                <div style="font-weight: 600; font-size: 0.85rem;">
-                                    @if($q->question_type === 'single_choice')
-                                        Pilihan Ganda
-                                    @elseif($q->question_type === 'multiple_choice')
-                                        Pilihan Majemuk
-                                    @else
-                                        Uraian / Essay
-                                    @endif
-                                </div>
-                                <div style="margin-top: 4px;">
-                                    @if($q->difficulty === 'easy')
-                                        <span class="badge badge-success">Mudah</span>
-                                    @elseif($q->difficulty === 'medium')
-                                        <span class="badge badge-warning">Sedang</span>
-                                    @else
-                                        <span class="badge badge-danger">Sulit</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td>
-                                <div style="max-height: 80px; overflow: hidden; text-overflow: ellipsis; font-size: 13.5px; line-height: 1.45;">
-                                    {{ Str::limit(strip_tags($q->content), 140) }}
-                                </div>
-                                @if($q->options->count() > 0)
-                                    <div style="margin-top: 6px; font-size: 0.8rem; color: var(--color-slate-500);">
-                                        {{ $q->options->count() }} Pilihan Jawaban 
-                                        @php
-                                            $correct = $q->options->where('is_correct', true)->pluck('option_label')->implode(', ');
-                                        @endphp
-                                        @if($correct)
-                                            | Kunci: <strong style="color: var(--color-emerald-600);">{{ $correct }}</strong>
-                                        @endif
-                                    </div>
-                                @endif
-                            </td>
-                            <td>
-                                <strong>{{ $q->score_weight }}</strong>
-                            </td>
-                            <td>
-                                <span style="font-size: 0.85rem; color: var(--color-slate-600);">
-                                    {{ $q->creator->name ?? 'Admin' }}
-                                </span>
-                            </td>
-                            <td style="text-align: center;">
-                                <div style="display: inline-flex; gap: 6px;">
-                                    <a href="{{ route('admin.questions.edit', $q->id) }}" class="btn btn-sm btn-secondary">Edit</a>
-                                    <form method="POST" action="{{ route('admin.questions.destroy', $q->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus butir soal ini?');" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="empty-state">
-                                <div class="empty-icon">&#128221;</div>
-                                <div class="empty-title">Belum ada butir soal untuk mata pelajaran ini</div>
-                                <div class="empty-desc">
-                                    @if($selectedSubject)
-                                        Klik tombol "Buat Soal {{ $selectedSubject->name }}" untuk mulai menambahkan butir soal.
-                                    @else
-                                        Tidak ada butir soal yang sesuai dengan kriteria pencarian.
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if($questions->hasPages())
-            <div class="pagination-wrapper" style="padding: 12px 20px;">
-                {{ $questions->links() }}
-            </div>
-        @endif
-    </div>
-@endif
 
 <!-- MODAL TAMBAH MATA PELAJARAN -->
 <div class="modal-overlay" id="createSubjectModal">
@@ -310,7 +242,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label class="form-label">Nama Mata Pelajaran *</label>
-                    <input type="text" name="name" class="form-control" placeholder="Contoh: Matematika X, Bahasa Indonesia" required>
+                    <input type="text" name="name" class="form-control" placeholder="Contoh: Testing Ujian Tryout, Matematika X" required>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateSubjectModal()">Batal</button>
@@ -327,7 +259,7 @@
         <div class="modal-header">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 20px;">✏️</span>
-                <h3 class="modal-title" style="margin: 0;">Edit Mata Pelajaran</h3>
+                <h3 class="modal-title" style="margin: 0;">Edit Data</h3>
             </div>
             <button type="button" class="modal-close-btn" onclick="closeEditSubjectModal()">&times;</button>
         </div>
@@ -347,71 +279,6 @@
                     <button type="button" class="btn btn-secondary" onclick="closeEditSubjectModal()">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                 </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- MODAL IMPORT SOAL EXCEL / CSV -->
-<div class="modal-overlay" id="importQuestionModal">
-    <div class="modal-content-card" style="max-width: 540px;">
-        <div class="modal-header">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">📊</span>
-                <h3 class="modal-title" style="margin: 0;">Import Bank Soal dari Excel</h3>
-            </div>
-            <button type="button" class="modal-close-btn" onclick="closeImportModal()">&times;</button>
-        </div>
-
-        <form action="{{ route('admin.questions.import') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div style="margin-bottom: 16px;">
-                <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
-                    Unggah butir soal dalam format <strong>Excel (.xlsx)</strong> atau <strong>CSV (.csv)</strong>. Sistem akan otomatis memasukkan teks pertanyaan, opsi jawaban A-E, kunci jawaban, dan bobot nilai.
-                </p>
-
-                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <div>
-                        <div style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">Belum punya formatnya?</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">Unduh template standar berisi contoh soal</div>
-                    </div>
-                    <a href="{{ route('admin.questions.template') }}" class="btn btn-secondary btn-sm" style="color: #0284c7; border-color: #bae6fd; text-decoration: none;">
-                        <span>📥</span> Unduh Template
-                    </a>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label">Pilih File Excel / CSV *</label>
-                    <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv,.txt" required style="padding: 7px 12px;">
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Mendukung .xlsx, .xls, dan .csv (Maksimal 10MB)</div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label">Mata Pelajaran Default (Opsional)</label>
-                    <select name="default_subject_id" id="import_default_subject_id" class="form-select">
-                        <option value="">-- Otomatis Sesuai Kolom "Mata Pelajaran" di File --</option>
-                        @foreach ($subjects as $sb)
-                            <option value="{{ $sb->id }}">{{ $sb->name }} ({{ $sb->code }})</option>
-                        @endforeach
-                    </select>
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Digunakan jika kolom mapel pada file kosong.</div>
-                </div>
-
-                <div style="background: var(--bg-surface-elevated); border: 1px dashed var(--border-color); border-radius: 6px; padding: 10px 12px; font-size: 11px; color: var(--text-secondary);">
-                    <strong style="display: block; margin-bottom: 4px; color: var(--text-primary);">Format Kolom File yang Dikenali:</strong>
-                    <code>Mata Pelajaran | Tipe Soal | Pertanyaan | Opsi A | Opsi B | Opsi C | Opsi D | Opsi E | Kunci Jawaban | Bobot | Tingkat Kesulitan</code>
-                    <div style="margin-top: 4px; font-size: 10.5px; color: var(--text-muted);">
-                        &bull; Tipe soal: <code>single_choice</code> (PG), <code>multiple_choice</code> (PG Majemuk), <code>essay</code>.<br>
-                        &bull; Kunci jawaban isi dengan huruf opsi seperti <code>A</code> atau <code>A,C</code>.
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
-                <button type="button" class="btn btn-secondary" onclick="closeImportModal()">Batal</button>
-                <button type="submit" class="btn btn-primary" style="background-color: #0095ff; border-color: #0095ff;">
-                    <span>📤</span> Upload &amp; Mulai Import
-                </button>
             </div>
         </form>
     </div>
@@ -444,27 +311,7 @@ function closeEditSubjectModal() {
     if (modal) modal.classList.remove('active');
 }
 
-function openImportModal() {
-    const modal = document.getElementById('importQuestionModal');
-    if (modal) modal.classList.add('active');
-}
-
-function openImportModalWithSubject(subjectId) {
-    const select = document.getElementById('import_default_subject_id');
-    if (select && subjectId) {
-        select.value = subjectId;
-    }
-    openImportModal();
-}
-
-function closeImportModal() {
-    const modal = document.getElementById('importQuestionModal');
-    if (modal) modal.classList.remove('active');
-}
-
 document.addEventListener('click', function(e) {
-    const importModal = document.getElementById('importQuestionModal');
-    if (importModal && e.target === importModal) closeImportModal();
     const createSubjectModal = document.getElementById('createSubjectModal');
     if (createSubjectModal && e.target === createSubjectModal) closeCreateSubjectModal();
     const editSubjectModal = document.getElementById('editSubjectModal');

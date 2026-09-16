@@ -50,11 +50,23 @@ class WebQuestionController extends Controller
 
         $subjectsQuery = Subject::where('status', 'active');
         if ($userRole !== 'admin') {
-            $subjectsQuery->withCount(['questions' => function ($q) use ($teacher) {
-                $q->where('created_by', $teacher?->id ?? 0);
-            }]);
+            $subjectsQuery->withCount([
+                'questions' => fn($q) => $q->where('created_by', $teacher?->id ?? 0),
+                'questions as pg_count' => fn($q) => $q->where('created_by', $teacher?->id ?? 0)->where('question_type', 'single_choice'),
+                'questions as pg_multi_count' => fn($q) => $q->where('created_by', $teacher?->id ?? 0)->where('question_type', 'multiple_choice'),
+                'questions as essay_count' => fn($q) => $q->where('created_by', $teacher?->id ?? 0)->where('question_type', 'essay'),
+                'questions as tf_count' => fn($q) => $q->where('created_by', $teacher?->id ?? 0)->where('question_type', 'true_false'),
+                'questions as match_count' => fn($q) => $q->where('created_by', $teacher?->id ?? 0)->where('question_type', 'matching'),
+            ]);
         } else {
-            $subjectsQuery->withCount('questions');
+            $subjectsQuery->withCount([
+                'questions',
+                'questions as pg_count' => fn($q) => $q->where('question_type', 'single_choice'),
+                'questions as pg_multi_count' => fn($q) => $q->where('question_type', 'multiple_choice'),
+                'questions as essay_count' => fn($q) => $q->where('question_type', 'essay'),
+                'questions as tf_count' => fn($q) => $q->where('question_type', 'true_false'),
+                'questions as match_count' => fn($q) => $q->where('question_type', 'matching'),
+            ]);
         }
 
         if ($request->filled('search_subject')) {
