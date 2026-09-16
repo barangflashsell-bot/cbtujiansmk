@@ -143,11 +143,11 @@ trait HandlesExcelImport
 
         if (!empty($metaRows)) {
             foreach ($metaRows as $mRow) {
-                $xml .= '   <Row ss:Height="22">' . "\n";
+                $xml .= '   <Row ss:Height="24">' . "\n";
                 $label = $mRow[0] ?? '';
                 $val = $mRow[1] ?? '';
-                $xml .= '    <Cell ss:StyleID="MetaLabel"><Data ss:Type="String">' . htmlspecialchars((string)$label) . '</Data></Cell>' . "\n";
-                $xml .= '    <Cell ss:StyleID="MetaValue"><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
+                $xml .= '    <Cell ss:StyleID="MetaLabel" ss:MergeAcross="1"><Data ss:Type="String">' . htmlspecialchars((string)$label) . '</Data></Cell>' . "\n";
+                $xml .= '    <Cell ss:StyleID="MetaValue" ss:MergeAcross="6"><Data ss:Type="String">' . htmlspecialchars((string)$val) . '</Data></Cell>' . "\n";
                 $xml .= '   </Row>' . "\n";
             }
             $xml .= '   <Row ss:Height="12"></Row>' . "\n";
