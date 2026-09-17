@@ -35,6 +35,7 @@ if (!isset($_SESSION['cbt_settings'])) {
         'active_token' => 'WXYZ89',
         'proctor_unlock_pin' => str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT),
         'student_review' => true,
+        'show_score_to_student' => true,
         'auto_token_release' => true,
         'server_network_mode' => 'auto',
         'server_host_ip' => '192.168.1.11',
@@ -43,6 +44,9 @@ if (!isset($_SESSION['cbt_settings'])) {
 }
 if (!isset($_SESSION['cbt_settings']['proctor_unlock_pin']) || empty($_SESSION['cbt_settings']['proctor_unlock_pin'])) {
     $_SESSION['cbt_settings']['proctor_unlock_pin'] = str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+}
+if (!isset($_SESSION['cbt_settings']['show_score_to_student'])) {
+    $_SESSION['cbt_settings']['show_score_to_student'] = true;
 }
 if (!isset($_SESSION['cbt_settings']['server_network_mode'])) {
     $_SESSION['cbt_settings']['server_network_mode'] = 'auto';
@@ -2542,9 +2546,23 @@ if (strpos($uri, '/api/v1/') === 0) {
 
     // Result Endpoint (/api/v1/attempts/{id}/result)
     if (preg_match('#^/api/v1/attempts/(\d+)/result$#', $uri)) {
+        $showScore = !empty($_SESSION['cbt_settings']['show_score_to_student']);
+        if (!$showScore) {
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'show_score' => false,
+                    'message' => 'Nilai ujian dirahasiakan oleh panitia sekolah.',
+                    'status' => 'submitted'
+                ]
+            ]);
+            exit;
+        }
+
         echo json_encode([
             'success' => true,
             'data' => [
+                'show_score' => true,
                 'score' => 88.5,
                 'passing_score' => 75.0,
                 'status' => 'graded',
@@ -4825,6 +4843,18 @@ if ($uri === '/admin/results/publish' || (isset($_GET['action']) && $_GET['actio
     exit;
 }
 
+// Toggle Global Tampilkan/Sembunyikan Nilai Ujian ke Siswa
+if ($uri === '/admin/results/toggle-student-score') {
+    $currentStatus = !empty($_SESSION['cbt_settings']['show_score_to_student']);
+    $newStatus = !$currentStatus;
+    $_SESSION['cbt_settings']['show_score_to_student'] = $newStatus;
+    $statusText = $newStatus ? 'DITAMPILKAN KE SISWA (Publik)' : 'DISEMBUNYIKAN DARI SISWA (Rahasia)';
+    logCbtActivity('SETTING', 'TOGGLE_STUDENT_SCORE', "Mengubah kebijakan visibilitas nilai siswa menjadi: {$statusText}");
+    $_SESSION['import_success'] = "Kebijakan visibilitas nilai berhasil diubah: <strong>{$statusText}</strong>!";
+    header('Location: /admin/results');
+    exit;
+}
+
 // =========================================================================
 // H2. UJIAN REMEDIAL (REMEDIAL EXAMS & SCORE ADJUSTMENT)
 // =========================================================================
@@ -5151,6 +5181,7 @@ if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin
     $_SESSION['cbt_settings']['token_refresh_minutes'] = (int)($_POST['token_refresh_minutes'] ?? 15);
     $_SESSION['cbt_settings']['auto_token_release'] = isset($_POST['auto_token_release']);
     $_SESSION['cbt_settings']['student_review'] = isset($_POST['allow_student_review']);
+    $_SESSION['cbt_settings']['show_score_to_student'] = isset($_POST['show_score_to_student']);
     
     // Konfigurasi Jaringan & Mode Offline Siswa
     $netMode = trim($_POST['server_network_mode'] ?? 'auto');
@@ -5887,6 +5918,100 @@ function renderStudentPortal() {
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
+
+        <!-- ========================================================================= -->
+        <!-- SEKSI RIWAYAT & HASIL PENILAIAN UJIAN SISWA -->
+        <!-- ========================================================================= -->
+        <?php
+        $myScores = [];
+        if (!empty($_SESSION['results_list'])) {
+            foreach ($_SESSION['results_list'] as $rItem) {
+                if (($rItem['nis'] ?? '') === $studentNis) {
+                    $myScores[] = $rItem;
+                }
+            }
+        }
+        $canShowScore = !empty($_SESSION['cbt_settings']['show_score_to_student']);
+        ?>
+
+        <div style="margin-top: 36px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <h3 style="margin: 0; font-size: 16px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <span>📊</span>
+                    <span>Riwayat &amp; Hasil Penilaian Ujian Saya</span>
+                    <span style="font-size: 12px; background: #e0f2fe; color: #0369a1; padding: 2px 10px; border-radius: 12px; font-weight: 700;"><?= count($myScores) ?> Ujian Diselesaikan</span>
+                </h3>
+                <span class="badge" style="background: <?= $canShowScore ? '#ecfdf5' : '#fff1f2' ?>; color: <?= $canShowScore ? '#047857' : '#b91c1c' ?>; border: 1px solid <?= $canShowScore ? '#a7f3d0' : '#fca5a5' ?>; font-weight: 700; font-size: 11.5px; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span><?= $canShowScore ? '👁️' : '🔒' ?></span>
+                    <span>Status Nilai: <strong><?= $canShowScore ? 'Diumumkan Resmi' : 'Disembunyikan Sekolah' ?></strong></span>
+                </span>
+            </div>
+
+            <?php if (empty($myScores)): ?>
+                <div style="background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 24px; text-align: center; color: #64748b;">
+                    <div style="font-size: 32px; margin-bottom: 6px;">📝</div>
+                    <div style="font-weight: 700; color: #334155; font-size: 14px;">Belum Ada Ujian yang Diselesaikan</div>
+                    <p style="margin: 4px 0 0; font-size: 12.5px;">Setelah Anda menyelesaikan paket ujian di atas, riwayat lembar jawaban dan skor penilaian akan tercatat di sini.</p>
+                </div>
+            <?php elseif (!$canShowScore): ?>
+                <!-- ALERT KETIKA ADMIN MEMILIH SEMBUNYIKAN NILAI -->
+                <div style="background: #ffffff; border: 1.5px dashed #fca5a5; border-radius: 12px; padding: 28px 24px; text-align: center; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.05);">
+                    <div style="font-size: 42px; margin-bottom: 10px;">🔒</div>
+                    <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: #991b1b;">
+                        Nilai Ujian Disembunyikan oleh Pihak Sekolah
+                    </h4>
+                    <p style="margin: 0 auto; max-width: 620px; font-size: 13px; color: #64748b; line-height: 1.6;">
+                        Seluruh lembar respon dan jawaban Anda telah tersimpan dengan aman di Server CBT. Sesuai kebijakan proktor / panitia ujian sekolah, angka perolehan nilai sementara ini tidak ditampilkan di layar siswa dan akan diumumkan secara terpadu setelah proses verifikasi guru selesai.
+                    </p>
+                    <div style="margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #0284c7; font-weight: 700; background: #f0f9ff; padding: 6px 14px; border-radius: 20px; border: 1px solid #bae6fd;">
+                        <span>ℹ️</span> <strong><?= count($myScores) ?> Paket Ujian</strong> telah tersimpan aman di server sekolah.
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- GRID KARTU NILAI KETIKA ADMIN MENGIZINKAN PERLIHATKAN NILAI -->
+                <div class="exam-grid" style="margin-bottom: 0;">
+                    <?php foreach ($myScores as $sItem): 
+                        $sScore = (float)($sItem['score'] ?? 0);
+                        $sPass = ($sScore >= (float)($sItem['passing'] ?? 75.0));
+                    ?>
+                        <div class="exam-card" style="border: 2px solid <?= $sPass ? '#86efac' : '#fca5a5' ?>; background: #ffffff;">
+                            <div class="exam-card-header" style="background: <?= $sPass ? '#f0fdf4' : '#fef2f2' ?>; border-bottom: 1px solid <?= $sPass ? '#dcfce7' : '#fee2e2' ?>;">
+                                <span class="exam-subject-badge" style="background: <?= $sPass ? '#dcfce7' : '#fee2e2' ?>; color: <?= $sPass ? '#166534' : '#991b1b' ?>; border-color: <?= $sPass ? '#bbf7d0' : '#fecdd3' ?>;">
+                                    📚 <?= htmlspecialchars($sItem['subject'] ?? $sItem['exam']) ?>
+                                </span>
+                                <span class="badge <?= $sPass ? 'badge-success' : 'badge-danger' ?>" style="font-size: 11px; font-weight: 800; padding: 3px 8px;">
+                                    <?= $sPass ? '✓ Lulus KKM' : '⚠️ Remedial' ?>
+                                </span>
+                            </div>
+                            <div class="exam-card-body" style="text-align: center; padding: 20px 18px;">
+                                <h4 class="exam-title" style="margin-bottom: 12px; font-size: 14.5px;"><?= htmlspecialchars($sItem['exam']) ?></h4>
+                                <div style="background: <?= $sPass ? '#ecfdf5' : '#fff1f2' ?>; border: 1px solid <?= $sPass ? '#a7f3d0' : '#fecdd3' ?>; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Skor Nilai Akhir</div>
+                                    <div style="font-size: 40px; font-weight: 900; color: <?= $sPass ? '#047857' : '#dc2626' ?>; line-height: 1.1; margin: 4px 0;">
+                                        <?= number_format($sScore, 1) ?>
+                                    </div>
+                                    <div style="font-size: 11.5px; color: #64748b;">Standar KKM: <strong><?= number_format((float)($sItem['passing'] ?? 75.0), 1) ?></strong></div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 12px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                    <div>
+                                        <div style="color: #64748b; font-size: 10.5px;">Benar</div>
+                                        <strong style="color: #16a34a; font-size: 15px;"><?= (int)$sItem['correct'] ?></strong>
+                                    </div>
+                                    <div>
+                                        <div style="color: #64748b; font-size: 10.5px;">Salah</div>
+                                        <strong style="color: #dc2626; font-size: 15px;"><?= (int)$sItem['wrong'] ?></strong>
+                                    </div>
+                                    <div>
+                                        <div style="color: #64748b; font-size: 10.5px;">Kosong</div>
+                                        <strong style="color: #64748b; font-size: 15px;"><?= (int)$sItem['empty'] ?></strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- ========================================================================= -->
@@ -6381,7 +6506,23 @@ function renderStudentPortal() {
             document.getElementById('activeExamRoom').style.display = 'none';
             document.getElementById('studentPortalDashboard').style.display = 'block';
 
-            alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan dan tersinkronisasi ke Server CBT Sekolah.');
+            var isScoreVisible = <?= json_encode(!empty($_SESSION['cbt_settings']['show_score_to_student'])) ?>;
+            var answeredCount = Object.keys(userAnswers).length;
+            var totalCount = examQuestions.length;
+
+            if (isScoreVisible) {
+                var estScore = Math.round((answeredCount / totalCount) * 100);
+                var isPass = estScore >= 75;
+                alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan ke Server CBT.\n\n' +
+                    '📊 Hasil Ujian Anda:\n' +
+                    '• Soal Terjawab: ' + answeredCount + ' dari ' + totalCount + ' Butir\n' +
+                    '• Estimasi Skor: ' + estScore + '.0 / 100\n' +
+                    '• Status: ' + (isPass ? 'LULUS STANDAR KKM (>= 75)' : 'REMEDIAL (< 75)') + '\n\n' +
+                    'Rincian evaluasi dapat dilihat pada kartu nilai di bawah.');
+            } else {
+                alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan dan tersinkronisasi ke Server CBT Sekolah.\n\n' +
+                    '🔒 Kebijakan Nilai: Nilai ujian sementara dirahasiakan/disembunyikan oleh pihak sekolah dan akan diumumkan secara resmi.');
+            }
             window.location.reload();
         }
 
@@ -13079,8 +13220,18 @@ function renderMonitoringLiveContent($examId) {
                         Kolom <strong>Absensi &amp; Jam Login</strong> mencatat waktu kedatangan siswa saat memasukkan NIS dan sandi di portal CBT. Klik <span style="background: #0284c7; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">👁️ Lembar Jawaban</span> untuk meninjau butir soal yang sedang dijawab siswa.
                     </div>
                 </div>
-                <div>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="font-size: 12px; font-weight: 600;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Urutkan Nilai:</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="sortMonitoringByScore('desc')" style="font-size: 11px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; font-weight: 700;">
+                        <span>⚡ Terbesar</span> <span style="font-size: 9px;">▼</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="sortMonitoringByScore('asc')" style="font-size: 11px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; font-weight: 700;">
+                        <span>⚡ Terkecil</span> <span style="font-size: 9px;">▲</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="sortMonitoringByScore(null)" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">
+                        <span>🔄 Reset</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="font-size: 12px; font-weight: 600; margin-left: 6px;">
                         Buka Rekapitulasi Nilai &rarr;
                     </button>
                 </div>
@@ -13089,7 +13240,7 @@ function renderMonitoringLiveContent($examId) {
             <!-- LIVE PARTICIPANTS TABLE WITH NILAI & LEMBAR JAWABAN -->
             <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
                 <div class="data-table-wrapper">
-                    <table class="data-table">
+                    <table class="data-table" id="monitoringTelemetriTable">
                         <thead>
                             <tr>
                                 <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-live-student')" title="Pilih Semua Peserta"></th>
@@ -13100,7 +13251,15 @@ function renderMonitoringLiveContent($examId) {
                                 <th>Status Pengerjaan</th>
                                 <th>Sisa Waktu</th>
                                 <th>Progres Pengerjaan</th>
-                                <th style="min-width: 170px;">Nilai &amp; Evaluasi Siswa</th>
+                                <th style="min-width: 180px; cursor: pointer; user-select: none;" onclick="sortMonitoringByScore()" title="Klik untuk mengurutkan Nilai Terbesar atau Terkecil">
+                                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <span>Nilai &amp; Evaluasi Siswa</span>
+                                        <span class="cbt-sort-btn" id="sortIconMonitoring" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.18); transition: all 0.2s;">
+                                            <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-up" style="display: block; fill: #64748b;"><polygon points="4,0 8,5 0,5"/></svg>
+                                            <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-down" style="display: block; fill: #64748b;"><polygon points="0,0 8,0 4,5"/></svg>
+                                        </span>
+                                    </div>
+                                </th>
                                 <th>IP Client</th>
                                 <th style="width: 230px; text-align: center;">Aksi Proktor</th>
                             </tr>
@@ -13116,9 +13275,9 @@ function renderMonitoringLiveContent($examId) {
                                 $isAttPresent = !empty($s['login_time']) || (!empty($s['attendance_status']) && $s['attendance_status'] === 'HADIR') || (($s['status'] ?? '') !== 'Belum Mulai');
                                 $statusStr = (string)($s['status'] ?? 'Belum Mulai');
                             ?>
-                                <tr>
+                                <tr class="live-student-row" data-score="<?= $score ?>" data-orig-idx="<?= $idx ?>">
                                     <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-live-student" value="<?= htmlspecialchars((string)($s['nis'] ?? ($s['id'] ?? ''))) ?>" onchange="updateCbtSelection(this)" title="Pilih peserta ini"></td>
-                                    <td style="text-align: center; font-weight: 600; color: var(--text-muted);"><?= $idx + 1 ?></td>
+                                    <td class="row-num" style="text-align: center; font-weight: 600; color: var(--text-muted);"><?= $idx + 1 ?></td>
                                     <td>
                                         <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars((string)($s['name'] ?? '')) ?></div>
                                         <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars((string)($s['nis'] ?? '')) ?></div>
@@ -13509,9 +13668,28 @@ function renderMonitoringLiveContent($examId) {
                     </div>
                 </div>
 
+                <!-- QUICK SORT PILLS MODAL -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Urutkan Peringkat Nilai:</span>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="sortModalScores('desc')" style="font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 700;">
+                            <span>⚡ Nilai Terbesar</span> <span style="font-size: 9px;">▼</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="sortModalScores('asc')" style="font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 700;">
+                            <span>⚡ Nilai Terkecil</span> <span style="font-size: 9px;">▲</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="sortModalScores(null)" style="font-size: 11px; padding: 3px 8px; border-radius: 20px;">
+                            <span>🔄 Reset</span>
+                        </button>
+                    </div>
+                    <div style="font-size: 11.5px; color: var(--text-muted);">
+                        💡 Klik header kolom <strong>Nilai Akhir</strong> untuk membalik urutan
+                    </div>
+                </div>
+
                 <!-- SCORES TABLE -->
                 <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
-                    <table class="data-table" style="margin: 0;">
+                    <table class="data-table" id="allScoresModalTable" style="margin: 0;">
                         <thead>
                             <tr style="background: #f8fafc;">
                                 <th class="cbt-checkbox-col" style="background: #f8fafc;"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-score-modal')" title="Pilih Semua Siswa"></th>
@@ -13523,7 +13701,15 @@ function renderMonitoringLiveContent($examId) {
                                 <th style="text-align: center;">Benar</th>
                                 <th style="text-align: center;">Salah</th>
                                 <th style="text-align: center;">Kosong</th>
-                                <th style="text-align: right;">Nilai Akhir</th>
+                                <th style="text-align: right; cursor: pointer; user-select: none;" onclick="sortModalScores()" title="Klik untuk mengurutkan Nilai Terbesar atau Terkecil">
+                                    <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px;">
+                                        <span>Nilai Akhir</span>
+                                        <span class="cbt-sort-btn" id="sortIconModal" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.18); transition: all 0.2s;">
+                                            <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-up" style="display: block; fill: #64748b;"><polygon points="4,0 8,5 0,5"/></svg>
+                                            <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-down" style="display: block; fill: #64748b;"><polygon points="0,0 8,0 4,5"/></svg>
+                                        </span>
+                                    </div>
+                                </th>
                                 <th style="text-align: center;">Status KKM</th>
                                 <th style="text-align: center;">Aksi</th>
                             </tr>
@@ -13533,9 +13719,9 @@ function renderMonitoringLiveContent($examId) {
                                 $sc = (float)$st['score'];
                                 $pass = $sc >= 75.0;
                             ?>
-                                <tr>
+                                <tr class="modal-score-row" data-score="<?= $sc ?>" data-orig-idx="<?= $i ?>">
                                     <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-score-modal" value="<?= htmlspecialchars($st['nis']) ?>" onchange="updateCbtSelection(this)" title="Pilih siswa ini"></td>
-                                    <td style="text-align: center; color: var(--text-muted);"><?= $i + 1 ?></td>
+                                    <td class="modal-row-num" style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $i + 1 ?></td>
                                     <td><code><?= htmlspecialchars($st['nis']) ?></code></td>
                                     <td><strong><?= htmlspecialchars($st['name']) ?></strong></td>
                                     <td><span class="badge badge-primary"><?= htmlspecialchars($st['class']) ?></span></td>
@@ -13965,6 +14151,115 @@ function renderMonitoringLiveContent($examId) {
 
     function printAttendanceSheet() {
         window.print();
+    }
+
+    // =============================================
+    // SORTING NILAI TERBESAR & TERKECIL (▲▼ / ⇅)
+    // =============================================
+    var monitoringSortDir = null; // null -> 'desc' -> 'asc' -> null
+    function sortMonitoringByScore(forceDir) {
+        var table = document.getElementById('monitoringTelemetriTable');
+        if (!table) return;
+        var tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        var rows = Array.from(tbody.querySelectorAll('tr.live-student-row'));
+        if (rows.length === 0) return;
+
+        if (forceDir !== undefined) {
+            monitoringSortDir = forceDir;
+        } else {
+            if (!monitoringSortDir) monitoringSortDir = 'desc';
+            else if (monitoringSortDir === 'desc') monitoringSortDir = 'asc';
+            else monitoringSortDir = null;
+        }
+
+        updateCbtSortVisual('sortIconMonitoring', monitoringSortDir);
+
+        if (!monitoringSortDir) {
+            rows.sort(function(a, b) {
+                return parseInt(a.getAttribute('data-orig-idx') || 0) - parseInt(b.getAttribute('data-orig-idx') || 0);
+            });
+        } else if (monitoringSortDir === 'desc') {
+            rows.sort(function(a, b) {
+                return parseFloat(b.getAttribute('data-score') || 0) - parseFloat(a.getAttribute('data-score') || 0);
+            });
+        } else {
+            rows.sort(function(a, b) {
+                return parseFloat(a.getAttribute('data-score') || 0) - parseFloat(b.getAttribute('data-score') || 0);
+            });
+        }
+
+        rows.forEach(function(r, idx) {
+            tbody.appendChild(r);
+            var numCell = r.querySelector('.row-num');
+            if (numCell) numCell.textContent = (idx + 1);
+        });
+    }
+
+    var modalSortDir = null;
+    function sortModalScores(forceDir) {
+        var table = document.getElementById('allScoresModalTable');
+        if (!table) return;
+        var tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        var rows = Array.from(tbody.querySelectorAll('tr.modal-score-row'));
+        if (rows.length === 0) return;
+
+        if (forceDir !== undefined) {
+            modalSortDir = forceDir;
+        } else {
+            if (!modalSortDir) modalSortDir = 'desc';
+            else if (modalSortDir === 'desc') modalSortDir = 'asc';
+            else modalSortDir = null;
+        }
+
+        updateCbtSortVisual('sortIconModal', modalSortDir);
+
+        if (!modalSortDir) {
+            rows.sort(function(a, b) {
+                return parseInt(a.getAttribute('data-orig-idx') || 0) - parseInt(b.getAttribute('data-orig-idx') || 0);
+            });
+        } else if (modalSortDir === 'desc') {
+            rows.sort(function(a, b) {
+                return parseFloat(b.getAttribute('data-score') || 0) - parseFloat(a.getAttribute('data-score') || 0);
+            });
+        } else {
+            rows.sort(function(a, b) {
+                return parseFloat(a.getAttribute('data-score') || 0) - parseFloat(b.getAttribute('data-score') || 0);
+            });
+        }
+
+        rows.forEach(function(r, idx) {
+            tbody.appendChild(r);
+            var numCell = r.querySelector('.modal-row-num');
+            if (numCell) numCell.textContent = (idx + 1);
+        });
+    }
+
+    function updateCbtSortVisual(btnId, dir) {
+        var btn = document.getElementById(btnId);
+        if (!btn) return;
+        var upPoly = btn.querySelector('.arrow-up polygon');
+        var downPoly = btn.querySelector('.arrow-down polygon');
+        if (dir === 'desc') {
+            if (upPoly) upPoly.setAttribute('fill', '#94a3b8');
+            if (downPoly) downPoly.setAttribute('fill', '#0284c7');
+            btn.style.background = '#e0f2fe';
+            btn.style.borderColor = '#0284c7';
+            btn.title = 'Urutan: Nilai Terbesar ke Terkecil';
+        } else if (dir === 'asc') {
+            if (upPoly) upPoly.setAttribute('fill', '#0284c7');
+            if (downPoly) downPoly.setAttribute('fill', '#94a3b8');
+            btn.style.background = '#e0f2fe';
+            btn.style.borderColor = '#0284c7';
+            btn.title = 'Urutan: Nilai Terkecil ke Terbesar';
+        } else {
+            if (upPoly) upPoly.setAttribute('fill', '#64748b');
+            if (downPoly) downPoly.setAttribute('fill', '#64748b');
+            btn.style.background = 'rgba(0,0,0,0.06)';
+            btn.style.borderColor = 'rgba(0,0,0,0.18)';
+            btn.title = 'Klik untuk mengurutkan Nilai Terbesar atau Terkecil';
+        }
     }
     </script>
     <?php
@@ -14411,6 +14706,7 @@ function renderResultsContent() {
     $subjectFilter = trim($_GET['subject'] ?? '');
     $tokenFilter = trim($_GET['token'] ?? '');
     $statusFilter = trim($_GET['status'] ?? '');
+    $sortScore = trim($_GET['sort_score'] ?? '');
     $search = strtolower(trim($_GET['search'] ?? ''));
 
     $allResults = $_SESSION['results_list'] ?? [];
@@ -14445,6 +14741,17 @@ function renderResultsContent() {
         }
 
         $filtered[] = $r;
+    }
+
+    // Sort by score if requested
+    if ($sortScore === 'desc') {
+        usort($filtered, function($a, $b) {
+            return (float)($b['score'] ?? 0) <=> (float)($a['score'] ?? 0);
+        });
+    } elseif ($sortScore === 'asc') {
+        usort($filtered, function($a, $b) {
+            return (float)($a['score'] ?? 0) <=> (float)($b['score'] ?? 0);
+        });
     }
 
     $totalStudents = count($filtered);
@@ -14567,7 +14874,7 @@ function renderResultsContent() {
             </form>
         </div>
 
-        <!-- ACTIVE FILTER SUMMARY BADGES -->
+        <!-- ACTIVE FILTER SUMMARY BADGES & CONTROLS -->
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 13px;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <span style="color: var(--text-muted); font-weight: 600;">Menampilkan Hasil:</span>
@@ -14586,8 +14893,28 @@ function renderResultsContent() {
                     </span>
                 <?php endif; ?>
             </div>
-            <div style="font-weight: 700; color: var(--text-secondary);">
-                Ditemukan <strong><?= $totalStudents ?></strong> data nilai peserta
+
+            <!-- TOGGLE NILAI SISWA & QUICK SORT -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <?php $isScoreShown = !empty($_SESSION['cbt_settings']['show_score_to_student']); ?>
+                <a href="/admin/results/toggle-student-score" class="btn btn-sm <?= $isScoreShown ? 'btn-success' : 'btn-danger' ?>" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: none; padding: 4px 12px; border-radius: 20px; font-size: 11.5px;" onclick="return confirm('Apakah Anda yakin ingin <?= $isScoreShown ? 'MENYEMBUNYIKAN' : 'MENAMPILKAN' ?> nilai ujian ke siswa?');">
+                    <span><?= $isScoreShown ? '👁️' : '🔒' ?></span>
+                    <span>Nilai Siswa: <strong><?= $isScoreShown ? 'DITAMPILKAN' : 'DISEMBUNYIKAN' ?></strong></span>
+                    <span style="font-size: 9.5px; opacity: 0.85;">(Klik Ganti)</span>
+                </a>
+
+                <div style="display: flex; align-items: center; gap: 4px; background: #f1f5f9; padding: 2px 6px; border-radius: 20px; border: 1px solid #cbd5e1;">
+                    <span style="font-size: 11px; font-weight: 700; color: #475569; padding: 0 4px;">URUTKAN:</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="sortResultsScores('desc')" style="font-size: 11px; padding: 2px 8px; border-radius: 14px; font-weight: 700;">
+                        <span>⚡ Terbesar</span> <span style="font-size: 8px;">▼</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="sortResultsScores('asc')" style="font-size: 11px; padding: 2px 8px; border-radius: 14px; font-weight: 700;">
+                        <span>⚡ Terkecil</span> <span style="font-size: 8px;">▲</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="sortResultsScores(null)" style="font-size: 11px; padding: 2px 6px; border-radius: 14px;">
+                        <span>🔄</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -14623,7 +14950,7 @@ function renderResultsContent() {
         <!-- RESULTS TABLE -->
         <div class="card" style="padding: 0; overflow: hidden;">
             <div class="data-table-wrapper">
-                <table class="data-table">
+                <table class="data-table" id="resultsMainTable">
                     <thead>
                         <tr>
                             <th style="width: 50px; text-align: center;">No</th>
@@ -14632,7 +14959,15 @@ function renderResultsContent() {
                             <th>Mata Pelajaran &amp; Paket</th>
                             <th style="text-align: center;">Token Ujian</th>
                             <th>Benar / Salah / Kosong</th>
-                            <th style="text-align: center;">Nilai Akhir</th>
+                            <th style="text-align: center; cursor: pointer; user-select: none;" onclick="sortResultsScores()" title="Klik untuk mengurutkan Nilai Terbesar atau Terkecil">
+                                <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                    <span>Nilai Akhir</span>
+                                    <span class="cbt-sort-btn" id="sortIconResults" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.18); transition: all 0.2s;">
+                                        <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-up" style="display: block; fill: #64748b;"><polygon points="4,0 8,5 0,5"/></svg>
+                                        <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-down" style="display: block; fill: #64748b;"><polygon points="0,0 8,0 4,5"/></svg>
+                                    </span>
+                                </div>
+                            </th>
                             <th style="text-align: center;">Kelulusan</th>
                             <th style="text-align: center;">Publikasi</th>
                             <th style="width: 150px; text-align: center;">Aksi</th>
@@ -14654,8 +14989,8 @@ function renderResultsContent() {
                                     $examSubj = $r['subject'] ?? $r['exam'];
                                     $examTok = $r['token'] ?? 'WXYZ89';
                                 ?>
-                                <tr>
-                                    <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
+                                <tr class="results-table-row" data-score="<?= (float)$r['score'] ?>" data-orig-idx="<?= $idx ?>">
+                                    <td class="results-row-num" style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td>
                                         <div style="font-weight: 700; font-size: 13.5px; color: var(--text-primary);"><?= htmlspecialchars($r['name']) ?></div>
                                         <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars($r['nis']) ?></div>
@@ -14766,6 +15101,75 @@ function renderResultsContent() {
             document.getElementById('res_badge').innerText = status;
             document.getElementById('res_badge').className = (status === 'Lulus') ? 'badge badge-success' : 'badge badge-danger';
             document.getElementById('resultDetailModal').classList.add('open');
+        }
+
+        // =============================================
+        // SORTING NILAI TERBESAR & TERKECIL (▲▼ / ⇅)
+        // =============================================
+        var resultsSortDir = null; // null -> 'desc' -> 'asc' -> null
+        function sortResultsScores(forceDir) {
+            var table = document.getElementById('resultsMainTable');
+            if (!table) return;
+            var tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            var rows = Array.from(tbody.querySelectorAll('tr.results-table-row'));
+            if (rows.length === 0) return;
+
+            if (forceDir !== undefined) {
+                resultsSortDir = forceDir;
+            } else {
+                if (!resultsSortDir) resultsSortDir = 'desc';
+                else if (resultsSortDir === 'desc') resultsSortDir = 'asc';
+                else resultsSortDir = null;
+            }
+
+            updateResultsSortVisual('sortIconResults', resultsSortDir);
+
+            if (!resultsSortDir) {
+                rows.sort(function(a, b) {
+                    return parseInt(a.getAttribute('data-orig-idx') || 0) - parseInt(b.getAttribute('data-orig-idx') || 0);
+                });
+            } else if (resultsSortDir === 'desc') {
+                rows.sort(function(a, b) {
+                    return parseFloat(b.getAttribute('data-score') || 0) - parseFloat(a.getAttribute('data-score') || 0);
+                });
+            } else {
+                rows.sort(function(a, b) {
+                    return parseFloat(a.getAttribute('data-score') || 0) - parseFloat(b.getAttribute('data-score') || 0);
+                });
+            }
+
+            rows.forEach(function(r, idx) {
+                tbody.appendChild(r);
+                var numCell = r.querySelector('.results-row-num');
+                if (numCell) numCell.textContent = (idx + 1);
+            });
+        }
+
+        function updateResultsSortVisual(btnId, dir) {
+            var btn = document.getElementById(btnId);
+            if (!btn) return;
+            var upPoly = btn.querySelector('.arrow-up polygon');
+            var downPoly = btn.querySelector('.arrow-down polygon');
+            if (dir === 'desc') {
+                if (upPoly) upPoly.setAttribute('fill', '#94a3b8');
+                if (downPoly) downPoly.setAttribute('fill', '#0284c7');
+                btn.style.background = '#e0f2fe';
+                btn.style.borderColor = '#0284c7';
+                btn.title = 'Urutan: Nilai Terbesar ke Terkecil';
+            } else if (dir === 'asc') {
+                if (upPoly) upPoly.setAttribute('fill', '#0284c7');
+                if (downPoly) downPoly.setAttribute('fill', '#94a3b8');
+                btn.style.background = '#e0f2fe';
+                btn.style.borderColor = '#0284c7';
+                btn.title = 'Urutan: Nilai Terkecil ke Terbesar';
+            } else {
+                if (upPoly) upPoly.setAttribute('fill', '#64748b');
+                if (downPoly) downPoly.setAttribute('fill', '#64748b');
+                btn.style.background = 'rgba(0,0,0,0.06)';
+                btn.style.borderColor = 'rgba(0,0,0,0.18)';
+                btn.title = 'Klik untuk mengurutkan Nilai Terbesar atau Terkecil';
+            }
         }
     </script>
     <?php
@@ -15956,6 +16360,19 @@ function renderSettingsContent() {
                             <div>
                                 <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Izinkan Peninjauan Soal &amp; Jawaban oleh Siswa (Allow Review)</div>
                                 <div style="font-size: 0.8rem; color: var(--text-secondary);">Mengizinkan peserta melihat kembali lembar respon jawaban setelah ujian selesai.</div>
+                            </div>
+                        </label>
+
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="show_score_to_student" value="1" <?= !empty($s['show_score_to_student']) ? 'checked' : '' ?> style="margin-top: 3px; width: 18px; height: 18px;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: #0284c7; display: flex; align-items: center; gap: 6px;">
+                                    <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai (Show Score to Student)</span>
+                                    <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 10px; border: 1px solid #bae6fd;">Fitur Baru</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+                                    Jika dicentang, peserta dapat melihat perolehan skor akhir (angka nilai), status kelulusan KKM, dan evaluasi hasil ujian di portal siswa setelah selesai mengerjakan. Jika tidak dicentang, nilai akan otomatis dirahasiakan dan disembunyikan oleh sistem.
+                                </div>
                             </div>
                         </label>
                     </div>
