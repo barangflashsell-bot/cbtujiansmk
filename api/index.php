@@ -36,10 +36,98 @@ if (!isset($_SESSION['cbt_settings'])) {
         'proctor_unlock_pin' => str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT),
         'student_review' => true,
         'auto_token_release' => true,
+        'server_network_mode' => 'auto',
+        'server_host_ip' => '192.168.1.11',
+        'offline_strict_mode' => true,
     ];
 }
 if (!isset($_SESSION['cbt_settings']['proctor_unlock_pin']) || empty($_SESSION['cbt_settings']['proctor_unlock_pin'])) {
     $_SESSION['cbt_settings']['proctor_unlock_pin'] = str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+}
+if (!isset($_SESSION['cbt_settings']['server_network_mode'])) {
+    $_SESSION['cbt_settings']['server_network_mode'] = 'auto';
+}
+if (!isset($_SESSION['cbt_settings']['server_host_ip'])) {
+    $_SESSION['cbt_settings']['server_host_ip'] = '192.168.1.11';
+}
+if (!isset($_SESSION['cbt_settings']['offline_strict_mode'])) {
+    $_SESSION['cbt_settings']['offline_strict_mode'] = true;
+}
+
+// =========================================================================
+// SMART NETWORK ENGINE (AUTO IP ADAPTATION & OFFLINE LAB DETECTION)
+// =========================================================================
+function detectCbtNetworkIp() {
+    // 1. Prioritize HTTP_HOST if accessed via a private LAN IP (e.g. 192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $host = explode(':', $_SERVER['HTTP_HOST'])[0];
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            if ($host !== '127.0.0.1' && $host !== '::1') {
+                return $host;
+            }
+        }
+    }
+
+    // 2. Check SERVER_ADDR if valid private IP
+    if (!empty($_SERVER['SERVER_ADDR'])) {
+        $ip = $_SERVER['SERVER_ADDR'];
+        if ($ip !== '127.0.0.1' && $ip !== '::1' && filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+        }
+    }
+
+    // 3. Local Hostname lookup on the machine
+    if (function_exists('gethostname') && function_exists('gethostbyname')) {
+        $hName = @gethostname();
+        if ($hName) {
+            $hIp = @gethostbyname($hName);
+            if ($hIp && $hIp !== '127.0.0.1' && filter_var($hIp, FILTER_VALIDATE_IP)) {
+                return $hIp;
+            }
+        }
+    }
+
+    // 4. Session-persisted host IP if already established
+    if (!empty($_SESSION['cbt_settings']['server_host_ip'])) {
+        return $_SESSION['cbt_settings']['server_host_ip'];
+    }
+
+    // 5. Default standard fallback for offline school lab
+    return '192.168.1.11';
+}
+
+function getActiveCbtServerUrl() {
+    $settings = $_SESSION['cbt_settings'] ?? [];
+    $mode = $settings['server_network_mode'] ?? 'auto';
+    $port = (int)($settings['server_port'] ?? 8000);
+
+    if ($mode === 'manual' && !empty($settings['server_host_ip'])) {
+        $ip = $settings['server_host_ip'];
+    } else {
+        $ip = detectCbtNetworkIp();
+        $_SESSION['cbt_settings']['server_host_ip'] = $ip;
+    }
+
+    $isVercel = isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL');
+    if ($isVercel && !empty($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'vercel.app') !== false) {
+        $cloudUrl = 'https://' . $_SERVER['HTTP_HOST'];
+    } else {
+        $cloudUrl = null;
+    }
+
+    $lanUrl = "http://{$ip}:{$port}";
+    $studentLoginUrl = $cloudUrl ? "{$cloudUrl}/login" : "{$lanUrl}/login";
+
+    return [
+        'ip' => $ip,
+        'port' => $port,
+        'lan_url' => $lanUrl,
+        'student_login_url' => $studentLoginUrl,
+        'cloud_url' => $cloudUrl,
+        'active_url' => $cloudUrl ?: $lanUrl,
+        'mode' => $mode,
+        'strict_mode' => !empty($settings['offline_strict_mode'])
+    ];
 }
 
 // B. Teachers List (Nomer telepon dihilangkan, username namadepan.namabelakang, password default 12345678)
@@ -608,6 +696,16 @@ function getCompleteStudentAttendance($examId = null, $classFilter = null) {
 // =========================================================================
 // 2. TEMPLATE & APK DOWNLOAD ENGINE (STYLED EXCEL, CSV BOM & ANDROID APK)
 // =========================================================================
+if ($uri === '/js/qrcode.min.js') {
+    $qrFile = __DIR__ . '/../SERVER/public/js/qrcode.min.js';
+    if (file_exists($qrFile)) {
+        header('Content-Type: application/javascript; charset=utf-8');
+        header('Cache-Control: public, max-age=86400');
+        readfile($qrFile);
+        exit;
+    }
+}
+
 if ($uri === '/admin/settings/download-apk' || $uri === '/downloads/cbt-peserta.apk') {
     // Pada environment Vercel, redirect langsung ke static path CDN agar terhindar dari limit serverless function
     if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
@@ -3822,7 +3920,7 @@ if ($uri === '/admin/reports/export-csv') {
     exit;
 }
 
-// --- K. SETTINGS UPDATE ---
+// --- K. SETTINGS UPDATE & NETWORK RESCAN ---
 if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin/settings')) {
     $_SESSION['cbt_settings']['school_name'] = trim($_POST['school_name'] ?? $_SESSION['cbt_settings']['school_name']);
     $_SESSION['cbt_settings']['academic_year'] = trim($_POST['academic_year'] ?? $_SESSION['cbt_settings']['academic_year']);
@@ -3832,8 +3930,29 @@ if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin
     $_SESSION['cbt_settings']['token_refresh_minutes'] = (int)($_POST['token_refresh_minutes'] ?? 15);
     $_SESSION['cbt_settings']['auto_token_release'] = isset($_POST['auto_token_release']);
     $_SESSION['cbt_settings']['student_review'] = isset($_POST['allow_student_review']);
-    logCbtActivity('SETTING', 'UPDATE_CONFIG', 'Memperbarui konfigurasi sistem & identitas sekolah');
-    $_SESSION['import_success'] = "Pengaturan sistem server CBT berhasil disimpan!";
+    
+    // Konfigurasi Jaringan & Mode Offline Siswa
+    $netMode = trim($_POST['server_network_mode'] ?? 'auto');
+    $_SESSION['cbt_settings']['server_network_mode'] = $netMode;
+    if ($netMode === 'manual' && !empty($_POST['server_host_ip'])) {
+        $_SESSION['cbt_settings']['server_host_ip'] = trim($_POST['server_host_ip']);
+    } else {
+        $_SESSION['cbt_settings']['server_host_ip'] = detectCbtNetworkIp();
+    }
+    $_SESSION['cbt_settings']['offline_strict_mode'] = isset($_POST['offline_strict_mode']);
+
+    logCbtActivity('SETTING', 'UPDATE_CONFIG', 'Memperbarui konfigurasi sistem & jaringan server');
+    $_SESSION['import_success'] = "Pengaturan sistem dan konfigurasi jaringan server berhasil disimpan!";
+    header('Location: /admin/settings');
+    exit;
+}
+
+if ($uri === '/admin/settings/rescan-network') {
+    $detected = detectCbtNetworkIp();
+    $_SESSION['cbt_settings']['server_network_mode'] = 'auto';
+    $_SESSION['cbt_settings']['server_host_ip'] = $detected;
+    logCbtActivity('NETWORK', 'RESCAN_IP', "Memindai ulang interface jaringan server. IP Terdeteksi: {$detected}");
+    $_SESSION['import_success'] = "Jaringan server berhasil dipindai otomatis! IP Host Aktif: {$detected}";
     header('Location: /admin/settings');
     exit;
 }
@@ -4159,6 +4278,24 @@ function renderLoginPage() {
                     Masuk
                 </button>
             </form>
+        </div>
+        <?php 
+        $loginNet = getActiveCbtServerUrl();
+        $isStrict = !empty($_SESSION['cbt_settings']['offline_strict_mode']);
+        ?>
+        <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 20px; font-size: 11.5px; color: #64748b;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: <?= $isStrict ? '4px' : '0' ?>;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                    <span>Node Server: <strong style="color: #1e293b;"><?= htmlspecialchars($loginNet['ip']) ?></strong></span>
+                </div>
+                <span style="font-family: monospace; font-weight: 700; color: #0284c7;">Port <?= htmlspecialchars($loginNet['port']) ?></span>
+            </div>
+            <?php if ($isStrict): ?>
+                <div style="font-size: 11px; color: #047857; display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                    <span>🔒</span> <em>Mode Lab Mandiri: Hanya terhubung ke IP resmi server di atas.</em>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </body>
@@ -5452,6 +5589,7 @@ function renderAppPage($uri) {
     </div>
 
     <script src="/js/cbt-offline.js"></script>
+    <script src="/js/qrcode.min.js"></script>
     <script>
         function toggleSidebar() {
             var sb = document.getElementById('appSidebar');
@@ -5883,8 +6021,62 @@ function renderDashboardContent() {
     $classesCount = count($_SESSION['classes_list']);
     $examsCount = count($_SESSION['exams_list']);
     $questionsCount = count($_SESSION['questions_list']);
+    $netInfo = getActiveCbtServerUrl();
     ?>
-    <div style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- SMART SERVER NETWORK & STUDENT ACCESS BANNER (ADAPTIF OTOMATIS) -->
+        <div class="card" style="background: linear-gradient(135deg, #09377d 0%, #031b40 100%); color: #ffffff; border: none; border-radius: 14px; padding: 20px 24px; box-shadow: 0 8px 24px rgba(3,27,64,0.22);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;">
+                        📶
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 800; font-size: 11px; padding: 3px 9px; letter-spacing: 0.3px;">
+                                ● SERVER AKTIF
+                            </span>
+                            <span class="badge" style="background: rgba(255,255,255,0.15); color: #e0f2fe; font-size: 11px; font-weight: 600;">
+                                <?= $netInfo['mode'] === 'auto' ? '🔄 Deteksi Jaringan Otomatis (Adaptif)' : '🔒 IP Statis Manual' ?>
+                            </span>
+                            <?php if ($netInfo['strict_mode']): ?>
+                                <span class="badge" style="background: #0284c7; color: #ffffff; font-size: 10.5px; font-weight: 700;">
+                                    🛡️ Strict IP Siswa Aktif
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        <h2 style="margin: 5px 0 2px; font-size: 17px; font-weight: 800; color: #ffffff;">
+                            Alamat Akses Masuk Siswa (Wi-Fi / LAN Lab Offline)
+                        </h2>
+                        <p style="margin: 0; font-size: 12px; color: #93c5fd; max-width: 580px; line-height: 1.4;">
+                            Alamat IP di bawah otomatis menyesuaikan diri jika Anda berganti komputer proktor atau pindah jaringan Wi-Fi/LAN lab tanpa perlu konfigurasi manual.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 8px 14px; display: flex; align-items: center; gap: 12px;">
+                        <div>
+                            <div style="font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #93c5fd; font-weight: 700;">ALAMAT IP SISWA</div>
+                            <div style="font-size: 16px; font-weight: 900; font-family: monospace; color: #38bdf8;" id="dashStudentUrlText">
+                                <?= htmlspecialchars($netInfo['student_login_url']) ?>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm" onclick="copyDashboardUrl('<?= htmlspecialchars(addslashes($netInfo['student_login_url'])) ?>', this)" style="background: #0284c7; color: #ffffff; border: none; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                            <span>📋</span> Salin
+                        </button>
+                    </div>
+
+                    <button type="button" class="btn btn-sm" onclick="openStudentQrModal()" style="background: #f59e0b; color: #ffffff; border: none; font-weight: 800; padding: 10px 16px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(245,158,11,0.35);">
+                        <span>📱</span> Tampilkan QR Code Siswa
+                    </button>
+                    <a href="/admin/settings" class="btn btn-sm" style="background: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.25); font-weight: 600; padding: 10px 14px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;" title="Pengaturan Jaringan Server">
+                        <span>⚙️</span> Atur Jaringan
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <!-- STATS CARDS -->
         <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));">
             <div class="stat-card">
@@ -5965,6 +6157,40 @@ function renderDashboardContent() {
                 </div>
             </div>
         </div>
+
+        <!-- MODAL QR CODE AKSES SISWA -->
+        <div id="studentQrModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+            <div class="card" style="width: 100%; max-width: 440px; margin: 20px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; padding: 0; text-align: center; border: none; background: #ffffff;">
+                <div style="background: linear-gradient(135deg, #09377d 0%, #031b40 100%); color: #ffffff; padding: 20px 24px; position: relative;">
+                    <button type="button" onclick="closeStudentQrModal()" style="position: absolute; right: 14px; top: 14px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-weight: 700; cursor: pointer; font-size: 14px;">✕</button>
+                    <div style="font-size: 32px; margin-bottom: 4px;">📱</div>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #ffffff;">QR Code Akses Masuk Siswa</h3>
+                    <p style="margin: 4px 0 0; font-size: 12px; color: #93c5fd;">Scan kamera smartphone peserta untuk langsung membuka halaman ujian</p>
+                </div>
+
+                <div style="padding: 24px; background: #ffffff;">
+                    <div id="studentQrBox" style="display: flex; justify-content: center; align-items: center; padding: 14px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; margin-bottom: 16px; min-height: 220px;">
+                        <div style="color: #64748b; font-size: 13px;">Memuat QR Code...</div>
+                    </div>
+
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-bottom: 18px; text-align: left;">
+                        <div style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: #1e40af; margin-bottom: 2px;">Tautan Akses Peserta:</div>
+                        <div style="font-family: monospace; font-size: 13px; font-weight: 700; color: #2563eb; word-break: break-all;">
+                            <?= htmlspecialchars($netInfo['student_login_url']) ?>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button type="button" class="btn btn-secondary" onclick="copyDashboardUrl('<?= htmlspecialchars(addslashes($netInfo['student_login_url'])) ?>', this)" style="padding: 9px 18px; font-weight: 700; border-radius: 8px;">
+                            <span>📋</span> Salin Link
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="window.print()" style="padding: 9px 20px; font-weight: 700; border-radius: 8px; background: #2563eb;">
+                            <span>🖨️</span> Cetak Lembar QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         setInterval(function() {
@@ -5974,6 +6200,46 @@ function renderDashboardContent() {
                 el.innerText = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2) + ':' + ('0'+d.getSeconds()).slice(-2) + ' ' + ('0'+d.getDate()).slice(-2) + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + d.getFullYear();
             }
         }, 1000);
+
+        function copyDashboardUrl(text, btn) {
+            navigator.clipboard.writeText(text).then(function() {
+                var old = btn.innerHTML;
+                btn.innerHTML = '<span>✓</span> Tersalin!';
+                setTimeout(function() { btn.innerHTML = old; }, 2000);
+            }).catch(function() {
+                alert('Tersalin: ' + text);
+            });
+        }
+
+        var qrGenerated = false;
+        function openStudentQrModal() {
+            var m = document.getElementById('studentQrModal');
+            if (!m) return;
+            m.style.display = 'flex';
+            if (!qrGenerated) {
+                var qrBox = document.getElementById('studentQrBox');
+                qrBox.innerHTML = '';
+                var targetUrl = '<?= htmlspecialchars(addslashes($netInfo['student_login_url'])) ?>';
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrBox, {
+                        text: targetUrl,
+                        width: 200,
+                        height: 200,
+                        colorDark : "#0f172a",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                    qrGenerated = true;
+                } else {
+                    qrBox.innerHTML = '<div style="font-family: monospace; font-size: 14px; font-weight: 700; color: #2563eb; padding: 20px;">' + targetUrl + '</div>';
+                }
+            }
+        }
+
+        function closeStudentQrModal() {
+            var m = document.getElementById('studentQrModal');
+            if (m) m.style.display = 'none';
+        }
     </script>
     <?php
 }
@@ -14093,38 +14359,42 @@ function renderBackupsContent() {
 // =========================================================================
 function renderSettingsContent() {
     $s = $_SESSION['cbt_settings'];
-    $serverPort = (int)($s['server_port'] ?? 8000);
-    $detectedHostIp = $_SERVER['SERVER_ADDR'] ?? (gethostbyname(gethostname()) ?: '192.168.1.11');
-    if ($detectedHostIp === '127.0.0.1' || $detectedHostIp === '::1' || empty($detectedHostIp)) {
-        $detectedHostIp = '192.168.1.11';
-    }
+    $netInfo = getActiveCbtServerUrl();
+    $serverPort = $netInfo['port'];
+    $detectedHostIp = $netInfo['ip'];
     $localhostUrl = "http://localhost:{$serverPort}";
-    $lanUrl = "http://{$detectedHostIp}:{$serverPort}";
+    $lanUrl = $netInfo['lan_url'];
+    $studentUrl = $netInfo['student_login_url'];
     ?>
-    <div style="max-width: 900px;">
+    <div style="max-width: 920px;">
         <div style="margin-bottom: 20px;">
             <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
-                Konfigurasi Operasional Server Lokal CBT
+                Konfigurasi Operasional Server Lokal CBT &amp; Jaringan Lab
             </h2>
             <p style="font-size: 0.85rem; color: var(--text-secondary);">
-                Pengaturan tersimpan dalam konfigurasi server dengan pencatatan audit trail otomatis.
+                Pengaturan terpusat untuk adaptasi jaringan otomatis, IP masuk siswa, dan keamanan offline lab.
             </p>
         </div>
 
-        <!-- CARD 1: ALAMAT AKSES SERVER CBT (LOCALHOST & WI-FI LAN) -->
+        <!-- CARD 1: ALAMAT AKSES SERVER CBT (ADAPTIF OTOMATIS & SMART NETWORK) -->
         <div class="card" style="margin-bottom: 24px; border: 1px solid var(--primary-border); background: var(--bg-surface);">
             <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
                     <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: var(--primary);">
-                        <span>🌐</span> Alamat Akses Server CBT (Localhost &amp; Wi-Fi LAN)
+                        <span>🌐</span> Alamat Akses Server CBT (Localhost &amp; Wi-Fi LAN Siswa)
                     </h3>
                     <span style="font-size: 0.8rem; color: var(--text-muted);">
-                        Gunakan alamat di bawah ini untuk menghubungkan perangkat siswa dan guru dalam jaringan Wi-Fi/LAN sekolah tanpa internet.
+                        Sistem secara otomatis mendeteksi alamat IP saat server berganti komputer, kabel LAN, atau pemancar Wi-Fi.
                     </span>
                 </div>
-                <span class="badge badge-success" style="font-size: 0.75rem; padding: 4px 10px;">
-                    ● Server Lokal Siap (Offline LAN)
-                </span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <a href="/admin/settings/rescan-network" class="btn btn-sm btn-secondary" style="font-weight: 700; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;" title="Pindai Ulang Interface Jaringan Komputer Ini">
+                        <span>🔄</span> Pindai Ulang IP Sekarang
+                    </a>
+                    <span class="badge badge-success" style="font-size: 0.75rem; padding: 5px 10px;">
+                        ● IP Aktif: <?= htmlspecialchars($detectedHostIp) ?>
+                    </span>
+                </div>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
@@ -14134,7 +14404,7 @@ function renderSettingsContent() {
                         <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);">
                             💻 Komputer Server (Localhost)
                         </span>
-                        <span style="font-size: 0.7rem; background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Lokal</span>
+                        <span style="font-size: 0.7rem; background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: 600;">Browser Server</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <input type="text" id="apiServerLocalhostUrl" readonly value="<?= htmlspecialchars($localhostUrl) ?>" class="form-control" style="font-family: monospace; font-size: 0.9rem; font-weight: 600; background: var(--bg-surface); cursor: text;">
@@ -14143,35 +14413,43 @@ function renderSettingsContent() {
                         </button>
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
-                        Dibuka khusus pada browser komputer server ini sendiri.
+                        Hanya untuk dibuka langsung pada komputer/laptop proktor ini sendiri.
                     </div>
                 </div>
 
-                <!-- WI-FI LAN IP -->
+                <!-- WI-FI LAN IP SISWA -->
                 <div style="background: var(--bg-main); border: 1px solid var(--primary-border); border-radius: 8px; padding: 14px 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary);">
-                            📶 Jaringan Wi-Fi / LAN Sekolah
+                            📶 Jaringan Wi-Fi / LAN Lab (Untuk Siswa)
                         </span>
-                        <span style="font-size: 0.7rem; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Untuk Siswa &amp; Guru</span>
+                        <span style="font-size: 0.7rem; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Alamat Resmi Siswa</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <input type="text" id="apiServerLanUrl" readonly value="<?= htmlspecialchars($lanUrl) ?>" class="form-control" style="font-family: monospace; font-size: 0.9rem; font-weight: 700; color: var(--primary); background: var(--bg-surface); cursor: text;">
+                        <input type="text" id="apiServerLanUrl" readonly value="<?= htmlspecialchars($studentUrl) ?>" class="form-control" style="font-family: monospace; font-size: 0.9rem; font-weight: 700; color: var(--primary); background: var(--bg-surface); cursor: text;">
                         <button type="button" class="btn btn-primary btn-sm" onclick="copyApiServerUrl('apiServerLanUrl', this)" title="Salin Alamat">
                             <span>📋</span> Salin
                         </button>
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
-                        Bagikan alamat ini kepada siswa untuk dimasukkan ke browser HP/Laptop atau aplikasi Android CBT.
+                        Bagikan link ini ke siswa (browser HP/Laptop atau aplikasi Android CBT).
                     </div>
                 </div>
             </div>
 
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; color: #1e40af; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 1.1rem;">💡</span>
-                <span>
-                    <strong>Petunjuk:</strong> Pastikan perangkat smartphone atau laptop siswa terhubung ke pemancar Wi-Fi / Access Point yang sama dengan server CBT. Siswa dapat mengakses ujian tanpa kuota internet.
-                </span>
+            <!-- SMART NETWORK INFO & QR PREVIEW -->
+            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px 16px;">
+                <div id="settingsQrBox" style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #93c5fd; display: flex; align-items: center; justify-content: center; width: 90px; height: 90px; flex-shrink: 0;">
+                    <!-- Small QR Preview -->
+                </div>
+                <div style="flex: 1; min-width: 260px;">
+                    <div style="font-weight: 700; font-size: 0.85rem; color: #1e40af; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                        <span>💡</span> Fitur Adaptasi Jaringan Otomatis Aktif
+                    </div>
+                    <div style="font-size: 0.8rem; color: #1e3a8a; line-height: 1.5;">
+                        Ketika Anda memindahkan server ke laptop lain atau berganti kabel LAN/Wi-Fi, CBT secara cerdas memperbarui alamat IP siswa. Siswa cukup memindai QR Code di atas atau membuka tautan yang tertera untuk langsung masuk ujian.
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -14278,28 +14556,91 @@ function renderSettingsContent() {
                 </div>
             </div>
 
-            <!-- SECTION 2: APLIKASI & JARINGAN -->
+            <!-- SECTION 2: APLIKASI & JARINGAN CERDAS SERVER -->
             <div class="card" style="margin-bottom: 24px;">
                 <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
                     <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-                        <span>🖥️</span> Aplikasi &amp; Jaringan Lokal Server
+                        <span>🖥️</span> Aplikasi, Port &amp; Konfigurasi Jaringan Server
                     </h3>
                     <span style="font-size: 0.8rem; color: var(--text-muted);">
-                        Parameter nama sistem dan port layanan untuk distribusi jaringan Wi-Fi/LAN lokal.
+                        Pengaturan nama sistem, port layanan, dan adaptasi IP otomatis ketika berpindah komputer atau jaringan Wi-Fi/LAN.
                     </span>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div class="form-group">
                         <label class="form-label">Nama Aplikasi CBT *</label>
                         <input type="text" name="app_name" class="form-control" value="<?= htmlspecialchars($s['app_name'] ?? '') ?>" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Port Server Lokal (HTTP) *</label>
+                        <label class="form-label">Port Layanan Server (HTTP) *</label>
                         <input type="number" name="server_port" class="form-control" min="80" max="65535" value="<?= (int)($s['server_port'] ?? 8000) ?>" required>
                     </div>
                 </div>
+
+                <!-- MODE JARINGAN SERVER -->
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                    <label class="form-label" style="font-weight: 700; color: var(--text-primary); margin-bottom: 10px; display: block;">
+                        Mode Adaptasi Alamat IP Server:
+                    </label>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="radio" name="server_network_mode" value="auto" <?= ($s['server_network_mode'] ?? 'auto') === 'auto' ? 'checked' : '' ?> onchange="toggleCustomIpInput(false)" style="margin-top: 3px; width: 18px; height: 18px;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                                    <span>🔄 Otomatis Deteksi Jaringan &amp; IP Host (Direkomendasikan)</span>
+                                    <span class="badge badge-success" style="font-size: 10px;">Adaptif</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+                                    Sistem secara otomatis mengenali dan menyesuaikan alamat IP ketika server berpindah komputer proktor, kabel LAN, atau pemancar Wi-Fi tanpa perlu setting manual.
+                                </div>
+                            </div>
+                        </label>
+
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="radio" name="server_network_mode" value="manual" <?= ($s['server_network_mode'] ?? '') === 'manual' ? 'checked' : '' ?> onchange="toggleCustomIpInput(true)" style="margin-top: 3px; width: 18px; height: 18px;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">
+                                    🔒 Manual / Kunci Alamat IP Statis Tertentu
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+                                    Gunakan alamat IP statis khusus (misalnya jika lab sekolah menggunakan router mikrotik dengan IP permanen).
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- CUSTOM IP INPUT (Toggled if manual) -->
+                    <div id="customIpContainer" style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border-color); <?= ($s['server_network_mode'] ?? 'auto') === 'manual' ? '' : 'display: none;' ?>">
+                        <label class="form-label" style="font-size: 0.85rem; font-weight: 700;">Alamat IP Server Manual (IPv4)</label>
+                        <input type="text" name="server_host_ip" id="inputServerHostIp" class="form-control" value="<?= htmlspecialchars($s['server_host_ip'] ?? '192.168.1.11') ?>" placeholder="Contoh: 192.168.1.50" style="max-width: 320px; font-family: monospace; font-weight: 700;">
+                    </div>
+                </div>
+
+                <!-- KEAMANAN & PENGUNCIAN SISWA OFFLINE -->
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 16px;">
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="offline_strict_mode" value="1" <?= !empty($s['offline_strict_mode']) ? 'checked' : '' ?> style="margin-top: 3px; width: 18px; height: 18px;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 6px;">
+                                <span>🛡️ Wajibkan Siswa Offline Hanya Menggunakan IP Resmi yang Diberikan Admin</span>
+                                <span class="badge" style="background: #15803d; color: #fff; font-size: 10px;">Proteksi Lab</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #14532d; margin-top: 3px; line-height: 1.5;">
+                                Menampilkan kartu verifikasi node server resmi di halaman login peserta dan memastikan siswa di lab hanya terhubung ke alamat IP server lokal yang sah tanpa proxy atau domain luar.
+                            </div>
+                        </div>
+                    </label>
+                </div>
             </div>
+
+            <script>
+            function toggleCustomIpInput(show) {
+                var c = document.getElementById('customIpContainer');
+                if (c) c.style.display = show ? 'block' : 'none';
+            }
+            </script>
 
             <!-- SECTION 3: TOKEN & KEBIJAKAN SISWA -->
             <div class="card" style="margin-bottom: 24px;">
@@ -14347,6 +14688,22 @@ function renderSettingsContent() {
             </div>
         </form>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var sQrBox = document.getElementById('settingsQrBox');
+        if (sQrBox && typeof QRCode !== 'undefined') {
+            sQrBox.innerHTML = '';
+            new QRCode(sQrBox, {
+                text: '<?= htmlspecialchars(addslashes($studentUrl)) ?>',
+                width: 74,
+                height: 74,
+                colorDark: '#0f172a',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    });
+    </script>
     <?php
 }
 
