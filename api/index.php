@@ -171,7 +171,7 @@ if (isset($_SESSION['teachers_list']) && is_array($_SESSION['teachers_list'])) {
 // =========================================================================
 // DATA SEED GUARD: RESET & MUAT DATA BARU (15 SISWA 10-TKJ, 15 SISWA 11-TKJ, 15 SISWA 12-TKJ & 10 MAPEL)
 // =========================================================================
-if (!isset($_SESSION['data_seed_version']) || $_SESSION['data_seed_version'] !== 'v3_tkj45_10mapel' || isset($_GET['reset_demo_db'])) {
+if (!isset($_SESSION['data_seed_version']) || $_SESSION['data_seed_version'] !== 'v4_tkj45_50soal' || isset($_GET['reset_demo_db'])) {
     unset($_SESSION['classes_list']);
     unset($_SESSION['students_list']);
     unset($_SESSION['subjects_list']);
@@ -180,7 +180,7 @@ if (!isset($_SESSION['data_seed_version']) || $_SESSION['data_seed_version'] !==
     unset($_SESSION['monitoring_sessions']);
     unset($_SESSION['student_attendance']);
     unset($_SESSION['results_list']);
-    $_SESSION['data_seed_version'] = 'v3_tkj45_10mapel';
+    $_SESSION['data_seed_version'] = 'v4_tkj45_50soal';
 }
 
 // C. Classes List (Rombongan Belajar TKJ)
@@ -251,112 +251,1073 @@ if (!isset($_SESSION['students_list'])) {
 // E. Subjects List (10 Mata Pelajaran Lengkap)
 if (!isset($_SESSION['subjects_list'])) {
     $_SESSION['subjects_list'] = [
-        ['id' => 'sb1', 'code' => 'DTKJ', 'name' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'teacher' => 'Ahmad Fauzi, S.T', 'format' => 'standard', 'description' => 'Dasar perakitan PC, topologi jaringan komputer, pengkabelan UTP, dan dasar IP addressing', 'duration' => 90, 'weight_pg' => 70, 'weight_pg_multi' => 0, 'weight_essay' => 30, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb2', 'code' => 'AIJ', 'name' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'teacher' => 'Ir. Hendra Saputra', 'format' => 'standard', 'description' => 'Konfigurasi VLAN, Trunking, Routing Statis & Dinamis, Access Control List, dan Mikrotik RouterOS', 'duration' => 90, 'weight_pg' => 60, 'weight_pg_multi' => 0, 'weight_essay' => 40, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb3', 'code' => 'ASJ', 'name' => 'Administrasi Server Jaringan (ASJ)', 'teacher' => 'Dian Permana, S.Kom', 'format' => 'standard', 'description' => 'Instalasi & manajemen server Linux Debian, DNS Server, Web Server Nginx/Apache, DHCP, dan FTP Server', 'duration' => 90, 'weight_pg' => 70, 'weight_pg_multi' => 0, 'weight_essay' => 30, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb4', 'code' => 'TLJ', 'name' => 'Teknologi Layanan Jaringan (TLJ)', 'teacher' => 'Rian Hidayat, M.Kom', 'format' => 'standard', 'description' => 'Teknologi komunikasi data, VoIP, Asterisk PBX, SIP Server, QoS, dan arsitektur bandwidth jaringan', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb5', 'code' => 'KJK', 'name' => 'Keamanan Jaringan & Cyber Security (KJK)', 'teacher' => 'Wahyu Pratama, S.T', 'format' => 'standard', 'description' => 'Sistem pertahanan Firewall, kriptografi, mitigasi serangan DoS/DDoS, VPN, dan audit keamanan sistem', 'duration' => 90, 'weight_pg' => 75, 'weight_pg_multi' => 0, 'weight_essay' => 25, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb6', 'code' => 'MAT', 'name' => 'Matematika Terapan', 'teacher' => 'Budi Santoso, S.Pd', 'format' => 'standard', 'description' => 'Logika matematika terapan, matriks, sistem persamaan linier, dan statistika teknik', 'duration' => 90, 'weight_pg' => 60, 'weight_pg_multi' => 0, 'weight_essay' => 40, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb7', 'code' => 'BIND', 'name' => 'Bahasa Indonesia', 'teacher' => 'Dra. Nurul Hidayati', 'format' => 'standard', 'description' => 'Kebahasaan, penyusunan laporan teknis, karya ilmiah, dan komunikasi formal', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb8', 'code' => 'BING', 'name' => 'Bahasa Inggris Teknik', 'teacher' => 'Siti Aminah, M.Kom', 'format' => 'standard', 'description' => 'Technical English communication, computer networking terminology, and manual reading', 'duration' => 90, 'weight_pg' => 80, 'weight_pg_multi' => 0, 'weight_essay' => 20, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb9', 'code' => 'PAI', 'name' => 'Pendidikan Agama & Budi Pekerti', 'teacher' => 'Drs. H. Bambang Sutrisno', 'format' => 'standard', 'description' => 'Pendidikan nilai akhlak mulia, fikih ibadah, muamalah, dan pembentukan budi pekerti luhur', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb10', 'code' => 'PKK', 'name' => 'Produk Kreatif & Kewirausahaan (PKK)', 'teacher' => 'Endah Sri Wahyuni, M.Pd', 'format' => 'standard', 'description' => 'Perancangan produk jasa jaringan komputer, analisis kelayakan usaha, HAKI, dan pemasaran digital', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb1', 'code' => 'DTKJ', 'name' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'teacher' => 'Ahmad Fauzi, S.T', 'format' => 'standard', 'description' => 'Dasar perakitan PC, topologi jaringan komputer, pengkabelan UTP, dan dasar IP addressing', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb2', 'code' => 'AIJ', 'name' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'teacher' => 'Ir. Hendra Saputra', 'format' => 'standard', 'description' => 'Konfigurasi VLAN, Trunking, Routing Statis & Dinamis, Access Control List, dan Mikrotik RouterOS', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb3', 'code' => 'ASJ', 'name' => 'Administrasi Server Jaringan (ASJ)', 'teacher' => 'Dian Permana, S.Kom', 'format' => 'standard', 'description' => 'Instalasi & manajemen server Linux Debian, DNS Server, Web Server Nginx/Apache, DHCP, dan FTP Server', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb4', 'code' => 'TLJ', 'name' => 'Teknologi Layanan Jaringan (TLJ)', 'teacher' => 'Rian Hidayat, M.Kom', 'format' => 'standard', 'description' => 'Teknologi komunikasi data, VoIP, Asterisk PBX, SIP Server, QoS, dan arsitektur bandwidth jaringan', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb5', 'code' => 'KJK', 'name' => 'Keamanan Jaringan & Cyber Security (KJK)', 'teacher' => 'Wahyu Pratama, S.T', 'format' => 'standard', 'description' => 'Sistem pertahanan Firewall, kriptografi, mitigasi serangan DoS/DDoS, VPN, dan audit keamanan sistem', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb6', 'code' => 'MAT', 'name' => 'Matematika Terapan', 'teacher' => 'Budi Santoso, S.Pd', 'format' => 'standard', 'description' => 'Logika matematika terapan, matriks, sistem persamaan linier, dan statistika teknik', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb7', 'code' => 'BIND', 'name' => 'Bahasa Indonesia', 'teacher' => 'Dra. Nurul Hidayati', 'format' => 'standard', 'description' => 'Kebahasaan, penyusunan laporan teknis, karya ilmiah, dan komunikasi formal', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb8', 'code' => 'BING', 'name' => 'Bahasa Inggris Teknik', 'teacher' => 'Siti Aminah, M.Kom', 'format' => 'standard', 'description' => 'Technical English communication, computer networking terminology, and manual reading', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb9', 'code' => 'PAI', 'name' => 'Pendidikan Agama & Budi Pekerti', 'teacher' => 'Drs. H. Bambang Sutrisno', 'format' => 'standard', 'description' => 'Pendidikan nilai akhlak mulia, fikih ibadah, muamalah, dan pembentukan budi pekerti luhur', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb10', 'code' => 'PKK', 'name' => 'Produk Kreatif & Kewirausahaan (PKK)', 'teacher' => 'Endah Sri Wahyuni, M.Pd', 'format' => 'standard', 'description' => 'Perancangan produk jasa jaringan komputer, analisis kelayakan usaha, HAKI, dan pemasaran digital', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
     ];
 }
 
-// F. Questions List
+// F. Questions List (50 Soal Pilihan Ganda: 5 Soal Per Mata Pelajaran)
 if (!isset($_SESSION['questions_list'])) {
-    $_SESSION['questions_list'] = [
-        [
-            'id' => 'q1',
-            'subject_id' => 'sb1',
-            'subject_name' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
-            'question_type' => 'single_choice',
-            'difficulty' => 'easy',
-            'content' => 'Urutan warna standar kabel UTP T568B dari pin 1 sampai pin 8 yang benar adalah...',
-            'score_weight' => 2.5,
-            'creator' => 'Ahmad Fauzi, S.T',
-            'options' => [
-                'A' => 'Putih Orange, Orange, Putih Hijau, Biru, Putih Biru, Hijau, Putih Coklat, Coklat',
-                'B' => 'Putih Hijau, Hijau, Putih Orange, Biru, Putih Biru, Orange, Putih Coklat, Coklat',
-                'C' => 'Putih Orange, Orange, Putih Biru, Biru, Putih Hijau, Hijau, Putih Coklat, Coklat',
-                'D' => 'Putih Biru, Biru, Putih Orange, Orange, Putih Hijau, Hijau, Putih Coklat, Coklat',
-                'E' => 'Orange, Putih Orange, Hijau, Putih Hijau, Biru, Putih Biru, Coklat, Putih Coklat'
-            ],
-            'correct_option' => 'A',
-            'status' => 'active',
-        ],
-        [
-            'id' => 'q2',
-            'subject_id' => 'sb2',
-            'subject_name' => 'Administrasi Infrastruktur Jaringan (AIJ)',
-            'question_type' => 'single_choice',
-            'difficulty' => 'medium',
-            'content' => 'Untuk menghubungkan switch ke switch yang membawa traffic lebih dari satu VLAN, mode port switch yang harus dikonfigurasi adalah...',
-            'score_weight' => 2.5,
-            'creator' => 'Ir. Hendra Saputra',
-            'options' => [
-                'A' => 'Mode Access',
-                'B' => 'Mode Trunk',
-                'C' => 'Mode Dynamic Auto',
-                'D' => 'Mode Duplex',
-                'E' => 'Mode Static Port'
-            ],
-            'correct_option' => 'B',
-            'status' => 'active',
-        ],
-        [
-            'id' => 'q3',
-            'subject_id' => 'sb3',
-            'subject_name' => 'Administrasi Server Jaringan (ASJ)',
-            'question_type' => 'single_choice',
-            'difficulty' => 'medium',
-            'content' => 'Paket aplikasi DNS Server yang paling umum digunakan pada sistem operasi Linux Debian adalah...',
-            'score_weight' => 2.5,
-            'creator' => 'Dian Permana, S.Kom',
-            'options' => [
-                'A' => 'Apache2',
-                'B' => 'Bind9',
-                'C' => 'Proftpd',
-                'D' => 'Isc-dhcp-server',
-                'E' => 'Postfix'
-            ],
-            'correct_option' => 'B',
-            'status' => 'active',
-        ],
-        [
-            'id' => 'q4',
-            'subject_id' => 'sb5',
-            'subject_name' => 'Keamanan Jaringan & Cyber Security (KJK)',
-            'question_type' => 'single_choice',
-            'difficulty' => 'hard',
-            'content' => 'Serangan siber yang membanjiri server dengan jutaan paket palsu secara simultan hingga server lumpuh disebut...',
-            'score_weight' => 2.5,
-            'creator' => 'Wahyu Pratama, S.T',
-            'options' => [
-                'A' => 'Phishing Attack',
-                'B' => 'Distributed Denial of Service (DDoS)',
-                'C' => 'SQL Injection',
-                'D' => 'Man in the Middle (MitM)',
-                'E' => 'Cross-Site Scripting (XSS)'
-            ],
-            'correct_option' => 'B',
-            'status' => 'active',
-        ],
-        [
-            'id' => 'q5',
-            'subject_id' => 'sb6',
-            'subject_name' => 'Matematika Terapan',
-            'question_type' => 'essay',
-            'difficulty' => 'medium',
-            'content' => 'Sebuah jaringan komputer memiliki subnet mask 255.255.255.192 (/26). Hitunglah jumlah subnet, jumlah host valid per subnet, dan subnetting lengkapnya!',
-            'score_weight' => 20.0,
-            'creator' => 'Budi Santoso, S.Pd',
-            'options' => [],
-            'correct_option' => '-',
-            'status' => 'active',
-        ],
-    ];
+    $_SESSION['questions_list'] = array (
+  0 => 
+  array (
+    'id' => 'q1',
+    'subject_id' => 'sb1',
+    'subject_name' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Urutan warna standar kabel UTP T568B dari pin 1 sampai pin 8 yang benar adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ahmad Fauzi, S.T',
+    'options' => 
+    array (
+      'A' => 'Putih Orange, Orange, Putih Hijau, Biru, Putih Biru, Hijau, Putih Coklat, Coklat',
+      'B' => 'Putih Hijau, Hijau, Putih Orange, Biru, Putih Biru, Orange, Putih Coklat, Coklat',
+      'C' => 'Putih Orange, Orange, Putih Biru, Biru, Putih Hijau, Hijau, Putih Coklat, Coklat',
+      'D' => 'Putih Biru, Biru, Putih Orange, Orange, Putih Hijau, Hijau, Putih Coklat, Coklat',
+      'E' => 'Orange, Putih Orange, Hijau, Putih Hijau, Biru, Putih Biru, Coklat, Putih Coklat',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  1 => 
+  array (
+    'id' => 'q2',
+    'subject_id' => 'sb1',
+    'subject_name' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Lapisan (layer) pada model referensi OSI yang bertugas menentukan jalur terbaik (routing) dan pengalamatan logis (IP Address) adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ahmad Fauzi, S.T',
+    'options' => 
+    array (
+      'A' => 'Physical Layer',
+      'B' => 'Data Link Layer',
+      'C' => 'Network Layer',
+      'D' => 'Transport Layer',
+      'E' => 'Session Layer',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  2 => 
+  array (
+    'id' => 'q3',
+    'subject_id' => 'sb1',
+    'subject_name' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Topologi fisik jaringan yang menggunakan perangkat sentral berupa Switch atau Hub sebagai konsentrator kabel dari setiap komputer client adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ahmad Fauzi, S.T',
+    'options' => 
+    array (
+      'A' => 'Topologi Bus',
+      'B' => 'Topologi Star',
+      'C' => 'Topologi Ring',
+      'D' => 'Topologi Mesh',
+      'E' => 'Topologi Peer-to-Peer',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  3 => 
+  array (
+    'id' => 'q4',
+    'subject_id' => 'sb1',
+    'subject_name' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Perangkat keras jaringan yang berfungsi meregenerasi dan memperkuat sinyal digital pada kabel jaringan yang jaraknya melebihi batas maksimal adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ahmad Fauzi, S.T',
+    'options' => 
+    array (
+      'A' => 'Repeater',
+      'B' => 'Modem',
+      'C' => 'Gateway',
+      'D' => 'Firewall',
+      'E' => 'Network Interface Card',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  4 => 
+  array (
+    'id' => 'q5',
+    'subject_id' => 'sb1',
+    'subject_name' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'hard',
+    'content' => 'Batas jarak maksimal transmisi data efektif kabel UTP Cat5e/Cat6 standar dari switch ke komputer client tanpa bantuan penguat sinyal adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ahmad Fauzi, S.T',
+    'options' => 
+    array (
+      'A' => '50 meter',
+      'B' => '100 meter',
+      'C' => '150 meter',
+      'D' => '200 meter',
+      'E' => '250 meter',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  5 => 
+  array (
+    'id' => 'q6',
+    'subject_id' => 'sb2',
+    'subject_name' => 'Administrasi Infrastruktur Jaringan (AIJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Untuk menghubungkan switch ke switch yang membawa traffic lebih dari satu VLAN, mode port switch yang harus dikonfigurasi adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ir. Hendra Saputra',
+    'options' => 
+    array (
+      'A' => 'Mode Access',
+      'B' => 'Mode Trunk',
+      'C' => 'Mode Dynamic Auto',
+      'D' => 'Mode Duplex',
+      'E' => 'Mode Static Port',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  6 => 
+  array (
+    'id' => 'q7',
+    'subject_id' => 'sb2',
+    'subject_name' => 'Administrasi Infrastruktur Jaringan (AIJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Standar protokol IEEE internasional untuk VLAN tagging pada frame Ethernet 802.3 adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ir. Hendra Saputra',
+    'options' => 
+    array (
+      'A' => 'IEEE 802.1Q',
+      'B' => 'IEEE 802.11ax',
+      'C' => 'IEEE 802.3u',
+      'D' => 'IEEE 802.1X',
+      'E' => 'IEEE 802.1D',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  7 => 
+  array (
+    'id' => 'q8',
+    'subject_id' => 'sb2',
+    'subject_name' => 'Administrasi Infrastruktur Jaringan (AIJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Fitur MikroTik RouterOS yang digunakan untuk membagi dan membatasi bandwidth internet client secara adil berdasarkan antrian bertingkat adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ir. Hendra Saputra',
+    'options' => 
+    array (
+      'A' => 'NAT Masquerade',
+      'B' => 'Queue Tree / Simple Queue',
+      'C' => 'Hotspot Gateway',
+      'D' => 'Bridge Port',
+      'E' => 'IP Pool',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  8 => 
+  array (
+    'id' => 'q9',
+    'subject_id' => 'sb2',
+    'subject_name' => 'Administrasi Infrastruktur Jaringan (AIJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'hard',
+    'content' => 'Protokol routing dinamis kategori Interior Gateway Protocol (IGP) yang menerapkan algoritma link-state dan metrik cost adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ir. Hendra Saputra',
+    'options' => 
+    array (
+      'A' => 'RIPv1',
+      'B' => 'BGP',
+      'C' => 'OSPF (Open Shortest Path First)',
+      'D' => 'EGP',
+      'E' => 'IGRP',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  9 => 
+  array (
+    'id' => 'q10',
+    'subject_id' => 'sb2',
+    'subject_name' => 'Administrasi Infrastruktur Jaringan (AIJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'hard',
+    'content' => 'Perintah Cisco IOS untuk mengizinkan hanya VLAN 10 dan VLAN 20 yang boleh melintasi interface trunk FastEthernet 0/1 adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Ir. Hendra Saputra',
+    'options' => 
+    array (
+      'A' => 'switchport trunk allowed vlan 10,20',
+      'B' => 'switchport access vlan 10,20',
+      'C' => 'switchport mode vlan permit 10,20',
+      'D' => 'vlan trunk allow 10 20',
+      'E' => 'trunk vlan set 10,20',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  10 => 
+  array (
+    'id' => 'q11',
+    'subject_id' => 'sb3',
+    'subject_name' => 'Administrasi Server Jaringan (ASJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Paket aplikasi DNS Server yang paling umum digunakan pada sistem operasi Linux Debian adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dian Permana, S.Kom',
+    'options' => 
+    array (
+      'A' => 'Apache2',
+      'B' => 'Bind9',
+      'C' => 'Proftpd',
+      'D' => 'Isc-dhcp-server',
+      'E' => 'Postfix',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  11 => 
+  array (
+    'id' => 'q12',
+    'subject_id' => 'sb3',
+    'subject_name' => 'Administrasi Server Jaringan (ASJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Port standar default yang digunakan oleh protokol Secure Shell (SSH) untuk remote access command line secara terenkripsi adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dian Permana, S.Kom',
+    'options' => 
+    array (
+      'A' => 'Port 21',
+      'B' => 'Port 22',
+      'C' => 'Port 23',
+      'D' => 'Port 80',
+      'E' => 'Port 443',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  12 => 
+  array (
+    'id' => 'q13',
+    'subject_id' => 'sb3',
+    'subject_name' => 'Administrasi Server Jaringan (ASJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Lokasi berkas konfigurasi default virtual host web server Apache2 di Linux Debian adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dian Permana, S.Kom',
+    'options' => 
+    array (
+      'A' => '/etc/apache2/sites-available/000-default.conf',
+      'B' => '/etc/nginx/nginx.conf',
+      'C' => '/var/www/html/index.html',
+      'D' => '/usr/share/apache2/default.conf',
+      'E' => '/etc/httpd/conf/httpd.conf',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  13 => 
+  array (
+    'id' => 'q14',
+    'subject_id' => 'sb3',
+    'subject_name' => 'Administrasi Server Jaringan (ASJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Perintah Linux untuk mengubah kepemilikan direktori data_lab menjadi milik user admin dan grup guru secara rekursif adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dian Permana, S.Kom',
+    'options' => 
+    array (
+      'A' => 'chmod -R 777 data_lab',
+      'B' => 'chown -R admin:guru data_lab',
+      'C' => 'usermod -aG guru admin',
+      'D' => 'chgrp -R admin data_lab',
+      'E' => 'passwd admin',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  14 => 
+  array (
+    'id' => 'q15',
+    'subject_id' => 'sb3',
+    'subject_name' => 'Administrasi Server Jaringan (ASJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'hard',
+    'content' => 'Layanan server yang berfungsi memberikan konfigurasi alamat IP, subnet mask, gateway, dan DNS secara otomatis kepada client yang terhubung adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dian Permana, S.Kom',
+    'options' => 
+    array (
+      'A' => 'DNS Server',
+      'B' => 'Web Server',
+      'C' => 'DHCP Server',
+      'D' => 'FTP Server',
+      'E' => 'NTP Server',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  15 => 
+  array (
+    'id' => 'q16',
+    'subject_id' => 'sb4',
+    'subject_name' => 'Teknologi Layanan Jaringan (TLJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Protokol pensinyalan VoIP yang digunakan untuk inisiasi, modifikasi, dan terminasi sesi komunikasi multimedia realtime adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Rian Hidayat, M.Kom',
+    'options' => 
+    array (
+      'A' => 'SIP (Session Initiation Protocol)',
+      'B' => 'FTP',
+      'C' => 'SMTP',
+      'D' => 'SNMP',
+      'E' => 'Telnet',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  16 => 
+  array (
+    'id' => 'q17',
+    'subject_id' => 'sb4',
+    'subject_name' => 'Teknologi Layanan Jaringan (TLJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Perangkat lunak open source berbasis Linux yang sangat populer digunakan untuk membangun sistem IP-PBX / VoIP Server mandiri adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Rian Hidayat, M.Kom',
+    'options' => 
+    array (
+      'A' => 'Asterisk',
+      'B' => 'Wireshark',
+      'C' => 'PuTTY',
+      'D' => 'VirtualBox',
+      'E' => 'FileZilla',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  17 => 
+  array (
+    'id' => 'q18',
+    'subject_id' => 'sb4',
+    'subject_name' => 'Teknologi Layanan Jaringan (TLJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Standar kompresi suara (codec) VoIP yang menggunakan bitrate 64 kbps tanpa kompresi dengan kualitas audio setara jaringan telepon kabel analog adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Rian Hidayat, M.Kom',
+    'options' => 
+    array (
+      'A' => 'G.711 (PCMA/PCMU)',
+      'B' => 'G.729',
+      'C' => 'MP3',
+      'D' => 'AAC',
+      'E' => 'FLAC',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  18 => 
+  array (
+    'id' => 'q19',
+    'subject_id' => 'sb4',
+    'subject_name' => 'Teknologi Layanan Jaringan (TLJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'hard',
+    'content' => 'Variasi selang waktu kedatangan paket data (delay variance) pada komunikasi VoIP yang menyebabkan suara terputus-putus disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Rian Hidayat, M.Kom',
+    'options' => 
+    array (
+      'A' => 'Latency',
+      'B' => 'Jitter',
+      'C' => 'Packet Loss',
+      'D' => 'Throughput',
+      'E' => 'Bandwidth',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  19 => 
+  array (
+    'id' => 'q20',
+    'subject_id' => 'sb4',
+    'subject_name' => 'Teknologi Layanan Jaringan (TLJ)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Protokol transport layer yang paling tepat digunakan untuk mentransmisikan voice packets realtime pada jaringan VoIP karena latency rendah tanpa handshake ulang adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Rian Hidayat, M.Kom',
+    'options' => 
+    array (
+      'A' => 'TCP',
+      'B' => 'UDP (User Datagram Protocol)',
+      'C' => 'ICMP',
+      'D' => 'IGMP',
+      'E' => 'ARP',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  20 => 
+  array (
+    'id' => 'q21',
+    'subject_id' => 'sb5',
+    'subject_name' => 'Keamanan Jaringan & Cyber Security (KJK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Serangan siber yang membanjiri server target dengan jutaan paket palsu secara simultan hingga server lumpuh kehabisan sumber daya disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Wahyu Pratama, S.T',
+    'options' => 
+    array (
+      'A' => 'Phishing Attack',
+      'B' => 'Distributed Denial of Service (DDoS)',
+      'C' => 'SQL Injection',
+      'D' => 'Man in the Middle (MitM)',
+      'E' => 'Cross-Site Scripting (XSS)',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  21 => 
+  array (
+    'id' => 'q22',
+    'subject_id' => 'sb5',
+    'subject_name' => 'Keamanan Jaringan & Cyber Security (KJK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Teknik penipuan siber dengan memancing korban agar memberikan kredensial rahasia (username dan kata sandi) melalui halaman web tiruan disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Wahyu Pratama, S.T',
+    'options' => 
+    array (
+      'A' => 'Spoofing',
+      'B' => 'Phishing',
+      'C' => 'Brute Force',
+      'D' => 'Ransomware',
+      'E' => 'Sniffing',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  22 => 
+  array (
+    'id' => 'q23',
+    'subject_id' => 'sb5',
+    'subject_name' => 'Keamanan Jaringan & Cyber Security (KJK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Teknologi tunneling yang mengenkripsi seluruh pertukaran traffic data antara client dan server jaringan privat melalui internet adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Wahyu Pratama, S.T',
+    'options' => 
+    array (
+      'A' => 'HTTP',
+      'B' => 'Telnet',
+      'C' => 'VPN (Virtual Private Network)',
+      'D' => 'FTP',
+      'E' => 'SNMP',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  23 => 
+  array (
+    'id' => 'q24',
+    'subject_id' => 'sb5',
+    'subject_name' => 'Keamanan Jaringan & Cyber Security (KJK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'hard',
+    'content' => 'Algoritma kriptografi asimetris yang memanfaatkan pasangan Public Key untuk enkripsi dan Private Key untuk dekripsi adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Wahyu Pratama, S.T',
+    'options' => 
+    array (
+      'A' => 'AES-256',
+      'B' => 'DES',
+      'C' => 'RSA (Rivest Shamir Adleman)',
+      'D' => 'MD5',
+      'E' => 'SHA-1',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  24 => 
+  array (
+    'id' => 'q25',
+    'subject_id' => 'sb5',
+    'subject_name' => 'Keamanan Jaringan & Cyber Security (KJK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Komponen keamanan jaringan yang bertindak memfilter paket data yang keluar-masuk berdasarkan kumpulan aturan (ruleset) keamanan yang ditentukan adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Wahyu Pratama, S.T',
+    'options' => 
+    array (
+      'A' => 'Hub',
+      'B' => 'Switch',
+      'C' => 'Firewall',
+      'D' => 'Modem',
+      'E' => 'Repeater',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  25 => 
+  array (
+    'id' => 'q26',
+    'subject_id' => 'sb6',
+    'subject_name' => 'Matematika Terapan',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Pada blok IP address kelas C dengan subnet mask 255.255.255.192 (/26), jumlah subnet yang terbentuk dan jumlah host valid per subnet berturut-turut adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Budi Santoso, S.Pd',
+    'options' => 
+    array (
+      'A' => '2 subnet dan 62 host',
+      'B' => '4 subnet dan 62 host',
+      'C' => '4 subnet dan 64 host',
+      'D' => '8 subnet dan 30 host',
+      'E' => '16 subnet dan 14 host',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  26 => 
+  array (
+    'id' => 'q27',
+    'subject_id' => 'sb6',
+    'subject_name' => 'Matematika Terapan',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Bentuk bilangan biner 8-bit dari bilangan desimal 192 adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Budi Santoso, S.Pd',
+    'options' => 
+    array (
+      'A' => '11000000',
+      'B' => '10100000',
+      'C' => '11110000',
+      'D' => '10000001',
+      'E' => '11100000',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  27 => 
+  array (
+    'id' => 'q28',
+    'subject_id' => 'sb6',
+    'subject_name' => 'Matematika Terapan',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Jika kapasitas bandwidth koneksi download adalah 50 Mbps, perkiraan waktu teoritis untuk mengunduh berkas installer berukuran 750 MB (Megabyte) adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Budi Santoso, S.Pd',
+    'options' => 
+    array (
+      'A' => '15 detik',
+      'B' => '60 detik',
+      'C' => '120 detik',
+      'D' => '150 detik',
+      'E' => '300 detik',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  28 => 
+  array (
+    'id' => 'q29',
+    'subject_id' => 'sb6',
+    'subject_name' => 'Matematika Terapan',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Konversi bilangan heksadesimal 2F ke dalam sistem bilangan desimal bernilai...',
+    'score_weight' => 20.0,
+    'creator' => 'Budi Santoso, S.Pd',
+    'options' => 
+    array (
+      'A' => '47',
+      'B' => '32',
+      'C' => '64',
+      'D' => '15',
+      'E' => '29',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  29 => 
+  array (
+    'id' => 'q30',
+    'subject_id' => 'sb6',
+    'subject_name' => 'Matematika Terapan',
+    'question_type' => 'single_choice',
+    'difficulty' => 'hard',
+    'content' => 'Negasi (ingkaran) yang benar dari pernyataan majemuk "Semua komputer di laboratorium terhubung ke jaringan lokal" adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Budi Santoso, S.Pd',
+    'options' => 
+    array (
+      'A' => 'Semua komputer di laboratorium tidak terhubung ke jaringan lokal',
+      'B' => 'Ada komputer di laboratorium yang tidak terhubung ke jaringan lokal',
+      'C' => 'Tidak ada satu pun komputer yang hidup di laboratorium',
+      'D' => 'Semua komputer di laboratorium mengalami kerusakan kabel',
+      'E' => 'Komputer di laboratorium hanya menggunakan koneksi nirkabel',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  30 => 
+  array (
+    'id' => 'q31',
+    'subject_id' => 'sb7',
+    'subject_name' => 'Bahasa Indonesia',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Struktur teks laporan hasil observasi teknis yang berisi pembuka atau informasi pengantar tentang objek yang diteliti adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dra. Nurul Hidayati',
+    'options' => 
+    array (
+      'A' => 'Deskripsi Bagian',
+      'B' => 'Pernyataan Umum / Definisi Umum',
+      'C' => 'Deskripsi Manfaat',
+      'D' => 'Simpulan',
+      'E' => 'Saran',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  31 => 
+  array (
+    'id' => 'q32',
+    'subject_id' => 'sb7',
+    'subject_name' => 'Bahasa Indonesia',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Penulisan kata serapan teknis yang baku dan sesuai dengan Pedoman Umum Ejaan Bahasa Indonesia (PUEBI) adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dra. Nurul Hidayati',
+    'options' => 
+    array (
+      'A' => 'Sistim, Standarisasi, Efektip',
+      'B' => 'Sistem, Standarisasi, Efektif',
+      'C' => 'Sistem, Standardisasi, Efektif',
+      'D' => 'Sistim, Standardisasi, Efektip',
+      'E' => 'Sistem, Standarisir, Efisien',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  32 => 
+  array (
+    'id' => 'q33',
+    'subject_id' => 'sb7',
+    'subject_name' => 'Bahasa Indonesia',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Kalimat instruksi kerja berikut yang menggunakan ragam bahasa resmi dan efektif dalam buku petunjuk laboratorium adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Dra. Nurul Hidayati',
+    'options' => 
+    array (
+      'A' => 'Jangan lupa matiin komputer sehabis praktek ya kawan-kawan',
+      'B' => 'Matikan komputer dan rapikan kabel jaringan setelah sesi praktikum berakhir',
+      'C' => 'Komputer tolong segera dimatikan dong',
+      'D' => 'Kalau udah selesai, langsung ditinggal aja komputernya',
+      'E' => 'Pastikan kamu nggak lupa shutdown komputernya',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  33 => 
+  array (
+    'id' => 'q34',
+    'subject_id' => 'sb7',
+    'subject_name' => 'Bahasa Indonesia',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Dalam surat lamaran pekerjaan teknisi TI, bagian yang memaparkan kompetensi keahlian, pengalaman prakerin, dan lampiran berkas sertifikasi disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Dra. Nurul Hidayati',
+    'options' => 
+    array (
+      'A' => 'Tesis / Pembuka',
+      'B' => 'Argumentasi / Isi Surat',
+      'C' => 'Penegasan Ulang / Penutup',
+      'D' => 'Kepala Surat',
+      'E' => 'Salam Pembuka',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  34 => 
+  array (
+    'id' => 'q35',
+    'subject_id' => 'sb7',
+    'subject_name' => 'Bahasa Indonesia',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Istilah teknis kompatibilitas dalam konteks integrasi perangkat keras dan sistem operasi komputer berarti...',
+    'score_weight' => 20.0,
+    'creator' => 'Dra. Nurul Hidayati',
+    'options' => 
+    array (
+      'A' => 'Kemampuan perangkat untuk bekerja sama secara harmonis tanpa timbul konflik sistem',
+      'B' => 'Kecepatan maksimal transfer data pada kabel bus',
+      'C' => 'Daya tampung maksimum media penyimpanan hard disk',
+      'D' => 'Ketahanan motherboard terhadap lonjakan voltase listrik',
+      'E' => 'Kecepatan putaran kipas pendingin processor',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  35 => 
+  array (
+    'id' => 'q36',
+    'subject_id' => 'sb8',
+    'subject_name' => 'Bahasa Inggris Teknik',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'The network administrator ... the core router configuration before restarting the server yesterday.',
+    'score_weight' => 20.0,
+    'creator' => 'Siti Aminah, M.Kom',
+    'options' => 
+    array (
+      'A' => 'inspect',
+      'B' => 'inspects',
+      'C' => 'inspected',
+      'D' => 'inspecting',
+      'E' => 'will inspect',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  36 => 
+  array (
+    'id' => 'q37',
+    'subject_id' => 'sb8',
+    'subject_name' => 'Bahasa Inggris Teknik',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'In computer and telecommunication technology, what does the acronym LAN stand for?',
+    'score_weight' => 20.0,
+    'creator' => 'Siti Aminah, M.Kom',
+    'options' => 
+    array (
+      'A' => 'Large Area Network',
+      'B' => 'Local Area Network',
+      'C' => 'Logical Access Node',
+      'D' => 'Linked Application Network',
+      'E' => 'Linear Array Network',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  37 => 
+  array (
+    'id' => 'q38',
+    'subject_id' => 'sb8',
+    'subject_name' => 'Bahasa Inggris Teknik',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'If the CPU temperature exceeds 85 degrees Celsius, the technician ... immediately turn off the server power.',
+    'score_weight' => 20.0,
+    'creator' => 'Siti Aminah, M.Kom',
+    'options' => 
+    array (
+      'A' => 'must',
+      'B' => 'might not',
+      'C' => 'did',
+      'D' => 'were',
+      'E' => 'has not',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  38 => 
+  array (
+    'id' => 'q39',
+    'subject_id' => 'sb8',
+    'subject_name' => 'Bahasa Inggris Teknik',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Read the instruction: "Insert the crimped RJ-45 plug into the port until it locks firmly." What is the meaning of firmly?',
+    'score_weight' => 20.0,
+    'creator' => 'Siti Aminah, M.Kom',
+    'options' => 
+    array (
+      'A' => 'Secara perlahan',
+      'B' => 'Dengan kuat dan rapat terpasang',
+      'C' => 'Dengan longgar',
+      'D' => 'Secara miring',
+      'E' => 'Kadang-kadang',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  39 => 
+  array (
+    'id' => 'q40',
+    'subject_id' => 'sb8',
+    'subject_name' => 'Bahasa Inggris Teknik',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Which sentence expresses the most accurate safety warning on a high-voltage server rack?',
+    'score_weight' => 20.0,
+    'creator' => 'Siti Aminah, M.Kom',
+    'options' => 
+    array (
+      'A' => 'Caution: High Voltage inside rack. Disconnect power supply before maintenance.',
+      'B' => 'Welcome to the server rack room.',
+      'C' => 'Please enjoy using the server equipment.',
+      'D' => 'Server rack is heavy and metallic.',
+      'E' => 'Do not use phone here if you are busy.',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  40 => 
+  array (
+    'id' => 'q41',
+    'subject_id' => 'sb9',
+    'subject_name' => 'Pendidikan Agama & Budi Pekerti',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Menjunjung tinggi kejujuran dan tidak berbuat curang saat mengerjakan ujian berbasis komputer merupakan cerminan dari akhlak...',
+    'score_weight' => 20.0,
+    'creator' => 'Drs. H. Bambang Sutrisno',
+    'options' => 
+    array (
+      'A' => 'Mazmumah',
+      'B' => 'Mahmudah (Akhlak Terpuji)',
+      'C' => 'Ananiyah',
+      'D' => 'Hasad',
+      'E' => 'Riya',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  41 => 
+  array (
+    'id' => 'q42',
+    'subject_id' => 'sb9',
+    'subject_name' => 'Pendidikan Agama & Budi Pekerti',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Menyebarkan konten hoaks (berita bohong) dan ujaran kebencian di media sosial dilarang keras karena termasuk perbuatan tercela...',
+    'score_weight' => 20.0,
+    'creator' => 'Drs. H. Bambang Sutrisno',
+    'options' => 
+    array (
+      'A' => 'Tabayyun',
+      'B' => 'Fitnah dan Namimah',
+      'C' => 'Syaja\'ah',
+      'D' => 'Tawadhu',
+      'E' => 'Amanah',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  42 => 
+  array (
+    'id' => 'q43',
+    'subject_id' => 'sb9',
+    'subject_name' => 'Pendidikan Agama & Budi Pekerti',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Sikap teliti untuk mencari kejelasan dan memverifikasi kebenaran setiap informasi sebelum mempercayai atau membagikannya disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Drs. H. Bambang Sutrisno',
+    'options' => 
+    array (
+      'A' => 'Tabayyun',
+      'B' => 'Takabur',
+      'C' => 'Tawakal',
+      'D' => 'Tasamuh',
+      'E' => 'Ta\'awun',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  43 => 
+  array (
+    'id' => 'q44',
+    'subject_id' => 'sb9',
+    'subject_name' => 'Pendidikan Agama & Budi Pekerti',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Sikap seorang administrator jaringan yang bertanggung jawab menjaga kerahasiaan kata sandi dan integritas database sekolah merupakan pengamalan sifat...',
+    'score_weight' => 20.0,
+    'creator' => 'Drs. H. Bambang Sutrisno',
+    'options' => 
+    array (
+      'A' => 'Siddiq',
+      'B' => 'Amanah (Dapat Dipercaya)',
+      'C' => 'Tabligh',
+      'D' => 'Fathanah',
+      'E' => 'Sabar',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  44 => 
+  array (
+    'id' => 'q45',
+    'subject_id' => 'sb9',
+    'subject_name' => 'Pendidikan Agama & Budi Pekerti',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Sikap saling menghargai perbedaan, menghormati keyakinan orang lain, dan hidup rukun di lingkungan sekolah yang majemuk disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Drs. H. Bambang Sutrisno',
+    'options' => 
+    array (
+      'A' => 'Tasamuh (Toleransi)',
+      'B' => 'Ukhuwah',
+      'C' => 'Qana\'ah',
+      'D' => 'Zuhud',
+      'E' => 'Istiqomah',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  45 => 
+  array (
+    'id' => 'q46',
+    'subject_id' => 'sb10',
+    'subject_name' => 'Produk Kreatif & Kewirausahaan (PKK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Perlindungan hukum yang diberikan oleh negara atas hasil ciptaan karya cipta di bidang perangkat lunak dan teknologi disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Endah Sri Wahyuni, M.Pd',
+    'options' => 
+    array (
+      'A' => 'Hak Paten',
+      'B' => 'Hak Merek Dagang',
+      'C' => 'Hak Cipta (HAKI)',
+      'D' => 'Desain Industri',
+      'E' => 'Rahasia Dagang',
+    ),
+    'correct_option' => 'C',
+    'status' => 'active',
+  ),
+  46 => 
+  array (
+    'id' => 'q47',
+    'subject_id' => 'sb10',
+    'subject_name' => 'Produk Kreatif & Kewirausahaan (PKK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Dalam analisis SWOT untuk rintisan usaha jasa instalasi jaringan internet, keunggulan teknisi yang bersertifikasi MikroTik MTCNA termasuk ke dalam komponen...',
+    'score_weight' => 20.0,
+    'creator' => 'Endah Sri Wahyuni, M.Pd',
+    'options' => 
+    array (
+      'A' => 'Strength (Kekuatan)',
+      'B' => 'Weakness (Kelemahan)',
+      'C' => 'Opportunity (Peluang)',
+      'D' => 'Threat (Ancaman)',
+      'E' => 'Cost (Biaya)',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+  47 => 
+  array (
+    'id' => 'q48',
+    'subject_id' => 'sb10',
+    'subject_name' => 'Produk Kreatif & Kewirausahaan (PKK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Kondisi di mana total penerimaan pendapatan usaha persis sama dengan total biaya yang dikeluarkan (titik impas laba nol) disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Endah Sri Wahyuni, M.Pd',
+    'options' => 
+    array (
+      'A' => 'Return on Investment (ROI)',
+      'B' => 'Break Even Point (BEP)',
+      'C' => 'Net Present Value (NPV)',
+      'D' => 'Cash Flow',
+      'E' => 'Gross Margin',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  48 => 
+  array (
+    'id' => 'q49',
+    'subject_id' => 'sb10',
+    'subject_name' => 'Produk Kreatif & Kewirausahaan (PKK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'easy',
+    'content' => 'Strategi promosi digital yang paling efektif dan hemat biaya untuk menawarkan jasa perbaikan laptop dan perakitan PC di sekitar lingkungan sekolah adalah...',
+    'score_weight' => 20.0,
+    'creator' => 'Endah Sri Wahyuni, M.Pd',
+    'options' => 
+    array (
+      'A' => 'Memasang iklan di surat kabar nasional',
+      'B' => 'Pemasaran melalui media sosial lokal dan Google Business Profile',
+      'C' => 'Menyebarkan brosur cetak di terminal bus luar kota',
+      'D' => 'Memasang iklan di radio siaran AM',
+      'E' => 'Memasang baliho di jalan tol',
+    ),
+    'correct_option' => 'B',
+    'status' => 'active',
+  ),
+  49 => 
+  array (
+    'id' => 'q50',
+    'subject_id' => 'sb10',
+    'subject_name' => 'Produk Kreatif & Kewirausahaan (PKK)',
+    'question_type' => 'single_choice',
+    'difficulty' => 'medium',
+    'content' => 'Model fisik awal atau purwarupa produk jaringan yang dibuat untuk menguji fungsionalitas dan konsep desain sebelum diproduksi massal disebut...',
+    'score_weight' => 20.0,
+    'creator' => 'Endah Sri Wahyuni, M.Pd',
+    'options' => 
+    array (
+      'A' => 'Prototipe (Prototype)',
+      'B' => 'Komoditas',
+      'C' => 'Invoice',
+      'D' => 'Leaflet',
+      'E' => 'Flier',
+    ),
+    'correct_option' => 'A',
+    'status' => 'active',
+  ),
+);
 }
 
 // G. Exams List (Paket Ujian untuk 10-TKJ, 11-TKJ, dan 12-TKJ dengan Token Unik)
@@ -373,7 +1334,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '18/09/2026 09:30',
             'duration' => 90,
             'token' => 'TKJ10A',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'active',
@@ -388,7 +1349,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '18/09/2026 11:30',
             'duration' => 90,
             'token' => 'TKJ10B',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'published',
@@ -403,7 +1364,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '19/09/2026 09:30',
             'duration' => 90,
             'token' => 'TKJ10C',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'published',
@@ -420,7 +1381,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '18/09/2026 09:30',
             'duration' => 90,
             'token' => 'TKJ11A',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 78.0,
             'status' => 'active',
@@ -435,7 +1396,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '18/09/2026 11:30',
             'duration' => 90,
             'token' => 'TKJ11B',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'published',
@@ -450,7 +1411,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '19/09/2026 09:30',
             'duration' => 90,
             'token' => 'TKJ11C',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'published',
@@ -467,7 +1428,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '18/09/2026 10:00',
             'duration' => 120,
             'token' => 'TKJ12A',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 80.0,
             'status' => 'active',
@@ -482,7 +1443,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '18/09/2026 12:00',
             'duration' => 90,
             'token' => 'TKJ12B',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'published',
@@ -497,7 +1458,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '19/09/2026 09:30',
             'duration' => 90,
             'token' => 'TKJ12C',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'published',
@@ -512,7 +1473,7 @@ if (!isset($_SESSION['exams_list'])) {
             'end' => '19/09/2026 11:30',
             'duration' => 90,
             'token' => 'TKJ12D',
-            'questions_count' => 40,
+            'questions_count' => 5,
             'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'published',
@@ -531,19 +1492,19 @@ unset($exItem);
 if (!isset($_SESSION['monitoring_sessions'])) {
     $_SESSION['monitoring_sessions'] = [
         // Sesi Kelas 10-TKJ (ex-1 - Token: TKJ10A)
-        ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 25, 'total' => 40, 'time_left' => '45:10', 'status' => 'Mengerjakan', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:18:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 4, 'total' => 5, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 5, 'total' => 5, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 3, 'total' => 5, 'time_left' => '45:10', 'status' => 'Mengerjakan', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:18:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
         
         // Sesi Kelas 11-TKJ (ex-4 - Token: TKJ11A)
-        ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 36, 'total' => 40, 'time_left' => '32:45', 'status' => 'Mengerjakan', 'ip' => '192.168.1.106', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:12:30', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-        ['nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.107', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-        ['nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 20, 'total' => 40, 'time_left' => '50:12', 'status' => 'Mengerjakan', 'ip' => '192.168.1.109', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:20:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 4, 'total' => 5, 'time_left' => '32:45', 'status' => 'Mengerjakan', 'ip' => '192.168.1.106', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:12:30', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        ['nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 5, 'total' => 5, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.107', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        ['nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 3, 'total' => 5, 'time_left' => '50:12', 'status' => 'Mengerjakan', 'ip' => '192.168.1.109', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:20:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
 
         // Sesi Kelas 12-TKJ (ex-7 - Token: TKJ12A)
-        ['nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 39, 'total' => 40, 'time_left' => '15:20', 'status' => 'Mengerjakan', 'ip' => '192.168.1.111', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:14:10', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
-        ['nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.112', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:05:55', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
-        ['nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 35, 'total' => 40, 'time_left' => '22:15', 'status' => 'Mengerjakan', 'ip' => '192.168.1.114', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:11:40', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
+        ['nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 5, 'total' => 5, 'time_left' => '15:20', 'status' => 'Mengerjakan', 'ip' => '192.168.1.111', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:14:10', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
+        ['nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 5, 'total' => 5, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.112', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:05:55', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
+        ['nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 4, 'total' => 5, 'time_left' => '22:15', 'status' => 'Mengerjakan', 'ip' => '192.168.1.114', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:11:40', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
     ];
 }
 foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
@@ -586,10 +1547,10 @@ if (!isset($_SESSION['student_attendance'])) {
 if (!isset($_SESSION['results_list'])) {
     $_SESSION['results_list'] = [
         // Rekap Nilai Siswa 10-TKJ (ex-1 - DTKJ - Token: TKJ10A)
-        ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 36, 'wrong' => 4, 'empty' => 0, 'score' => 90.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 38, 'wrong' => 2, 'empty' => 0, 'score' => 95.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 34, 'wrong' => 6, 'empty' => 0, 'score' => 85.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081010005', 'name' => 'Dimas Arya Wibowo', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 24, 'wrong' => 16, 'empty' => 0, 'score' => 60.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 5, 'wrong' => 0, 'empty' => 0, 'score' => 100.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 4, 'wrong' => 1, 'empty' => 0, 'score' => 80.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 4, 'wrong' => 1, 'empty' => 0, 'score' => 80.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081010005', 'name' => 'Dimas Arya Wibowo', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 3, 'wrong' => 2, 'empty' => 0, 'score' => 60.0, 'passing' => 75.0, 'published' => true],
 
         // Rekap Nilai Siswa 11-TKJ (ex-4 - AIJ - Token: TKJ11A)
         ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'exam' => 'Asesmen Praktik - Administrasi Infrastruktur Jaringan (AIJ)', 'exam_id' => 'ex-4', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'token' => 'TKJ11A', 'correct' => 35, 'wrong' => 5, 'empty' => 0, 'score' => 87.5, 'passing' => 78.0, 'published' => true],
