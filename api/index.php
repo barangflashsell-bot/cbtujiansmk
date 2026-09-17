@@ -706,6 +706,26 @@ if ($uri === '/js/qrcode.min.js') {
     }
 }
 
+if ($uri === '/admin/settings/download-pc-client' || $uri === '/downloads/KLIEN_UJIAN_KOMPUTER_PC.bat') {
+    $batPath = __DIR__ . '/../KLIEN_UJIAN_KOMPUTER_PC.bat';
+    if (!file_exists($batPath)) {
+        $batPath = __DIR__ . '/../SERVER/public/downloads/KLIEN_UJIAN_KOMPUTER_PC.bat';
+    }
+    if (file_exists($batPath)) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/bat');
+        header('Content-Disposition: attachment; filename="KLIEN_UJIAN_KOMPUTER_PC.bat"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($batPath));
+        readfile($batPath);
+        exit;
+    }
+    header('Location: /downloads/KLIEN_UJIAN_KOMPUTER_PC.bat');
+    exit;
+}
+
 if ($uri === '/admin/settings/download-apk' || $uri === '/downloads/cbt-peserta.apk') {
     // Pada environment Vercel, redirect langsung ke static path CDN agar terhindar dari limit serverless function
     if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
@@ -14502,6 +14522,59 @@ function renderSettingsContent() {
                     <li>Klik tombol <strong>Unduh Berkas APK Android</strong> di atas atau bagikan berkas APK ke siswa via Wi-Fi/Flashdisk.</li>
                     <li>Pasang aplikasi di smartphone siswa (Izinkan <em>"Install unknown apps"</em> jika diminta).</li>
                     <li>Buka aplikasi, masukkan IP Wi-Fi Server (<code><?= htmlspecialchars($detectedHostIp) ?>:<?= $serverPort ?></code>), lalu siswa masuk menggunakan <strong>NIS</strong> dan kata sandi ujian.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- CARD 3: APLIKASI KLIEN LAB KOMPUTER PC (WINDOWS EXAMBRO LAUNCHER) -->
+        <div class="card" style="margin-bottom: 24px; border: 1px solid #93c5fd; background: #f8fafc;">
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: #1d4ed8;">
+                        <span>🖥️</span> Aplikasi Klien Lab Komputer PC (Auto-Detect Jaringan &amp; Exambro Kiosk)
+                    </h3>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">
+                        Aplikasi instan untuk seluruh komputer peserta di laboratorium sekolah tanpa perlu konfigurasi IP manual di setiap PC.
+                    </span>
+                </div>
+                <span class="badge badge-info" style="font-size: 0.75rem; padding: 4px 10px;">
+                    Windows 10 / 11 Ready &bull; Portabel .bat
+                </span>
+            </div>
+
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;">
+                <div style="width: 64px; height: 64px; background: #dbeafe; border: 1px solid #bfdbfe; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0;">
+                    💻
+                </div>
+                <div style="flex: 1; min-width: 240px;">
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 2px;">
+                        KLIEN_UJIAN_KOMPUTER_PC.bat
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
+                        Format: <strong>Batch Script Portabel (Zero Install)</strong> &bull; Target: <strong>PC Siswa Lab Komputer</strong>
+                    </div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <span style="font-size: 0.7rem; background: #ffffff; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🔍 Deteksi IP Server Mandiri</span>
+                        <span style="font-size: 0.7rem; background: #ffffff; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🔒 Kiosk Layar Penuh (Exambro)</span>
+                        <span style="font-size: 0.7rem; background: #ffffff; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">🚫 Anti Buka Tab / Curang</span>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="/downloads/KLIEN_UJIAN_KOMPUTER_PC.bat" download="KLIEN_UJIAN_KOMPUTER_PC.bat" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; background: #1d4ed8; box-shadow: 0 4px 12px rgba(29,78,216,0.25);">
+                        <span>⬇️</span> Unduh Peluncur PC Lab (.bat)
+                    </a>
+                    <a href="/downloads/KLIEN_UJIAN_KOMPUTER_PC.bat" download style="font-size: 0.75rem; text-align: center; color: var(--primary); text-decoration: underline;">
+                        Tautan Berkas (/downloads/KLIEN_UJIAN_KOMPUTER_PC.bat)
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px 14px; font-size: 0.8rem; color: var(--text-secondary);">
+                <strong>Cara Penggunaan di Lab Komputer Sekolah:</strong>
+                <ol style="margin: 6px 0 0; padding-left: 18px; line-height: 1.6;">
+                    <li>Unduh berkas <code>KLIEN_UJIAN_KOMPUTER_PC.bat</code> di atas lalu salin ke Desktop seluruh komputer klien siswa di ruang lab (via flashdisk atau folder sharing LAN).</li>
+                    <li>Siswa atau teknisi lab cukup melakukan <strong>klik ganda (double-click)</strong> pada ikon tersebut di Desktop PC.</li>
+                    <li>Skrip akan secara otomatis memindai jaringan lokal untuk menemukan server proktor, lalu membuka browser dalam mode <strong>Kiosk Layar Penuh (Exambro)</strong> tanpa siswa harus mengetik IP!</li>
                 </ol>
             </div>
         </div>
