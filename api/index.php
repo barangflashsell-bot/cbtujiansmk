@@ -171,7 +171,7 @@ if (isset($_SESSION['teachers_list']) && is_array($_SESSION['teachers_list'])) {
 // =========================================================================
 // DATA SEED GUARD: RESET & MUAT DATA BARU (15 SISWA 10-TKJ, 15 SISWA 11-TKJ, 15 SISWA 12-TKJ & 10 MAPEL)
 // =========================================================================
-if (!isset($_SESSION['data_seed_version']) || $_SESSION['data_seed_version'] !== 'v4_tkj45_50soal' || isset($_GET['reset_demo_db'])) {
+if (!isset($_SESSION['data_seed_version']) || $_SESSION['data_seed_version'] !== 'v5_tkj45_sync' || isset($_GET['reset_demo_db'])) {
     unset($_SESSION['classes_list']);
     unset($_SESSION['students_list']);
     unset($_SESSION['subjects_list']);
@@ -180,7 +180,7 @@ if (!isset($_SESSION['data_seed_version']) || $_SESSION['data_seed_version'] !==
     unset($_SESSION['monitoring_sessions']);
     unset($_SESSION['student_attendance']);
     unset($_SESSION['results_list']);
-    $_SESSION['data_seed_version'] = 'v4_tkj45_50soal';
+    $_SESSION['data_seed_version'] = 'v5_tkj45_sync';
 }
 
 // C. Classes List (Rombongan Belajar TKJ)
@@ -196,53 +196,53 @@ if (!isset($_SESSION['classes_list'])) {
 if (!isset($_SESSION['students_list'])) {
     $_SESSION['students_list'] = [
         // --- 15 SISWA KELAS 10-TKJ ---
-        ['id' => 's1', 'nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'username' => '0081010001', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's2', 'nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'username' => '0081010002', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's1', 'nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'username' => '0081010001', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's2', 'nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'username' => '0081010002', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's3', 'nis' => '0081010003', 'name' => 'Bagas Aditya Nugraha', 'username' => '0081010003', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's4', 'nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'username' => '0081010004', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's4', 'nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'username' => '0081010004', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's5', 'nis' => '0081010005', 'name' => 'Dimas Arya Wibowo', 'username' => '0081010005', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's6', 'nis' => '0081010006', 'name' => 'Elsa Maharani', 'username' => '0081010006', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's6', 'nis' => '0081010006', 'name' => 'Elsa Maharani', 'username' => '0081010006', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's7', 'nis' => '0081010007', 'name' => 'Farel Alamsyah', 'username' => '0081010007', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's8', 'nis' => '0081010008', 'name' => 'Gita Safitri', 'username' => '0081010008', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's8', 'nis' => '0081010008', 'name' => 'Gita Safitri', 'username' => '0081010008', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's9', 'nis' => '0081010009', 'name' => 'Hafiz Nur Hidayat', 'username' => '0081010009', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's10', 'nis' => '0081010010', 'name' => 'Indah Permatasari', 'username' => '0081010010', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's10', 'nis' => '0081010010', 'name' => 'Indah Permatasari', 'username' => '0081010010', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's11', 'nis' => '0081010011', 'name' => 'Jaka Satria Dewa', 'username' => '0081010011', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's12', 'nis' => '0081010012', 'name' => 'Kania Dewi Lestari', 'username' => '0081010012', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
-        ['id' => 's13', 'nis' => '0081010013', 'name' => 'M. Rizky Kurniawan', 'username' => '0081010013', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's12', 'nis' => '0081010012', 'name' => 'Kania Dewi Lestari', 'username' => '0081010012', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's13', 'nis' => '0081010013', 'name' => 'M. Rizky Kurniawan', 'username' => '0081010013', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
         ['id' => 's14', 'nis' => '0081010014', 'name' => 'Nadya Zahra Salsabila', 'username' => '0081010014', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's15', 'nis' => '0081010015', 'name' => 'Oki Firmansyah', 'username' => '0081010015', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
 
         // --- 15 SISWA KELAS 11-TKJ ---
-        ['id' => 's16', 'nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'username' => '0071110001', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's17', 'nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'username' => '0071110002', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's16', 'nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'username' => '0071110001', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's17', 'nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'username' => '0071110002', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's18', 'nis' => '0071110003', 'name' => 'Candra Wijaya', 'username' => '0071110003', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's19', 'nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'username' => '0071110004', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's19', 'nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'username' => '0071110004', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's20', 'nis' => '0071110005', 'name' => 'Edo Septian', 'username' => '0071110005', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's21', 'nis' => '0071110006', 'name' => 'Fitri Handayani', 'username' => '0071110006', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
-        ['id' => 's22', 'nis' => '0071110007', 'name' => 'Gilang Ramadhan', 'username' => '0071110007', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's21', 'nis' => '0071110006', 'name' => 'Fitri Handayani', 'username' => '0071110006', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's22', 'nis' => '0071110007', 'name' => 'Gilang Ramadhan', 'username' => '0071110007', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
         ['id' => 's23', 'nis' => '0071110008', 'name' => 'Hani Farida', 'username' => '0071110008', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
-        ['id' => 's24', 'nis' => '0071110009', 'name' => 'Ilham Wahyudi', 'username' => '0071110009', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's25', 'nis' => '0071110010', 'name' => 'Jessica Olivia', 'username' => '0071110010', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's24', 'nis' => '0071110009', 'name' => 'Ilham Wahyudi', 'username' => '0071110009', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's25', 'nis' => '0071110010', 'name' => 'Jessica Olivia', 'username' => '0071110010', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's26', 'nis' => '0071110011', 'name' => 'Kevin Maulana', 'username' => '0071110011', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's27', 'nis' => '0071110012', 'name' => 'Lutfi Hakim', 'username' => '0071110012', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's27', 'nis' => '0071110012', 'name' => 'Lutfi Hakim', 'username' => '0071110012', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
         ['id' => 's28', 'nis' => '0071110013', 'name' => 'Maya Anggraini', 'username' => '0071110013', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
-        ['id' => 's29', 'nis' => '0071110014', 'name' => 'Naufal Arkananta', 'username' => '0071110014', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's29', 'nis' => '0071110014', 'name' => 'Naufal Arkananta', 'username' => '0071110014', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
         ['id' => 's30', 'nis' => '0071110015', 'name' => 'Putri Rahmawati', 'username' => '0071110015', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
 
         // --- 15 SISWA KELAS 12-TKJ ---
-        ['id' => 's31', 'nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'username' => '0061210001', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's32', 'nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'username' => '0061210002', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's31', 'nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'username' => '0061210001', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's32', 'nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'username' => '0061210002', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's33', 'nis' => '0061210003', 'name' => 'Bayu Tri Santoso', 'username' => '0061210003', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's34', 'nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'username' => '0061210004', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's34', 'nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'username' => '0061210004', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's35', 'nis' => '0061210005', 'name' => 'Danu Wicaksono', 'username' => '0061210005', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's36', 'nis' => '0061210006', 'name' => 'Erika Wulandari', 'username' => '0061210006', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
-        ['id' => 's37', 'nis' => '0061210007', 'name' => 'Firman Syahrizal', 'username' => '0061210007', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's36', 'nis' => '0061210006', 'name' => 'Erika Wulandari', 'username' => '0061210006', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's37', 'nis' => '0061210007', 'name' => 'Firman Syahrizal', 'username' => '0061210007', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
         ['id' => 's38', 'nis' => '0061210008', 'name' => 'Galuh Kartika', 'username' => '0061210008', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
-        ['id' => 's39', 'nis' => '0061210009', 'name' => 'Hendra Gunawan', 'username' => '0061210009', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's40', 'nis' => '0061210010', 'name' => 'Ismawati Hasanah', 'username' => '0061210010', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's39', 'nis' => '0061210009', 'name' => 'Hendra Gunawan', 'username' => '0061210009', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's40', 'nis' => '0061210010', 'name' => 'Ismawati Hasanah', 'username' => '0061210010', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's41', 'nis' => '0061210011', 'name' => 'Joni Setiawan', 'username' => '0061210011', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's42', 'nis' => '0061210012', 'name' => 'Kartika Sari Dewi', 'username' => '0061210012', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
-        ['id' => 's43', 'nis' => '0061210013', 'name' => 'Lukman Hakim', 'username' => '0061210013', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's42', 'nis' => '0061210012', 'name' => 'Kartika Sari Dewi', 'username' => '0061210012', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's43', 'nis' => '0061210013', 'name' => 'Lukman Hakim', 'username' => '0061210013', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
         ['id' => 's44', 'nis' => '0061210014', 'name' => 'Mega Puspitasari', 'username' => '0061210014', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
         ['id' => 's45', 'nis' => '0061210015', 'name' => 'Rendy Firmansyah', 'username' => '0061210015', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
     ];
@@ -1488,59 +1488,14 @@ foreach ($_SESSION['exams_list'] as &$exItem) {
 }
 unset($exItem);
 
-// H. Monitoring Sessions (Terpetakan secara tepat per exam_id, token, dan kelas siswa)
+// H. Monitoring Sessions (Mencatat sesi ujian peserta yang sedang aktif secara real-time)
 if (!isset($_SESSION['monitoring_sessions'])) {
-    $_SESSION['monitoring_sessions'] = [
-        // Sesi Kelas 10-TKJ (ex-1 - Token: TKJ10A)
-        ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 4, 'total' => 5, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 5, 'total' => 5, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 3, 'total' => 5, 'time_left' => '45:10', 'status' => 'Mengerjakan', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:18:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        
-        // Sesi Kelas 11-TKJ (ex-4 - Token: TKJ11A)
-        ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 4, 'total' => 5, 'time_left' => '32:45', 'status' => 'Mengerjakan', 'ip' => '192.168.1.106', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:12:30', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-        ['nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 5, 'total' => 5, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.107', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-        ['nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 3, 'total' => 5, 'time_left' => '50:12', 'status' => 'Mengerjakan', 'ip' => '192.168.1.109', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:20:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-
-        // Sesi Kelas 12-TKJ (ex-7 - Token: TKJ12A)
-        ['nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 5, 'total' => 5, 'time_left' => '15:20', 'status' => 'Mengerjakan', 'ip' => '192.168.1.111', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:14:10', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
-        ['nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 5, 'total' => 5, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.112', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:05:55', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
-        ['nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 4, 'total' => 5, 'time_left' => '22:15', 'status' => 'Mengerjakan', 'ip' => '192.168.1.114', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:11:40', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
-    ];
+    $_SESSION['monitoring_sessions'] = [];
 }
-foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
-    if (!isset($msItem['violations'])) $msItem['violations'] = 0;
-    if (!isset($msItem['is_locked'])) $msItem['is_locked'] = ($msItem['violations'] >= 3);
-    if (!isset($msItem['login_time'])) $msItem['login_time'] = '07:15:20';
-    if (!isset($msItem['attendance_status'])) $msItem['attendance_status'] = 'HADIR';
-    if (!isset($msItem['device'])) $msItem['device'] = 'PC Desktop / Web';
-    if (empty($msItem['exam_id'])) $msItem['exam_id'] = 'ex-1';
-    if (empty($msItem['token']) || empty($msItem['subject'])) {
-        if (isset($_SESSION['exams_list'])) {
-            foreach ($_SESSION['exams_list'] as $exTemp) {
-                if ($exTemp['id'] === $msItem['exam_id']) {
-                    $msItem['token'] = $exTemp['token'] ?? 'TKJ10A';
-                    $msItem['subject'] = $exTemp['subject'] ?? 'Umum';
-                    break;
-                }
-            }
-        }
-    }
-}
-unset($msItem);
 
 // H2. Student Attendance Map (Rekap Presensi Siswa Real-Time Berdasarkan Login)
 if (!isset($_SESSION['student_attendance'])) {
-    $_SESSION['student_attendance'] = [
-        '0081010001' => ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'login_time' => '07:15:24', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.101', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
-        '0081010002' => ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'login_time' => '07:10:05', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.102', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
-        '0081010004' => ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'login_time' => '07:18:00', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.104', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
-        '0071110001' => ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'login_time' => '07:12:30', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.106', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
-        '0071110002' => ['nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'class' => '11-TKJ', 'login_time' => '07:08:12', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.107', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
-        '0071110004' => ['nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'class' => '11-TKJ', 'login_time' => '07:20:00', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.109', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
-        '0061210001' => ['nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'class' => '12-TKJ', 'login_time' => '07:14:10', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.111', 'device' => 'Android Kiosk / Tablet', 'status' => 'HADIR'],
-        '0061210002' => ['nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'class' => '12-TKJ', 'login_time' => '07:05:55', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.112', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
-        '0061210004' => ['nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'class' => '12-TKJ', 'login_time' => '07:11:40', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.114', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
-    ];
+    $_SESSION['student_attendance'] = [];
 }
 
 // I. Results List (Tiap baris menyimpan relasi exam_id, subject, class, dan token secara presisi)
@@ -1772,6 +1727,108 @@ function logCbtActivity($module, $action, $details = '') {
     }
 }
 
+// Catat Presensi & Sesi Monitoring Siswa Otomatis Berdasarkan Event Login (Web & Mobile Android)
+function recordStudentLogin($student, $clientIp = null, $userAgent = null, $deviceOverride = null) {
+    if (!$clientIp) $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    if (!$userAgent) $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    
+    // Deteksi jenis perangkat
+    if ($deviceOverride) {
+        $device = $deviceOverride;
+    } elseif (str_contains($userAgent, 'Android') || str_contains($userAgent, 'Mobile') || str_contains($userAgent, 'Dart')) {
+        $device = 'Android Kiosk / HP';
+    } elseif (str_contains($userAgent, 'iPad') || str_contains($userAgent, 'Tablet')) {
+        $device = 'Tablet Kiosk';
+    } else {
+        $device = 'PC Desktop / Web';
+    }
+
+    $nis = $student['nis'];
+    $currentTime = date('H:i:s');
+    $currentDate = date('d/m/Y');
+
+    // 1. Rekam Absensi Siswa
+    if (!isset($_SESSION['student_attendance'])) {
+        $_SESSION['student_attendance'] = [];
+    }
+    $_SESSION['student_attendance'][$nis] = [
+        'nis' => $nis,
+        'name' => $student['name'],
+        'class' => $student['class'] ?? '10-TKJ',
+        'login_time' => $currentTime,
+        'login_date' => $currentDate,
+        'ip' => $clientIp,
+        'device' => $device,
+        'status' => 'HADIR',
+        'timestamp' => time(),
+    ];
+
+    // 2. Perbarui status siswa di students_list menjadi Online
+    if (isset($_SESSION['students_list'])) {
+        foreach ($_SESSION['students_list'] as &$st) {
+            if ($st['nis'] === $nis) {
+                $st['status'] = 'Online';
+                break;
+            }
+        }
+        unset($st);
+    }
+
+    // 3. Sinkronkan ke monitoring_sessions agar tampil di telemetri live
+    if (!isset($_SESSION['monitoring_sessions'])) {
+        $_SESSION['monitoring_sessions'] = [];
+    }
+    $found = false;
+    foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+        if ($ms['nis'] === $nis) {
+            $ms['login_time'] = $currentTime;
+            $ms['ip'] = $clientIp;
+            $ms['device'] = $device;
+            $ms['attendance_status'] = 'HADIR';
+            if ($ms['status'] === 'Belum Mulai' || empty($ms['status']) || $ms['status'] === 'Offline') {
+                $ms['status'] = 'Mengerjakan';
+            }
+            $found = true;
+            break;
+        }
+    }
+    unset($ms);
+
+    if (!$found) {
+        $assignedExamId = 'ex-1';
+        $assignedToken = 'TKJ10A';
+        $assignedSubject = 'Dasar Teknik Jaringan Komputer (DTKJ)';
+        if (isset($_SESSION['exams_list'])) {
+            foreach ($_SESSION['exams_list'] as $exTgt) {
+                if (($exTgt['class'] ?? '') === ($student['class'] ?? '')) {
+                    $assignedExamId = $exTgt['id'];
+                    $assignedToken = $exTgt['token'] ?? 'TKJ10A';
+                    $assignedSubject = $exTgt['subject'] ?? 'Umum';
+                    break;
+                }
+            }
+        }
+        $_SESSION['monitoring_sessions'][] = [
+            'nis' => $nis,
+            'name' => $student['name'],
+            'class' => $student['class'] ?? '10-TKJ',
+            'token' => $assignedToken,
+            'subject' => $assignedSubject,
+            'answered' => 0,
+            'total' => 5,
+            'time_left' => '90:00',
+            'status' => 'Mengerjakan',
+            'ip' => $clientIp,
+            'device' => $device,
+            'exam_id' => $assignedExamId,
+            'violations' => 0,
+            'is_locked' => false,
+            'login_time' => $currentTime,
+            'attendance_status' => 'HADIR',
+        ];
+    }
+}
+
 // Rekap Data Presensi & Absensi Siswa Berdasarkan Event Login (Terfilter per Exam & Kelas)
 function getCompleteStudentAttendance($examId = null, $classFilter = null) {
     $students = $_SESSION['students_list'] ?? [];
@@ -1797,7 +1854,7 @@ function getCompleteStudentAttendance($examId = null, $classFilter = null) {
 
     $result = [];
     foreach ($students as $st) {
-        $stClass = $st['class'] ?? '10-TKJ-1';
+        $stClass = $st['class'] ?? '10-TKJ';
         // Filter kelas: jangan campur aduk siswa dari kelas lain
         if (!empty($classFilter) && $classFilter !== 'SEMUA' && $stClass !== $classFilter) {
             continue;
@@ -1945,7 +2002,7 @@ if ($uri === '/admin/teachers/template') {
 if ($uri === '/admin/classes/template') {
     $headers = ['No', 'Nama Kelas', 'Tingkat (10/11/12)', 'Tahun Ajaran', 'Status (Aktif/Nonaktif)'];
     $sampleRows = [
-        ['1', '10-TKJ-1', '10', '2025/2026', 'Aktif'],
+        ['1', '10-TKJ', '10', '2025/2026', 'Aktif'],
         ['2', '10-RPL-1', '10', '2025/2026', 'Aktif'],
     ];
     $colWidths = [40, 130, 130, 130, 140];
@@ -2153,7 +2210,7 @@ function resolveStudentClassAndMajor($majorIdInput, $classInput) {
     $rawMajorId = trim((string)$majorIdInput);
     $rawClass = trim((string)$classInput);
 
-    // 1. Jika nama kelas langsung cocok secara persis (contoh: '10-TKJ-1')
+    // 1. Jika nama kelas langsung cocok secara persis (contoh: '10-TKJ')
     foreach ($classes as $c) {
         if (strcasecmp($c['name'], $rawClass) === 0) {
             $majorId = (string)($c['major_id'] ?? ($rawMajorId !== '' ? $rawMajorId : '1'));
@@ -2182,7 +2239,7 @@ function resolveStudentClassAndMajor($majorIdInput, $classInput) {
         }
     }
 
-    // 3. Jika hanya nama/tingkat kelas tanpa ID Jurusan (misal '10' atau '10-TKJ-1')
+    // 3. Jika hanya nama/tingkat kelas tanpa ID Jurusan (misal '10' atau '10-TKJ')
     if ($rawClass !== '') {
         foreach ($classes as $c) {
             if (str_contains(strtoupper($c['name']), strtoupper($rawClass))) {
@@ -2192,7 +2249,7 @@ function resolveStudentClassAndMajor($majorIdInput, $classInput) {
     }
 
     // 4. Default fallback jika tidak ada yang cocok
-    $fallbackClass = !empty($rawClass) ? $rawClass : ($classes[0]['name'] ?? '10-TKJ-1');
+    $fallbackClass = !empty($rawClass) ? $rawClass : ($classes[0]['name'] ?? '10-TKJ');
     $fallbackMajorId = !empty($rawMajorId) ? $rawMajorId : '1';
     return ['class' => $fallbackClass, 'major_id' => $fallbackMajorId];
 }
@@ -2251,8 +2308,8 @@ if (strpos($uri, '/api/v1/') === 0) {
 
         $matched = null;
         $studentList = $_SESSION['students_list'] ?? [
-            ['id' => 's1', 'nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'username' => '0081234567', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1'],
-            ['id' => 's2', 'nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'username' => '0081234568', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1'],
+            ['id' => 's1', 'nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'username' => '0081234567', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ'],
+            ['id' => 's2', 'nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'username' => '0081234568', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ'],
             ['id' => 's3', 'nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'username' => '0081234569', 'password' => '12345678', 'major_id' => '2', 'class' => '10-RPL-1'],
         ];
 
@@ -2270,7 +2327,7 @@ if (strpos($uri, '/api/v1/') === 0) {
                 'id' => 's_' . substr(md5($username), 0, 6),
                 'nis' => $username,
                 'name' => 'Siswa ' . $username,
-                'class' => '10-TKJ-1',
+                'class' => '10-TKJ',
                 'major_id' => '1'
             ];
         }
@@ -2278,6 +2335,12 @@ if (strpos($uri, '/api/v1/') === 0) {
         if ($matched) {
             $token = 'cbt-token-' . bin2hex(random_bytes(16));
             $_SESSION['active_api_student_' . $token] = $matched;
+
+            // Catat kehadiran dan sesi monitoring perangkat HP siswa secara real-time
+            $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+            $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Android Flutter Mobile App';
+            recordStudentLogin($matched, $clientIp, $ua, 'Android Kiosk / HP');
+
             echo json_encode([
                 'success' => true,
                 'message' => 'Login berhasil',
@@ -2312,7 +2375,7 @@ if (strpos($uri, '/api/v1/') === 0) {
         $token = str_replace('Bearer ', '', $authHeader);
         $student = (!empty($token) && isset($_SESSION['active_api_student_' . $token])) 
             ? $_SESSION['active_api_student_' . $token]
-            : ['nis' => '0081234567', 'name' => 'Peserta CBT', 'class' => '10-TKJ-1'];
+            : ['nis' => '0081234567', 'name' => 'Peserta CBT', 'class' => '10-TKJ'];
 
         echo json_encode([
             'success' => true,
@@ -3117,7 +3180,7 @@ if ($method === 'POST' && ($uri === '/admin/students/create' || $uri === '/admin
     $password = trim($_POST['password'] ?? '12345678');
     if (empty($password)) $password = '12345678';
     $major_id = trim($_POST['major_id'] ?? '1');
-    $class = trim($_POST['class'] ?? '10-TKJ-1');
+    $class = trim($_POST['class'] ?? '10-TKJ');
     $gender = strtoupper(trim($_POST['gender'] ?? 'L'));
 
     // Pastikan kelas mengikuti ID Jurusan
@@ -3390,7 +3453,7 @@ if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin
     $wEssay = (float)($_POST['weight_essay'] ?? 0);
     $wTf = (float)($_POST['weight_tf'] ?? 0);
     $wMatch = (float)($_POST['weight_match'] ?? 0);
-    $classes = $_POST['classes'] ?? ['10-TKJ-1'];
+    $classes = $_POST['classes'] ?? ['10-TKJ'];
     if (!is_array($classes)) $classes = [$classes];
 
     $_SESSION['subjects_list'][] = [
@@ -3988,7 +4051,7 @@ if (($method === 'POST' || $method === 'GET') && ($uri === '/admin/questions/per
 if ($method === 'POST' && ($uri === '/admin/exams/create' || $uri === '/admin/exams')) {
     $subjName = trim($_POST['subject'] ?? 'Matematika X');
     $examTitle = trim($_POST['title'] ?? 'Ruang Ujian Baru');
-    $targetClass = trim($_POST['class'] ?? '10-TKJ-1');
+    $targetClass = trim($_POST['class'] ?? '10-TKJ');
     $duration = (int)($_POST['duration'] ?? 120);
     $token = strtoupper(trim($_POST['token'] ?? ('RU-' . rand(1000, 9999))));
     $teacherName = ($_SESSION['cbt_user'] ?? 'admin') === 'guru' ? ($_SESSION['teachers_list'][0]['name'] ?? 'Guru Pengajar') : 'Administrator CBT';
@@ -4135,14 +4198,14 @@ if ($uri === '/admin/monitoring/export-scores') {
     $examTitle = 'Ujian CBT';
     $examSubject = 'Umum';
     $examToken = 'WXYZ89';
-    $targetClass = '10-TKJ-1';
+    $targetClass = '10-TKJ';
 
     foreach ($_SESSION['exams_list'] as $ex) {
         if ($ex['id'] === $examId) {
             $examTitle = $ex['title'];
             $examSubject = $ex['subject'] ?? 'Umum';
             $examToken = $ex['token'] ?? 'WXYZ89';
-            $targetClass = $ex['class'] ?? '10-TKJ-1';
+            $targetClass = $ex['class'] ?? '10-TKJ';
             break;
         }
     }
@@ -4222,14 +4285,14 @@ if ($uri === '/admin/monitoring/export-attendance') {
     $examTitle = 'Ujian CBT';
     $examSubject = 'Umum';
     $examToken = 'WXYZ89';
-    $targetClass = '10-TKJ-1';
+    $targetClass = '10-TKJ';
 
     foreach ($_SESSION['exams_list'] as $ex) {
         if ($ex['id'] === $examId) {
             $examTitle = $ex['title'];
             $examSubject = $ex['subject'] ?? 'Umum';
             $examToken = $ex['token'] ?? 'WXYZ89';
-            $targetClass = $ex['class'] ?? '10-TKJ-1';
+            $targetClass = $ex['class'] ?? '10-TKJ';
             break;
         }
     }
@@ -4305,7 +4368,7 @@ if ($uri === '/admin/monitoring/print-attendance') {
     $examTitle = $currentExam['title'] ?? 'Ujian CBT';
     $examSubject = $currentExam['subject'] ?? 'Umum';
     $examToken = $currentExam['token'] ?? 'WXYZ89';
-    $targetClass = $currentExam['class'] ?? '10-TKJ-1';
+    $targetClass = $currentExam['class'] ?? '10-TKJ';
 
     if (empty($classFilter)) {
         $classFilter = $targetClass;
@@ -4771,7 +4834,7 @@ if ($method === 'POST' && $uri === '/admin/remedial/create') {
     if (!isset($_SESSION['remedial_sessions'])) $_SESSION['remedial_sessions'] = [];
     
     $subjName = trim($_POST['subject'] ?? 'Matematika X');
-    $className = trim($_POST['class'] ?? '10-TKJ-1');
+    $className = trim($_POST['class'] ?? '10-TKJ');
     $title = trim($_POST['title'] ?? ("Ujian Remedial - " . $subjName . " (" . $className . ")"));
     $token = strtoupper(trim($_POST['token'] ?? ('REM-' . rand(1000, 9999))));
     $passingScore = (float)($_POST['passing_score'] ?? 75.0);
@@ -5115,6 +5178,75 @@ if ($uri === '/admin/settings/rescan-network') {
     exit;
 }
 
+// --- K1. RESTART PENGATURAN SERVER & RESET SESI PERANGKAT (FACTORY RESET & SYNC) ---
+if ($uri === '/admin/settings/restart' || (isset($_POST['action']) && $_POST['action'] === 'restart_server')) {
+    // 1. Reset Pengaturan Server ke Default
+    $detectedIp = detectCbtNetworkIp();
+    $_SESSION['cbt_settings'] = [
+        'school_name' => 'SMK PESANTREN BUSTANUL ULUM',
+        'academic_year' => '2025/2026',
+        'school_address' => 'Jl. Raya Pesantren No. 01, Krajan, Kec. Tanggul, Kabupaten Jember, Jawa Timur 68155',
+        'app_name' => 'CBT SERVER MANAGER',
+        'server_port' => 8000,
+        'token_refresh_minutes' => 15,
+        'active_token' => 'TKJ10A',
+        'proctor_unlock_pin' => str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT),
+        'student_review' => true,
+        'auto_token_release' => true,
+        'server_network_mode' => 'auto',
+        'server_host_ip' => $detectedIp,
+        'offline_strict_mode' => true,
+    ];
+
+    // 2. Bersihkan seluruh sesi monitoring, absensi, dan token perangkat zombie
+    $_SESSION['monitoring_sessions'] = [];
+    $_SESSION['student_attendance'] = [];
+    foreach (array_keys($_SESSION) as $k) {
+        if (str_starts_with($k, 'active_api_student_')) {
+            unset($_SESSION[$k]);
+        }
+    }
+
+    // 3. Kembalikan semua status 45 siswa menjadi Offline
+    if (isset($_SESSION['students_list'])) {
+        foreach ($_SESSION['students_list'] as &$st) {
+            $st['status'] = 'Offline';
+        }
+        unset($st);
+    }
+
+    // 4. Tandai versi seed sinkron
+    $_SESSION['data_seed_version'] = 'v5_tkj45_sync';
+
+    logCbtActivity('SERVER', 'RESTART_CONFIG', 'Restart pengaturan server CBT berhasil dijalankan. Semua sesi perangkat di-reset dan data disinkronkan.');
+    $_SESSION['import_success'] = "Pengaturan server berhasil di-restart! Semua sesi perangkat lama telah dibersihkan, status 45 siswa di-offline-kan, dan sistem telah disinkronkan 100%.";
+    header('Location: /admin/settings');
+    exit;
+}
+
+// Reset Sesi Perangkat dari Menu Monitoring
+if ($uri === '/admin/monitoring/reset-sessions') {
+    $_SESSION['monitoring_sessions'] = [];
+    $_SESSION['student_attendance'] = [];
+    foreach (array_keys($_SESSION) as $k) {
+        if (str_starts_with($k, 'active_api_student_')) {
+            unset($_SESSION[$k]);
+        }
+    }
+    if (isset($_SESSION['students_list'])) {
+        foreach ($_SESSION['students_list'] as &$st) {
+            $st['status'] = 'Offline';
+        }
+        unset($st);
+    }
+    logCbtActivity('MONITORING', 'RESET_DEVICES', 'Membersihkan seluruh sesi perangkat pengerjaan dan presensi aktif.');
+    $_SESSION['import_success'] = "Seluruh sesi perangkat pengerjaan dan presensi berhasil dibersihkan! 0 perangkat aktif tersisa.";
+    $refId = $_GET['id'] ?? 'ex-1';
+    $refClass = $_GET['class'] ?? 'SEMUA';
+    header("Location: /admin/monitoring?action=show&id=" . urlencode($refId) . "&class=" . urlencode($refClass));
+    exit;
+}
+
 // --- K2. PROCTOR PIN & UNLOCK ACTIONS ---
 if ($method === 'POST' && $uri === '/admin/proctor-pin/update') {
     $newPin = strtoupper(trim($_POST['proctor_unlock_pin'] ?? ''));
@@ -5247,73 +5379,10 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
         unset($_SESSION['active_teacher']);
         logCbtActivity('STUDENT', 'LOGIN_SUCCESS', "Siswa {$matchedStudent['name']} (NIS: {$matchedStudent['nis']}) berhasil login (Presensi Masuk Tercatat)");
 
-        // Rekam Absensi Siswa Otomatis Berdasarkan Data Login Real-time
-        if (!isset($_SESSION['student_attendance'])) {
-            $_SESSION['student_attendance'] = [];
-        }
-        $currentTime = date('H:i:s');
-        $currentDate = date('d/m/Y');
+        // Rekam Absensi Siswa & Sesi Monitoring Otomatis
         $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        $deviceInfo = (str_contains($userAgent, 'Android') || str_contains($userAgent, 'Mobile')) ? 'Android Kiosk / HP' : 'PC Desktop / Web';
-
-        $_SESSION['student_attendance'][$matchedStudent['nis']] = [
-            'nis' => $matchedStudent['nis'],
-            'name' => $matchedStudent['name'],
-            'class' => $matchedStudent['class'] ?? '10-TKJ-1',
-            'login_time' => $currentTime,
-            'login_date' => $currentDate,
-            'ip' => $clientIp,
-            'device' => $deviceInfo,
-            'status' => 'HADIR',
-            'timestamp' => time(),
-        ];
-
-        // Sinkronisasi ke monitoring_sessions agar tampil di telemetri live
-        if (isset($_SESSION['monitoring_sessions'])) {
-            $foundInMonitoring = false;
-            foreach ($_SESSION['monitoring_sessions'] as &$ms) {
-                if ($ms['nis'] === $matchedStudent['nis']) {
-                    $ms['login_time'] = $currentTime;
-                    $ms['ip'] = $clientIp;
-                    $ms['device'] = $deviceInfo;
-                    $ms['attendance_status'] = 'HADIR';
-                    if ($ms['status'] === 'Belum Mulai' || empty($ms['status'])) {
-                        $ms['status'] = 'Mengerjakan';
-                    }
-                    $foundInMonitoring = true;
-                    break;
-                }
-            }
-            unset($ms);
-            if (!$foundInMonitoring) {
-                $assignedExamId = 'ex-1';
-                if (isset($_SESSION['exams_list'])) {
-                    foreach ($_SESSION['exams_list'] as $exTgt) {
-                        if (($exTgt['class'] ?? '') === ($matchedStudent['class'] ?? '')) {
-                            $assignedExamId = $exTgt['id'];
-                            break;
-                        }
-                    }
-                }
-                $_SESSION['monitoring_sessions'][] = [
-                    'nis' => $matchedStudent['nis'],
-                    'name' => $matchedStudent['name'],
-                    'class' => $matchedStudent['class'] ?? '10-TKJ-1',
-                    'answered' => 0,
-                    'total' => 40,
-                    'time_left' => '90:00',
-                    'status' => 'Mengerjakan',
-                    'ip' => $clientIp,
-                    'device' => $deviceInfo,
-                    'exam_id' => $assignedExamId,
-                    'violations' => 0,
-                    'is_locked' => false,
-                    'login_time' => $currentTime,
-                    'attendance_status' => 'HADIR',
-                ];
-            }
-        }
+        recordStudentLogin($matchedStudent, $clientIp, $userAgent);
 
         header('Location: /student/dashboard');
         exit;
@@ -5469,10 +5538,10 @@ function renderStudentPortal() {
         'id' => 's1',
         'name' => 'Peserta Ujian',
         'nis' => '0081234567',
-        'class' => '10-TKJ-1',
+        'class' => '10-TKJ',
         'major_id' => '1',
         'gender' => 'L',
-        'status' => 'Online'
+        'status' => 'Offline'
     ];
     $schoolName = $_SESSION['cbt_settings']['school_name'] ?? 'SMK PESANTREN BUSTANUL ULUM';
     $academicYear = $_SESSION['cbt_settings']['academic_year'] ?? '2025/2026';
@@ -8392,16 +8461,16 @@ function renderSubjectsContent() {
 
     // Ensure each subject has class allocations
     $defaultClassMap = [
-        'sb1' => ['10-TKJ-1', '10-RPL-1'],
-        'sb2' => ['10-TKJ-1', '10-RPL-1'],
+        'sb1' => ['10-TKJ', '10-RPL-1'],
+        'sb2' => ['10-TKJ', '10-RPL-1'],
         'sb3' => ['10-RPL-1'],
-        'sb4' => ['10-TKJ-1'],
-        'sb5' => ['10-TKJ-1', '10-RPL-1', '11-TKJ-1', '11-RPL-1', '12-TKJ-1'],
+        'sb4' => ['10-TKJ'],
+        'sb5' => ['10-TKJ', '10-RPL-1', '11-TKJ-1', '11-RPL-1', '12-TKJ-1'],
     ];
 
     foreach ($subjects as &$sb) {
         if (empty($sb['classes'])) {
-            $sb['classes'] = $defaultClassMap[$sb['id']] ?? ['10-TKJ-1', '10-RPL-1'];
+            $sb['classes'] = $defaultClassMap[$sb['id']] ?? ['10-TKJ', '10-RPL-1'];
         }
     }
     unset($sb);
@@ -8542,7 +8611,7 @@ function renderSubjectsContent() {
                             </tr>
                         <?php else: ?>
                             <?php foreach ($subjects as $idx => $sb): 
-                                $assignedClasses = $sb['classes'] ?? ['10-TKJ-1'];
+                                $assignedClasses = $sb['classes'] ?? ['10-TKJ'];
                             ?>
                                 <tr>
                                     <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-subject" value="<?= htmlspecialchars($sb['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih mapel ini"></td>
@@ -12656,7 +12725,7 @@ function getStudentExamAnswerSheet($nis, $examId = 'ex-1') {
         $student = [
             'nis' => $nis,
             'name' => 'Peserta Ujian',
-            'class' => '10-TKJ-1',
+            'class' => '10-TKJ',
             'status' => 'Mengerjakan',
             'time_left' => '30:00',
             'ip' => '192.168.1.100',
@@ -12787,7 +12856,7 @@ function renderMonitoringLiveContent($examId) {
     $examTitle = $currentExam['title'] ?? 'Ujian CBT';
     $examSubject = $currentExam['subject'] ?? 'Umum';
     $examToken = $currentExam['token'] ?? 'WXYZ89';
-    $examDefaultClass = $currentExam['class'] ?? '10-TKJ-1';
+    $examDefaultClass = $currentExam['class'] ?? '10-TKJ';
 
     // Jika belum memilih filter kelas, defaultkan ke kelas rombel ujian ini agar data tidak campur aduk
     if (empty($selectedClass)) {
@@ -12880,6 +12949,9 @@ function renderMonitoringLiveContent($examId) {
                 </button>
                 <a href="/admin/monitoring/export-scores?id=<?= urlencode($examId) ?>&class=<?= urlencode($selectedClass) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;" title="Unduh spreadsheet nilai siswa kelas ini">
                     <span>📥</span> Unduh Nilai (.xls)
+                </a>
+                <a href="/admin/monitoring/reset-sessions?id=<?= urlencode($examId) ?>&class=<?= urlencode($selectedClass) ?>" class="btn btn-secondary btn-sm" onclick="return confirm('Bersihkan seluruh sesi pengerjaan dan presensi aktif pada ujian ini?');" style="display: inline-flex; align-items: center; gap: 6px; border-color: #fca5a5; color: #b91c1c; background: #fff5f5; font-weight: 700;" title="Reset dan bersihkan sesi perangkat siswa yang aktif">
+                    <span>🧹</span> Reset Sesi Device
                 </a>
                 <button type="button" class="btn btn-primary btn-sm" onclick="window.location.reload();">&#8635; Segarkan Data</button>
                 <a href="/admin/monitoring" class="btn btn-secondary btn-sm">&larr; Semua Ujian</a>
@@ -13159,7 +13231,7 @@ function renderMonitoringLiveContent($examId) {
                         <div>
                             <select id="filterAttendanceClass" onchange="filterAttendanceTable()" class="form-control" style="width: auto;">
                                 <option value="">Semua Kelas</option>
-                                <option value="10-TKJ-1">10-TKJ-1</option>
+                                <option value="10-TKJ">10-TKJ-1</option>
                                 <option value="10-RPL-1">10-RPL-1</option>
                                 <option value="11-TKJ-1">11-TKJ-1</option>
                                 <option value="12-TKJ-1">12-TKJ-1</option>
@@ -14352,7 +14424,7 @@ function renderResultsContent() {
     foreach ($allResults as $r) {
         $sb = $r['subject'] ?? $r['exam'] ?? 'Umum';
         $tk = $r['token'] ?? 'WXYZ89';
-        $cl = $r['class'] ?? '10-TKJ-1';
+        $cl = $r['class'] ?? '10-TKJ';
 
         if (!in_array($sb, $subjects)) $subjects[] = $sb;
         if (!in_array($tk, $tokens)) $tokens[] = $tk;
@@ -14717,7 +14789,7 @@ function renderRemedialContent() {
                 'exam_id' => 'ex-1',
                 'original_exam_title' => 'Penilaian Akhir Semester Ganjil',
                 'subject' => 'Matematika X',
-                'class' => '10-TKJ-1',
+                'class' => '10-TKJ',
                 'passing_score' => 75.0,
                 'max_score' => 75.0,
                 'date' => date('d-m-Y'),
@@ -14729,7 +14801,7 @@ function renderRemedialContent() {
                     [
                         'nis' => '0081234569',
                         'name' => 'Dimas Saputra',
-                        'class' => '10-TKJ-1',
+                        'class' => '10-TKJ',
                         'original_score' => 52.5,
                         'remedial_score' => 78.0,
                         'final_score' => 75.0,
@@ -14739,7 +14811,7 @@ function renderRemedialContent() {
                     [
                         'nis' => '0081234571',
                         'name' => 'Fajar Pratama',
-                        'class' => '10-TKJ-1',
+                        'class' => '10-TKJ',
                         'original_score' => 60.0,
                         'remedial_score' => null,
                         'final_score' => 60.0,
@@ -15889,6 +15961,47 @@ function renderSettingsContent() {
                     </div>
                 </div>
             </div>
+
+            <!-- SECTION 4: RESTART PENGATURAN SERVER & SINKRONISASI DATA -->
+            <div class="card" style="margin-bottom: 24px; border: 1.5px solid #fca5a5; background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);">
+                <div style="border-bottom: 1px solid #fee2e2; padding-bottom: 12px; margin-bottom: 16px;">
+                    <h3 class="card-title" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: #b91c1c;">
+                        <span>🔄</span> Restart Pengaturan Server &amp; Sinkronisasi Data (Factory Reset)
+                    </h3>
+                    <span style="font-size: 0.8rem; color: #7f1d1d;">
+                        Gunakan fitur ini jika sesi perangkat tidak sinkron, terdapat perangkat hantu/zombie yang terdeteksi ganda, atau ingin mereset konfigurasi server ke setelan awal secara aman.
+                    </span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem; color: #334155;">
+                    <p style="margin: 0; line-height: 1.5;">
+                        Tindakan ini akan:
+                    </p>
+                    <ul style="margin: 0; padding-left: 20px; line-height: 1.6;">
+                        <li><strong>Membersihkan seluruh sesi login &amp; perangkat aktif</strong> (menghapus cache perangkat zombie sehingga jumlah HP terdeteksi akurat 100%).</li>
+                        <li><strong>Mereset konfigurasi jaringan &amp; IP server</strong> kembali ke deteksi otomatis IP LAN aktif.</li>
+                        <li><strong>Menyinkronkan ulang data 45 siswa, 10 mapel, dan 50 soal</strong> tanpa merusak struktur database.</li>
+                        <li><strong>Membuat PIN Pengawas Ujian &amp; Token baru</strong> yang segar dan siap pakai.</li>
+                    </ul>
+
+                    <div style="margin-top: 10px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-danger" onclick="confirmRestartServer()" style="background: #dc2626; border-color: #b91c1c; font-weight: 700; padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);">
+                            <span>🔄</span> Restart Pengaturan Server &amp; Bersihkan Sesi
+                        </button>
+                        <span style="font-size: 11.5px; color: #991b1b; font-weight: 600;">
+                            ⚠️ Tidak menghapus akun admin. Siswa dapat login kembali secara normal setelah di-restart.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            function confirmRestartServer() {
+                if (confirm("Apakah Anda yakin ingin me-restart pengaturan server CBT dan membersihkan semua sesi perangkat lama?\n\nSemua data 45 siswa, 10 mapel, dan 50 butir soal akan disinkronkan kembali secara bersih.")) {
+                    window.location.href = '/admin/settings/restart';
+                }
+            }
+            </script>
 
             <!-- SUBMIT BUTTON -->
             <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 40px;">
