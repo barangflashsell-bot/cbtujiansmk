@@ -99,6 +99,8 @@ if (!isset($_SESSION['students_list'])) {
         ['id' => 's4', 'nis' => '0081234570', 'name' => 'Dewi Lestari', 'username' => '0081234570', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ-1', 'gender' => 'P', 'status' => 'Online'],
         ['id' => 's5', 'nis' => '0081234571', 'name' => 'Eko Prasetyo', 'username' => '0081234571', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
         ['id' => 's6', 'nis' => '0081234572', 'name' => 'Farhan Maulana', 'username' => '0081234572', 'password' => '12345678', 'major_id' => '2', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's7', 'nis' => '0081234573', 'name' => 'Rizky Pratama', 'username' => '0081234573', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's8', 'nis' => '0081234574', 'name' => 'Anisa Putri', 'username' => '0081234574', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
     ];
 }
 
@@ -213,13 +215,14 @@ if (!isset($_SESSION['questions_list'])) {
     ];
 }
 
-// G. Exams List
+// G. Exams List (Tiap paket ujian terikat pada Mata Pelajaran, Token Unik, dan Rombel Kelas)
 if (!isset($_SESSION['exams_list'])) {
     $_SESSION['exams_list'] = [
         [
             'id' => 'ex-1',
             'title' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X',
             'subject' => 'Matematika X',
+            'class' => '10-TKJ-1',
             'creator' => 'Budi Santoso, S.Pd',
             'start' => '11/09/2026 08:00',
             'end' => '11/09/2026 10:00',
@@ -234,6 +237,7 @@ if (!isset($_SESSION['exams_list'])) {
             'id' => 'ex-2',
             'title' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X',
             'subject' => 'Bahasa Indonesia X',
+            'class' => '11-TKJ-1',
             'creator' => 'Dra. Nurul Hidayati',
             'start' => '10/09/2026 08:00',
             'end' => '10/09/2026 09:30',
@@ -248,6 +252,7 @@ if (!isset($_SESSION['exams_list'])) {
             'id' => 'ex-3',
             'title' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL',
             'subject' => 'Dasar Pemrograman RPL',
+            'class' => '10-RPL-1',
             'creator' => 'Siti Aminah, M.Kom',
             'start' => '12/09/2026 08:00',
             'end' => '12/09/2026 10:30',
@@ -261,14 +266,27 @@ if (!isset($_SESSION['exams_list'])) {
     ];
 }
 
-// H. Monitoring Sessions
+// Pastikan atribut class dan token selalu ada pada setiap exam
+foreach ($_SESSION['exams_list'] as &$exItem) {
+    if (empty($exItem['token'])) $exItem['token'] = 'CBT' . rand(100, 999);
+    if (empty($exItem['class'])) $exItem['class'] = '10-TKJ-1';
+}
+unset($exItem);
+
+// H. Monitoring Sessions (Terpetakan secara tepat per exam_id, token, dan kelas siswa)
 if (!isset($_SESSION['monitoring_sessions'])) {
     $_SESSION['monitoring_sessions'] = [
-        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'answered' => 22, 'total' => 40, 'time_left' => '41:05', 'status' => 'Terkunci (3 Pelanggaran)', 'ip' => '192.168.1.103', 'exam_id' => 'ex-1', 'violations' => 3, 'is_locked' => true, 'login_time' => '07:14:50', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
-        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'answered' => 15, 'total' => 40, 'time_left' => '58:20', 'status' => 'Peringatan (1/3)', 'ip' => '192.168.1.105', 'exam_id' => 'ex-1', 'violations' => 1, 'is_locked' => false, 'login_time' => '07:18:33', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
+        // ex-1 (Matematika X - 10-TKJ-1 - Token: WXYZ89)
+        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'token' => 'WXYZ89', 'subject' => 'Matematika X', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'token' => 'WXYZ89', 'subject' => 'Matematika X', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        
+        // ex-2 (Bahasa Indonesia X - 11-TKJ-1 - Token: ABCD12)
+        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'token' => 'ABCD12', 'subject' => 'Bahasa Indonesia X', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-2', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        ['nis' => '0081234573', 'name' => 'Rizky Pratama', 'class' => '11-TKJ-1', 'token' => 'ABCD12', 'subject' => 'Bahasa Indonesia X', 'answered' => 36, 'total' => 40, 'time_left' => '32:45', 'status' => 'Mengerjakan', 'ip' => '192.168.1.106', 'exam_id' => 'ex-2', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:12:30', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        
+        // ex-3 (Dasar Pemrograman RPL - 10-RPL-1 - Token: PROG26)
+        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'token' => 'PROG26', 'subject' => 'Dasar Pemrograman RPL', 'answered' => 22, 'total' => 50, 'time_left' => '41:05', 'status' => 'Terkunci (3 Pelanggaran)', 'ip' => '192.168.1.103', 'exam_id' => 'ex-3', 'violations' => 3, 'is_locked' => true, 'login_time' => '07:14:50', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
+        ['nis' => '0081234572', 'name' => 'Farhan Maulana', 'class' => '10-RPL-1', 'token' => 'PROG26', 'subject' => 'Dasar Pemrograman RPL', 'answered' => 48, 'total' => 50, 'time_left' => '12:10', 'status' => 'Mengerjakan', 'ip' => '192.168.1.107', 'exam_id' => 'ex-3', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:11:05', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
     ];
 }
 foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
@@ -277,6 +295,18 @@ foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
     if (!isset($msItem['login_time'])) $msItem['login_time'] = '07:15:20';
     if (!isset($msItem['attendance_status'])) $msItem['attendance_status'] = 'HADIR';
     if (!isset($msItem['device'])) $msItem['device'] = 'PC Desktop / Web';
+    if (empty($msItem['exam_id'])) $msItem['exam_id'] = 'ex-1';
+    if (empty($msItem['token']) || empty($msItem['subject'])) {
+        if (isset($_SESSION['exams_list'])) {
+            foreach ($_SESSION['exams_list'] as $exTemp) {
+                if ($exTemp['id'] === $msItem['exam_id']) {
+                    $msItem['token'] = $exTemp['token'] ?? 'WXYZ89';
+                    $msItem['subject'] = $exTemp['subject'] ?? 'Umum';
+                    break;
+                }
+            }
+        }
+    }
 }
 unset($msItem);
 
@@ -288,19 +318,39 @@ if (!isset($_SESSION['student_attendance'])) {
         '0081234569' => ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'login_time' => '07:14:50', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.103', 'device' => 'Android Kiosk / Tablet', 'status' => 'HADIR'],
         '0081234570' => ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'login_time' => '07:08:12', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.104', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
         '0081234571' => ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'login_time' => '07:18:33', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.105', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
+        '0081234572' => ['nis' => '0081234572', 'name' => 'Farhan Maulana', 'class' => '10-RPL-1', 'login_time' => '07:11:05', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.107', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
+        '0081234573' => ['nis' => '0081234573', 'name' => 'Rizky Pratama', 'class' => '11-TKJ-1', 'login_time' => '07:12:30', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.106', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
     ];
 }
 
-// I. Results List
+// I. Results List (Tiap baris menyimpan relasi exam_id, subject, class, dan token secara presisi)
 if (!isset($_SESSION['results_list'])) {
     $_SESSION['results_list'] = [
-        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'correct' => 34, 'wrong' => 6, 'empty' => 0, 'score' => 85.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'correct' => 37, 'wrong' => 3, 'empty' => 0, 'score' => 92.5, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'correct' => 28, 'wrong' => 10, 'empty' => 2, 'score' => 70.0, 'passing' => 75.0, 'published' => false],
-        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'correct' => 36, 'wrong' => 4, 'empty' => 0, 'score' => 90.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'correct' => 32, 'wrong' => 7, 'empty' => 1, 'score' => 80.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'exam_id' => 'ex-1', 'subject' => 'Matematika X', 'token' => 'WXYZ89', 'correct' => 34, 'wrong' => 6, 'empty' => 0, 'score' => 85.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'exam_id' => 'ex-1', 'subject' => 'Matematika X', 'token' => 'WXYZ89', 'correct' => 37, 'wrong' => 3, 'empty' => 0, 'score' => 92.5, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'exam' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL', 'exam_id' => 'ex-3', 'subject' => 'Dasar Pemrograman RPL', 'token' => 'PROG26', 'correct' => 28, 'wrong' => 10, 'empty' => 2, 'score' => 70.0, 'passing' => 78.0, 'published' => false],
+        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 36, 'wrong' => 4, 'empty' => 0, 'score' => 90.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 32, 'wrong' => 7, 'empty' => 1, 'score' => 80.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234572', 'name' => 'Farhan Maulana', 'class' => '10-RPL-1', 'exam' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL', 'exam_id' => 'ex-3', 'subject' => 'Dasar Pemrograman RPL', 'token' => 'PROG26', 'correct' => 35, 'wrong' => 5, 'empty' => 0, 'score' => 87.5, 'passing' => 78.0, 'published' => true],
+        ['nis' => '0081234573', 'name' => 'Rizky Pratama', 'class' => '11-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 38, 'wrong' => 2, 'empty' => 0, 'score' => 95.0, 'passing' => 75.0, 'published' => true],
     ];
 }
+
+// Pastikan atribut subject dan token selalu sinkron pada data hasil nilai
+foreach ($_SESSION['results_list'] as &$rlItem) {
+    if (empty($rlItem['exam_id'])) $rlItem['exam_id'] = 'ex-1';
+    if (empty($rlItem['subject'])) {
+        foreach ($_SESSION['exams_list'] as $exSearch) {
+            if ($exSearch['id'] === $rlItem['exam_id']) {
+                $rlItem['subject'] = $exSearch['subject'];
+                $rlItem['token'] = $exSearch['token'];
+                break;
+            }
+        }
+    }
+    if (empty($rlItem['token'])) $rlItem['token'] = 'WXYZ89';
+}
+unset($rlItem);
 
 // J. Backups List
 if (!isset($_SESSION['backups_list'])) {
@@ -320,11 +370,18 @@ if (!isset($_SESSION['activity_logs'])) {
     ];
 }
 
-function logCbtActivity($module, $action, $details) {
+function logCbtActivity($module, $action, $details = '') {
+    if (!isset($_SESSION['activity_logs'])) {
+        $_SESSION['activity_logs'] = [];
+    }
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-    $user = ($_SESSION['cbt_user'] ?? 'admin') === 'admin' ? 'Administrator CBT (admin)' : 'Guru Pengajar (guru)';
+    $user = $_SESSION['cbt_user'] ?? 'System';
+    if ($user === 'admin') $user = 'Administrator CBT (admin)';
+    elseif ($user === 'guru') $user = 'Guru Pengawas (' . ($_SESSION['teachers_list'][0]['name'] ?? 'guru') . ')';
+    elseif ($user === 'siswa') $user = 'Siswa (' . ($_SESSION['active_student']['name'] ?? 'siswa') . ')';
+
     array_unshift($_SESSION['activity_logs'], [
-        'id' => uniqid(),
+        'id' => (string)(count($_SESSION['activity_logs']) + 1),
         'timestamp' => date('d/m/Y H:i:s'),
         'user' => $user,
         'module' => strtoupper($module),
@@ -337,19 +394,37 @@ function logCbtActivity($module, $action, $details) {
     }
 }
 
-// Rekap Data Presensi & Absensi Siswa Berdasarkan Event Login
-function getCompleteStudentAttendance() {
+// Rekap Data Presensi & Absensi Siswa Berdasarkan Event Login (Terfilter per Exam & Kelas)
+function getCompleteStudentAttendance($examId = null, $classFilter = null) {
     $students = $_SESSION['students_list'] ?? [];
     $attendanceMap = $_SESSION['student_attendance'] ?? [];
     $sessionsMap = [];
     if (isset($_SESSION['monitoring_sessions'])) {
         foreach ($_SESSION['monitoring_sessions'] as $ms) {
-            $sessionsMap[$ms['nis']] = $ms;
+            if (!$examId || ($ms['exam_id'] ?? '') === $examId) {
+                $sessionsMap[$ms['nis']] = $ms;
+            }
+        }
+    }
+
+    // Jika target kelas tidak ditentukan secara eksplisit, ambil target kelas dari exam
+    if ($examId && empty($classFilter) && isset($_SESSION['exams_list'])) {
+        foreach ($_SESSION['exams_list'] as $ex) {
+            if ($ex['id'] === $examId && !empty($ex['class'])) {
+                $classFilter = $ex['class'];
+                break;
+            }
         }
     }
 
     $result = [];
     foreach ($students as $st) {
+        $stClass = $st['class'] ?? '10-TKJ-1';
+        // Filter kelas: jangan campur aduk siswa dari kelas lain
+        if (!empty($classFilter) && $classFilter !== 'SEMUA' && $stClass !== $classFilter) {
+            continue;
+        }
+
         $nis = $st['nis'];
         $att = $attendanceMap[$nis] ?? null;
         $ms = $sessionsMap[$nis] ?? null;
@@ -364,7 +439,7 @@ function getCompleteStudentAttendance() {
         $result[] = [
             'nis' => $nis,
             'name' => $st['name'],
-            'class' => $st['class'] ?? ($ms['class'] ?? '10-TKJ-1'),
+            'class' => $stClass,
             'login_time' => $loginTime,
             'login_date' => $loginDate,
             'ip' => $ip,
@@ -2131,12 +2206,38 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/exams/del
 // --- G. MONITORING RESET & EXPORT ---
 if ($uri === '/admin/monitoring/export-scores') {
     $examId = $_GET['id'] ?? 'ex-1';
+    $classFilter = trim($_GET['class'] ?? '');
+    
     $examTitle = 'Ujian CBT';
+    $examSubject = 'Umum';
+    $examToken = 'WXYZ89';
+    $targetClass = '10-TKJ-1';
+
     foreach ($_SESSION['exams_list'] as $ex) {
-        if ($ex['id'] === $examId) { $examTitle = $ex['title']; break; }
+        if ($ex['id'] === $examId) {
+            $examTitle = $ex['title'];
+            $examSubject = $ex['subject'] ?? 'Umum';
+            $examToken = $ex['token'] ?? 'WXYZ89';
+            $targetClass = $ex['class'] ?? '10-TKJ-1';
+            break;
+        }
     }
+
+    $effectiveClass = (!empty($classFilter) && $classFilter !== 'SEMUA') ? $classFilter : $targetClass;
+    
+    // Filter sesi monitoring hanya untuk ujian dan kelas terkait
+    $sessions = [];
+    foreach ($_SESSION['monitoring_sessions'] as $s) {
+        if (($s['exam_id'] ?? '') === $examId) {
+            if ($classFilter === 'SEMUA' || empty($classFilter) || ($s['class'] ?? '') === $classFilter) {
+                $sessions[] = $s;
+            }
+        }
+    }
+
+    $filename = 'Rekap_Nilai_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $examSubject . '_' . $effectiveClass . '_' . $examToken) . '.xls';
     header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
-    header('Content-Disposition: attachment; filename="Rekap_Nilai_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $examTitle) . '.xls"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Cache-Control: no-cache, no-store, must-revalidate');
     echo "\xEF\xBB\xBF";
     ?>
@@ -2144,11 +2245,15 @@ if ($uri === '/admin/monitoring/export-scores') {
     <head><meta charset="utf-8"></head>
     <body>
         <h2>REKAPITULASI NILAI PESERTA CBT</h2>
-        <p>Paket Ujian: <strong><?= htmlspecialchars($examTitle) ?></strong><br>
-        Waktu Ekspor: <?= date('d/m/Y H:i:s') ?></p>
+        <p><strong>SMK PESANTREN BUSTANUL ULUM</strong><br>
+        Mata Pelajaran: <strong><?= htmlspecialchars($examSubject) ?></strong><br>
+        Paket Ujian: <strong><?= htmlspecialchars($examTitle) ?></strong><br>
+        Rombel / Kelas: <strong><?= htmlspecialchars($effectiveClass) ?></strong><br>
+        Token Ujian: <strong><?= htmlspecialchars($examToken) ?></strong><br>
+        Waktu Ekspor: <?= date('d/m/Y H:i:s') ?> WIB</p>
         <table border="1" cellpadding="6" cellspacing="0" style="font-family: Arial, sans-serif; border-collapse: collapse;">
             <tr style="background:#0284c7; color:#fff; font-weight:bold;">
-                <th>No</th><th>NIS</th><th>Nama Peserta</th><th>Kelas</th><th>Status</th><th>Benar</th><th>Salah</th><th>Kosong</th><th>Skor / Nilai</th><th>Status KKM</th>
+                <th>No</th><th>NIS</th><th>Nama Peserta</th><th>Kelas</th><th>Mata Pelajaran</th><th>Token</th><th>Status Pengerjaan</th><th>Benar</th><th>Salah</th><th>Kosong</th><th>Nilai Akhir</th><th>Status KKM</th>
             </tr>
             <?php 
             $allScores = [
@@ -2157,22 +2262,26 @@ if ($uri === '/admin/monitoring/export-scores') {
                 '0081234569' => 70.0,
                 '0081234570' => 90.0,
                 '0081234571' => 80.0,
+                '0081234572' => 87.5,
+                '0081234573' => 95.0,
             ];
-            foreach ($_SESSION['monitoring_sessions'] as $i => $s): 
+            foreach ($sessions as $i => $s): 
                 $score = $s['score'] ?? ($allScores[$s['nis']] ?? 80.0);
                 $passed = $score >= 75.0;
             ?>
             <tr>
-                <td><?= $i + 1 ?></td>
+                <td style="text-align:center;"><?= $i + 1 ?></td>
                 <td>'<?= htmlspecialchars($s['nis']) ?></td>
                 <td><?= htmlspecialchars($s['name']) ?></td>
-                <td><?= htmlspecialchars($s['class']) ?></td>
-                <td><?= htmlspecialchars($s['status']) ?></td>
-                <td><?= $s['correct'] ?? 34 ?></td>
-                <td><?= $s['wrong'] ?? 4 ?></td>
-                <td><?= $s['unanswered'] ?? 2 ?></td>
-                <td><strong><?= number_format($score, 2) ?></strong></td>
-                <td style="color: <?= $passed ? '#16a34a' : '#dc2626' ?>; font-weight:bold;"><?= $passed ? 'LULUS KKM' : 'REMEDIAL' ?></td>
+                <td style="text-align:center;"><?= htmlspecialchars($s['class']) ?></td>
+                <td><?= htmlspecialchars($examSubject) ?></td>
+                <td style="text-align:center; font-family:monospace; font-weight:bold;"><?= htmlspecialchars($examToken) ?></td>
+                <td style="text-align:center;"><?= htmlspecialchars($s['status']) ?></td>
+                <td style="text-align:center;"><?= $s['correct'] ?? 34 ?></td>
+                <td style="text-align:center;"><?= $s['wrong'] ?? 4 ?></td>
+                <td style="text-align:center;"><?= $s['unanswered'] ?? 2 ?></td>
+                <td style="text-align:center;"><strong><?= number_format($score, 2) ?></strong></td>
+                <td style="text-align:center; color: <?= $passed ? '#16a34a' : '#dc2626' ?>; font-weight:bold;"><?= $passed ? 'LULUS KKM' : 'REMEDIAL' ?></td>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -2184,42 +2293,134 @@ if ($uri === '/admin/monitoring/export-scores') {
 
 if ($uri === '/admin/monitoring/export-attendance') {
     $examId = $_GET['id'] ?? 'ex-1';
+    $classFilter = trim($_GET['class'] ?? '');
+    
     $examTitle = 'Ujian CBT';
+    $examSubject = 'Umum';
+    $examToken = 'WXYZ89';
+    $targetClass = '10-TKJ-1';
+
     foreach ($_SESSION['exams_list'] as $ex) {
-        if ($ex['id'] === $examId) { $examTitle = $ex['title']; break; }
+        if ($ex['id'] === $examId) {
+            $examTitle = $ex['title'];
+            $examSubject = $ex['subject'] ?? 'Umum';
+            $examToken = $ex['token'] ?? 'WXYZ89';
+            $targetClass = $ex['class'] ?? '10-TKJ-1';
+            break;
+        }
     }
+
+    $effectiveClass = (!empty($classFilter) && $classFilter !== 'SEMUA') ? $classFilter : $targetClass;
+    $attendanceList = getCompleteStudentAttendance($examId, $classFilter);
+    $filename = 'Daftar_Hadir_CBT_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $examSubject . '_' . $effectiveClass . '_' . $examToken) . '.xls';
+
     header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
-    header('Content-Disposition: attachment; filename="Daftar_Hadir_CBT_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $examTitle) . '.xls"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Cache-Control: no-cache, no-store, must-revalidate');
     echo "\xEF\xBB\xBF";
-    $attendanceList = getCompleteStudentAttendance();
     ?>
     <html>
     <head><meta charset="utf-8"></head>
     <body>
         <h2>BERITA ACARA &amp; DAFTAR HADIR PESERTA UJIAN CBT (REAL-TIME LOGIN)</h2>
         <p><strong>SMK PESANTREN BUSTANUL ULUM</strong><br>
+        Mata Pelajaran: <strong><?= htmlspecialchars($examSubject) ?></strong><br>
         Paket Ujian: <strong><?= htmlspecialchars($examTitle) ?></strong><br>
-        Tanggal: <?= date('d/m/Y') ?><br>
-        Waktu Ekspor: <?= date('d/m/Y H:i:s') ?></p>
+        Rombel / Kelas: <strong><?= htmlspecialchars($effectiveClass) ?></strong><br>
+        Token Ujian: <strong><?= htmlspecialchars($examToken) ?></strong><br>
+        Tanggal Pelaksanaan: <?= date('d/m/Y') ?><br>
+        Waktu Ekspor: <?= date('d/m/Y H:i:s') ?> WIB</p>
         <table border="1" cellpadding="6" cellspacing="0" style="font-family: Arial, sans-serif; border-collapse: collapse;">
             <tr style="background:#047857; color:#fff; font-weight:bold;">
-                <th>No</th><th>NIS</th><th>Nama Peserta</th><th>Kelas</th><th>Waktu Login Masuk</th><th>Status Kehadiran</th><th>Alamat IP</th><th>Perangkat</th><th>Status Pengerjaan</th><th>Verifikasi Login</th>
+                <th>No</th><th>NIS</th><th>Nama Peserta</th><th>Kelas</th><th>Mata Pelajaran</th><th>Token</th><th>Waktu Login Masuk</th><th>Status Kehadiran</th><th>Alamat IP</th><th>Perangkat</th><th>Status Pengerjaan</th><th>Verifikasi Login</th>
             </tr>
             <?php foreach ($attendanceList as $i => $att): ?>
             <tr>
                 <td style="text-align:center;"><?= $i + 1 ?></td>
                 <td>'<?= htmlspecialchars($att['nis']) ?></td>
                 <td><?= htmlspecialchars($att['name']) ?></td>
-                <td><?= htmlspecialchars($att['class']) ?></td>
+                <td style="text-align:center;"><?= htmlspecialchars($att['class']) ?></td>
+                <td><?= htmlspecialchars($examSubject) ?></td>
+                <td style="text-align:center; font-family:monospace; font-weight:bold;"><?= htmlspecialchars($examToken) ?></td>
                 <td style="text-align:center;"><?= htmlspecialchars($att['login_time']) ?></td>
                 <td style="color: <?= $att['status'] === 'HADIR' ? '#047857' : '#b91c1c' ?>; font-weight:bold; text-align:center;">
                     <?= htmlspecialchars($att['status']) ?>
                 </td>
-                <td><?= htmlspecialchars($att['ip']) ?></td>
+                <td style="text-align:center;"><?= htmlspecialchars($att['ip']) ?></td>
                 <td><?= htmlspecialchars($att['device']) ?></td>
-                <td><?= htmlspecialchars($att['exam_status']) ?></td>
+                <td style="text-align:center;"><?= htmlspecialchars($att['exam_status']) ?></td>
                 <td style="text-align:center;"><?= $att['status'] === 'HADIR' ? 'TERVERIFIKASI SISTEM' : 'BELUM LOGIN' ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
+// EKSPOR REKAP HASIL NILAI DENGAN FILTER KELAS / MAPEL / TOKEN
+if ($uri === '/admin/results/export-excel') {
+    $classFilter = trim($_GET['class'] ?? '');
+    $subjectFilter = trim($_GET['subject'] ?? '');
+    $tokenFilter = trim($_GET['token'] ?? '');
+    $statusFilter = trim($_GET['status'] ?? '');
+
+    $results = $_SESSION['results_list'] ?? [];
+    if (!empty($classFilter) && $classFilter !== 'SEMUA') {
+        $results = array_filter($results, fn($r) => ($r['class'] ?? '') === $classFilter);
+    }
+    if (!empty($subjectFilter) && $subjectFilter !== 'SEMUA') {
+        $results = array_filter($results, fn($r) => ($r['subject'] ?? '') === $subjectFilter || ($r['exam'] ?? '') === $subjectFilter);
+    }
+    if (!empty($tokenFilter) && $tokenFilter !== 'SEMUA') {
+        $results = array_filter($results, fn($r) => ($r['token'] ?? '') === $tokenFilter);
+    }
+    if ($statusFilter === 'passed') {
+        $results = array_filter($results, fn($r) => ($r['score'] ?? 0) >= ($r['passing'] ?? 75.0));
+    } elseif ($statusFilter === 'failed') {
+        $results = array_filter($results, fn($r) => ($r['score'] ?? 0) < ($r['passing'] ?? 75.0));
+    }
+
+    $clsLabel = !empty($classFilter) && $classFilter !== 'SEMUA' ? $classFilter : 'Semua_Kelas';
+    $sbjLabel = !empty($subjectFilter) && $subjectFilter !== 'SEMUA' ? $subjectFilter : 'Semua_Mapel';
+    $filename = 'Rekap_Hasil_Ujian_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $clsLabel . '_' . $sbjLabel) . '.xls';
+
+    header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    echo "\xEF\xBB\xBF";
+    ?>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body>
+        <h2>REKAPITULASI HASIL NILAI PESERTA UJIAN CBT</h2>
+        <p><strong>SMK PESANTREN BUSTANUL ULUM</strong><br>
+        Kelas: <strong><?= htmlspecialchars(!empty($classFilter) ? $classFilter : 'Semua Kelas') ?></strong><br>
+        Mata Pelajaran: <strong><?= htmlspecialchars(!empty($subjectFilter) ? $subjectFilter : 'Semua Mata Pelajaran') ?></strong><br>
+        Token: <strong><?= htmlspecialchars(!empty($tokenFilter) ? $tokenFilter : 'Semua Token') ?></strong><br>
+        Tanggal Unduh: <?= date('d/m/Y H:i:s') ?> WIB</p>
+        <table border="1" cellpadding="6" cellspacing="0" style="font-family: Arial, sans-serif; border-collapse: collapse;">
+            <tr style="background:#09377d; color:#fff; font-weight:bold;">
+                <th>No</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Mata Pelajaran</th><th>Token</th><th>Benar</th><th>Salah</th><th>Kosong</th><th>Nilai Akhir</th><th>KKM</th><th>Kelulusan</th><th>Status Publikasi</th>
+            </tr>
+            <?php foreach (array_values($results) as $idx => $r): 
+                $isPassed = ($r['score'] >= ($r['passing'] ?? 75.0));
+            ?>
+            <tr>
+                <td style="text-align:center;"><?= $idx + 1 ?></td>
+                <td>'<?= htmlspecialchars($r['nis']) ?></td>
+                <td><?= htmlspecialchars($r['name']) ?></td>
+                <td style="text-align:center;"><?= htmlspecialchars($r['class']) ?></td>
+                <td><?= htmlspecialchars($r['subject'] ?? $r['exam']) ?></td>
+                <td style="text-align:center; font-family:monospace; font-weight:bold;"><?= htmlspecialchars($r['token'] ?? '-') ?></td>
+                <td style="text-align:center;"><?= (int)$r['correct'] ?></td>
+                <td style="text-align:center;"><?= (int)$r['wrong'] ?></td>
+                <td style="text-align:center;"><?= (int)$r['empty'] ?></td>
+                <td style="text-align:center;"><strong><?= number_format((float)$r['score'], 1) ?></strong></td>
+                <td style="text-align:center;"><?= number_format((float)($r['passing'] ?? 75.0), 1) ?></td>
+                <td style="text-align:center; color: <?= $isPassed ? '#16a34a' : '#dc2626' ?>; font-weight:bold;"><?= $isPassed ? 'LULUS' : 'REMEDIAL' ?></td>
+                <td style="text-align:center;"><?= !empty($r['published']) ? 'PUBLIK' : 'PRIVATE' ?></td>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -2531,6 +2732,15 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
             }
             unset($ms);
             if (!$foundInMonitoring) {
+                $assignedExamId = 'ex-1';
+                if (isset($_SESSION['exams_list'])) {
+                    foreach ($_SESSION['exams_list'] as $exTgt) {
+                        if (($exTgt['class'] ?? '') === ($matchedStudent['class'] ?? '')) {
+                            $assignedExamId = $exTgt['id'];
+                            break;
+                        }
+                    }
+                }
                 $_SESSION['monitoring_sessions'][] = [
                     'nis' => $matchedStudent['nis'],
                     'name' => $matchedStudent['name'],
@@ -2541,7 +2751,7 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
                     'status' => 'Mengerjakan',
                     'ip' => $clientIp,
                     'device' => $deviceInfo,
-                    'exam_id' => 'ex-1',
+                    'exam_id' => $assignedExamId,
                     'violations' => 0,
                     'is_locked' => false,
                     'login_time' => $currentTime,
@@ -2693,7 +2903,17 @@ function renderStudentPortal() {
     ];
     $schoolName = $_SESSION['cbt_settings']['school_name'] ?? 'SMK PESANTREN BUSTANUL ULUM';
     $academicYear = $_SESSION['cbt_settings']['academic_year'] ?? '2025/2026';
-    $exams = $_SESSION['exams_list'] ?? [];
+    $allExams = $_SESSION['exams_list'] ?? [];
+    $studentClass = $student['class'] ?? '';
+    
+    // Filter paket ujian: Hanya paket ujian yang ditujukan untuk kelas siswa ini
+    $exams = [];
+    foreach ($allExams as $ex) {
+        $exClass = $ex['class'] ?? '';
+        if (empty($exClass) || $exClass === 'SEMUA' || $exClass === $studentClass || (is_array($exClass) && in_array($studentClass, $exClass)) || empty($studentClass)) {
+            $exams[] = $ex;
+        }
+    }
     $questions = $_SESSION['questions_list'] ?? [];
     ?>
 <!DOCTYPE html>
@@ -2924,7 +3144,10 @@ function renderStudentPortal() {
                 <?php foreach ($exams as $idx => $ex): ?>
                     <div class="exam-card">
                         <div class="exam-card-header">
-                            <span class="exam-subject-badge"><?= htmlspecialchars($ex['subject']) ?></span>
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <span class="exam-subject-badge"><?= htmlspecialchars($ex['subject']) ?></span>
+                                <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 10.5px; font-weight: 700; border: 1px solid #bae6fd;">Kelas: <?= htmlspecialchars($ex['class'] ?? $studentClass) ?></span>
+                            </div>
                             <span class="exam-status-badge">● <?= ($ex['status'] === 'active' ? 'Ujian Aktif' : 'Siap') ?></span>
                         </div>
                         <div class="exam-card-body">
@@ -8905,8 +9128,43 @@ function getStudentExamAnswerSheet($nis, $examId = 'ex-1') {
 }
 
 function renderMonitoringLiveContent($examId) {
-    $sessions = $_SESSION['monitoring_sessions'] ?? [];
-    $attendanceList = getCompleteStudentAttendance();
+    $selectedClass = trim($_GET['class'] ?? '');
+
+    $currentExam = null;
+    foreach ($_SESSION['exams_list'] as $ex) {
+        if ($ex['id'] === $examId) {
+            $currentExam = $ex;
+            break;
+        }
+    }
+    if (!$currentExam && !empty($_SESSION['exams_list'])) {
+        $currentExam = $_SESSION['exams_list'][0];
+        $examId = $currentExam['id'];
+    }
+
+    $examTitle = $currentExam['title'] ?? 'Ujian CBT';
+    $examSubject = $currentExam['subject'] ?? 'Umum';
+    $examToken = $currentExam['token'] ?? 'WXYZ89';
+    $examDefaultClass = $currentExam['class'] ?? '10-TKJ-1';
+
+    // Jika belum memilih filter kelas, defaultkan ke kelas rombel ujian ini agar data tidak campur aduk
+    if (empty($selectedClass)) {
+        $selectedClass = $examDefaultClass;
+    }
+
+    // Filter sesi monitoring hanya untuk ujian dan kelas yang dipilih
+    $allSessions = $_SESSION['monitoring_sessions'] ?? [];
+    $sessions = [];
+    foreach ($allSessions as $s) {
+        if (($s['exam_id'] ?? '') === $examId) {
+            if ($selectedClass === 'SEMUA' || empty($selectedClass) || ($s['class'] ?? '') === $selectedClass) {
+                $sessions[] = $s;
+            }
+        }
+    }
+
+    // Filter daftar presensi hanya untuk ujian dan kelas yang dipilih
+    $attendanceList = getCompleteStudentAttendance($examId, $selectedClass);
     $totalRegistered = count($attendanceList);
     $totalHadir = 0;
     foreach ($attendanceList as $a) {
@@ -8924,6 +9182,8 @@ function renderMonitoringLiveContent($examId) {
         '0081234569' => ['score' => 70.0, 'correct' => 28, 'wrong' => 10, 'doubtful' => 4, 'unanswered' => 2],
         '0081234570' => ['score' => 90.0, 'correct' => 36, 'wrong' => 4, 'doubtful' => 0, 'unanswered' => 0],
         '0081234571' => ['score' => 80.0, 'correct' => 32, 'wrong' => 7, 'doubtful' => 3, 'unanswered' => 1],
+        '0081234572' => ['score' => 87.5, 'correct' => 35, 'wrong' => 5, 'doubtful' => 0, 'unanswered' => 0],
+        '0081234573' => ['score' => 95.0, 'correct' => 38, 'wrong' => 2, 'doubtful' => 0, 'unanswered' => 0],
     ];
 
     $totalStudents = count($sessions);
@@ -8949,16 +9209,9 @@ function renderMonitoringLiveContent($examId) {
     }
     unset($s);
 
+    if ($totalStudents === 0) $minScore = 0;
     $avgScore = $totalStudents > 0 ? round($totalScores / $totalStudents, 2) : 0;
     $passRate = $totalStudents > 0 ? round(($passedCount / $totalStudents) * 100) : 0;
-
-    $examTitle = 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X';
-    foreach ($_SESSION['exams_list'] as $ex) {
-        if ($ex['id'] === $examId) {
-            $examTitle = $ex['title'];
-            break;
-        }
-    }
     ?>
     <div style="display: flex; flex-direction: column; gap: 20px;">
         <!-- CONTENT HEADER & ACTIONS -->
@@ -8970,20 +9223,20 @@ function renderMonitoringLiveContent($examId) {
                     <span class="badge badge-success" style="font-size: 11px;">ABSENSI LOGIN OTOMATIS</span>
                 </div>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    <?= htmlspecialchars($examTitle) ?> &bull; Pemantauan progres pengerjaan, presensi login siswa, dan penilaian live
+                    <?= htmlspecialchars($examTitle) ?> &bull; Data tersaring khusus rombel kelas &amp; token ujian
                 </p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="openAttendanceModal()" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-color: #10b981; color: #047857; background: #ecfdf5;">
                     <span>📋</span> Cetak Berita Acara &amp; Daftar Hadir
                 </button>
-                <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; border-color: #10b981; color: #047857;" title="Unduh spreadsheet presensi kehadiran siswa">
+                <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>&class=<?= urlencode($selectedClass) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; border-color: #10b981; color: #047857;" title="Unduh spreadsheet presensi kehadiran siswa kelas ini">
                     <span>📥</span> Unduh Absensi (.xls)
                 </a>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-color: #38bdf8; color: #0284c7; background: #f0f9ff;">
                     <span>📊</span> Rekap Nilai Siswa
                 </button>
-                <a href="/admin/monitoring/export-scores?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;" title="Unduh spreadsheet nilai semua siswa">
+                <a href="/admin/monitoring/export-scores?id=<?= urlencode($examId) ?>&class=<?= urlencode($selectedClass) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;" title="Unduh spreadsheet nilai siswa kelas ini">
                     <span>📥</span> Unduh Nilai (.xls)
                 </a>
                 <button type="button" class="btn btn-primary btn-sm" onclick="window.location.reload();">&#8635; Segarkan Data</button>
@@ -8991,32 +9244,84 @@ function renderMonitoringLiveContent($examId) {
             </div>
         </div>
 
-        <!-- STATS OVERVIEW CARDS (TERMASUK REKAP PRESENSI DARI LOGIN) -->
+        <!-- FILTER & SCOPING BAR: PILIH MAPEL, KELAS, DAN INDIKATOR TOKEN -->
+        <div class="card" style="padding: 14px 18px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #cbd5e1; border-radius: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <!-- Selector Paket Ujian / Mapel -->
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase;">Paket Ujian &amp; Mata Pelajaran:</label>
+                        <select class="form-select" style="min-width: 280px; font-weight: 700; font-size: 13px;" onchange="window.location.href='/admin/monitoring?action=show&id=' + encodeURIComponent(this.value)">
+                            <?php foreach ($_SESSION['exams_list'] as $el): ?>
+                                <option value="<?= htmlspecialchars($el['id']) ?>" <?= $el['id'] === $examId ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($el['subject']) ?> &bull; <?= htmlspecialchars($el['title']) ?> (Token: <?= htmlspecialchars($el['token']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Selector Kelas / Rombel -->
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase;">Filter Kelas / Rombel:</label>
+                        <select class="form-select" style="min-width: 190px; font-weight: 700; font-size: 13px;" onchange="window.location.href='/admin/monitoring?action=show&id=<?= urlencode($examId) ?>&class=' + encodeURIComponent(this.value)">
+                            <option value="SEMUA" <?= $selectedClass === 'SEMUA' ? 'selected' : '' ?>>Semua Rombel Terdaftar</option>
+                            <?php foreach ($_SESSION['classes_list'] as $cl): ?>
+                                <option value="<?= htmlspecialchars($cl['name']) ?>" <?= $selectedClass === $cl['name'] ? 'selected' : '' ?>>
+                                    Kelas <?= htmlspecialchars($cl['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Token & Status Badges -->
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <div style="background: #e0f2fe; border: 1.5px solid #7dd3fc; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 16px;">🔑</span>
+                        <div>
+                            <div style="font-size: 10px; font-weight: 800; color: #0369a1; text-transform: uppercase; letter-spacing: 0.5px;">Token Ujian</div>
+                            <div style="font-size: 16px; font-weight: 900; color: #0284c7; font-family: monospace; letter-spacing: 1.5px;"><?= htmlspecialchars($examToken) ?></div>
+                        </div>
+                    </div>
+                    <div style="background: #ecfdf5; border: 1.5px solid #6ee7b7; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 16px;">🏫</span>
+                        <div>
+                            <div style="font-size: 10px; font-weight: 800; color: #047857; text-transform: uppercase; letter-spacing: 0.5px;">Kelas Aktif</div>
+                            <div style="font-size: 15px; font-weight: 800; color: #065f46;"><?= htmlspecialchars($selectedClass) ?></div>
+                        </div>
+                    </div>
+                    <div style="background: #fdf4ff; border: 1.5px solid #f0abfc; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 16px;">📚</span>
+                        <div>
+                            <div style="font-size: 10px; font-weight: 800; color: #a21caf; text-transform: uppercase; letter-spacing: 0.5px;">Mata Pelajaran</div>
+                            <div style="font-size: 15px; font-weight: 800; color: #86198f;"><?= htmlspecialchars($examSubject) ?></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS OVERVIEW CARDS (TERMASUK REKAP PRESENSI DARI LOGIN KELAS INI) -->
         <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
             <div class="stat-card">
                 <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">&#128101;</div>
                 <div class="stat-value"><?= $totalRegistered ?></div>
-                <div class="stat-label">Total Peserta Terdaftar</div>
+                <div class="stat-label">Total Peserta Kelas <?= htmlspecialchars($selectedClass) ?></div>
             </div>
             <div class="stat-card" style="border-left: 4px solid #10b981; background: #f0fdf4;">
                 <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🟢</div>
                 <div class="stat-value" style="color: #16a34a;"><?= $totalHadir ?> <span style="font-size: 13px; font-weight: 600; color: #64748b;">(<?= $hadirPercent ?>%)</span></div>
-                <div class="stat-label">Presensi Hadir (Login CBT)</div>
+                <div class="stat-label">Presensi Hadir (Login)</div>
             </div>
             <div class="stat-card" style="border-left: 4px solid #94a3b8; background: #f8fafc;">
                 <div class="stat-icon" style="background: #f1f5f9; color: #64748b;">⚪</div>
                 <div class="stat-value" style="color: #64748b;"><?= $totalBelumHadir ?></div>
-                <div class="stat-label">Belum Login / Belum Hadir</div>
+                <div class="stat-label">Belum Hadir</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background: #fef3c7; color: #d97706;">&#9203;</div>
-                <div class="stat-value" style="color: #d97706;">18</div>
-                <div class="stat-label">Sedang Mengerjakan</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">&#9989;</div>
-                <div class="stat-value" style="color: #16a34a;">16</div>
-                <div class="stat-label">Sudah Submit</div>
+                <div class="stat-value" style="color: #d97706;"><?= $totalStudents ?></div>
+                <div class="stat-label">Sesi Ujian Aktif</div>
             </div>
             <div class="stat-card" style="border-left: 4px solid #0284c7; background: #f0f9ff;">
                 <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">📈</div>
@@ -9565,7 +9870,7 @@ function renderMonitoringLiveContent($examId) {
                     <button type="button" class="btn btn-sm" onclick="printAttendanceSheet()" style="background: #10b981; color: #fff; font-weight: 700; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                         <span>🖨️</span> Cetak Lembar Ini
                     </button>
-                    <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>&class=<?= urlencode($selectedClass) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
                         <span>📥</span> Unduh Excel (.xls)
                     </a>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="closeAttendanceModal()" style="font-size: 16px; padding: 4px 10px; line-height: 1;">
@@ -9603,10 +9908,12 @@ function renderMonitoringLiveContent($examId) {
 
                 <!-- METADATA UJIAN -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-size: 12.5px; font-family: Arial, sans-serif;">
-                    <div><strong>Paket Ujian / Mapel:</strong> <?= htmlspecialchars($examTitle) ?></div>
+                    <div><strong>Mata Pelajaran:</strong> <?= htmlspecialchars($examSubject) ?></div>
+                    <div><strong>Paket Ujian:</strong> <?= htmlspecialchars($examTitle) ?></div>
+                    <div><strong>Rombel / Kelas:</strong> <span style="font-weight: bold; color: #0284c7;"><?= htmlspecialchars($selectedClass) ?></span></div>
+                    <div><strong>Token Ujian:</strong> <span style="font-family: monospace; font-weight: bold; background: #e0f2fe; padding: 2px 6px; border-radius: 4px;"><?= htmlspecialchars($examToken) ?></span></div>
                     <div><strong>Hari / Tanggal:</strong> <?= date('l, d F Y') ?></div>
                     <div><strong>Sesi Pelaksanaan:</strong> Sesi 1 (07:30 - 09:00 WIB)</div>
-                    <div><strong>Ruang Ujian:</strong> Lab CBT Komputer 1</div>
                     <div><strong>Jumlah Terdaftar:</strong> <?= $totalRegistered ?> Peserta</div>
                     <div><strong>Rekapitulasi Kehadiran:</strong> <span style="color: #047857; font-weight: bold;"><?= $totalHadir ?> Hadir</span> &bull; <span style="color: #b91c1c; font-weight: bold;"><?= $totalBelumHadir ?> Tidak Hadir</span></div>
                 </div>
@@ -10377,73 +10684,304 @@ function renderProctorPinContent() {
 // 15. MENU 9: HASIL & NILAI UJIAN
 // =========================================================================
 function renderResultsContent() {
-    $results = $_SESSION['results_list'];
+    $classFilter = trim($_GET['class'] ?? '');
+    $subjectFilter = trim($_GET['subject'] ?? '');
+    $tokenFilter = trim($_GET['token'] ?? '');
+    $statusFilter = trim($_GET['status'] ?? '');
+    $search = strtolower(trim($_GET['search'] ?? ''));
+
+    $allResults = $_SESSION['results_list'] ?? [];
+    $filtered = [];
+
+    // Distinct lists for dropdown options
+    $subjects = [];
+    $tokens = [];
+    $classes = [];
+
+    foreach ($allResults as $r) {
+        $sb = $r['subject'] ?? $r['exam'] ?? 'Umum';
+        $tk = $r['token'] ?? 'WXYZ89';
+        $cl = $r['class'] ?? '10-TKJ-1';
+
+        if (!in_array($sb, $subjects)) $subjects[] = $sb;
+        if (!in_array($tk, $tokens)) $tokens[] = $tk;
+        if (!in_array($cl, $classes)) $classes[] = $cl;
+
+        // Apply filters
+        if (!empty($classFilter) && $classFilter !== 'SEMUA' && $cl !== $classFilter) continue;
+        if (!empty($subjectFilter) && $subjectFilter !== 'SEMUA' && $sb !== $subjectFilter && ($r['exam'] ?? '') !== $subjectFilter) continue;
+        if (!empty($tokenFilter) && $tokenFilter !== 'SEMUA' && $tk !== $tokenFilter) continue;
+
+        $isPassed = ($r['score'] >= ($r['passing'] ?? 75.0));
+        if ($statusFilter === 'passed' && !$isPassed) continue;
+        if ($statusFilter === 'failed' && $isPassed) continue;
+
+        if (!empty($search)) {
+            $matched = str_contains(strtolower($r['name']), $search) || str_contains(strtolower($r['nis']), $search);
+            if (!$matched) continue;
+        }
+
+        $filtered[] = $r;
+    }
+
+    $totalStudents = count($filtered);
+    $totalScore = 0;
+    $maxScore = 0;
+    $minScore = $totalStudents > 0 ? 100 : 0;
+    $passedCount = 0;
+
+    foreach ($filtered as $item) {
+        $sc = (float)$item['score'];
+        $totalScore += $sc;
+        if ($sc > $maxScore) $maxScore = $sc;
+        if ($sc < $minScore) $minScore = $sc;
+        if ($sc >= ($item['passing'] ?? 75.0)) $passedCount++;
+    }
+
+    $avgScore = $totalStudents > 0 ? round($totalScore / $totalStudents, 1) : 0;
+    $failedCount = $totalStudents - $passedCount;
+    $passRate = $totalStudents > 0 ? round(($passedCount / $totalStudents) * 100, 1) : 0;
+
+    $exportQuery = http_build_query([
+        'class' => $classFilter,
+        'subject' => $subjectFilter,
+        'token' => $tokenFilter,
+        'status' => $statusFilter,
+    ]);
     ?>
     <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div class="content-header">
+        <!-- CONTENT HEADER -->
+        <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Hasil &amp; Nilai Ujian Siswa</h1>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Hasil &amp; Nilai Ujian Siswa</h1>
+                    <span class="badge badge-primary" style="font-size: 11px;">TERSEGMENTASI</span>
+                </div>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Rekapitulasi skor penilaian ujian, status kelulusan KKM, dan publikasi nilai peserta
+                    Rekapitulasi skor penilaian ujian, pemfilteran rombel kelas, token ujian, daya serap KKM, dan ekspor spreadsheet
                 </p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <a href="/admin/results/export-excel?<?= $exportQuery ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; border-color: #059669; color: #047857; font-weight: 700; background: #ecfdf5;">
+                    <span>📥</span> Unduh Excel Rekap Nilai (.xls)
+                </a>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <span>🖨️</span> Cetak Lembar Ini
+                </button>
             </div>
         </div>
 
+        <!-- SEARCH & MULTI-CRITERIA FILTER BAR (MAPEL, KELAS, TOKEN, STATUS KKM) -->
+        <div class="card" style="padding: 16px 20px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; box-shadow: var(--shadow-sm);">
+            <form method="GET" action="/admin/results" id="resultsFilterForm" style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+                    <!-- Filter Mata Pelajaran -->
+                    <div style="flex: 2; min-width: 220px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; display: block;">Mata Pelajaran:</label>
+                        <select name="subject" class="form-select" onchange="this.form.submit()" style="font-size: 13px; font-weight: 600;">
+                            <option value="">-- Semua Mata Pelajaran --</option>
+                            <?php foreach ($subjects as $sb): ?>
+                                <option value="<?= htmlspecialchars($sb) ?>" <?= $subjectFilter === $sb ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sb) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Filter Kelas -->
+                    <div style="flex: 1.5; min-width: 170px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; display: block;">Kelas / Rombel:</label>
+                        <select name="class" class="form-select" onchange="this.form.submit()" style="font-size: 13px; font-weight: 600;">
+                            <option value="">-- Semua Kelas --</option>
+                            <?php foreach ($classes as $cl): ?>
+                                <option value="<?= htmlspecialchars($cl) ?>" <?= $classFilter === $cl ? 'selected' : '' ?>>
+                                    Kelas <?= htmlspecialchars($cl) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Filter Token Ujian -->
+                    <div style="flex: 1.2; min-width: 150px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; display: block;">Token Ujian:</label>
+                        <select name="token" class="form-select" onchange="this.form.submit()" style="font-size: 13px; font-weight: 700; font-family: monospace;">
+                            <option value="">-- Semua Token --</option>
+                            <?php foreach ($tokens as $tk): ?>
+                                <option value="<?= htmlspecialchars($tk) ?>" <?= $tokenFilter === $tk ? 'selected' : '' ?>>
+                                    🔑 <?= htmlspecialchars($tk) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Filter Status Kelulusan -->
+                    <div style="flex: 1.2; min-width: 150px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; display: block;">Status KKM:</label>
+                        <select name="status" class="form-select" onchange="this.form.submit()" style="font-size: 13px; font-weight: 600;">
+                            <option value="">-- Semua Status --</option>
+                            <option value="passed" <?= $statusFilter === 'passed' ? 'selected' : '' ?>>Lulus KKM (&ge; 75)</option>
+                            <option value="failed" <?= $statusFilter === 'failed' ? 'selected' : '' ?>>Remedial (&lt; 75)</option>
+                        </select>
+                    </div>
+
+                    <!-- Input Cari NIS / Nama -->
+                    <div style="flex: 2; min-width: 200px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; display: block;">Cari Siswa / NIS:</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" name="search" class="form-control" placeholder="Ketik nama atau NIS..." value="<?= htmlspecialchars($search) ?>" style="font-size: 13px;">
+                            <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0 14px;">Cari</button>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($classFilter) || !empty($subjectFilter) || !empty($tokenFilter) || !empty($statusFilter) || !empty($search)): ?>
+                        <div>
+                            <a href="/admin/results" class="btn btn-secondary btn-sm" style="padding: 7px 12px; font-weight: 600;">
+                                ✕ Reset Filter
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+
+        <!-- ACTIVE FILTER SUMMARY BADGES -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 13px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="color: var(--text-muted); font-weight: 600;">Menampilkan Hasil:</span>
+                <span class="badge" style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-weight: 700; padding: 4px 10px;">
+                    📚 Mapel: <?= htmlspecialchars(!empty($subjectFilter) ? $subjectFilter : 'Semua Mata Pelajaran') ?>
+                </span>
+                <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 700; padding: 4px 10px;">
+                    🏫 Kelas: <?= htmlspecialchars(!empty($classFilter) ? $classFilter : 'Semua Rombel') ?>
+                </span>
+                <span class="badge" style="background: #fdf4ff; color: #86198f; border: 1px solid #f0abfc; font-weight: 700; font-family: monospace; padding: 4px 10px;">
+                    🔑 Token: <?= htmlspecialchars(!empty($tokenFilter) ? $tokenFilter : 'Semua Token') ?>
+                </span>
+                <?php if (!empty($statusFilter)): ?>
+                    <span class="badge <?= $statusFilter === 'passed' ? 'badge-success' : 'badge-danger' ?>">
+                        <?= $statusFilter === 'passed' ? 'Lulus KKM' : 'Remedial' ?>
+                    </span>
+                <?php endif; ?>
+            </div>
+            <div style="font-weight: 700; color: var(--text-secondary);">
+                Ditemukan <strong><?= $totalStudents ?></strong> data nilai peserta
+            </div>
+        </div>
+
+        <!-- STATS OVERVIEW FOR FILTERED DATA -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">&#128101;</div>
+                <div class="stat-value"><?= $totalStudents ?></div>
+                <div class="stat-label">Total Peserta Terfilter</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #0284c7; background: #f0f9ff;">
+                <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">📈</div>
+                <div class="stat-value" style="color: #0284c7;"><?= number_format($avgScore, 1) ?></div>
+                <div class="stat-label">Rata-rata Nilai (KKM: 75)</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #16a34a; background: #f0fdf4;">
+                <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🟢</div>
+                <div class="stat-value" style="color: #16a34a;"><?= $passedCount ?> <span style="font-size: 13px; font-weight: 600; color: #64748b;">(<?= $passRate ?>%)</span></div>
+                <div class="stat-label">Lulus Standar KKM</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #dc2626; background: #fef2f2;">
+                <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">🔴</div>
+                <div class="stat-value" style="color: #dc2626;"><?= $failedCount ?></div>
+                <div class="stat-label">Perlu Remedial</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fef3c7; color: #d97706;">🏆</div>
+                <div class="stat-value" style="color: #d97706;"><?= number_format($maxScore, 1) ?></div>
+                <div class="stat-label">Nilai Tertinggi</div>
+            </div>
+        </div>
+
+        <!-- RESULTS TABLE -->
         <div class="card" style="padding: 0; overflow: hidden;">
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">No</th>
-                            <th>Peserta / Kelas</th>
-                            <th>Paket Ujian</th>
+                            <th style="width: 50px; text-align: center;">No</th>
+                            <th>Peserta Siswa</th>
+                            <th>Kelas</th>
+                            <th>Mata Pelajaran &amp; Paket</th>
+                            <th style="text-align: center;">Token Ujian</th>
                             <th>Benar / Salah / Kosong</th>
-                            <th>Nilai Akhir</th>
-                            <th>Kelulusan</th>
-                            <th>Publikasi</th>
+                            <th style="text-align: center;">Nilai Akhir</th>
+                            <th style="text-align: center;">Kelulusan</th>
+                            <th style="text-align: center;">Publikasi</th>
                             <th style="width: 150px; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($results as $idx => $r): ?>
-                            <?php $isPassed = ($r['score'] >= $r['passing']); ?>
+                        <?php if (empty($filtered)): ?>
                             <tr>
-                                <td><?= $idx + 1 ?></td>
-                                <td>
-                                    <div style="font-weight: 700;"><?= htmlspecialchars($r['name']) ?></div>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars($r['nis']) ?> | <?= htmlspecialchars($r['class']) ?></div>
-                                </td>
-                                <td><?= htmlspecialchars($r['exam']) ?></td>
-                                <td style="font-size: 0.85rem;">
-                                    <span style="color: var(--success); font-weight: 600;"><?= (int)$r['correct'] ?> Benar</span>,
-                                    <span style="color: var(--danger);"><?= (int)$r['wrong'] ?> Salah</span>,
-                                    <span style="color: var(--text-muted);"><?= (int)$r['empty'] ?> Kosong</span>
-                                </td>
-                                <td>
-                                    <strong style="font-size: 1.15rem; color: var(--text-primary);"><?= number_format((float)$r['score'], 1) ?></strong>
-                                </td>
-                                <td>
-                                    <span class="badge <?= $isPassed ? 'badge-success' : 'badge-danger' ?>">
-                                        <?= $isPassed ? 'Lulus' : 'Belum Lulus' ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge <?= !empty($r['published']) ? 'badge-success' : 'badge-secondary' ?>">
-                                        <?= !empty($r['published']) ? 'Publik' : 'Private' ?>
-                                    </span>
-                                </td>
-                                <td style="text-align: center;">
-                                    <div class="action-btns">
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="openResultDetail('<?= htmlspecialchars(addslashes($r['name'])) ?>', '<?= htmlspecialchars($r['nis']) ?>', '<?= htmlspecialchars($r['class']) ?>', '<?= htmlspecialchars(addslashes($r['exam'])) ?>', <?= (int)$r['correct'] ?>, <?= (int)$r['wrong'] ?>, <?= (int)$r['empty'] ?>, <?= (float)$r['score'] ?>, '<?= $isPassed ? 'Lulus' : 'Belum Lulus' ?>')">
-                                            Detail
-                                        </button>
-                                        <a href="/admin/results/publish?idx=<?= $idx ?>" class="btn btn-sm <?= !empty($r['published']) ? 'btn-secondary' : 'btn-primary' ?>" title="Ubah status publikasi nilai ke siswa">
-                                            <?= !empty($r['published']) ? 'Tarik' : 'Publikasi' ?>
-                                        </a>
-                                    </div>
+                                <td colspan="10" style="text-align: center; padding: 36px; color: var(--text-muted);">
+                                    <div style="font-size: 28px; margin-bottom: 8px;">🔍</div>
+                                    <strong>Tidak ada data nilai siswa yang sesuai dengan filter yang dipilih.</strong>
+                                    <p style="margin: 4px 0 0; font-size: 12.5px;">Silakan sesuaikan pilihan Kelas, Token, atau Mata Pelajaran pada bar pencarian di atas.</p>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach ($filtered as $idx => $r): ?>
+                                <?php 
+                                    $isPassed = ($r['score'] >= ($r['passing'] ?? 75.0)); 
+                                    $examSubj = $r['subject'] ?? $r['exam'];
+                                    $examTok = $r['token'] ?? 'WXYZ89';
+                                ?>
+                                <tr>
+                                    <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
+                                    <td>
+                                        <div style="font-weight: 700; font-size: 13.5px; color: var(--text-primary);"><?= htmlspecialchars($r['name']) ?></div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars($r['nis']) ?></div>
+                                    </td>
+                                    <td>
+                                        <span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 700;">
+                                            <?= htmlspecialchars($r['class']) ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;"><?= htmlspecialchars($examSubj) ?></div>
+                                        <div style="font-size: 11.5px; color: var(--text-muted);"><?= htmlspecialchars($r['exam']) ?></div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; font-weight: 800; letter-spacing: 1px;">
+                                            <?= htmlspecialchars($examTok) ?>
+                                        </span>
+                                    </td>
+                                    <td style="font-size: 0.85rem;">
+                                        <span style="color: var(--success); font-weight: 600;"><?= (int)$r['correct'] ?> Benar</span>,
+                                        <span style="color: var(--danger);"><?= (int)$r['wrong'] ?> Salah</span>,
+                                        <span style="color: var(--text-muted);"><?= (int)$r['empty'] ?> Kosong</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <strong style="font-size: 1.2rem; color: <?= $isPassed ? '#047857' : '#dc2626' ?>;"><?= number_format((float)$r['score'], 1) ?></strong>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge <?= $isPassed ? 'badge-success' : 'badge-danger' ?>">
+                                            <?= $isPassed ? 'Lulus' : 'Remedial' ?>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge <?= !empty($r['published']) ? 'badge-success' : 'badge-secondary' ?>">
+                                            <?= !empty($r['published']) ? 'Publik' : 'Private' ?>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="action-btns">
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="openResultDetail('<?= htmlspecialchars(addslashes($r['name'])) ?>', '<?= htmlspecialchars($r['nis']) ?>', '<?= htmlspecialchars($r['class']) ?>', '<?= htmlspecialchars(addslashes($examSubj)) ?>', <?= (int)$r['correct'] ?>, <?= (int)$r['wrong'] ?>, <?= (int)$r['empty'] ?>, <?= (float)$r['score'] ?>, '<?= $isPassed ? 'Lulus' : 'Belum Lulus' ?>', '<?= htmlspecialchars($examTok) ?>')">
+                                                Detail
+                                            </button>
+                                            <a href="/admin/results/publish?idx=<?= $idx ?>" class="btn btn-sm <?= !empty($r['published']) ? 'btn-secondary' : 'btn-primary' ?>" title="Ubah status publikasi nilai ke siswa">
+                                                <?= !empty($r['published']) ? 'Tarik' : 'Publikasi' ?>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -10461,7 +10999,10 @@ function renderResultsContent() {
                 <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 16px;">
                     <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);" id="res_name">Ahmad Dhani</div>
                     <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;" id="res_nis_class">NIS: 0081234567 | 10-TKJ-1</div>
-                    <div style="font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 6px;" id="res_exam">PAS Matematika X</div>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
+                        <span style="font-size: 13px; color: var(--primary); font-weight: 600;" id="res_exam">PAS Matematika X</span>
+                        <span class="badge" style="background: #e0f2fe; color: #0284c7; font-family: monospace; font-size: 11px;" id="res_token">Token: WXYZ89</span>
+                    </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
                     <div style="background: var(--bg-surface-elevated); padding: 10px; border-radius: 6px; text-align: center;">
@@ -10486,10 +11027,13 @@ function renderResultsContent() {
     </div>
 
     <script>
-        function openResultDetail(name, nis, className, exam, correct, wrong, empty, score, status) {
+        function openResultDetail(name, nis, className, exam, correct, wrong, empty, score, status, token) {
             document.getElementById('res_name').innerText = name;
             document.getElementById('res_nis_class').innerText = 'NIS: ' + nis + ' | ' + className;
             document.getElementById('res_exam').innerText = exam;
+            if (document.getElementById('res_token')) {
+                document.getElementById('res_token').innerText = 'Token: ' + (token || '-');
+            }
             document.getElementById('res_correct').innerText = correct;
             document.getElementById('res_wrong').innerText = wrong;
             document.getElementById('res_score').innerText = score.toFixed(1);

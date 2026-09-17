@@ -52,6 +52,7 @@
                     <th style="width: 50px;">No</th>
                     <th>Peserta / Kelas</th>
                     <th>Paket Ujian</th>
+                    <th style="text-align: center;">Token Ujian</th>
                     <th>Benar / Salah / Kosong</th>
                     <th>Nilai Akhir</th>
                     <th>Kelulusan</th>
@@ -76,6 +77,11 @@
                         <td>
                             <div style="font-weight: 500;">{{ $r->exam->title ?? '-' }}</div>
                             <span class="badge badge-info" style="font-size: 0.75rem;">{{ $r->exam->subject->name ?? '-' }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge badge-secondary" style="font-family: monospace; font-weight: 700; letter-spacing: 1px;">
+                                {{ $r->exam->token ?? 'WXYZ89' }}
+                            </span>
                         </td>
                         <td style="font-size: 0.85rem;">
                             <span style="color: var(--color-emerald-600); font-weight: 600;">{{ $r->correct_count }} Benar</span>,
