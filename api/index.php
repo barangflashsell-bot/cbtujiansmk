@@ -101,6 +101,7 @@ if (!isset($_SESSION['students_list'])) {
         ['id' => 's6', 'nis' => '0081234572', 'name' => 'Farhan Maulana', 'username' => '0081234572', 'password' => '12345678', 'major_id' => '2', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
         ['id' => 's7', 'nis' => '0081234573', 'name' => 'Rizky Pratama', 'username' => '0081234573', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
         ['id' => 's8', 'nis' => '0081234574', 'name' => 'Anisa Putri', 'username' => '0081234574', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's9', 'nis' => '0081234575', 'name' => 'Fajar Hidayat', 'username' => '0081234575', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
     ];
 }
 
@@ -333,6 +334,7 @@ if (!isset($_SESSION['results_list'])) {
         ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 32, 'wrong' => 7, 'empty' => 1, 'score' => 80.0, 'passing' => 75.0, 'published' => true],
         ['nis' => '0081234572', 'name' => 'Farhan Maulana', 'class' => '10-RPL-1', 'exam' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL', 'exam_id' => 'ex-3', 'subject' => 'Dasar Pemrograman RPL', 'token' => 'PROG26', 'correct' => 35, 'wrong' => 5, 'empty' => 0, 'score' => 87.5, 'passing' => 78.0, 'published' => true],
         ['nis' => '0081234573', 'name' => 'Rizky Pratama', 'class' => '11-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 38, 'wrong' => 2, 'empty' => 0, 'score' => 95.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081234575', 'name' => 'Fajar Hidayat', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'exam_id' => 'ex-1', 'subject' => 'Matematika X', 'token' => 'WXYZ89', 'correct' => 20, 'wrong' => 20, 'empty' => 0, 'score' => 50.0, 'passing' => 75.0, 'published' => true],
     ];
 }
 
@@ -367,6 +369,94 @@ if (!isset($_SESSION['activity_logs'])) {
         ['id' => '2', 'timestamp' => '11/09/2026 16:15:30', 'user' => 'Administrator CBT (admin)', 'module' => 'EXAM', 'action' => 'PUBLISH_EXAM', 'ip' => '192.168.1.1', 'details' => 'Mengaktifkan paket ujian Penilaian Akhir Semester (PAS) Ganjil - Matematika X'],
         ['id' => '3', 'timestamp' => '11/09/2026 15:30:10', 'user' => 'Administrator CBT (admin)', 'module' => 'STUDENT', 'action' => 'IMPORT_EXCEL', 'ip' => '192.168.1.1', 'details' => 'Mengimpor berkas spreadsheet data peserta ujian baru'],
         ['id' => '4', 'timestamp' => '11/09/2026 14:10:00', 'user' => 'Administrator CBT (admin)', 'module' => 'AUTH', 'action' => 'LOGIN_SUCCESS', 'ip' => '192.168.1.1', 'details' => 'Autentikasi admin berhasil via browser portal CBT'],
+    ];
+}
+
+// L. Archived Questions List (Arsip Butir Soal & Bank Soal Non-Aktif)
+if (!isset($_SESSION['archived_questions'])) {
+    $_SESSION['archived_questions'] = [
+        [
+            'id' => 'q-arc-1',
+            'subject_id' => 'sb1',
+            'subject_name' => 'Matematika X',
+            'original_bank' => 'Matematika X',
+            'question_type' => 'single_choice',
+            'difficulty' => 'hard',
+            'content' => 'Diketahui sistem persamaan linear dua variabel: 2x + 3y = 12 dan 4x - y = 10. Nilai dari x + 2y adalah...',
+            'score_weight' => 2.5,
+            'creator' => 'Budi Santoso, S.Pd',
+            'options' => ['A' => '5', 'B' => '7', 'C' => '8', 'D' => '10', 'E' => '12'],
+            'correct_option' => 'B',
+            'status' => 'archived',
+            'archived_at' => '10/09/2026 14:20',
+            'archived_by' => 'Administrator CBT',
+        ],
+        [
+            'id' => 'q-arc-2',
+            'subject_id' => 'sb3',
+            'subject_name' => 'Dasar Pemrograman RPL',
+            'original_bank' => 'Dasar Pemrograman RPL',
+            'question_type' => 'single_choice',
+            'difficulty' => 'medium',
+            'content' => 'Tipe data primitif dalam bahasa pemrograman Java yang digunakan untuk menyimpan bilangan bulat berukuran 64-bit adalah...',
+            'score_weight' => 3.0,
+            'creator' => 'Siti Aminah, M.Kom',
+            'options' => ['A' => 'int', 'B' => 'short', 'C' => 'byte', 'D' => 'long', 'E' => 'float'],
+            'correct_option' => 'D',
+            'status' => 'archived',
+            'archived_at' => '12/09/2026 11:45',
+            'archived_by' => 'Siti Aminah, M.Kom',
+        ],
+        [
+            'id' => 'q-arc-3',
+            'subject_id' => 'sb2',
+            'subject_name' => 'Bahasa Indonesia X',
+            'original_bank' => 'Bahasa Indonesia X',
+            'question_type' => 'essay',
+            'difficulty' => 'hard',
+            'content' => 'Tuliskan dan jelaskan perbedaan struktur teks laporan hasil observasi dengan teks deskripsi beserta contoh kalimat penjelasnya!',
+            'score_weight' => 20.0,
+            'creator' => 'Dra. Nurul Hidayati',
+            'options' => [],
+            'correct_option' => '-',
+            'status' => 'archived',
+            'archived_at' => '14/09/2026 09:30',
+            'archived_by' => 'Dra. Nurul Hidayati',
+        ],
+    ];
+}
+
+// M. Remedial Sessions List (Sesi Ujian Remedial & Siswa Remedial)
+if (!isset($_SESSION['remedial_sessions'])) {
+    $_SESSION['remedial_sessions'] = [
+        [
+            'id' => 'rem-1',
+            'title' => 'Ujian Remedial 1 - Dasar Pemrograman RPL (10-RPL-1)',
+            'token' => 'REM-PROG26',
+            'exam_id' => 'ex-3',
+            'original_exam_title' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL',
+            'subject' => 'Dasar Pemrograman RPL',
+            'class' => '10-RPL-1',
+            'passing_score' => 78.0,
+            'max_score' => 78.0,
+            'date' => '18/09/2026',
+            'start_time' => '13:00',
+            'end_time' => '14:30',
+            'duration' => 90,
+            'status' => 'active',
+            'students' => [
+                [
+                    'nis' => '0081234569',
+                    'name' => 'Budi Santoso Nugroho',
+                    'class' => '10-RPL-1',
+                    'original_score' => 70.0,
+                    'remedial_score' => 78.0,
+                    'final_score' => 78.0,
+                    'status' => 'LULUS REMEDIAL',
+                    'remedial_date' => '18/09/2026 13:45',
+                ]
+            ],
+        ],
     ];
 }
 
@@ -1612,6 +1702,49 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/teachers/
     exit;
 }
 
+// Bulk Delete Guru
+if ($method === 'POST' && $uri === '/admin/teachers/bulk-delete') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $deletedCount = 0;
+    if (!empty($ids)) {
+        $_SESSION['teachers_list'] = array_values(array_filter($_SESSION['teachers_list'], function($t) use ($ids, &$deletedCount) {
+            if (in_array($t['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('TEACHER', 'BULK_DELETE', "Menghapus {$deletedCount} data guru terpilih");
+        $_SESSION['import_success'] = "Berhasil menghapus <strong>{$deletedCount} data guru</strong> terpilih!";
+    }
+    header('Location: /admin/teachers');
+    exit;
+}
+
+// Bulk Pindah / Alokasi Mapel Guru
+if ($method === 'POST' && $uri === '/admin/teachers/bulk-move-subject') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $targetSubj = trim($_POST['target_subject'] ?? '');
+    $movedCount = 0;
+    if (!empty($ids) && !empty($targetSubj)) {
+        foreach ($_SESSION['teachers_list'] as &$t) {
+            if (in_array($t['id'], $ids)) {
+                $t['subject'] = $targetSubj;
+                $movedCount++;
+            }
+        }
+        unset($t);
+        logCbtActivity('TEACHER', 'BULK_MOVE_SUBJECT', "Memindahkan pengampu {$movedCount} guru ke mata pelajaran: {$targetSubj}");
+        $_SESSION['import_success'] = "Berhasil mengalokasikan <strong>{$movedCount} guru</strong> ke mata pelajaran: <strong>{$targetSubj}</strong>!";
+    }
+    header('Location: /admin/teachers');
+    exit;
+}
+
 // --- B. STUDENTS CRUD ---
 // 1. Admin Login Sebagai Siswa
 if (strpos($uri, '/admin/students/login-as') !== false || ($uri === '/admin/students' && isset($_GET['login_as']))) {
@@ -1880,6 +2013,52 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/classes/d
     exit;
 }
 
+// Bulk Delete Kelas
+if ($method === 'POST' && $uri === '/admin/classes/bulk-delete') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $deletedCount = 0;
+    if (!empty($ids)) {
+        $_SESSION['classes_list'] = array_values(array_filter($_SESSION['classes_list'], function($c) use ($ids, &$deletedCount) {
+            if (in_array($c['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('CLASS', 'BULK_DELETE', "Menghapus {$deletedCount} rombel kelas terpilih");
+        $_SESSION['import_success'] = "Berhasil menghapus <strong>{$deletedCount} rombel kelas</strong> terpilih!";
+    }
+    header('Location: /admin/classes');
+    exit;
+}
+
+// Bulk Pindah Jurusan Kelas
+if ($method === 'POST' && $uri === '/admin/classes/bulk-move-major') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $targetMajorId = trim($_POST['target_major'] ?? '1');
+    $majorsMap = ['1' => 'Teknik Komputer & Jaringan', '2' => 'Rekayasa Perangkat Lunak', '3' => 'Akuntansi & Keuangan', '4' => 'Teknik Bisnis Sepeda Motor'];
+    $targetMajorName = $majorsMap[$targetMajorId] ?? 'Umum';
+    $movedCount = 0;
+    if (!empty($ids)) {
+        foreach ($_SESSION['classes_list'] as &$c) {
+            if (in_array($c['id'], $ids)) {
+                $c['major_id'] = $targetMajorId;
+                $c['major'] = $targetMajorName;
+                $movedCount++;
+            }
+        }
+        unset($c);
+        logCbtActivity('CLASS', 'BULK_MOVE_MAJOR', "Memindahkan jurusan {$movedCount} kelas terpilih ke: {$targetMajorName}");
+        $_SESSION['import_success'] = "Berhasil memindahkan <strong>{$movedCount} rombel kelas</strong> ke jurusan: <strong>{$targetMajorName}</strong>!";
+    }
+    header('Location: /admin/classes');
+    exit;
+}
+
 // --- D. SUBJECTS / BANK SOAL CRUD & CLASS ALLOCATION ---
 if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin/subjects')) {
     $code = strtoupper(trim($_POST['code'] ?? 'MAPEL'));
@@ -1985,6 +2164,49 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/
             $_SESSION['import_success'] = "Bank Soal \"{$deletedName}\" berhasil diarsipkan!";
             break;
         }
+    }
+    header('Location: /admin/questions');
+    exit;
+}
+
+// Bulk Delete Bank Soal
+if ($method === 'POST' && $uri === '/admin/subjects/bulk-delete') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $deletedCount = 0;
+    if (!empty($ids)) {
+        $_SESSION['subjects_list'] = array_values(array_filter($_SESSION['subjects_list'], function($sb) use ($ids, &$deletedCount) {
+            if (in_array($sb['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('SUBJECT', 'BULK_DELETE', "Menghapus {$deletedCount} bank soal terpilih");
+        $_SESSION['import_success'] = "Berhasil menghapus/mengarsipkan <strong>{$deletedCount} bank soal</strong> terpilih!";
+    }
+    header('Location: /admin/questions');
+    exit;
+}
+
+// Bulk Pindah Pengampu Bank Soal
+if ($method === 'POST' && $uri === '/admin/subjects/bulk-move-teacher') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $targetTeacher = trim($_POST['target_teacher'] ?? '');
+    $movedCount = 0;
+    if (!empty($ids) && !empty($targetTeacher)) {
+        foreach ($_SESSION['subjects_list'] as &$sb) {
+            if (in_array($sb['id'], $ids)) {
+                $sb['teacher'] = $targetTeacher;
+                $movedCount++;
+            }
+        }
+        unset($sb);
+        logCbtActivity('SUBJECT', 'BULK_MOVE_TEACHER', "Memindahkan pengampu {$movedCount} bank soal ke guru: {$targetTeacher}");
+        $_SESSION['import_success'] = "Berhasil memindahkan pengampu <strong>{$movedCount} bank soal</strong> ke guru: <strong>{$targetTeacher}</strong>!";
     }
     header('Location: /admin/questions');
     exit;
@@ -2106,6 +2328,193 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/questions
     exit;
 }
 
+// Bulk Delete Butir Soal
+if ($method === 'POST' && $uri === '/admin/questions/bulk-delete') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $subjId = trim($_POST['subject_id'] ?? '');
+    $deletedCount = 0;
+    if (!empty($ids)) {
+        $_SESSION['questions_list'] = array_values(array_filter($_SESSION['questions_list'], function($q) use ($ids, &$deletedCount) {
+            if (in_array($q['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('QUESTION', 'BULK_DELETE', "Menghapus {$deletedCount} butir soal dari Bank Soal");
+        $_SESSION['import_success'] = "Berhasil menghapus <strong>{$deletedCount} butir soal</strong> terpilih!";
+    }
+    $targetUrl = '/admin/questions' . (!empty($subjId) ? '?subject_id=' . urlencode($subjId) . '#detail-soal' : '');
+    header('Location: ' . $targetUrl);
+    exit;
+}
+
+// Pindah / Transfer Butir Soal ke Bank Soal Lain (Single & Bulk)
+if ($method === 'POST' && ($uri === '/admin/questions/bulk-move' || $uri === '/admin/questions/move')) {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $singleId = trim($_POST['id'] ?? '');
+    if (!empty($singleId)) $rawIds[] = $singleId;
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    
+    $targetSubjId = trim($_POST['target_subject_id'] ?? $_POST['target_bank'] ?? '');
+    $targetSubjName = 'Bank Soal Tujuan';
+    foreach ($_SESSION['subjects_list'] as $sbCheck) {
+        if ($sbCheck['id'] === $targetSubjId) {
+            $targetSubjName = $sbCheck['name'];
+            break;
+        }
+    }
+    $movedCount = 0;
+    if (!empty($ids) && !empty($targetSubjId)) {
+        foreach ($_SESSION['questions_list'] as &$q) {
+            if (in_array($q['id'], $ids)) {
+                $q['subject_id'] = $targetSubjId;
+                $q['subject_name'] = $targetSubjName;
+                $movedCount++;
+            }
+        }
+        unset($q);
+        logCbtActivity('QUESTION', 'BULK_MOVE', "Memindahkan {$movedCount} butir soal ke bank soal: {$targetSubjName}");
+        $_SESSION['import_success'] = "Berhasil memindahkan <strong>{$movedCount} butir soal</strong> ke: <strong>{$targetSubjName}</strong>!";
+    }
+    header('Location: /admin/questions?subject_id=' . urlencode($targetSubjId) . '#detail-soal');
+    exit;
+}
+
+// Arsipkan Butir Soal (Single & Bulk) -> Pindahkan dari questions_list ke archived_questions
+if (($method === 'POST' || $method === 'GET') && ($uri === '/admin/questions/archive' || $uri === '/admin/questions/bulk-archive')) {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $singleId = trim($_GET['id'] ?? $_POST['id'] ?? '');
+    if (!empty($singleId)) $rawIds[] = $singleId;
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    
+    $currentSubj = trim($_GET['subject_id'] ?? $_POST['subject_id'] ?? '');
+    if (!isset($_SESSION['archived_questions'])) $_SESSION['archived_questions'] = [];
+    
+    $archivedCount = 0;
+    if (!empty($ids)) {
+        $remainingQuestions = [];
+        foreach ($_SESSION['questions_list'] as $q) {
+            if (in_array($q['id'], $ids)) {
+                $q['status'] = 'archived';
+                $q['archived_at'] = date('d/m/Y H:i');
+                $q['archived_by'] = ($_SESSION['cbt_user'] ?? 'admin') === 'guru' ? ($_SESSION['teachers_list'][0]['name'] ?? 'Guru') : 'Administrator CBT';
+                $q['original_bank'] = $q['subject_name'] ?? 'Umum';
+                array_unshift($_SESSION['archived_questions'], $q);
+                $archivedCount++;
+            } else {
+                $remainingQuestions[] = $q;
+            }
+        }
+        $_SESSION['questions_list'] = $remainingQuestions;
+        logCbtActivity('QUESTION', 'ARCHIVE_QUESTION', "Mengarsipkan {$archivedCount} butir soal ke Arsip Soal");
+        $_SESSION['import_success'] = "Berhasil memindahkan <strong>{$archivedCount} butir soal</strong> ke menu <strong>Arsip Soal</strong>!";
+    }
+    $targetUrl = '/admin/questions' . (!empty($currentSubj) ? '?subject_id=' . urlencode($currentSubj) . '#detail-soal' : '');
+    header('Location: ' . $targetUrl);
+    exit;
+}
+
+// Pulihkan Butir Soal dari Arsip (Restore)
+if (($method === 'POST' || $method === 'GET') && ($uri === '/admin/questions/restore' || $uri === '/admin/questions/bulk-restore')) {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $singleId = trim($_GET['id'] ?? $_POST['id'] ?? '');
+    if (!empty($singleId)) $rawIds[] = $singleId;
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    
+    if (!isset($_SESSION['archived_questions'])) $_SESSION['archived_questions'] = [];
+    $restoredCount = 0;
+    $targetSubjId = '';
+    
+    if (!empty($ids)) {
+        $remainingArchived = [];
+        foreach ($_SESSION['archived_questions'] as $arc) {
+            if (in_array($arc['id'], $ids)) {
+                $arc['status'] = 'active';
+                unset($arc['archived_at'], $arc['archived_by']);
+                $_SESSION['questions_list'][] = $arc;
+                $targetSubjId = $arc['subject_id'];
+                $restoredCount++;
+            } else {
+                $remainingArchived[] = $arc;
+            }
+        }
+        $_SESSION['archived_questions'] = $remainingArchived;
+        logCbtActivity('QUESTION', 'RESTORE_QUESTION', "Memulihkan {$restoredCount} butir soal dari arsip");
+        $_SESSION['import_success'] = "Berhasil memulihkan <strong>{$restoredCount} butir soal</strong> kembali ke Bank Soal aktif!";
+    }
+    header('Location: /admin/archive-questions');
+    exit;
+}
+
+// Pulihkan dan Pindahkan ke Bank Soal Baru (Restore & Move)
+if ($method === 'POST' && $uri === '/admin/questions/bulk-restore-move') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $targetSubjId = trim($_POST['target_subject_id'] ?? '');
+    $targetSubjName = 'Bank Soal Tujuan';
+    foreach ($_SESSION['subjects_list'] as $sbCheck) {
+        if ($sbCheck['id'] === $targetSubjId) {
+            $targetSubjName = $sbCheck['name'];
+            break;
+        }
+    }
+    
+    if (!isset($_SESSION['archived_questions'])) $_SESSION['archived_questions'] = [];
+    $restoredCount = 0;
+    if (!empty($ids) && !empty($targetSubjId)) {
+        $remainingArchived = [];
+        foreach ($_SESSION['archived_questions'] as $arc) {
+            if (in_array($arc['id'], $ids)) {
+                $arc['status'] = 'active';
+                $arc['subject_id'] = $targetSubjId;
+                $arc['subject_name'] = $targetSubjName;
+                unset($arc['archived_at'], $arc['archived_by']);
+                $_SESSION['questions_list'][] = $arc;
+                $restoredCount++;
+            } else {
+                $remainingArchived[] = $arc;
+            }
+        }
+        $_SESSION['archived_questions'] = $remainingArchived;
+        logCbtActivity('QUESTION', 'RESTORE_MOVE_QUESTION', "Memulihkan {$restoredCount} soal dan memindahkannya ke: {$targetSubjName}");
+        $_SESSION['import_success'] = "Berhasil memulihkan dan memindahkan <strong>{$restoredCount} soal</strong> ke: <strong>{$targetSubjName}</strong>!";
+    }
+    header('Location: /admin/questions?subject_id=' . urlencode($targetSubjId) . '#detail-soal');
+    exit;
+}
+
+// Hapus Permanen Soal dari Arsip (Permanent Delete)
+if (($method === 'POST' || $method === 'GET') && ($uri === '/admin/questions/permanent-delete' || $uri === '/admin/questions/bulk-permanent-delete')) {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $singleId = trim($_GET['id'] ?? $_POST['id'] ?? '');
+    if (!empty($singleId)) $rawIds[] = $singleId;
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    
+    if (!isset($_SESSION['archived_questions'])) $_SESSION['archived_questions'] = [];
+    $deletedCount = 0;
+    if (!empty($ids)) {
+        $_SESSION['archived_questions'] = array_values(array_filter($_SESSION['archived_questions'], function($arc) use ($ids, &$deletedCount) {
+            if (in_array($arc['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('QUESTION', 'PERMANENT_DELETE', "Menghapus permanen {$deletedCount} butir soal dari arsip");
+        $_SESSION['import_success'] = "Berhasil menghapus permanen <strong>{$deletedCount} butir soal</strong> dari database!";
+    }
+    header('Location: /admin/archive-questions');
+    exit;
+}
+
 // --- F. RUANG UJIAN (EXAMS) CRUD, SETTING WAKTU & EXPORT ---
 if ($method === 'POST' && ($uri === '/admin/exams/create' || $uri === '/admin/exams')) {
     $subjName = trim($_POST['subject'] ?? 'Matematika X');
@@ -2198,6 +2607,52 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/exams/del
             $_SESSION['import_success'] = "Ruang ujian \"{$deletedName}\" berhasil dihapus!";
             break;
         }
+    }
+    header('Location: /admin/exams');
+    exit;
+}
+
+// Bulk Delete Ruang Ujian
+if ($method === 'POST' && $uri === '/admin/exams/bulk-delete') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $deletedCount = 0;
+    if (!empty($ids)) {
+        $_SESSION['exams_list'] = array_values(array_filter($_SESSION['exams_list'], function($ex) use ($ids, &$deletedCount) {
+            if (in_array($ex['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('EXAM', 'BULK_DELETE', "Menghapus {$deletedCount} ruang ujian terpilih");
+        $_SESSION['import_success'] = "Berhasil menghapus <strong>{$deletedCount} ruang ujian</strong> terpilih!";
+    }
+    header('Location: /admin/exams');
+    exit;
+}
+
+// Bulk Pindah Jadwal / Reschedule Ruang Ujian
+if ($method === 'POST' && $uri === '/admin/exams/bulk-reschedule') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    $newDate = trim($_POST['target_date'] ?? date('d-m-Y'));
+    $newStartTime = trim($_POST['target_start_time'] ?? '08:00');
+    $newEndTime = trim($_POST['target_end_time'] ?? '10:00');
+    $movedCount = 0;
+    if (!empty($ids)) {
+        foreach ($_SESSION['exams_list'] as &$ex) {
+            if (in_array($ex['id'], $ids)) {
+                $ex['start'] = "{$newDate} Pukul {$newStartTime} (GMT+07:00)";
+                $ex['end'] = "{$newDate} Pukul {$newEndTime} (GMT+07:00)";
+                $movedCount++;
+            }
+        }
+        unset($ex);
+        logCbtActivity('EXAM', 'BULK_RESCHEDULE', "Memindahkan jadwal {$movedCount} ruang ujian ke: {$newDate} {$newStartTime} - {$newEndTime}");
+        $_SESSION['import_success'] = "Berhasil memindahkan jadwal <strong>{$movedCount} ruang ujian</strong> ke: <strong>{$newDate} {$newStartTime} - {$newEndTime}</strong>!";
     }
     header('Location: /admin/exams');
     exit;
@@ -2835,6 +3290,237 @@ if ($uri === '/admin/results/publish' || (isset($_GET['action']) && $_GET['actio
         $_SESSION['import_success'] = "Status publikasi nilai berhasil diperbarui!";
     }
     header('Location: /admin/results');
+    exit;
+}
+
+// =========================================================================
+// H2. UJIAN REMEDIAL (REMEDIAL EXAMS & SCORE ADJUSTMENT)
+// =========================================================================
+
+// 1. Buat Sesi Ujian Remedial Baru
+if ($method === 'POST' && $uri === '/admin/remedial/create') {
+    if (!isset($_SESSION['remedial_sessions'])) $_SESSION['remedial_sessions'] = [];
+    
+    $subjName = trim($_POST['subject'] ?? 'Matematika X');
+    $className = trim($_POST['class'] ?? '10-TKJ-1');
+    $title = trim($_POST['title'] ?? ("Ujian Remedial - " . $subjName . " (" . $className . ")"));
+    $token = strtoupper(trim($_POST['token'] ?? ('REM-' . rand(1000, 9999))));
+    $passingScore = (float)($_POST['passing_score'] ?? 75.0);
+    $maxScore = (float)($_POST['max_score'] ?? 75.0);
+    $date = trim($_POST['date'] ?? date('d/m/Y'));
+    $startTime = trim($_POST['start_time'] ?? '13:00');
+    $endTime = trim($_POST['end_time'] ?? '14:30');
+    $duration = (int)($_POST['duration'] ?? 90);
+    
+    $rawNis = $_POST['student_nis'] ?? [];
+    if (is_string($rawNis)) $rawNis = explode(',', $rawNis);
+    $targetNisList = array_filter(array_map('trim', (array)$rawNis));
+    
+    $assignedStudents = [];
+    foreach ($targetNisList as $nis) {
+        $stName = 'Peserta Siswa';
+        $origScore = 50.0;
+        foreach ($_SESSION['students_list'] as $s) {
+            if ($s['nis'] === $nis) {
+                $stName = $s['name'];
+                break;
+            }
+        }
+        foreach ($_SESSION['results_list'] as $r) {
+            if ($r['nis'] === $nis && $r['subject'] === $subjName) {
+                $origScore = (float)$r['score'];
+                break;
+            }
+        }
+        $assignedStudents[] = [
+            'nis' => $nis,
+            'name' => $stName,
+            'class' => $className,
+            'original_score' => $origScore,
+            'remedial_score' => null,
+            'final_score' => $origScore,
+            'status' => 'BELUM REMEDIAL',
+            'remedial_date' => '—',
+        ];
+    }
+    
+    $newRem = [
+        'id' => 'rem-' . (count($_SESSION['remedial_sessions']) + 1),
+        'title' => $title,
+        'token' => $token,
+        'exam_id' => 'ex-rem-' . rand(100, 999),
+        'original_exam_title' => $title,
+        'subject' => $subjName,
+        'class' => $className,
+        'passing_score' => $passingScore,
+        'max_score' => $maxScore,
+        'date' => $date,
+        'start_time' => $startTime,
+        'end_time' => $endTime,
+        'duration' => $duration,
+        'status' => 'scheduled',
+        'students' => $assignedStudents,
+    ];
+    
+    array_unshift($_SESSION['remedial_sessions'], $newRem);
+    logCbtActivity('REMEDIAL', 'CREATE_SESSION', "Membuat sesi remedial baru: {$title} (Token: {$token}) dengan " . count($assignedStudents) . " peserta");
+    $_SESSION['import_success'] = "Sesi Remedial <strong>\"{$title}\"</strong> berhasil dibuat dengan Token: <strong>{$token}</strong> untuk " . count($assignedStudents) . " peserta!";
+    header('Location: /admin/remedial?tab=sesi');
+    exit;
+}
+
+// 2. Update Nilai Remedial Siswa (Input Skor Perbaikan)
+if ($method === 'POST' && $uri === '/admin/remedial/update-score') {
+    $remId = trim($_POST['remedial_id'] ?? '');
+    $nis = trim($_POST['nis'] ?? '');
+    $newScore = (float)($_POST['score'] ?? 0.0);
+    
+    if (isset($_SESSION['remedial_sessions'])) {
+        foreach ($_SESSION['remedial_sessions'] as &$rem) {
+            if ($rem['id'] === $remId) {
+                $maxAllowed = (float)($rem['max_score'] ?? 75.0);
+                $finalScore = min($newScore, $maxAllowed); // Nilai remedial standar maksimal adalah KKM
+                $isPassed = $finalScore >= (float)($rem['passing_score'] ?? 75.0);
+                
+                foreach ($rem['students'] as &$st) {
+                    if ($st['nis'] === $nis) {
+                        $st['remedial_score'] = $newScore;
+                        $st['final_score'] = $finalScore;
+                        $st['status'] = $isPassed ? 'LULUS REMEDIAL' : 'REMEDIAL ULANG';
+                        $st['remedial_date'] = date('d/m/Y H:i');
+                        break;
+                    }
+                }
+                unset($st);
+                
+                // Sinkronkan juga ke $_SESSION['results_list']
+                if (isset($_SESSION['results_list'])) {
+                    foreach ($_SESSION['results_list'] as &$rl) {
+                        if ($rl['nis'] === $nis && $rl['subject'] === $rem['subject']) {
+                            $rl['score'] = $finalScore;
+                            break;
+                        }
+                    }
+                    unset($rl);
+                }
+                
+                logCbtActivity('REMEDIAL', 'UPDATE_SCORE', "Menginput skor perbaikan remedial NIS {$nis}: {$finalScore} (Status: " . ($isPassed ? 'LULUS' : 'BELUM') . ")");
+                $_SESSION['import_success'] = "Nilai remedial peserta NIS {$nis} berhasil disimpan (Nilai Akhir: <strong>{$finalScore}</strong>)!";
+                break;
+            }
+        }
+        unset($rem);
+    }
+    header('Location: /admin/remedial?tab=sesi');
+    exit;
+}
+
+// 3. Reschedule / Pindah Waktu Sesi Remedial
+if ($method === 'POST' && $uri === '/admin/remedial/reschedule') {
+    $remId = trim($_POST['remedial_id'] ?? '');
+    $newDate = trim($_POST['date'] ?? date('d/m/Y'));
+    $newStart = trim($_POST['start_time'] ?? '13:00');
+    $newEnd = trim($_POST['end_time'] ?? '14:30');
+    
+    if (isset($_SESSION['remedial_sessions'])) {
+        foreach ($_SESSION['remedial_sessions'] as &$rem) {
+            if ($rem['id'] === $remId) {
+                $rem['date'] = $newDate;
+                $rem['start_time'] = $newStart;
+                $rem['end_time'] = $newEnd;
+                logCbtActivity('REMEDIAL', 'RESCHEDULE', "Memindahkan jadwal sesi remedial {$rem['title']} ke {$newDate} {$newStart}-{$newEnd}");
+                $_SESSION['import_success'] = "Jadwal sesi remedial \"{$rem['title']}\" berhasil dipindahkan!";
+                break;
+            }
+        }
+        unset($rem);
+    }
+    header('Location: /admin/remedial?tab=sesi');
+    exit;
+}
+
+// 4. Hapus Sesi Remedial (Single & Bulk)
+if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/remedial/delete') !== false || $uri === '/admin/remedial/bulk-delete')) {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $singleId = trim($_GET['id'] ?? $_POST['id'] ?? '');
+    if (!empty($singleId)) $rawIds[] = $singleId;
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    
+    $deletedCount = 0;
+    if (!empty($ids) && isset($_SESSION['remedial_sessions'])) {
+        $_SESSION['remedial_sessions'] = array_values(array_filter($_SESSION['remedial_sessions'], function($rem) use ($ids, &$deletedCount) {
+            if (in_array($rem['id'], $ids)) {
+                $deletedCount++;
+                return false;
+            }
+            return true;
+        }));
+        logCbtActivity('REMEDIAL', 'DELETE_SESSION', "Menghapus {$deletedCount} sesi remedial");
+        $_SESSION['import_success'] = "Berhasil menghapus <strong>{$deletedCount} sesi ujian remedial</strong>!";
+    }
+    header('Location: /admin/remedial?tab=sesi');
+    exit;
+}
+
+// 5. Unduh Rekap Nilai Remedial Excel (.xls)
+if ($uri === '/admin/remedial/export-excel') {
+    $remId = trim($_GET['id'] ?? '');
+    $selectedRem = null;
+    if (isset($_SESSION['remedial_sessions'])) {
+        foreach ($_SESSION['remedial_sessions'] as $rem) {
+            if ($rem['id'] === $remId) {
+                $selectedRem = $rem;
+                break;
+            }
+        }
+    }
+    if (!$selectedRem && !empty($_SESSION['remedial_sessions'])) {
+        $selectedRem = $_SESSION['remedial_sessions'][0];
+    }
+    
+    $schoolName = $_SESSION['cbt_settings']['school_name'] ?? 'SMK PESANTREN BUSTANUL ULUM';
+    $academicYear = $_SESSION['cbt_settings']['academic_year'] ?? '2025/2026';
+    $title = $selectedRem['title'] ?? 'Rekapitulasi Ujian Remedial CBT';
+    $subj = $selectedRem['subject'] ?? 'Umum';
+    $cls = $selectedRem['class'] ?? 'Semua Kelas';
+    $tok = $selectedRem['token'] ?? 'REM-CBT';
+    
+    header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+    header('Content-Disposition: attachment; filename="REKAP_REMEDIAL_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $title) . '.xls"');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
+    echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+    echo '<head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Rekap Remedial</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+    echo '<body>';
+    echo '<table border="1" cellpadding="5" cellspacing="0">';
+    echo '<tr><th colspan="8" style="background:#1e3a8a;color:#ffffff;font-size:14pt;font-weight:bold;text-align:center;">' . htmlspecialchars($schoolName) . '</th></tr>';
+    echo '<tr><th colspan="8" style="background:#2563eb;color:#ffffff;font-size:12pt;font-weight:bold;text-align:center;">LAPORAN HASIL PENILAIAN UJIAN REMEDIAL T.A. ' . htmlspecialchars($academicYear) . '</th></tr>';
+    echo '<tr><td colspan="8" style="font-weight:bold;background:#f1f5f9;">Mata Pelajaran: ' . htmlspecialchars($subj) . ' | Kelas: ' . htmlspecialchars($cls) . ' | Token Remedial: ' . htmlspecialchars($tok) . '</td></tr>';
+    echo '<tr style="background:#e2e8f0;font-weight:bold;text-align:center;">';
+    echo '<th>No</th><th>NIS</th><th>Nama Peserta Didik</th><th>Kelas</th><th>Nilai Awal</th><th>Nilai Remedial</th><th>Nilai Akhir (Maks KKM)</th><th>Status Kelulusan</th>';
+    echo '</tr>';
+    
+    $students = $selectedRem['students'] ?? [];
+    foreach ($students as $idx => $st) {
+        $bg = ($idx % 2 === 0) ? '#ffffff' : '#f8fafc';
+        $pass = ($st['final_score'] ?? 0) >= ($selectedRem['passing_score'] ?? 75.0);
+        $stTxt = $pass ? 'LULUS REMEDIAL' : 'BELUM TUNTAS';
+        $stColor = $pass ? '#15803d' : '#b91c1c';
+        echo '<tr style="background:' . $bg . ';">';
+        echo '<td align="center">' . ($idx + 1) . '</td>';
+        echo '<td>\'' . htmlspecialchars($st['nis']) . '</td>';
+        echo '<td>' . htmlspecialchars($st['name']) . '</td>';
+        echo '<td align="center">' . htmlspecialchars($st['class']) . '</td>';
+        echo '<td align="center">' . number_format((float)($st['original_score'] ?? 0), 1) . '</td>';
+        echo '<td align="center">' . ($st['remedial_score'] !== null ? number_format((float)$st['remedial_score'], 1) : '—') . '</td>';
+        echo '<td align="center" style="font-weight:bold;">' . number_format((float)($st['final_score'] ?? 0), 1) . '</td>';
+        echo '<td align="center" style="font-weight:bold;color:' . $stColor . ';">' . $stTxt . '</td>';
+        echo '</tr>';
+    }
+    echo '</table>';
+    echo '</body></html>';
     exit;
 }
 
@@ -3508,9 +4194,85 @@ function renderStudentPortal() {
             </ul>
         </div>
 
+        <?php
+        $studentNis = $student['nis'] ?? '';
+        $myRemedials = [];
+        if (!empty($_SESSION['remedial_sessions'])) {
+            foreach ($_SESSION['remedial_sessions'] as $remSess) {
+                foreach ($remSess['students'] ?? [] as $remSt) {
+                    if (($remSt['nis'] ?? '') === $studentNis) {
+                        $myRemedials[] = [
+                            'session' => $remSess,
+                            'student_info' => $remSt,
+                        ];
+                        break;
+                    }
+                }
+            }
+        }
+        ?>
+
+        <?php if (!empty($myRemedials)): ?>
+            <!-- SEKSI KHUSUS: UJIAN REMEDIAL PESERTA -->
+            <div style="background: linear-gradient(135deg, #fff1f2 0%, #fee2e2 100%); border: 2px solid #f87171; border-radius: 12px; padding: 20px; margin-bottom: 26px; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;">🎯</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #991b1b;">
+                                Sesi Ujian Remedial (Perbaikan Nilai)
+                            </h3>
+                            <p style="margin: 2px 0 0; font-size: 12.5px; color: #b91c1c;">
+                                Anda terdaftar untuk mengikuti ujian remedial pada mata pelajaran berikut ini.
+                            </p>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: #dc2626; color: #ffffff; font-weight: 800; padding: 4px 12px; font-size: 12px;">
+                        <?= count($myRemedials) ?> Sesi Remedial
+                    </span>
+                </div>
+
+                <div class="exam-grid" style="margin-bottom: 0;">
+                    <?php foreach ($myRemedials as $rIdx => $remData): 
+                        $rSess = $remData['session'];
+                        $rInfo = $remData['student_info'];
+                    ?>
+                        <div class="exam-card" style="border: 2px solid #fca5a5; background: #ffffff;">
+                            <div class="exam-card-header" style="background: #fef2f2; border-bottom: 1px solid #fee2e2;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span class="exam-subject-badge" style="background: #fee2e2; color: #b91c1c; border-color: #fca5a5;">
+                                        🎯 <?= htmlspecialchars($rSess['subject']) ?>
+                                    </span>
+                                    <span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 700;">Remedial</span>
+                                </div>
+                                <span class="badge" style="background: #dc2626; color: #ffffff; font-weight: 700; font-size: 11px;">
+                                    Nilai Awal: <?= number_format((float)($rInfo['original_score'] ?? 0), 1) ?>
+                                </span>
+                            </div>
+                            <div class="exam-card-body">
+                                <h4 class="exam-title" style="color: #991b1b;"><?= htmlspecialchars($rSess['title']) ?></h4>
+                                <div class="exam-meta-row">
+                                    <span class="exam-meta-item">⏱️ <?= (int)$rSess['duration'] ?> Menit</span>
+                                    <span class="exam-meta-item">📅 <?= htmlspecialchars($rSess['date']) ?></span>
+                                    <span class="exam-meta-item">🎯 KKM: <?= number_format((float)$rSess['passing_score'], 1) ?></span>
+                                </div>
+                                <div class="token-box" style="background: #fff5f5; border-color: #fca5a5;">
+                                    <label for="rem_token_<?= $rIdx ?>" style="color: #991b1b;">Token Remedial dari Pengawas:</label>
+                                    <input type="text" id="rem_token_<?= $rIdx ?>" placeholder="Masukkan token remedial..." maxlength="10">
+                                </div>
+                                <button type="button" class="btn-start-exam" style="background: #dc2626;" onclick="startKioskExam('<?= htmlspecialchars(addslashes($rSess['title'])) ?>', '<?= htmlspecialchars(addslashes($rSess['subject'])) ?>', <?= (int)$rSess['duration'] ?>, 'rem_token_<?= $rIdx ?>', '<?= $rSess['token'] ?>')">
+                                    <span>🎯</span> Kerjakan Ujian Remedial ▶
+                                </button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <h3 style="margin: 0 0 16px; font-size: 16px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
             <span>📝</span>
-            <span>Daftar Paket Ujian Aktif</span>
+            <span>Daftar Paket Ujian Reguler Aktif</span>
             <span style="font-size: 12px; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 700;"><?= count($exams) ?></span>
         </h3>
 
@@ -4140,6 +4902,12 @@ function renderAppPage($uri) {
     } elseif (strpos($uri, 'subjects') !== false) {
         $activeMenu = 'subjects';
         $pageTitle = 'Mata Pelajaran';
+    } elseif (strpos($uri, 'archive-questions') !== false) {
+        $activeMenu = 'archive-questions';
+        $pageTitle = 'Arsip Soal & Bank Soal Tersimpan';
+    } elseif (strpos($uri, 'remedial') !== false) {
+        $activeMenu = 'remedial';
+        $pageTitle = 'Manajemen Ujian Remedial Peserta';
     } elseif (strpos($uri, 'questions') !== false) {
         $activeMenu = 'questions';
         $pageTitle = 'Bank Soal';
@@ -4285,6 +5053,13 @@ function renderAppPage($uri) {
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['questions_list']) ?></span>
                 </a>
+                <a href="/admin/archive-questions" class="nav-link <?= $activeMenu === 'archive-questions' ? 'active' : '' ?>">
+                    <span class="nav-link-content">
+                        <span class="menu-icon-box" style="background: #fef3c7; color: #d97706;">📦</span>
+                        <span>Arsip Soal</span>
+                    </span>
+                    <span class="nav-badge-pill" style="background: #fef3c7; color: #b45309; font-weight: 700;"><?= count($_SESSION['archived_questions'] ?? []) ?></span>
+                </a>
                 <a href="/admin/exams" class="nav-link <?= $activeMenu === 'exams' ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box emerald">⏱️</span>
@@ -4312,6 +5087,23 @@ function renderAppPage($uri) {
                         <span class="menu-icon-box red">🎯</span>
                         <span>Hasil Ujian</span>
                     </span>
+                </a>
+                <?php
+                    $remedialCandidatesCount = 0;
+                    if (isset($_SESSION['results_list'])) {
+                        foreach ($_SESSION['results_list'] as $resItem) {
+                            if (((float)($resItem['score'] ?? 0)) < ((float)($resItem['passing'] ?? 75.0))) {
+                                $remedialCandidatesCount++;
+                            }
+                        }
+                    }
+                ?>
+                <a href="/admin/remedial" class="nav-link <?= $activeMenu === 'remedial' ? 'active' : '' ?>">
+                    <span class="nav-link-content">
+                        <span class="menu-icon-box" style="background: #fee2e2; color: #ef4444;">🎯</span>
+                        <span>Ujian Remedial</span>
+                    </span>
+                    <span class="nav-badge-pill" style="background: #ef4444; color: #ffffff; font-weight: 800; padding: 2px 7px;"><?= $remedialCandidatesCount ?></span>
                 </a>
                 <a href="/admin/reports" class="nav-link <?= $activeMenu === 'reports' ? 'active' : '' ?>">
                     <span class="nav-link-content">
@@ -4410,6 +5202,8 @@ function renderAppPage($uri) {
                     renderClassesContent();
                 } elseif ($activeMenu === 'subjects') {
                     renderSubjectsContent();
+                } elseif ($activeMenu === 'archive-questions') {
+                    renderArchiveQuestionsContent();
                 } elseif ($activeMenu === 'questions') {
                     renderQuestionsContent();
                 } elseif ($activeMenu === 'exams') {
@@ -4428,6 +5222,8 @@ function renderAppPage($uri) {
                     renderProctorPinContent();
                 } elseif ($activeMenu === 'results') {
                     renderResultsContent();
+                } elseif ($activeMenu === 'remedial') {
+                    renderRemedialContent();
                 } elseif ($activeMenu === 'reports') {
                     renderReportsContent();
                 } elseif ($activeMenu === 'backups') {
@@ -4469,8 +5265,10 @@ function renderAppPage($uri) {
         }
 
         // =========================================================================
-        // UNIVERSAL CBT CHECKBOX SELECTION ENGINE (FOR ALL SEQUENTIAL TABLES)
+        // UNIVERSAL CBT CHECKBOX SELECTION ENGINE & BATCH CONTROLS
         // =========================================================================
+        var CBT_CURRENT_MENU = '<?= $activeMenu ?>';
+
         function toggleCbtSelectAll(masterCb, itemClass) {
             var cbs = document.querySelectorAll('.' + itemClass);
             cbs.forEach(function(cb) {
@@ -4495,14 +5293,29 @@ function renderAppPage($uri) {
             updateCbtBatchBar();
         }
 
-        function updateCbtBatchBar() {
+        function getSelectedCbtIds() {
             var allChecked = document.querySelectorAll('.cbt-row-checkbox:checked');
+            var ids = [];
+            allChecked.forEach(function(cb) {
+                if (cb.value) ids.push(cb.value);
+            });
+            return ids;
+        }
+
+        function updateCbtBatchBar() {
+            var ids = getSelectedCbtIds();
             var bar = document.getElementById('cbtBatchActionBar');
             var countEl = document.getElementById('cbtBatchCount');
             if (!bar || !countEl) return;
-            if (allChecked.length > 0) {
-                countEl.textContent = allChecked.length + ' data dipilih';
+            if (ids.length > 0) {
+                countEl.textContent = ids.length + ' data dipilih';
                 bar.style.display = 'flex';
+                
+                // Show/hide menu specific buttons in batch bar
+                var btnArchive = document.getElementById('btnBatchArchive');
+                var btnRestore = document.getElementById('btnBatchRestore');
+                if (btnArchive) btnArchive.style.display = (CBT_CURRENT_MENU === 'questions') ? 'inline-flex' : 'none';
+                if (btnRestore) btnRestore.style.display = (CBT_CURRENT_MENU === 'archive-questions') ? 'inline-flex' : 'none';
             } else {
                 bar.style.display = 'none';
             }
@@ -4519,21 +5332,330 @@ function renderAppPage($uri) {
             masters.forEach(function(m) { m.checked = false; });
             updateCbtBatchBar();
         }
+
+        function submitCbtBatchForm(actionUrl, extraFields) {
+            var ids = getSelectedCbtIds();
+            if (ids.length === 0) {
+                alert('Silakan pilih minimal 1 baris data terlebih dahulu.');
+                return;
+            }
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl;
+            form.style.display = 'none';
+
+            ids.forEach(function(id) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            if (extraFields && typeof extraFields === 'object') {
+                for (var key in extraFields) {
+                    var extraInput = document.createElement('input');
+                    extraInput.type = 'hidden';
+                    extraInput.name = key;
+                    extraInput.value = extraFields[key];
+                    form.appendChild(extraInput);
+                }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function executeCbtBatchDelete() {
+            var ids = getSelectedCbtIds();
+            if (ids.length === 0) return;
+
+            var confirmMsg = 'Apakah Anda yakin ingin menghapus ' + ids.length + ' data terpilih?';
+            var actionUrl = '/admin/students/bulk-delete';
+
+            if (CBT_CURRENT_MENU === 'teachers') {
+                actionUrl = '/admin/teachers/bulk-delete';
+            } else if (CBT_CURRENT_MENU === 'classes') {
+                actionUrl = '/admin/classes/bulk-delete';
+            } else if (CBT_CURRENT_MENU === 'subjects') {
+                actionUrl = '/admin/subjects/bulk-delete';
+            } else if (CBT_CURRENT_MENU === 'questions') {
+                actionUrl = '/admin/questions/bulk-delete';
+            } else if (CBT_CURRENT_MENU === 'exams') {
+                actionUrl = '/admin/exams/bulk-delete';
+            } else if (CBT_CURRENT_MENU === 'archive-questions') {
+                actionUrl = '/admin/questions/bulk-permanent-delete';
+                confirmMsg = 'PERINGATAN: ' + ids.length + ' butir soal akan dihapus PERMANEN dari database dan tidak dapat dipulihkan lagi. Lanjutkan?';
+            } else if (CBT_CURRENT_MENU === 'remedial') {
+                actionUrl = '/admin/remedial/bulk-delete';
+            }
+
+            if (confirm(confirmMsg)) {
+                submitCbtBatchForm(actionUrl);
+            }
+        }
+
+        function executeCbtBatchArchive() {
+            var ids = getSelectedCbtIds();
+            if (ids.length === 0) return;
+            if (confirm('Pindahkan ' + ids.length + ' butir soal terpilih ke menu Arsip Soal?')) {
+                submitCbtBatchForm('/admin/questions/bulk-archive');
+            }
+        }
+
+        function executeCbtBatchRestore() {
+            var ids = getSelectedCbtIds();
+            if (ids.length === 0) return;
+            if (confirm('Pulihkan ' + ids.length + ' butir soal dari arsip kembali ke Bank Soal?')) {
+                submitCbtBatchForm('/admin/questions/bulk-restore');
+            }
+        }
+
+        function openCbtBatchMoveModal() {
+            var ids = getSelectedCbtIds();
+            if (ids.length === 0) {
+                alert('Silakan pilih data yang ingin dipindahkan terlebih dahulu.');
+                return;
+            }
+
+            var modal = document.getElementById('cbtUniversalMoveModal');
+            var titleEl = document.getElementById('moveModalTitle');
+            var descEl = document.getElementById('moveModalDesc');
+            var formEl = document.getElementById('cbtUniversalMoveForm');
+            var hiddenIdsContainer = document.getElementById('moveModalHiddenIds');
+
+            if (!modal || !formEl) return;
+
+            // Reset field visibility
+            document.getElementById('moveFieldClass').style.display = 'none';
+            document.getElementById('moveFieldSubject').style.display = 'none';
+            document.getElementById('moveFieldMajor').style.display = 'none';
+            document.getElementById('moveFieldTeacher').style.display = 'none';
+            document.getElementById('moveFieldReschedule').style.display = 'none';
+
+            // Clear previous hidden IDs
+            hiddenIdsContainer.innerHTML = '';
+            ids.forEach(function(id) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'ids[]';
+                inp.value = id;
+                hiddenIdsContainer.appendChild(inp);
+            });
+
+            if (CBT_CURRENT_MENU === 'students') {
+                titleEl.textContent = 'Pindahkan Peserta ke Rombel Kelas Lain';
+                descEl.textContent = 'Pilih kelas baru untuk ' + ids.length + ' peserta yang ditandai.';
+                formEl.action = '/admin/students/bulk-change-class';
+                document.getElementById('moveFieldClass').style.display = 'block';
+            } else if (CBT_CURRENT_MENU === 'questions') {
+                titleEl.textContent = 'Pindahkan Butir Soal ke Bank Soal Lain';
+                descEl.textContent = 'Pilih Bank Soal tujuan untuk ' + ids.length + ' butir pertanyaan yang ditandai.';
+                formEl.action = '/admin/questions/bulk-move';
+                document.getElementById('moveFieldSubject').style.display = 'block';
+            } else if (CBT_CURRENT_MENU === 'archive-questions') {
+                titleEl.textContent = 'Pulihkan & Pindahkan ke Bank Soal Baru';
+                descEl.textContent = 'Pilih Bank Soal aktif untuk ' + ids.length + ' butir soal yang dipulihkan dari arsip.';
+                formEl.action = '/admin/questions/bulk-restore-move';
+                document.getElementById('moveFieldSubject').style.display = 'block';
+            } else if (CBT_CURRENT_MENU === 'teachers') {
+                titleEl.textContent = 'Pindahkan Pengampu Mapel Guru Terpilih';
+                descEl.textContent = 'Alokasikan mata pelajaran baru untuk ' + ids.length + ' guru yang ditandai.';
+                formEl.action = '/admin/teachers/bulk-move-subject';
+                document.getElementById('moveFieldTeacher').style.display = 'block';
+            } else if (CBT_CURRENT_MENU === 'classes') {
+                titleEl.textContent = 'Pindahkan Jurusan Rombel Kelas';
+                descEl.textContent = 'Pilih keahlian jurusan baru untuk ' + ids.length + ' rombel kelas yang ditandai.';
+                formEl.action = '/admin/classes/bulk-move-major';
+                document.getElementById('moveFieldMajor').style.display = 'block';
+            } else if (CBT_CURRENT_MENU === 'exams') {
+                titleEl.textContent = 'Pindahkan Jadwal Waktu Ruang Ujian';
+                descEl.textContent = 'Atur tanggal dan rentang jam pengerjaan baru untuk ' + ids.length + ' ruang ujian yang ditandai.';
+                formEl.action = '/admin/exams/bulk-reschedule';
+                document.getElementById('moveFieldReschedule').style.display = 'block';
+            } else {
+                titleEl.textContent = 'Pindahkan Data Terpilih';
+                descEl.textContent = 'Pindahkan ' + ids.length + ' item data yang dipilih.';
+                formEl.action = '#';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeCbtMoveModal() {
+            var modal = document.getElementById('cbtUniversalMoveModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Single Item Actions Helpers
+        function openSingleStudentMove(id, name, curClass) {
+            clearCbtSelection();
+            var targetCb = document.querySelector('.cbt-row-checkbox[value="' + id + '"]');
+            if (targetCb) {
+                targetCb.checked = true;
+                updateCbtSelection(targetCb);
+            }
+            openCbtBatchMoveModal();
+        }
+
+        function openSingleQuestionMove(id, subjId) {
+            clearCbtSelection();
+            var targetCb = document.querySelector('.cbt-row-checkbox[value="' + id + '"]');
+            if (targetCb) {
+                targetCb.checked = true;
+                updateCbtSelection(targetCb);
+            }
+            openCbtBatchMoveModal();
+        }
+
+        function openSingleQuestionArchive(id, subjId) {
+            if (confirm('Apakah Anda yakin ingin memindahkan butir soal ini ke menu Arsip Soal?')) {
+                window.location.href = '/admin/questions/archive?id=' + encodeURIComponent(id) + '&subject_id=' + encodeURIComponent(subjId);
+            }
+        }
+
+        function openSingleExamReschedule(id, title, date, start, end) {
+            clearCbtSelection();
+            var targetCb = document.querySelector('.cbt-row-checkbox[value="' + id + '"]');
+            if (targetCb) {
+                targetCb.checked = true;
+                updateCbtSelection(targetCb);
+            }
+            openCbtBatchMoveModal();
+        }
     </script>
 
     <!-- FLOATING BATCH ACTION BAR -->
-    <div id="cbtBatchActionBar" style="display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #ffffff; padding: 10px 22px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); z-index: 9999; align-items: center; gap: 16px; font-size: 13px; font-weight: 600; border: 1px solid #334155; backdrop-filter: blur(8px);">
+    <div id="cbtBatchActionBar" style="display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #ffffff; padding: 10px 24px; border-radius: 50px; box-shadow: 0 12px 36px rgba(0,0,0,0.45); z-index: 9999; align-items: center; gap: 16px; font-size: 13px; font-weight: 600; border: 1px solid #334155; backdrop-filter: blur(10px);">
         <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; animation: pulse 2s infinite;"></span>
-            <span id="cbtBatchCount">0 data dipilih</span>
+            <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 10px #38bdf8;"></span>
+            <span id="cbtBatchCount" style="color: #f8fafc; font-weight: 700;">0 data dipilih</span>
         </div>
-        <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn btn-sm" onclick="alert('Pilihan berhasil dicatat untuk aksi data massal.');" style="background: #0284c7; color: #ffffff; padding: 4px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700;">
-                ✓ Proses Pilihan
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- Tombol Pindah (Universal) -->
+            <button type="button" class="btn btn-sm" onclick="openCbtBatchMoveModal()" style="background: #2563eb; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                <span>🔄</span> Pindahkan Terpilih
             </button>
-            <button type="button" class="btn btn-sm" onclick="clearCbtSelection()" style="background: #334155; color: #cbd5e1; padding: 4px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600;">
+            <!-- Tombol Arsip (Khusus Soal) -->
+            <button type="button" id="btnBatchArchive" class="btn btn-sm" onclick="executeCbtBatchArchive()" style="display: none; background: #d97706; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; align-items: center; gap: 5px;">
+                <span>📦</span> Arsipkan Soal
+            </button>
+            <!-- Tombol Pulihkan (Khusus Arsip) -->
+            <button type="button" id="btnBatchRestore" class="btn btn-sm" onclick="executeCbtBatchRestore()" style="display: none; background: #059669; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; align-items: center; gap: 5px;">
+                <span>♻️</span> Pulihkan ke Bank Asal
+            </button>
+            <!-- Tombol Hapus (Universal) -->
+            <button type="button" class="btn btn-sm" onclick="executeCbtBatchDelete()" style="background: #dc2626; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                <span>🗑️</span> Hapus Terpilih
+            </button>
+            <!-- Batal -->
+            <button type="button" class="btn btn-sm" onclick="clearCbtSelection()" style="background: #334155; color: #cbd5e1; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600;">
                 Batal
             </button>
+        </div>
+    </div>
+
+    <!-- UNIVERSAL MOVE / TRANSFER MODAL -->
+    <div id="cbtUniversalMoveModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; border-radius: 16px; max-width: 520px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); border: 1px solid #e2e8f0; overflow: hidden; animation: slideUp 0.2s ease-out;">
+            <div style="padding: 18px 24px; background: #1e293b; color: #ffffff; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">🔄</span>
+                    <div>
+                        <h3 id="moveModalTitle" style="margin: 0; font-size: 16px; font-weight: 700; color: #ffffff;">Pindahkan Data Terpilih</h3>
+                        <p id="moveModalDesc" style="margin: 3px 0 0; font-size: 12px; color: #94a3b8;">Tentukan tujuan pengalihan data yang dipilih.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCbtMoveModal()" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <form id="cbtUniversalMoveForm" method="POST" action="" style="padding: 24px;">
+                <div id="moveModalHiddenIds"></div>
+
+                <!-- 1. Pilihan Rombel / Kelas (Untuk Siswa) -->
+                <div id="moveFieldClass" style="display: none; margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                        Pilih Rombel / Kelas Tujuan:
+                    </label>
+                    <select name="target_class" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc;">
+                        <?php foreach ($_SESSION['classes_list'] as $clItem): ?>
+                            <option value="<?= htmlspecialchars($clItem['name']) ?>">
+                                <?= htmlspecialchars($clItem['name']) ?> (<?= htmlspecialchars($clItem['major']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- 2. Pilihan Bank Soal Tujuan (Untuk Butir Soal / Arsip) -->
+                <div id="moveFieldSubject" style="display: none; margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                        Pilih Bank Soal Tujuan:
+                    </label>
+                    <select name="target_subject_id" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc;">
+                        <?php foreach ($_SESSION['subjects_list'] as $sbItem): ?>
+                            <option value="<?= htmlspecialchars($sbItem['id']) ?>">
+                                <?= htmlspecialchars($sbItem['name']) ?> (<?= htmlspecialchars($sbItem['code']) ?>) — Pengampu: <?= htmlspecialchars($sbItem['teacher']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- 3. Pilihan Jurusan Baru (Untuk Kelas) -->
+                <div id="moveFieldMajor" style="display: none; margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                        Pilih Program Keahlian / Jurusan:
+                    </label>
+                    <select name="target_major" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc;">
+                        <option value="1">Teknik Komputer & Jaringan (TKJ)</option>
+                        <option value="2">Rekayasa Perangkat Lunak (RPL)</option>
+                        <option value="3">Akuntansi & Keuangan Lembaga (AKL)</option>
+                        <option value="4">Teknik Bisnis Sepeda Motor (TBSM)</option>
+                    </select>
+                </div>
+
+                <!-- 4. Pilihan Guru Pengampu (Untuk Guru / Mapel) -->
+                <div id="moveFieldTeacher" style="display: none; margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                        Pilih Mata Pelajaran Pengampu Baru:
+                    </label>
+                    <select name="target_subject" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc;">
+                        <?php foreach ($_SESSION['subjects_list'] as $sbItem): ?>
+                            <option value="<?= htmlspecialchars($sbItem['name']) ?>">
+                                <?= htmlspecialchars($sbItem['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- 5. Reschedule Waktu & Jam (Untuk Ruang Ujian & Remedial) -->
+                <div id="moveFieldReschedule" style="display: none; margin-bottom: 20px;">
+                    <div style="margin-bottom: 14px;">
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">
+                            Tanggal Pelaksanaan Baru:
+                        </label>
+                        <input type="text" name="target_date" value="<?= date('d-m-Y') ?>" placeholder="Contoh: <?= date('d-m-Y') ?>" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Jam Mulai:</label>
+                            <input type="text" name="target_start_time" value="08:00" placeholder="08:00" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Jam Selesai:</label>
+                            <input type="text" name="target_end_time" value="10:00" placeholder="10:00" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+                    <button type="button" onclick="closeCbtMoveModal()" style="padding: 9px 18px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; color: #475569; font-weight: 600; font-size: 13px; cursor: pointer;">
+                        Batal
+                    </button>
+                    <button type="submit" style="padding: 9px 22px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                        ✓ Simpan Pemindahan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
@@ -7526,7 +8648,7 @@ function renderQuestionsContent() {
                                 <th style="width: 75px; text-align: center;">Bobot</th>
                                 <th style="width: 75px; text-align: center;">Kunci</th>
                                 <th style="width: 95px; text-align: center;">Status</th>
-                                <th style="width: 120px; text-align: center;">Aksi</th>
+                                <th style="width: 155px; text-align: center;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -7598,13 +8720,23 @@ function renderQuestionsContent() {
                                             <?php endif; ?>
                                         </td>
                                         <td style="text-align: center;">
-                                            <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: center;">
+                                            <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: center;">
                                                 <!-- ICON MATA (TOGGLE AKTIF / NONAKTIF) -->
-                                                <a href="/admin/questions/toggle-status?id=<?= urlencode($q['id']) ?>&subject_id=<?= urlencode($activeSubjectObj['id']) ?>" class="btn btn-sm" style="padding: 4px 8px; border-radius: 4px; background: <?= $isInactive ? '#f1f5f9' : '#e0e7ff' ?>; color: <?= $isInactive ? '#64748b' : '#4338ca' ?>; border: 1px solid <?= $isInactive ? '#cbd5e1' : '#c7d2fe' ?>; text-decoration: none;" title="<?= $isInactive ? 'Klik ikon mata untuk mengaktifkan kembali' : 'Klik ikon mata untuk menonaktifkan (soal dicoret)' ?>">
+                                                <a href="/admin/questions/toggle-status?id=<?= urlencode($q['id']) ?>&subject_id=<?= urlencode($activeSubjectObj['id']) ?>" class="btn btn-sm" style="padding: 4px 7px; border-radius: 4px; background: <?= $isInactive ? '#f1f5f9' : '#e0e7ff' ?>; color: <?= $isInactive ? '#64748b' : '#4338ca' ?>; border: 1px solid <?= $isInactive ? '#cbd5e1' : '#c7d2fe' ?>; text-decoration: none;" title="<?= $isInactive ? 'Klik ikon mata untuk mengaktifkan kembali' : 'Klik ikon mata untuk menonaktifkan (soal dicoret)' ?>">
                                                     <?= $isInactive ? '👁️‍🗨️' : '👁️' ?>
                                                 </a>
-                                                <button type="button" class="btn btn-sm btn-secondary" style="padding: 4px 8px;" onclick="openEditQuestionModal('<?= htmlspecialchars($q['id']) ?>', '<?= htmlspecialchars(addslashes($q['content'])) ?>', '<?= htmlspecialchars($q['correct_option'] ?? 'A') ?>', '<?= htmlspecialchars($q['score_weight'] ?? 2.5) ?>')" title="Ubah Soal">✏️</button>
-                                                <a href="/admin/questions/delete?id=<?= urlencode($q['id']) ?>&subject_id=<?= urlencode($activeSubjectObj['id']) ?>" class="btn btn-sm btn-danger" style="padding: 4px 8px;" onclick="return confirm('Hapus butir pertanyaan ini?');" title="Hapus Soal">🗑️</a>
+                                                <!-- PINDAH BANK SOAL (MOVE) -->
+                                                <button type="button" class="btn btn-sm" style="padding: 4px 7px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 4px;" onclick="openSingleQuestionMove('<?= htmlspecialchars($q['id']) ?>', '<?= htmlspecialchars($activeSubjectObj['id']) ?>')" title="Pindahkan butir soal ke Bank Soal lain">
+                                                    🔄
+                                                </button>
+                                                <!-- ARSIPKAN SOAL (ARCHIVE) -->
+                                                <button type="button" class="btn btn-sm" style="padding: 4px 7px; background: #fef3c7; color: #b45309; border: 1px solid #fde68a; border-radius: 4px;" onclick="openSingleQuestionArchive('<?= htmlspecialchars($q['id']) ?>', '<?= htmlspecialchars($activeSubjectObj['id']) ?>')" title="Pindahkan ke Arsip Soal">
+                                                    📦
+                                                </button>
+                                                <!-- UBAH SOAL -->
+                                                <button type="button" class="btn btn-sm btn-secondary" style="padding: 4px 7px;" onclick="openEditQuestionModal('<?= htmlspecialchars($q['id']) ?>', '<?= htmlspecialchars(addslashes($q['content'])) ?>', '<?= htmlspecialchars($q['correct_option'] ?? 'A') ?>', '<?= htmlspecialchars($q['score_weight'] ?? 2.5) ?>')" title="Ubah Soal">✏️</button>
+                                                <!-- HAPUS SOAL -->
+                                                <a href="/admin/questions/delete?id=<?= urlencode($q['id']) ?>&subject_id=<?= urlencode($activeSubjectObj['id']) ?>" class="btn btn-sm btn-danger" style="padding: 4px 7px;" onclick="return confirm('Hapus butir pertanyaan ini?');" title="Hapus Soal">🗑️</a>
                                             </div>
                                         </td>
                                     </tr>
@@ -8827,6 +9959,283 @@ function renderQuestionsContent() {
 }
 
 // =========================================================================
+// 12B. MENU BARU: ARSIP SOAL (ARCHIVED QUESTIONS REPOSITORY)
+// =========================================================================
+function renderArchiveQuestionsContent() {
+    if (!isset($_SESSION['archived_questions'])) {
+        $_SESSION['archived_questions'] = [];
+    }
+
+    $search = strtolower(trim($_GET['search'] ?? ''));
+    $filterBank = trim($_GET['bank'] ?? '');
+    $filterType = trim($_GET['type'] ?? '');
+
+    $archivedList = $_SESSION['archived_questions'];
+
+    // Filtering
+    if ($filterBank !== '') {
+        $archivedList = array_filter($archivedList, function($q) use ($filterBank) {
+            return ($q['subject_id'] ?? '') === $filterBank || ($q['subject_name'] ?? '') === $filterBank;
+        });
+    }
+
+    if ($filterType !== '') {
+        $archivedList = array_filter($archivedList, function($q) use ($filterType) {
+            return ($q['question_type'] ?? 'single_choice') === $filterType;
+        });
+    }
+
+    if ($search !== '') {
+        $archivedList = array_filter($archivedList, function($q) use ($search) {
+            $text = strtolower(strip_tags($q['content'] ?? ''));
+            $bank = strtolower($q['subject_name'] ?? '');
+            return strpos($text, $search) !== false || strpos($bank, $search) !== false;
+        });
+    }
+
+    // Hitung statistik arsip
+    $totalArchived = count($_SESSION['archived_questions']);
+    $pgCount = 0;
+    $pgMultiCount = 0;
+    $essayCount = 0;
+    foreach ($_SESSION['archived_questions'] as $arc) {
+        $t = $arc['question_type'] ?? 'single_choice';
+        if ($t === 'essay') $essayCount++;
+        elseif ($t === 'multiple_choice') $pgMultiCount++;
+        else $pgCount++;
+    }
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- HEADER ARSIP SOAL -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 22px 28px; border-radius: 14px; color: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; font-size: 26px;">
+                    📦
+                </div>
+                <div>
+                    <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
+                        Arsip Butir Soal &amp; Bank Soal Tersimpan
+                    </h2>
+                    <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">
+                        Penyimpanan butir soal yang dinonaktifkan/diarsipkan. Soal aman, tidak tampil di ujian siswa, dan dapat dipulihkan atau dipindahkan kapan saja.
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="/admin/questions" class="btn" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <span>🔙</span> Kembali ke Bank Soal
+                </a>
+            </div>
+        </div>
+
+        <!-- STATS OVERVIEW CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #f59e0b; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 20px;">📦</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Total Soal Diarsipkan</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $totalArchived ?></div>
+                </div>
+            </div>
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #2563eb; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔘</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Pilihan Ganda (PG)</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $pgCount ?></div>
+                </div>
+            </div>
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #7c3aed; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 20px;">☑️</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">PG Multi Jawaban</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $pgMultiCount ?></div>
+                </div>
+            </div>
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #059669; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 20px;">✍️</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Essai / Uraian</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $essayCount ?></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER & ACTION TOOLBAR -->
+        <div class="card" style="padding: 16px 20px;">
+            <form method="GET" action="/admin/archive-questions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <!-- Filter Bank Asal -->
+                    <select name="bank" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #f8fafc; font-weight: 600; color: #334155;">
+                        <option value="">-- Semua Bank Soal Asal --</option>
+                        <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
+                            <option value="<?= htmlspecialchars($sb['id']) ?>" <?= $filterBank === $sb['id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($sb['name']) ?> (<?= htmlspecialchars($sb['code']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <!-- Filter Tipe Soal -->
+                    <select name="type" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #f8fafc; font-weight: 600; color: #334155;">
+                        <option value="">-- Semua Tipe Soal --</option>
+                        <option value="single_choice" <?= $filterType === 'single_choice' ? 'selected' : '' ?>>Pilihan Ganda (PG)</option>
+                        <option value="multiple_choice" <?= $filterType === 'multiple_choice' ? 'selected' : '' ?>>PG Multi Jawaban</option>
+                        <option value="essay" <?= $filterType === 'essay' ? 'selected' : '' ?>>Essai / Uraian</option>
+                    </select>
+
+                    <!-- Search Input -->
+                    <div style="position: relative;">
+                        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari isi pertanyaan..." style="padding: 8px 12px 8px 32px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 220px;">
+                        <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px;">🔍</span>
+                    </div>
+
+                    <?php if ($filterBank !== '' || $filterType !== '' || $search !== ''): ?>
+                        <a href="/admin/archive-questions" class="btn btn-sm" style="padding: 6px 12px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; text-decoration: none;">
+                            Reset Filter
+                        </a>
+                    <?php endif; ?>
+                </div>
+
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" class="btn btn-sm" onclick="openCbtBatchMoveModal()" style="background: #2563eb; color: #ffffff; padding: 7px 14px; border: none; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                        <span>🔄</span> Pulihkan &amp; Pindahkan
+                    </button>
+                    <button type="button" class="btn btn-sm" onclick="executeCbtBatchRestore()" style="background: #059669; color: #ffffff; padding: 7px 14px; border: none; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                        <span>♻️</span> Pulihkan ke Asal
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TABEL DATA ARSIP SOAL -->
+        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
+            <div class="table-responsive">
+                <table class="table" style="margin-bottom: 0;">
+                    <thead>
+                        <tr style="background: #f8fafc;">
+                            <th class="cbt-checkbox-col" style="background: #f8fafc; width: 40px; text-align: center;">
+                                <input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-archive-row')" title="Pilih Semua Soal Arsip">
+                            </th>
+                            <th style="width: 50px; text-align: center;">No</th>
+                            <th style="width: 90px;">Tipe</th>
+                            <th>Pertanyaan &amp; Pilihan Jawaban</th>
+                            <th style="width: 140px;">Bank Asal</th>
+                            <th style="width: 130px; text-align: center;">Waktu Arsip</th>
+                            <th style="width: 75px; text-align: center;">Kunci</th>
+                            <th style="width: 145px; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($archivedList)): ?>
+                            <tr>
+                                <td colspan="8" style="padding: 50px 20px; text-align: center;">
+                                    <div style="font-size: 40px; margin-bottom: 10px;">📦</div>
+                                    <div style="font-weight: 700; color: #334155; font-size: 16px;">
+                                        <?= ($totalArchived === 0) ? 'Belum Ada Butir Soal yang Diarsipkan' : 'Tidak ada butir soal arsip yang cocok dengan filter' ?>
+                                    </div>
+                                    <div style="color: #94a3b8; font-size: 13.5px; margin-top: 6px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                                        <?= ($totalArchived === 0) 
+                                            ? 'Untuk mengarsipkan butir pertanyaan, buka menu <strong>Bank Soal</strong> lalu tandai butir pertanyaan dan klik tombol <strong>"Arsipkan Soal"</strong>.' 
+                                            : 'Coba ubah kata kunci pencarian atau reset filter di atas untuk melihat soal arsip lainnya.' ?>
+                                    </div>
+                                    <?php if ($totalArchived === 0): ?>
+                                        <a href="/admin/questions" class="btn btn-primary" style="margin-top: 16px; padding: 8px 20px; font-weight: 700; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                            <span>📝</span> Buka Bank Soal Sekarang
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($archivedList as $idx => $q): 
+                                $isEssay = (($q['question_type'] ?? '') === 'essay');
+                                $opts = $q['options'] ?? [];
+                            ?>
+                                <tr style="background: #fafafa;">
+                                    <td class="cbt-checkbox-col" style="text-align: center;">
+                                        <input type="checkbox" class="cbt-row-checkbox check-archive-row" value="<?= htmlspecialchars($q['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih butir soal arsip ini">
+                                    </td>
+                                    <td style="text-align: center; font-weight: 600; color: #64748b;">
+                                        <?= $idx + 1 ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($isEssay): ?>
+                                            <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">ESSAI</span>
+                                        <?php elseif (($q['question_type'] ?? '') === 'multiple_choice'): ?>
+                                            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">PG MULTI</span>
+                                        <?php else: ?>
+                                            <span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 700;">PG</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div style="color: #475569; font-size: 13.5px; line-height: 1.5;">
+                                            <?= strip_tags($q['content'], '<p><br><b><strong><i><em><u><s><sub><sup><span><table><thead><tbody><tr><th><td><img><ul><ol><li><a><mark><div>') ?>
+                                        </div>
+                                        <?php if (!$isEssay && !empty($opts)): ?>
+                                            <div style="margin-top: 6px; font-size: 11.5px; color: #64748b; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 4px;">
+                                                <?php foreach (['A', 'B', 'C', 'D', 'E'] as $k): ?>
+                                                    <?php if (!empty($opts[$k])): ?>
+                                                        <?php $isCorrect = (strtoupper($q['correct_option'] ?? '') === $k); ?>
+                                                        <div style="<?= $isCorrect ? 'font-weight: 700; color: #15803d;' : '' ?>">
+                                                            <strong><?= $k ?>.</strong> <?= strip_tags($opts[$k], '<p><br><b><strong><i><em><u><s><sub><sup><span><img><a><mark>') ?>
+                                                            <?php if ($isCorrect): ?> <span style="font-size: 10px;">✓ (Kunci)</span> <?php endif; ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600; color: #334155; font-size: 13px;">
+                                            <?= htmlspecialchars($q['subject_name'] ?? ($q['original_bank'] ?? 'Bank Umum')) ?>
+                                        </div>
+                                        <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 11px; margin-top: 3px;">
+                                            ID: <?= htmlspecialchars($q['subject_id'] ?? 'sb1') ?>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div style="font-size: 12px; color: #475569; font-weight: 600;">
+                                            <?= htmlspecialchars($q['archived_at'] ?? date('d/m/Y')) ?>
+                                        </div>
+                                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                            Oleh: <?= htmlspecialchars($q['archived_by'] ?? 'Admin') ?>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <?php if ($isEssay): ?>
+                                            <span style="color: #94a3b8; font-size: 11px;">(Essai)</span>
+                                        <?php else: ?>
+                                            <span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 700;">
+                                                <?= htmlspecialchars($q['correct_option'] ?? 'A') ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: center;">
+                                            <!-- PULIHKAN KE ASAL -->
+                                            <a href="/admin/questions/restore?id=<?= urlencode($q['id']) ?>" class="btn btn-sm" style="padding: 4px 8px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 4px; font-weight: 600; text-decoration: none;" title="Pulihkan kembali ke Bank Soal asalnya" onclick="return confirm('Pulihkan butir soal ini ke Bank Soal asalnya?');">
+                                                ♻️ Pulihkan
+                                            </a>
+                                            <!-- PINDAH BANK LAIN -->
+                                            <button type="button" class="btn btn-sm" style="padding: 4px 7px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 4px;" onclick="openSingleQuestionMove('<?= htmlspecialchars($q['id']) ?>', '')" title="Pulihkan dan pindahkan ke Bank Soal lain">
+                                                🔄
+                                            </button>
+                                            <!-- HAPUS PERMANEN -->
+                                            <a href="/admin/questions/permanent-delete?id=<?= urlencode($q['id']) ?>" class="btn btn-sm btn-danger" style="padding: 4px 7px;" onclick="return confirm('PERINGATAN: Hapus PERMANEN butir soal ini dari database? Tindakan ini tidak dapat dibatalkan.');" title="Hapus Permanen">
+                                                🗑️
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+// =========================================================================
 // 13. MENU 7: RUANG UJIAN (KELAS UJIAN, SETTING WAKTU, KREDENSIAL & EXPORT)
 // =========================================================================
 function renderExamsContent() {
@@ -9034,6 +10443,9 @@ function renderExamsContent() {
                                             </a>
                                             <button type="button" class="btn btn-sm btn-secondary" onclick="openEditExam('<?= htmlspecialchars($ex['id']) ?>', '<?= htmlspecialchars(addslashes($ex['title'])) ?>', <?= (int)$ex['duration'] ?>, '<?= htmlspecialchars($ex['token']) ?>', <?= (float)($ex['passing_score'] ?? 75.0) ?>, '<?= htmlspecialchars($ex['status']) ?>')">
                                                 Edit
+                                            </button>
+                                            <button type="button" class="btn btn-sm" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;" onclick="openSingleExamReschedule('<?= htmlspecialchars($ex['id']) ?>', '<?= htmlspecialchars(addslashes($ex['title'])) ?>', '<?= date('d-m-Y') ?>', '08:00', '10:00')" title="Pindahkan / Ubah Jadwal Ruang Ujian">
+                                                ⏱️ Jadwal
                                             </button>
                                             <a href="/admin/exams/delete?id=<?= urlencode($ex['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus ruang ujian <?= htmlspecialchars(addslashes($ex['title'])) ?>?');">
                                                 Hapus
@@ -11448,14 +12860,17 @@ function renderResultsContent() {
                                         </span>
                                     </td>
                                     <td style="text-align: center;">
-                                        <div class="action-btns">
                                             <button type="button" class="btn btn-sm btn-secondary" onclick="openResultDetail('<?= htmlspecialchars(addslashes($r['name'])) ?>', '<?= htmlspecialchars($r['nis']) ?>', '<?= htmlspecialchars($r['class']) ?>', '<?= htmlspecialchars(addslashes($examSubj)) ?>', <?= (int)$r['correct'] ?>, <?= (int)$r['wrong'] ?>, <?= (int)$r['empty'] ?>, <?= (float)$r['score'] ?>, '<?= $isPassed ? 'Lulus' : 'Belum Lulus' ?>', '<?= htmlspecialchars($examTok) ?>')">
                                                 Detail
                                             </button>
+                                            <?php if (!$isPassed): ?>
+                                                <a href="/admin/remedial?tab=kandidat&class=<?= urlencode($r['class']) ?>&subject=<?= urlencode($examSubj) ?>" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: 700; text-decoration: none;" title="Jadwalkan ke Ujian Remedial">
+                                                    🎯 Remedial
+                                                </a>
+                                            <?php endif; ?>
                                             <a href="/admin/results/publish?idx=<?= $idx ?>" class="btn btn-sm <?= !empty($r['published']) ? 'btn-secondary' : 'btn-primary' ?>" title="Ubah status publikasi nilai ke siswa">
                                                 <?= !empty($r['published']) ? 'Tarik' : 'Publikasi' ?>
                                             </a>
-                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -11518,6 +12933,556 @@ function renderResultsContent() {
             document.getElementById('res_badge').innerText = status;
             document.getElementById('res_badge').className = (status === 'Lulus') ? 'badge badge-success' : 'badge badge-danger';
             document.getElementById('resultDetailModal').classList.add('open');
+        }
+    </script>
+    <?php
+}
+
+// =========================================================================
+// 15B. MENU BARU: MANAJEMEN UJIAN REMEDIAL (REMEDIAL SESSIONS & SCORING)
+// =========================================================================
+function renderRemedialContent() {
+    if (!isset($_SESSION['remedial_sessions'])) {
+        $_SESSION['remedial_sessions'] = [];
+    }
+
+    // Auto-seed satu sesi remedial jika belum ada sesi sama sekali
+    if (empty($_SESSION['remedial_sessions'])) {
+        $_SESSION['remedial_sessions'] = [
+            [
+                'id' => 'rem-1',
+                'title' => 'Ujian Remedial Matematika X (10-TKJ-1)',
+                'token' => 'REM-TKJ1',
+                'exam_id' => 'ex-1',
+                'original_exam_title' => 'Penilaian Akhir Semester Ganjil',
+                'subject' => 'Matematika X',
+                'class' => '10-TKJ-1',
+                'passing_score' => 75.0,
+                'max_score' => 75.0,
+                'date' => date('d-m-Y'),
+                'start_time' => '13:00',
+                'end_time' => '14:30',
+                'duration' => 90,
+                'status' => 'scheduled',
+                'students' => [
+                    [
+                        'nis' => '0081234569',
+                        'name' => 'Dimas Saputra',
+                        'class' => '10-TKJ-1',
+                        'original_score' => 52.5,
+                        'remedial_score' => 78.0,
+                        'final_score' => 75.0,
+                        'status' => 'LULUS REMEDIAL',
+                        'remedial_date' => date('d/m/Y 13:45'),
+                    ],
+                    [
+                        'nis' => '0081234571',
+                        'name' => 'Fajar Pratama',
+                        'class' => '10-TKJ-1',
+                        'original_score' => 60.0,
+                        'remedial_score' => null,
+                        'final_score' => 60.0,
+                        'status' => 'BELUM REMEDIAL',
+                        'remedial_date' => '—',
+                    ],
+                ],
+            ]
+        ];
+    }
+
+    $activeTab = $_GET['tab'] ?? 'sesi';
+    $search = strtolower(trim($_GET['search'] ?? ''));
+    $filterSubject = trim($_GET['subject'] ?? '');
+    $filterClass = trim($_GET['class'] ?? '');
+
+    // Kumpulkan kandidat siswa yang belum tuntas (< KKM 75.0)
+    $candidates = [];
+    if (isset($_SESSION['results_list'])) {
+        foreach ($_SESSION['results_list'] as $r) {
+            $score = (float)($r['score'] ?? 0);
+            $passing = (float)($r['passing'] ?? 75.0);
+            if ($score < $passing) {
+                if ($filterSubject !== '' && ($r['subject'] ?? '') !== $filterSubject) continue;
+                if ($filterClass !== '' && ($r['class'] ?? '') !== $filterClass) continue;
+                if ($search !== '') {
+                    $txt = strtolower(($r['name'] ?? '') . ' ' . ($r['nis'] ?? '') . ' ' . ($r['subject'] ?? ''));
+                    if (strpos($txt, $search) === false) continue;
+                }
+                $candidates[] = $r;
+            }
+        }
+    }
+
+    $totalSesi = count($_SESSION['remedial_sessions']);
+    $totalKandidat = count($candidates);
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- HEADER UJIAN REMEDIAL -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 22px 28px; border-radius: 14px; color: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; font-size: 26px;">
+                    🎯
+                </div>
+                <div>
+                    <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
+                        Manajemen Ujian Remedial &amp; Perbaikan Nilai
+                    </h2>
+                    <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">
+                        Kelola ruang ujian remedial khusus peserta belum tuntas KKM, generate token remedial, dan sinkronkan nilai akhir peserta didik.
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-primary" onclick="openCreateRemedialModal()" style="background: #2563eb; border: none; padding: 9px 18px; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
+                    <span>➕</span> Buat Sesi Remedial Baru
+                </button>
+            </div>
+        </div>
+
+        <!-- STATS OVERVIEW CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #ef4444; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 20px;">⚠️</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Siswa Belum Tuntas (Kandidat)</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $totalKandidat ?> Siswa</div>
+                </div>
+            </div>
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #2563eb; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px;">📋</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Total Sesi Remedial Aktif</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $totalSesi ?> Sesi</div>
+                </div>
+            </div>
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #10b981; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 20px;">✓</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Standar Batas KKM Remedial</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;">Maksimal 75.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div style="display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0;">
+            <a href="/admin/remedial?tab=sesi" style="padding: 10px 20px; font-size: 14px; font-weight: 700; color: <?= $activeTab === 'sesi' ? '#2563eb' : '#64748b' ?>; border-bottom: 3px solid <?= $activeTab === 'sesi' ? '#2563eb' : 'transparent' ?>; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: -2px;">
+                <span>📋</span> Sesi Ujian Remedial (<?= $totalSesi ?>)
+            </a>
+            <a href="/admin/remedial?tab=kandidat" style="padding: 10px 20px; font-size: 14px; font-weight: 700; color: <?= $activeTab === 'kandidat' ? '#ef4444' : '#64748b' ?>; border-bottom: 3px solid <?= $activeTab === 'kandidat' ? '#ef4444' : 'transparent' ?>; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: -2px;">
+                <span>🎯</span> Peserta Perlu Remedial (<?= $totalKandidat ?>)
+            </a>
+        </div>
+
+        <?php if ($activeTab === 'kandidat'): ?>
+            <!-- ========================================================================= -->
+            <!-- TAB 2: SISWA PERLU REMEDIAL (< KKM) -->
+            <!-- ========================================================================= -->
+            <div class="card" style="padding: 16px 20px;">
+                <form method="GET" action="/admin/remedial" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <input type="hidden" name="tab" value="kandidat">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <!-- Filter Mapel -->
+                        <select name="subject" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #f8fafc; font-weight: 600; color: #334155;">
+                            <option value="">-- Semua Mata Pelajaran --</option>
+                            <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
+                                <option value="<?= htmlspecialchars($sb['name']) ?>" <?= $filterSubject === $sb['name'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sb['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <!-- Filter Kelas -->
+                        <select name="class" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #f8fafc; font-weight: 600; color: #334155;">
+                            <option value="">-- Semua Rombel Kelas --</option>
+                            <?php foreach ($_SESSION['classes_list'] as $cl): ?>
+                                <option value="<?= htmlspecialchars($cl['name']) ?>" <?= $filterClass === $cl['name'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($cl['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <!-- Search -->
+                        <div style="position: relative;">
+                            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari Nama / NIS peserta..." style="padding: 8px 12px 8px 30px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 200px;">
+                            <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 12px;">🔍</span>
+                        </div>
+
+                        <?php if ($filterSubject !== '' || $filterClass !== '' || $search !== ''): ?>
+                            <a href="/admin/remedial?tab=kandidat" class="btn btn-sm" style="padding: 6px 12px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; text-decoration: none;">Reset</a>
+                        <?php endif; ?>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="openCreateRemedialFromCandidateCheckboxes()" style="background: #ef4444; border: none; padding: 8px 16px; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>🎯</span> Buat Sesi Remedial dari Siswa Terpilih
+                    </button>
+                </form>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
+                <div class="table-responsive">
+                    <table class="table" style="margin-bottom: 0;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th class="cbt-checkbox-col" style="background: #f8fafc; width: 40px; text-align: center;">
+                                    <input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-candidate-row')" title="Pilih Semua Siswa">
+                                </th>
+                                <th style="width: 50px; text-align: center;">No</th>
+                                <th style="width: 120px;">NIS</th>
+                                <th>Nama Peserta Didik</th>
+                                <th style="width: 120px; text-align: center;">Kelas</th>
+                                <th>Mata Pelajaran</th>
+                                <th style="width: 100px; text-align: center;">Token Asli</th>
+                                <th style="width: 90px; text-align: center;">Nilai</th>
+                                <th style="width: 120px; text-align: center;">Status KKM</th>
+                                <th style="width: 140px; text-align: center;">Aksi Cepat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($candidates)): ?>
+                                <tr>
+                                    <td colspan="10" style="padding: 50px 20px; text-align: center;">
+                                        <div style="font-size: 40px; margin-bottom: 10px;">🎉</div>
+                                        <div style="font-weight: 700; color: #15803d; font-size: 16px;">Semua Siswa Telah Tuntas KKM!</div>
+                                        <div style="color: #64748b; font-size: 13px; margin-top: 4px;">Tidak ada peserta dengan nilai di bawah batas KKM untuk kriteria filter ini.</div>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($candidates as $idx => $st): ?>
+                                    <tr>
+                                        <td class="cbt-checkbox-col" style="text-align: center;">
+                                            <input type="checkbox" class="cbt-row-checkbox check-candidate-row" value="<?= htmlspecialchars($st['nis']) ?>" data-name="<?= htmlspecialchars($st['name']) ?>" data-class="<?= htmlspecialchars($st['class']) ?>" data-subject="<?= htmlspecialchars($st['subject']) ?>" onchange="updateCbtSelection(this)" title="Pilih siswa ini untuk remedial">
+                                        </td>
+                                        <td style="text-align: center; font-weight: 600; color: #64748b;"><?= $idx + 1 ?></td>
+                                        <td style="font-family: monospace; font-weight: 700; color: #334155;"><?= htmlspecialchars($st['nis']) ?></td>
+                                        <td style="font-weight: 700; color: #1e293b;"><?= htmlspecialchars($st['name']) ?></td>
+                                        <td style="text-align: center;">
+                                            <span class="badge" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 700;">
+                                                <?= htmlspecialchars($st['class']) ?>
+                                            </span>
+                                        </td>
+                                        <td style="font-weight: 600; color: #475569;"><?= htmlspecialchars($st['subject']) ?></td>
+                                        <td style="text-align: center;">
+                                            <span class="badge" style="background: #eff6ff; color: #1e40af; font-family: monospace; font-weight: 700;">
+                                                <?= htmlspecialchars($st['token'] ?? 'WXYZ89') ?>
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center; font-size: 14px; font-weight: 800; color: #dc2626;">
+                                            <?= number_format((float)($st['score'] ?? 0), 1) ?>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="badge" style="background: #fee2e2; color: #b91c1c; font-weight: 700;">Remedial</span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button type="button" class="btn btn-sm" onclick="openCreateRemedialForSingle('<?= htmlspecialchars($st['nis']) ?>', '<?= htmlspecialchars(addslashes($st['name'])) ?>', '<?= htmlspecialchars($st['class']) ?>', '<?= htmlspecialchars(addslashes($st['subject'])) ?>')" style="padding: 4px 10px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer;">
+                                                🎯 Jadwalkan
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <?php else: ?>
+            <!-- ========================================================================= -->
+            <!-- TAB 1: DAFTAR SESI REMEDIAL AKTIF -->
+            <!-- ========================================================================= -->
+            <?php if (empty($_SESSION['remedial_sessions'])): ?>
+                <div class="card" style="padding: 60px 20px; text-align: center;">
+                    <div style="font-size: 46px; margin-bottom: 12px;">🎯</div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 17px;">Belum Ada Sesi Ujian Remedial yang Dibuat</div>
+                    <p style="color: #64748b; font-size: 13.5px; margin: 6px auto 18px; max-width: 480px; line-height: 1.5;">
+                        Buat sesi remedial baru untuk memberikan kesempatan perbaikan nilai bagi siswa yang belum tuntas KKM.
+                    </p>
+                    <button type="button" class="btn btn-primary" onclick="openCreateRemedialModal()" style="padding: 9px 24px; font-weight: 700; font-size: 13px; border-radius: 8px;">
+                        ➕ Buat Sesi Remedial Baru Sekarang
+                    </button>
+                </div>
+            <?php else: ?>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <?php foreach ($_SESSION['remedial_sessions'] as $remIdx => $rem): 
+                        $studentsCount = count($rem['students'] ?? []);
+                        $passedCount = 0;
+                        foreach ($rem['students'] ?? [] as $stCheck) {
+                            if (($stCheck['status'] ?? '') === 'LULUS REMEDIAL') $passedCount++;
+                        }
+                    ?>
+                        <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.04);">
+                            <!-- HEADER SESI REMEDIAL -->
+                            <div style="padding: 16px 22px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="font-size: 24px;">🎯</span>
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                            <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">
+                                                <?= htmlspecialchars($rem['title']) ?>
+                                            </h3>
+                                            <span class="badge" style="background: #eff6ff; color: #1d4ed8; font-weight: 700;">
+                                                📚 <?= htmlspecialchars($rem['subject']) ?>
+                                            </span>
+                                            <span class="badge" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 700;">
+                                                👥 <?= htmlspecialchars($rem['class']) ?>
+                                            </span>
+                                        </div>
+                                        <div style="font-size: 12px; color: #64748b; margin-top: 4px; display: flex; gap: 16px; flex-wrap: wrap;">
+                                            <span>📅 <?= htmlspecialchars($rem['date']) ?> (<?= htmlspecialchars($rem['start_time']) ?> - <?= htmlspecialchars($rem['end_time']) ?> WIB)</span>
+                                            <span>⏱️ Durasi: <?= (int)$rem['duration'] ?> Menit</span>
+                                            <span>🎯 KKM Lulus: <?= number_format((float)$rem['passing_score'], 1) ?> (Maks Nilai: <?= number_format((float)$rem['max_score'], 1) ?>)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <!-- TOKEN PILL -->
+                                    <div style="display: flex; align-items: center; gap: 6px; background: #0f172a; color: #ffffff; padding: 6px 14px; border-radius: 8px; font-family: monospace; font-weight: 800; font-size: 14px; letter-spacing: 1px;">
+                                        <span style="color: #38bdf8; font-size: 11px;">TOKEN:</span>
+                                        <span><?= htmlspecialchars($rem['token']) ?></span>
+                                    </div>
+
+                                    <!-- EXPORT EXCEL -->
+                                    <a href="/admin/remedial/export-excel?id=<?= urlencode($rem['id']) ?>" class="btn btn-sm" style="background: #15803d; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 6px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                        <span>📥</span> Export Excel
+                                    </a>
+
+                                    <!-- HAPUS SESI -->
+                                    <a href="/admin/remedial/delete?id=<?= urlencode($rem['id']) ?>" class="btn btn-sm btn-danger" style="padding: 6px 10px; font-size: 12px; border-radius: 6px;" onclick="return confirm('Hapus sesi remedial ini?');" title="Hapus Sesi">
+                                        🗑️
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- TABEL SISWA DI DALAM SESI REMEDIAL -->
+                            <div class="table-responsive">
+                                <table class="table" style="margin-bottom: 0;">
+                                    <thead>
+                                        <tr style="background: #ffffff; font-size: 12px;">
+                                            <th style="width: 45px; text-align: center;">No</th>
+                                            <th style="width: 120px;">NIS</th>
+                                            <th>Nama Peserta Didik</th>
+                                            <th style="width: 100px; text-align: center;">Kelas</th>
+                                            <th style="width: 110px; text-align: center;">Nilai Awal</th>
+                                            <th style="width: 150px; text-align: center;">Input Nilai Remedial</th>
+                                            <th style="width: 140px; text-align: center;">Nilai Akhir (Maks KKM)</th>
+                                            <th style="width: 140px; text-align: center;">Status Kelulusan</th>
+                                            <th style="width: 130px; text-align: center;">Waktu Remedial</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($rem['students'])): ?>
+                                            <tr>
+                                                <td colspan="9" style="text-align: center; padding: 24px; color: #94a3b8;">
+                                                    Belum ada peserta yang didaftarkan ke sesi remedial ini.
+                                                </td>
+                                            </tr>
+                                        <?php else: ?>
+                                            <?php foreach ($rem['students'] as $stIdx => $st): 
+                                                $isPassed = ($st['status'] ?? '') === 'LULUS REMEDIAL';
+                                            ?>
+                                                <tr>
+                                                    <td style="text-align: center; font-weight: 600; color: #64748b;"><?= $stIdx + 1 ?></td>
+                                                    <td style="font-family: monospace; font-weight: 700; color: #334155;"><?= htmlspecialchars($st['nis']) ?></td>
+                                                    <td style="font-weight: 700; color: #1e293b;"><?= htmlspecialchars($st['name']) ?></td>
+                                                    <td style="text-align: center; color: #64748b;"><?= htmlspecialchars($st['class']) ?></td>
+                                                    <td style="text-align: center; font-weight: 700; color: #dc2626;">
+                                                        <?= number_format((float)($st['original_score'] ?? 0), 1) ?>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <!-- FORM CEPAT INPUT NILAI REMEDIAL -->
+                                                        <form method="POST" action="/admin/remedial/update-score" style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                                            <input type="hidden" name="remedial_id" value="<?= htmlspecialchars($rem['id']) ?>">
+                                                            <input type="hidden" name="nis" value="<?= htmlspecialchars($st['nis']) ?>">
+                                                            <input type="number" step="0.5" name="score" value="<?= $st['remedial_score'] !== null ? htmlspecialchars($st['remedial_score']) : '' ?>" placeholder="0-100" min="0" max="100" style="width: 70px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12.5px; text-align: center; font-weight: 700;" required>
+                                                            <button type="submit" style="padding: 4px 8px; background: #2563eb; color: #ffffff; border: none; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;" title="Simpan Skor Remedial">
+                                                                💾 Simpan
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                    <td style="text-align: center; font-size: 14px; font-weight: 800; color: <?= $isPassed ? '#15803d' : '#334155' ?>;">
+                                                        <?= number_format((float)($st['final_score'] ?? 0), 1) ?>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <?php if ($isPassed): ?>
+                                                            <span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 700;">Lulus Remedial</span>
+                                                        <?php elseif ($st['remedial_score'] !== null): ?>
+                                                            <span class="badge" style="background: #fee2e2; color: #b91c1c; font-weight: 700;">Remedial Ulang</span>
+                                                        <?php else: ?>
+                                                            <span class="badge" style="background: #f1f5f9; color: #64748b;">Belum Mulai</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td style="text-align: center; font-size: 11.5px; color: #64748b;">
+                                                        <?= htmlspecialchars($st['remedial_date'] ?? '—') ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+
+    <!-- MODAL BUAT SESI REMEDIAL BARU -->
+    <div id="createRemedialModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; border-radius: 16px; max-width: 620px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); border: 1px solid #e2e8f0; overflow: hidden; animation: slideUp 0.2s ease-out; max-height: 90vh; display: flex; flex-direction: column;">
+            <div style="padding: 18px 24px; background: #1e293b; color: #ffffff; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">🎯</span>
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #ffffff;">Buat Sesi Ujian Remedial Baru</h3>
+                        <p style="margin: 3px 0 0; font-size: 12px; color: #94a3b8;">Atur paket ujian remedial, token, dan alokasikan siswa perbaikan nilai.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCreateRemedialModal()" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <form method="POST" action="/admin/remedial/create" style="padding: 24px; overflow-y: auto; flex: 1;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                    <div>
+                        <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Mata Pelajaran:</label>
+                        <select name="subject" id="rem_modal_subject" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; background: #f8fafc;" onchange="updateRemedialAutoTitle()">
+                            <?php foreach ($_SESSION['subjects_list'] as $sbItem): ?>
+                                <option value="<?= htmlspecialchars($sbItem['name']) ?>"><?= htmlspecialchars($sbItem['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Rombel / Kelas:</label>
+                        <select name="class" id="rem_modal_class" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; background: #f8fafc;" onchange="updateRemedialAutoTitle()">
+                            <?php foreach ($_SESSION['classes_list'] as $clItem): ?>
+                                <option value="<?= htmlspecialchars($clItem['name']) ?>"><?= htmlspecialchars($clItem['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Judul Sesi Remedial:</label>
+                    <input type="text" name="title" id="rem_modal_title" value="Ujian Remedial - Matematika X (10-TKJ-1)" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px;" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Token Remedial:</label>
+                        <input type="text" name="token" id="rem_modal_token" value="REM-<?= rand(1000, 9999) ?>" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-weight: 800; font-size: 13px; text-transform: uppercase;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Batas KKM:</label>
+                        <input type="number" step="0.5" name="passing_score" value="75.0" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Nilai Maks Remedial:</label>
+                        <input type="number" step="0.5" name="max_score" value="75.0" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700;" title="Nilai peserta setelah remedial tidak akan melebihi angka ini">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">Tanggal:</label>
+                        <input type="text" name="date" value="<?= date('d-m-Y') ?>" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12.5px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">Jam Mulai:</label>
+                        <input type="text" name="start_time" value="13:00" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12.5px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">Jam Selesai:</label>
+                        <input type="text" name="end_time" value="14:30" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12.5px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">Durasi (Menit):</label>
+                        <input type="number" name="duration" value="90" style="width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12.5px;">
+                    </div>
+                </div>
+
+                <!-- PILIH PESERTA REMEDIAL -->
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="font-size: 12.5px; font-weight: 700; color: #1e293b;">
+                            Daftarkan Siswa ke Sesi Remedial Ini:
+                        </label>
+                        <span style="font-size: 11.5px; color: #64748b;">(Tandai siswa yang wajib ikut)</span>
+                    </div>
+
+                    <div id="remModalStudentsList" style="max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; background: #f8fafc; display: flex; flex-direction: column; gap: 6px;">
+                        <?php foreach ($_SESSION['students_list'] as $sItem): ?>
+                            <label style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #334155; cursor: pointer; padding: 4px 6px; border-radius: 4px; background: #ffffff; border: 1px solid #e2e8f0;">
+                                <input type="checkbox" name="student_nis[]" class="rem-modal-student-cb" value="<?= htmlspecialchars($sItem['nis']) ?>" checked>
+                                <span style="font-family: monospace; font-weight: 700;"><?= htmlspecialchars($sItem['nis']) ?></span>
+                                <span style="font-weight: 600;"><?= htmlspecialchars($sItem['name']) ?></span>
+                                <span class="badge" style="margin-left: auto; font-size: 10.5px; background: #f1f5f9; color: #475569;"><?= htmlspecialchars($sItem['class']) ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 14px; border-top: 1px solid #f1f5f9;">
+                    <button type="button" onclick="closeCreateRemedialModal()" style="padding: 9px 18px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; color: #475569; font-weight: 600; font-size: 13px; cursor: pointer;">
+                        Batal
+                    </button>
+                    <button type="submit" style="padding: 9px 24px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                        ✓ Buat Sesi Remedial Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openCreateRemedialModal() {
+            var modal = document.getElementById('createRemedialModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeCreateRemedialModal() {
+            var modal = document.getElementById('createRemedialModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function updateRemedialAutoTitle() {
+            var sb = document.getElementById('rem_modal_subject').value;
+            var cl = document.getElementById('rem_modal_class').value;
+            document.getElementById('rem_modal_title').value = 'Ujian Remedial - ' + sb + ' (' + cl + ')';
+        }
+
+        function openCreateRemedialForSingle(nis, name, cls, subj) {
+            openCreateRemedialModal();
+            if (document.getElementById('rem_modal_subject')) document.getElementById('rem_modal_subject').value = subj;
+            if (document.getElementById('rem_modal_class')) document.getElementById('rem_modal_class').value = cls;
+            updateRemedialAutoTitle();
+
+            var cbs = document.querySelectorAll('.rem-modal-student-cb');
+            cbs.forEach(function(cb) {
+                cb.checked = (cb.value === nis);
+            });
+        }
+
+        function openCreateRemedialFromCandidateCheckboxes() {
+            var allChecked = document.querySelectorAll('.check-candidate-row:checked');
+            if (allChecked.length === 0) {
+                alert('Silakan tandai minimal 1 peserta untuk dimasukkan ke sesi ujian remedial.');
+                return;
+            }
+            openCreateRemedialModal();
+            var targetNisList = [];
+            allChecked.forEach(function(cb) { targetNisList.push(cb.value); });
+
+            var firstSubj = allChecked[0].getAttribute('data-subject');
+            var firstClass = allChecked[0].getAttribute('data-class');
+            if (firstSubj && document.getElementById('rem_modal_subject')) document.getElementById('rem_modal_subject').value = firstSubj;
+            if (firstClass && document.getElementById('rem_modal_class')) document.getElementById('rem_modal_class').value = firstClass;
+            updateRemedialAutoTitle();
+
+            var cbs = document.querySelectorAll('.rem-modal-student-cb');
+            cbs.forEach(function(cb) {
+                cb.checked = targetNisList.indexOf(cb.value) !== -1;
+            });
         }
     </script>
     <?php
