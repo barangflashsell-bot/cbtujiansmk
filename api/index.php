@@ -168,70 +168,99 @@ if (isset($_SESSION['teachers_list']) && is_array($_SESSION['teachers_list'])) {
     unset($tItem);
 }
 
-// C. Classes List
+// =========================================================================
+// DATA SEED GUARD: RESET & MUAT DATA BARU (15 SISWA 10-TKJ, 15 SISWA 11-TKJ, 15 SISWA 12-TKJ & 10 MAPEL)
+// =========================================================================
+if (!isset($_SESSION['data_seed_version']) || $_SESSION['data_seed_version'] !== 'v3_tkj45_10mapel' || isset($_GET['reset_demo_db'])) {
+    unset($_SESSION['classes_list']);
+    unset($_SESSION['students_list']);
+    unset($_SESSION['subjects_list']);
+    unset($_SESSION['questions_list']);
+    unset($_SESSION['exams_list']);
+    unset($_SESSION['monitoring_sessions']);
+    unset($_SESSION['student_attendance']);
+    unset($_SESSION['results_list']);
+    $_SESSION['data_seed_version'] = 'v3_tkj45_10mapel';
+}
+
+// C. Classes List (Rombongan Belajar TKJ)
 if (!isset($_SESSION['classes_list'])) {
     $_SESSION['classes_list'] = [
-        ['id' => 'c1', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '10-TKJ-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
-        ['id' => 'c2', 'major_id' => '2', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '10-RPL-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
-        ['id' => 'c3', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '11-TKJ-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
-        ['id' => 'c4', 'major_id' => '2', 'major' => 'Rekayasa Perangkat Lunak', 'name' => '11-RPL-1', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 35, 'status' => 'active'],
-        ['id' => 'c5', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '12-TKJ-1', 'level' => '12', 'academic_year' => '2025/2026', 'students_count' => 34, 'status' => 'active'],
-        ['id' => 'c6', 'major_id' => '3', 'major' => 'Akuntansi & Keuangan', 'name' => '10-AKL-1', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 36, 'status' => 'active'],
+        ['id' => 'c1', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '10-TKJ', 'level' => '10', 'academic_year' => '2025/2026', 'students_count' => 15, 'status' => 'active'],
+        ['id' => 'c2', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '11-TKJ', 'level' => '11', 'academic_year' => '2025/2026', 'students_count' => 15, 'status' => 'active'],
+        ['id' => 'c3', 'major_id' => '1', 'major' => 'Teknik Komputer & Jaringan', 'name' => '12-TKJ', 'level' => '12', 'academic_year' => '2025/2026', 'students_count' => 15, 'status' => 'active'],
     ];
 }
 
-// D. Students List (Login siswa menggunakan NIS dan Password, Kelas mengikuti ID Jurusan angka)
+// D. Students List (45 Siswa TKJ: 15 kelas 10, 15 kelas 11, 15 kelas 12)
 if (!isset($_SESSION['students_list'])) {
     $_SESSION['students_list'] = [
-        ['id' => 's1', 'nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'username' => '0081234567', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's2', 'nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'username' => '0081234568', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
-        ['id' => 's3', 'nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'username' => '0081234569', 'password' => '12345678', 'major_id' => '2', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's4', 'nis' => '0081234570', 'name' => 'Dewi Lestari', 'username' => '0081234570', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ-1', 'gender' => 'P', 'status' => 'Online'],
-        ['id' => 's5', 'nis' => '0081234571', 'name' => 'Eko Prasetyo', 'username' => '0081234571', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
-        ['id' => 's6', 'nis' => '0081234572', 'name' => 'Farhan Maulana', 'username' => '0081234572', 'password' => '12345678', 'major_id' => '2', 'class' => '10-RPL-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's7', 'nis' => '0081234573', 'name' => 'Rizky Pratama', 'username' => '0081234573', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ-1', 'gender' => 'L', 'status' => 'Online'],
-        ['id' => 's8', 'nis' => '0081234574', 'name' => 'Anisa Putri', 'username' => '0081234574', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ-1', 'gender' => 'P', 'status' => 'Offline'],
-        ['id' => 's9', 'nis' => '0081234575', 'name' => 'Fajar Hidayat', 'username' => '0081234575', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ-1', 'gender' => 'L', 'status' => 'Offline'],
+        // --- 15 SISWA KELAS 10-TKJ ---
+        ['id' => 's1', 'nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'username' => '0081010001', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's2', 'nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'username' => '0081010002', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's3', 'nis' => '0081010003', 'name' => 'Bagas Aditya Nugraha', 'username' => '0081010003', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's4', 'nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'username' => '0081010004', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's5', 'nis' => '0081010005', 'name' => 'Dimas Arya Wibowo', 'username' => '0081010005', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's6', 'nis' => '0081010006', 'name' => 'Elsa Maharani', 'username' => '0081010006', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's7', 'nis' => '0081010007', 'name' => 'Farel Alamsyah', 'username' => '0081010007', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's8', 'nis' => '0081010008', 'name' => 'Gita Safitri', 'username' => '0081010008', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's9', 'nis' => '0081010009', 'name' => 'Hafiz Nur Hidayat', 'username' => '0081010009', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's10', 'nis' => '0081010010', 'name' => 'Indah Permatasari', 'username' => '0081010010', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's11', 'nis' => '0081010011', 'name' => 'Jaka Satria Dewa', 'username' => '0081010011', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's12', 'nis' => '0081010012', 'name' => 'Kania Dewi Lestari', 'username' => '0081010012', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's13', 'nis' => '0081010013', 'name' => 'M. Rizky Kurniawan', 'username' => '0081010013', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's14', 'nis' => '0081010014', 'name' => 'Nadya Zahra Salsabila', 'username' => '0081010014', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's15', 'nis' => '0081010015', 'name' => 'Oki Firmansyah', 'username' => '0081010015', 'password' => '12345678', 'major_id' => '1', 'class' => '10-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+
+        // --- 15 SISWA KELAS 11-TKJ ---
+        ['id' => 's16', 'nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'username' => '0071110001', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's17', 'nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'username' => '0071110002', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's18', 'nis' => '0071110003', 'name' => 'Candra Wijaya', 'username' => '0071110003', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's19', 'nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'username' => '0071110004', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's20', 'nis' => '0071110005', 'name' => 'Edo Septian', 'username' => '0071110005', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's21', 'nis' => '0071110006', 'name' => 'Fitri Handayani', 'username' => '0071110006', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's22', 'nis' => '0071110007', 'name' => 'Gilang Ramadhan', 'username' => '0071110007', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's23', 'nis' => '0071110008', 'name' => 'Hani Farida', 'username' => '0071110008', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's24', 'nis' => '0071110009', 'name' => 'Ilham Wahyudi', 'username' => '0071110009', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's25', 'nis' => '0071110010', 'name' => 'Jessica Olivia', 'username' => '0071110010', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's26', 'nis' => '0071110011', 'name' => 'Kevin Maulana', 'username' => '0071110011', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's27', 'nis' => '0071110012', 'name' => 'Lutfi Hakim', 'username' => '0071110012', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's28', 'nis' => '0071110013', 'name' => 'Maya Anggraini', 'username' => '0071110013', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's29', 'nis' => '0071110014', 'name' => 'Naufal Arkananta', 'username' => '0071110014', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's30', 'nis' => '0071110015', 'name' => 'Putri Rahmawati', 'username' => '0071110015', 'password' => '12345678', 'major_id' => '1', 'class' => '11-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+
+        // --- 15 SISWA KELAS 12-TKJ ---
+        ['id' => 's31', 'nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'username' => '0061210001', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's32', 'nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'username' => '0061210002', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's33', 'nis' => '0061210003', 'name' => 'Bayu Tri Santoso', 'username' => '0061210003', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's34', 'nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'username' => '0061210004', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's35', 'nis' => '0061210005', 'name' => 'Danu Wicaksono', 'username' => '0061210005', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's36', 'nis' => '0061210006', 'name' => 'Erika Wulandari', 'username' => '0061210006', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's37', 'nis' => '0061210007', 'name' => 'Firman Syahrizal', 'username' => '0061210007', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's38', 'nis' => '0061210008', 'name' => 'Galuh Kartika', 'username' => '0061210008', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's39', 'nis' => '0061210009', 'name' => 'Hendra Gunawan', 'username' => '0061210009', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's40', 'nis' => '0061210010', 'name' => 'Ismawati Hasanah', 'username' => '0061210010', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's41', 'nis' => '0061210011', 'name' => 'Joni Setiawan', 'username' => '0061210011', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
+        ['id' => 's42', 'nis' => '0061210012', 'name' => 'Kartika Sari Dewi', 'username' => '0061210012', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Online'],
+        ['id' => 's43', 'nis' => '0061210013', 'name' => 'Lukman Hakim', 'username' => '0061210013', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Online'],
+        ['id' => 's44', 'nis' => '0061210014', 'name' => 'Mega Puspitasari', 'username' => '0061210014', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'P', 'status' => 'Offline'],
+        ['id' => 's45', 'nis' => '0061210015', 'name' => 'Rendy Firmansyah', 'username' => '0061210015', 'password' => '12345678', 'major_id' => '1', 'class' => '12-TKJ', 'gender' => 'L', 'status' => 'Offline'],
     ];
 }
 
-// Sanitasi Data Siswa: Pastikan login siswa menggunakan NIS dan major_id sinkron
-if (isset($_SESSION['students_list']) && is_array($_SESSION['students_list'])) {
-    foreach ($_SESSION['students_list'] as &$sItem) {
-        if (!empty($sItem['nis'])) {
-            $sItem['username'] = $sItem['nis'];
-        }
-        if (empty($sItem['major_id'])) {
-            $cls = $sItem['class'] ?? '';
-            $foundMajor = null;
-            if (isset($_SESSION['classes_list'])) {
-                foreach ($_SESSION['classes_list'] as $clItem) {
-                    if ($clItem['name'] === $cls) {
-                        $foundMajor = (string)($clItem['major_id'] ?? '1');
-                        break;
-                    }
-                }
-            }
-            if (!$foundMajor) {
-                if (str_contains(strtoupper($cls), 'TKJ')) $foundMajor = '1';
-                elseif (str_contains(strtoupper($cls), 'RPL')) $foundMajor = '2';
-                elseif (str_contains(strtoupper($cls), 'AK')) $foundMajor = '3';
-                else $foundMajor = '1';
-            }
-            $sItem['major_id'] = $foundMajor;
-        }
-    }
-    unset($sItem);
-}
-
-// E. Subjects List (Bank Soal)
+// E. Subjects List (10 Mata Pelajaran Lengkap)
 if (!isset($_SESSION['subjects_list'])) {
     $_SESSION['subjects_list'] = [
-        ['id' => 'sb1', 'code' => 'MAT', 'name' => 'Matematika X', 'teacher' => 'Budi Santoso, S.Pd', 'format' => 'tryout', 'description' => 'Bank Soal Ujian Matematika Umum Kelas X Semester Ganjil', 'duration' => 120, 'weight_pg' => 60, 'weight_pg_multi' => 0, 'weight_essay' => 40, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 3, 'status' => 'active'],
-        ['id' => 'sb2', 'code' => 'BIND', 'name' => 'Bahasa Indonesia X', 'teacher' => 'Dra. Nurul Hidayati', 'format' => 'standard', 'description' => 'Bank Soal Asesmen Sumatif Bahasa Indonesia Kelas X', 'duration' => 90, 'weight_pg' => 50, 'weight_pg_multi' => 0, 'weight_essay' => 50, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 45, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb3', 'code' => 'PROG', 'name' => 'Dasar Pemrograman RPL', 'teacher' => 'Siti Aminah, M.Kom', 'format' => 'standard', 'description' => 'Bank Soal Kejuruan RPL Pemrograman Berorientasi Objek', 'duration' => 120, 'weight_pg' => 70, 'weight_pg_multi' => 0, 'weight_essay' => 30, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 50, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb4', 'code' => 'JARKOM', 'name' => 'Jaringan Komputer Dasar TKJ', 'teacher' => 'Ahmad Fauzi, S.T', 'format' => 'standard', 'description' => 'Bank Soal Perakitan & Konfigurasi Jaringan Komputer', 'duration' => 120, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 1, 'status' => 'active'],
-        ['id' => 'sb5', 'code' => 'PAI', 'name' => 'Pendidikan Agama Islam', 'teacher' => 'Drs. H. Bambang Sutrisno', 'format' => 'standard', 'description' => 'Bank Soal Pendidikan Agama Islam dan Budi Pekerti', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 1, 'status' => 'active'],
+        ['id' => 'sb1', 'code' => 'DTKJ', 'name' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'teacher' => 'Ahmad Fauzi, S.T', 'format' => 'standard', 'description' => 'Dasar perakitan PC, topologi jaringan komputer, pengkabelan UTP, dan dasar IP addressing', 'duration' => 90, 'weight_pg' => 70, 'weight_pg_multi' => 0, 'weight_essay' => 30, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb2', 'code' => 'AIJ', 'name' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'teacher' => 'Ir. Hendra Saputra', 'format' => 'standard', 'description' => 'Konfigurasi VLAN, Trunking, Routing Statis & Dinamis, Access Control List, dan Mikrotik RouterOS', 'duration' => 90, 'weight_pg' => 60, 'weight_pg_multi' => 0, 'weight_essay' => 40, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb3', 'code' => 'ASJ', 'name' => 'Administrasi Server Jaringan (ASJ)', 'teacher' => 'Dian Permana, S.Kom', 'format' => 'standard', 'description' => 'Instalasi & manajemen server Linux Debian, DNS Server, Web Server Nginx/Apache, DHCP, dan FTP Server', 'duration' => 90, 'weight_pg' => 70, 'weight_pg_multi' => 0, 'weight_essay' => 30, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb4', 'code' => 'TLJ', 'name' => 'Teknologi Layanan Jaringan (TLJ)', 'teacher' => 'Rian Hidayat, M.Kom', 'format' => 'standard', 'description' => 'Teknologi komunikasi data, VoIP, Asterisk PBX, SIP Server, QoS, dan arsitektur bandwidth jaringan', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb5', 'code' => 'KJK', 'name' => 'Keamanan Jaringan & Cyber Security (KJK)', 'teacher' => 'Wahyu Pratama, S.T', 'format' => 'standard', 'description' => 'Sistem pertahanan Firewall, kriptografi, mitigasi serangan DoS/DDoS, VPN, dan audit keamanan sistem', 'duration' => 90, 'weight_pg' => 75, 'weight_pg_multi' => 0, 'weight_essay' => 25, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb6', 'code' => 'MAT', 'name' => 'Matematika Terapan', 'teacher' => 'Budi Santoso, S.Pd', 'format' => 'standard', 'description' => 'Logika matematika terapan, matriks, sistem persamaan linier, dan statistika teknik', 'duration' => 90, 'weight_pg' => 60, 'weight_pg_multi' => 0, 'weight_essay' => 40, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb7', 'code' => 'BIND', 'name' => 'Bahasa Indonesia', 'teacher' => 'Dra. Nurul Hidayati', 'format' => 'standard', 'description' => 'Kebahasaan, penyusunan laporan teknis, karya ilmiah, dan komunikasi formal', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb8', 'code' => 'BING', 'name' => 'Bahasa Inggris Teknik', 'teacher' => 'Siti Aminah, M.Kom', 'format' => 'standard', 'description' => 'Technical English communication, computer networking terminology, and manual reading', 'duration' => 90, 'weight_pg' => 80, 'weight_pg_multi' => 0, 'weight_essay' => 20, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb9', 'code' => 'PAI', 'name' => 'Pendidikan Agama & Budi Pekerti', 'teacher' => 'Drs. H. Bambang Sutrisno', 'format' => 'standard', 'description' => 'Pendidikan nilai akhlak mulia, fikih ibadah, muamalah, dan pembentukan budi pekerti luhur', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb10', 'code' => 'PKK', 'name' => 'Produk Kreatif & Kewirausahaan (PKK)', 'teacher' => 'Endah Sri Wahyuni, M.Pd', 'format' => 'standard', 'description' => 'Perancangan produk jasa jaringan komputer, analisis kelayakan usaha, HAKI, dan pemasaran digital', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 40, 'exams_count' => 2, 'status' => 'active'],
     ];
 }
 
@@ -241,62 +270,86 @@ if (!isset($_SESSION['questions_list'])) {
         [
             'id' => 'q1',
             'subject_id' => 'sb1',
-            'subject_name' => 'Matematika X',
+            'subject_name' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
             'question_type' => 'single_choice',
             'difficulty' => 'easy',
-            'content' => 'Berapakah hasil dari 2 pangkat 5 ditambah 3 pangkat 3?',
+            'content' => 'Urutan warna standar kabel UTP T568B dari pin 1 sampai pin 8 yang benar adalah...',
             'score_weight' => 2.5,
-            'creator' => 'Budi Santoso, S.Pd',
-            'options' => ['A' => '45', 'B' => '59', 'C' => '64', 'D' => '32', 'E' => '27'],
-            'correct_option' => 'B',
+            'creator' => 'Ahmad Fauzi, S.T',
+            'options' => [
+                'A' => 'Putih Orange, Orange, Putih Hijau, Biru, Putih Biru, Hijau, Putih Coklat, Coklat',
+                'B' => 'Putih Hijau, Hijau, Putih Orange, Biru, Putih Biru, Orange, Putih Coklat, Coklat',
+                'C' => 'Putih Orange, Orange, Putih Biru, Biru, Putih Hijau, Hijau, Putih Coklat, Coklat',
+                'D' => 'Putih Biru, Biru, Putih Orange, Orange, Putih Hijau, Hijau, Putih Coklat, Coklat',
+                'E' => 'Orange, Putih Orange, Hijau, Putih Hijau, Biru, Putih Biru, Coklat, Putih Coklat'
+            ],
+            'correct_option' => 'A',
             'status' => 'active',
         ],
         [
             'id' => 'q2',
             'subject_id' => 'sb2',
-            'subject_name' => 'Bahasa Indonesia X',
+            'subject_name' => 'Administrasi Infrastruktur Jaringan (AIJ)',
             'question_type' => 'single_choice',
-            'difficulty' => 'easy',
-            'content' => 'Ide pokok atau gagasan utama dalam suatu paragraf biasanya terletak pada...',
+            'difficulty' => 'medium',
+            'content' => 'Untuk menghubungkan switch ke switch yang membawa traffic lebih dari satu VLAN, mode port switch yang harus dikonfigurasi adalah...',
             'score_weight' => 2.5,
-            'creator' => 'Dra. Nurul Hidayati',
-            'options' => ['A' => 'Awal paragraf', 'B' => 'Akhir paragraf', 'C' => 'Tengah paragraf', 'D' => 'Awal atau akhir paragraf', 'E' => 'Seluruh isi paragraf'],
-            'correct_option' => 'D',
+            'creator' => 'Ir. Hendra Saputra',
+            'options' => [
+                'A' => 'Mode Access',
+                'B' => 'Mode Trunk',
+                'C' => 'Mode Dynamic Auto',
+                'D' => 'Mode Duplex',
+                'E' => 'Mode Static Port'
+            ],
+            'correct_option' => 'B',
             'status' => 'active',
         ],
         [
             'id' => 'q3',
             'subject_id' => 'sb3',
-            'subject_name' => 'Dasar Pemrograman RPL',
+            'subject_name' => 'Administrasi Server Jaringan (ASJ)',
             'question_type' => 'single_choice',
             'difficulty' => 'medium',
-            'content' => 'Struktur perulangan yang pasti mengeksekusi blok minimal satu kali adalah...',
-            'score_weight' => 3.0,
-            'creator' => 'Siti Aminah, M.Kom',
-            'options' => ['A' => 'for loop', 'B' => 'while loop', 'C' => 'do-while loop', 'D' => 'foreach loop', 'E' => 'recursive loop'],
-            'correct_option' => 'C',
+            'content' => 'Paket aplikasi DNS Server yang paling umum digunakan pada sistem operasi Linux Debian adalah...',
+            'score_weight' => 2.5,
+            'creator' => 'Dian Permana, S.Kom',
+            'options' => [
+                'A' => 'Apache2',
+                'B' => 'Bind9',
+                'C' => 'Proftpd',
+                'D' => 'Isc-dhcp-server',
+                'E' => 'Postfix'
+            ],
+            'correct_option' => 'B',
             'status' => 'active',
         ],
         [
             'id' => 'q4',
-            'subject_id' => 'sb4',
-            'subject_name' => 'Jaringan Komputer Dasar TKJ',
+            'subject_id' => 'sb5',
+            'subject_name' => 'Keamanan Jaringan & Cyber Security (KJK)',
             'question_type' => 'single_choice',
             'difficulty' => 'hard',
-            'content' => 'Protokol jaringan yang bertugas memberikan konfigurasi alamat IP secara otomatis ke perangkat klien adalah...',
+            'content' => 'Serangan siber yang membanjiri server dengan jutaan paket palsu secara simultan hingga server lumpuh disebut...',
             'score_weight' => 2.5,
-            'creator' => 'Ahmad Fauzi, S.T',
-            'options' => ['A' => 'DNS', 'B' => 'DHCP', 'C' => 'FTP', 'D' => 'HTTP', 'E' => 'SMTP'],
+            'creator' => 'Wahyu Pratama, S.T',
+            'options' => [
+                'A' => 'Phishing Attack',
+                'B' => 'Distributed Denial of Service (DDoS)',
+                'C' => 'SQL Injection',
+                'D' => 'Man in the Middle (MitM)',
+                'E' => 'Cross-Site Scripting (XSS)'
+            ],
             'correct_option' => 'B',
             'status' => 'active',
         ],
         [
             'id' => 'q5',
-            'subject_id' => 'sb1',
-            'subject_name' => 'Matematika X',
+            'subject_id' => 'sb6',
+            'subject_name' => 'Matematika Terapan',
             'question_type' => 'essay',
             'difficulty' => 'medium',
-            'content' => 'Jelaskan langkah-langkah dalam menyelesaikan persamaan linear satu variabel dan berikan contoh perhitungannya secara sistematis!',
+            'content' => 'Sebuah jaringan komputer memiliki subnet mask 255.255.255.192 (/26). Hitunglah jumlah subnet, jumlah host valid per subnet, dan subnetting lengkapnya!',
             'score_weight' => 20.0,
             'creator' => 'Budi Santoso, S.Pd',
             'options' => [],
@@ -306,52 +359,162 @@ if (!isset($_SESSION['questions_list'])) {
     ];
 }
 
-// G. Exams List (Tiap paket ujian terikat pada Mata Pelajaran, Token Unik, dan Rombel Kelas)
+// G. Exams List (Paket Ujian untuk 10-TKJ, 11-TKJ, dan 12-TKJ dengan Token Unik)
 if (!isset($_SESSION['exams_list'])) {
     $_SESSION['exams_list'] = [
+        // --- UJIAN KELAS 10-TKJ ---
         [
             'id' => 'ex-1',
-            'title' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X',
-            'subject' => 'Matematika X',
-            'class' => '10-TKJ-1',
-            'creator' => 'Budi Santoso, S.Pd',
-            'start' => '11/09/2026 08:00',
-            'end' => '11/09/2026 10:00',
+            'title' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)',
+            'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)',
+            'class' => '10-TKJ',
+            'creator' => 'Ahmad Fauzi, S.T',
+            'start' => '18/09/2026 08:00',
+            'end' => '18/09/2026 09:30',
             'duration' => 90,
-            'token' => 'WXYZ89',
+            'token' => 'TKJ10A',
             'questions_count' => 40,
-            'participants_count' => 36,
+            'participants_count' => 15,
             'passing_score' => 75.0,
             'status' => 'active',
         ],
         [
             'id' => 'ex-2',
-            'title' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X',
-            'subject' => 'Bahasa Indonesia X',
-            'class' => '11-TKJ-1',
-            'creator' => 'Dra. Nurul Hidayati',
-            'start' => '10/09/2026 08:00',
-            'end' => '10/09/2026 09:30',
+            'title' => 'Sumatif Tengah Semester - Matematika Terapan',
+            'subject' => 'Matematika Terapan',
+            'class' => '10-TKJ',
+            'creator' => 'Budi Santoso, S.Pd',
+            'start' => '18/09/2026 10:00',
+            'end' => '18/09/2026 11:30',
             'duration' => 90,
-            'token' => 'ABCD12',
+            'token' => 'TKJ10B',
             'questions_count' => 40,
-            'participants_count' => 36,
+            'participants_count' => 15,
             'passing_score' => 75.0,
-            'status' => 'completed',
+            'status' => 'published',
         ],
         [
             'id' => 'ex-3',
-            'title' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL',
-            'subject' => 'Dasar Pemrograman RPL',
-            'class' => '10-RPL-1',
-            'creator' => 'Siti Aminah, M.Kom',
-            'start' => '12/09/2026 08:00',
-            'end' => '12/09/2026 10:30',
-            'duration' => 120,
-            'token' => 'PROG26',
-            'questions_count' => 50,
-            'participants_count' => 32,
+            'title' => 'Penilaian Formatif - Bahasa Indonesia',
+            'subject' => 'Bahasa Indonesia',
+            'class' => '10-TKJ',
+            'creator' => 'Dra. Nurul Hidayati',
+            'start' => '19/09/2026 08:00',
+            'end' => '19/09/2026 09:30',
+            'duration' => 90,
+            'token' => 'TKJ10C',
+            'questions_count' => 40,
+            'participants_count' => 15,
+            'passing_score' => 75.0,
+            'status' => 'published',
+        ],
+
+        // --- UJIAN KELAS 11-TKJ ---
+        [
+            'id' => 'ex-4',
+            'title' => 'Asesmen Praktik - Administrasi Infrastruktur Jaringan (AIJ)',
+            'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)',
+            'class' => '11-TKJ',
+            'creator' => 'Ir. Hendra Saputra',
+            'start' => '18/09/2026 08:00',
+            'end' => '18/09/2026 09:30',
+            'duration' => 90,
+            'token' => 'TKJ11A',
+            'questions_count' => 40,
+            'participants_count' => 15,
             'passing_score' => 78.0,
+            'status' => 'active',
+        ],
+        [
+            'id' => 'ex-5',
+            'title' => 'Evaluasi Server - Administrasi Server Jaringan (ASJ)',
+            'subject' => 'Administrasi Server Jaringan (ASJ)',
+            'class' => '11-TKJ',
+            'creator' => 'Dian Permana, S.Kom',
+            'start' => '18/09/2026 10:00',
+            'end' => '18/09/2026 11:30',
+            'duration' => 90,
+            'token' => 'TKJ11B',
+            'questions_count' => 40,
+            'participants_count' => 15,
+            'passing_score' => 75.0,
+            'status' => 'published',
+        ],
+        [
+            'id' => 'ex-6',
+            'title' => 'Ujian Teori - Teknologi Layanan Jaringan (TLJ)',
+            'subject' => 'Teknologi Layanan Jaringan (TLJ)',
+            'class' => '11-TKJ',
+            'creator' => 'Rian Hidayat, M.Kom',
+            'start' => '19/09/2026 08:00',
+            'end' => '19/09/2026 09:30',
+            'duration' => 90,
+            'token' => 'TKJ11C',
+            'questions_count' => 40,
+            'participants_count' => 15,
+            'passing_score' => 75.0,
+            'status' => 'published',
+        ],
+
+        // --- UJIAN KELAS 12-TKJ ---
+        [
+            'id' => 'ex-7',
+            'title' => 'Uji Kompetensi Keahlian - Keamanan Jaringan & Cyber (KJK)',
+            'subject' => 'Keamanan Jaringan & Cyber Security (KJK)',
+            'class' => '12-TKJ',
+            'creator' => 'Wahyu Pratama, S.T',
+            'start' => '18/09/2026 08:00',
+            'end' => '18/09/2026 10:00',
+            'duration' => 120,
+            'token' => 'TKJ12A',
+            'questions_count' => 40,
+            'participants_count' => 15,
+            'passing_score' => 80.0,
+            'status' => 'active',
+        ],
+        [
+            'id' => 'ex-8',
+            'title' => 'Ujian Sekolah - Produk Kreatif & Kewirausahaan (PKK)',
+            'subject' => 'Produk Kreatif & Kewirausahaan (PKK)',
+            'class' => '12-TKJ',
+            'creator' => 'Endah Sri Wahyuni, M.Pd',
+            'start' => '18/09/2026 10:30',
+            'end' => '18/09/2026 12:00',
+            'duration' => 90,
+            'token' => 'TKJ12B',
+            'questions_count' => 40,
+            'participants_count' => 15,
+            'passing_score' => 75.0,
+            'status' => 'published',
+        ],
+        [
+            'id' => 'ex-9',
+            'title' => 'Asesmen Akhir Jenjang - Bahasa Inggris Teknik',
+            'subject' => 'Bahasa Inggris Teknik',
+            'class' => '12-TKJ',
+            'creator' => 'Siti Aminah, M.Kom',
+            'start' => '19/09/2026 08:00',
+            'end' => '19/09/2026 09:30',
+            'duration' => 90,
+            'token' => 'TKJ12C',
+            'questions_count' => 40,
+            'participants_count' => 15,
+            'passing_score' => 75.0,
+            'status' => 'published',
+        ],
+        [
+            'id' => 'ex-10',
+            'title' => 'Gladi Bersih Ujian Sekolah - Pendidikan Agama Islam (PAI)',
+            'subject' => 'Pendidikan Agama & Budi Pekerti',
+            'class' => '12-TKJ',
+            'creator' => 'Drs. H. Bambang Sutrisno',
+            'start' => '19/09/2026 10:00',
+            'end' => '19/09/2026 11:30',
+            'duration' => 90,
+            'token' => 'TKJ12D',
+            'questions_count' => 40,
+            'participants_count' => 15,
+            'passing_score' => 75.0,
             'status' => 'published',
         ],
     ];
@@ -359,25 +522,28 @@ if (!isset($_SESSION['exams_list'])) {
 
 // Pastikan atribut class dan token selalu ada pada setiap exam
 foreach ($_SESSION['exams_list'] as &$exItem) {
-    if (empty($exItem['token'])) $exItem['token'] = 'CBT' . rand(100, 999);
-    if (empty($exItem['class'])) $exItem['class'] = '10-TKJ-1';
+    if (empty($exItem['token'])) $exItem['token'] = 'TKJ' . rand(100, 999);
+    if (empty($exItem['class'])) $exItem['class'] = '10-TKJ';
 }
 unset($exItem);
 
 // H. Monitoring Sessions (Terpetakan secara tepat per exam_id, token, dan kelas siswa)
 if (!isset($_SESSION['monitoring_sessions'])) {
     $_SESSION['monitoring_sessions'] = [
-        // ex-1 (Matematika X - 10-TKJ-1 - Token: WXYZ89)
-        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'token' => 'WXYZ89', 'subject' => 'Matematika X', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
-        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'token' => 'WXYZ89', 'subject' => 'Matematika X', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        // Sesi Kelas 10-TKJ (ex-1 - Token: TKJ10A)
+        ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'token' => 'TKJ10A', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'answered' => 25, 'total' => 40, 'time_left' => '45:10', 'status' => 'Mengerjakan', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:18:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
         
-        // ex-2 (Bahasa Indonesia X - 11-TKJ-1 - Token: ABCD12)
-        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'token' => 'ABCD12', 'subject' => 'Bahasa Indonesia X', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-2', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-        ['nis' => '0081234573', 'name' => 'Rizky Pratama', 'class' => '11-TKJ-1', 'token' => 'ABCD12', 'subject' => 'Bahasa Indonesia X', 'answered' => 36, 'total' => 40, 'time_left' => '32:45', 'status' => 'Mengerjakan', 'ip' => '192.168.1.106', 'exam_id' => 'ex-2', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:12:30', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
-        
-        // ex-3 (Dasar Pemrograman RPL - 10-RPL-1 - Token: PROG26)
-        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'token' => 'PROG26', 'subject' => 'Dasar Pemrograman RPL', 'answered' => 22, 'total' => 50, 'time_left' => '41:05', 'status' => 'Terkunci (3 Pelanggaran)', 'ip' => '192.168.1.103', 'exam_id' => 'ex-3', 'violations' => 3, 'is_locked' => true, 'login_time' => '07:14:50', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
-        ['nis' => '0081234572', 'name' => 'Farhan Maulana', 'class' => '10-RPL-1', 'token' => 'PROG26', 'subject' => 'Dasar Pemrograman RPL', 'answered' => 48, 'total' => 50, 'time_left' => '12:10', 'status' => 'Mengerjakan', 'ip' => '192.168.1.107', 'exam_id' => 'ex-3', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:11:05', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
+        // Sesi Kelas 11-TKJ (ex-4 - Token: TKJ11A)
+        ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 36, 'total' => 40, 'time_left' => '32:45', 'status' => 'Mengerjakan', 'ip' => '192.168.1.106', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:12:30', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        ['nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.107', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        ['nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'class' => '11-TKJ', 'token' => 'TKJ11A', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'answered' => 20, 'total' => 40, 'time_left' => '50:12', 'status' => 'Mengerjakan', 'ip' => '192.168.1.109', 'exam_id' => 'ex-4', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:20:00', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+
+        // Sesi Kelas 12-TKJ (ex-7 - Token: TKJ12A)
+        ['nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 39, 'total' => 40, 'time_left' => '15:20', 'status' => 'Mengerjakan', 'ip' => '192.168.1.111', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:14:10', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
+        ['nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.112', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:05:55', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
+        ['nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'class' => '12-TKJ', 'token' => 'TKJ12A', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'answered' => 35, 'total' => 40, 'time_left' => '22:15', 'status' => 'Mengerjakan', 'ip' => '192.168.1.114', 'exam_id' => 'ex-7', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:11:40', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
     ];
 }
 foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
@@ -391,7 +557,7 @@ foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
         if (isset($_SESSION['exams_list'])) {
             foreach ($_SESSION['exams_list'] as $exTemp) {
                 if ($exTemp['id'] === $msItem['exam_id']) {
-                    $msItem['token'] = $exTemp['token'] ?? 'WXYZ89';
+                    $msItem['token'] = $exTemp['token'] ?? 'TKJ10A';
                     $msItem['subject'] = $exTemp['subject'] ?? 'Umum';
                     break;
                 }
@@ -404,27 +570,38 @@ unset($msItem);
 // H2. Student Attendance Map (Rekap Presensi Siswa Real-Time Berdasarkan Login)
 if (!isset($_SESSION['student_attendance'])) {
     $_SESSION['student_attendance'] = [
-        '0081234567' => ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'login_time' => '07:15:24', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.101', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
-        '0081234568' => ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'login_time' => '07:10:05', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.102', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
-        '0081234569' => ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'login_time' => '07:14:50', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.103', 'device' => 'Android Kiosk / Tablet', 'status' => 'HADIR'],
-        '0081234570' => ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'login_time' => '07:08:12', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.104', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
-        '0081234571' => ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'login_time' => '07:18:33', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.105', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
-        '0081234572' => ['nis' => '0081234572', 'name' => 'Farhan Maulana', 'class' => '10-RPL-1', 'login_time' => '07:11:05', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.107', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
-        '0081234573' => ['nis' => '0081234573', 'name' => 'Rizky Pratama', 'class' => '11-TKJ-1', 'login_time' => '07:12:30', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.106', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
+        '0081010001' => ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'login_time' => '07:15:24', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.101', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
+        '0081010002' => ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'login_time' => '07:10:05', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.102', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
+        '0081010004' => ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'login_time' => '07:18:00', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.104', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
+        '0071110001' => ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'login_time' => '07:12:30', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.106', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
+        '0071110002' => ['nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'class' => '11-TKJ', 'login_time' => '07:08:12', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.107', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
+        '0071110004' => ['nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'class' => '11-TKJ', 'login_time' => '07:20:00', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.109', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
+        '0061210001' => ['nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'class' => '12-TKJ', 'login_time' => '07:14:10', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.111', 'device' => 'Android Kiosk / Tablet', 'status' => 'HADIR'],
+        '0061210002' => ['nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'class' => '12-TKJ', 'login_time' => '07:05:55', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.112', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
+        '0061210004' => ['nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'class' => '12-TKJ', 'login_time' => '07:11:40', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.114', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
     ];
 }
 
 // I. Results List (Tiap baris menyimpan relasi exam_id, subject, class, dan token secara presisi)
 if (!isset($_SESSION['results_list'])) {
     $_SESSION['results_list'] = [
-        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'exam_id' => 'ex-1', 'subject' => 'Matematika X', 'token' => 'WXYZ89', 'correct' => 34, 'wrong' => 6, 'empty' => 0, 'score' => 85.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'exam_id' => 'ex-1', 'subject' => 'Matematika X', 'token' => 'WXYZ89', 'correct' => 37, 'wrong' => 3, 'empty' => 0, 'score' => 92.5, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'exam' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL', 'exam_id' => 'ex-3', 'subject' => 'Dasar Pemrograman RPL', 'token' => 'PROG26', 'correct' => 28, 'wrong' => 10, 'empty' => 2, 'score' => 70.0, 'passing' => 78.0, 'published' => false],
-        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 36, 'wrong' => 4, 'empty' => 0, 'score' => 90.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 32, 'wrong' => 7, 'empty' => 1, 'score' => 80.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234572', 'name' => 'Farhan Maulana', 'class' => '10-RPL-1', 'exam' => 'Ujian Sertifikasi Kejuruan - Dasar Pemrograman RPL', 'exam_id' => 'ex-3', 'subject' => 'Dasar Pemrograman RPL', 'token' => 'PROG26', 'correct' => 35, 'wrong' => 5, 'empty' => 0, 'score' => 87.5, 'passing' => 78.0, 'published' => true],
-        ['nis' => '0081234573', 'name' => 'Rizky Pratama', 'class' => '11-TKJ-1', 'exam' => 'Asesmen Sumatif Tengah Semester - Bahasa Indonesia X', 'exam_id' => 'ex-2', 'subject' => 'Bahasa Indonesia X', 'token' => 'ABCD12', 'correct' => 38, 'wrong' => 2, 'empty' => 0, 'score' => 95.0, 'passing' => 75.0, 'published' => true],
-        ['nis' => '0081234575', 'name' => 'Fajar Hidayat', 'class' => '10-TKJ-1', 'exam' => 'Penilaian Akhir Semester (PAS) Ganjil - Matematika X', 'exam_id' => 'ex-1', 'subject' => 'Matematika X', 'token' => 'WXYZ89', 'correct' => 20, 'wrong' => 20, 'empty' => 0, 'score' => 50.0, 'passing' => 75.0, 'published' => true],
+        // Rekap Nilai Siswa 10-TKJ (ex-1 - DTKJ - Token: TKJ10A)
+        ['nis' => '0081010001', 'name' => 'Ahmad Fauzan Pratama', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 36, 'wrong' => 4, 'empty' => 0, 'score' => 90.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081010002', 'name' => 'Aisyah Nur Ramadhani', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 38, 'wrong' => 2, 'empty' => 0, 'score' => 95.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081010004', 'name' => 'Cindy Aurelia Putri', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 34, 'wrong' => 6, 'empty' => 0, 'score' => 85.0, 'passing' => 75.0, 'published' => true],
+        ['nis' => '0081010005', 'name' => 'Dimas Arya Wibowo', 'class' => '10-TKJ', 'exam' => 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)', 'exam_id' => 'ex-1', 'subject' => 'Dasar Teknik Jaringan Komputer (DTKJ)', 'token' => 'TKJ10A', 'correct' => 24, 'wrong' => 16, 'empty' => 0, 'score' => 60.0, 'passing' => 75.0, 'published' => true],
+
+        // Rekap Nilai Siswa 11-TKJ (ex-4 - AIJ - Token: TKJ11A)
+        ['nis' => '0071110001', 'name' => 'Aditya Bagus Prasetya', 'class' => '11-TKJ', 'exam' => 'Asesmen Praktik - Administrasi Infrastruktur Jaringan (AIJ)', 'exam_id' => 'ex-4', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'token' => 'TKJ11A', 'correct' => 35, 'wrong' => 5, 'empty' => 0, 'score' => 87.5, 'passing' => 78.0, 'published' => true],
+        ['nis' => '0071110002', 'name' => 'Bella Amanda Putri', 'class' => '11-TKJ', 'exam' => 'Asesmen Praktik - Administrasi Infrastruktur Jaringan (AIJ)', 'exam_id' => 'ex-4', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'token' => 'TKJ11A', 'correct' => 37, 'wrong' => 3, 'empty' => 0, 'score' => 92.5, 'passing' => 78.0, 'published' => true],
+        ['nis' => '0071110004', 'name' => 'Dinda Ayu Lestari', 'class' => '11-TKJ', 'exam' => 'Asesmen Praktik - Administrasi Infrastruktur Jaringan (AIJ)', 'exam_id' => 'ex-4', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'token' => 'TKJ11A', 'correct' => 32, 'wrong' => 8, 'empty' => 0, 'score' => 80.0, 'passing' => 78.0, 'published' => true],
+        ['nis' => '0071110005', 'name' => 'Edo Septian', 'class' => '11-TKJ', 'exam' => 'Asesmen Praktik - Administrasi Infrastruktur Jaringan (AIJ)', 'exam_id' => 'ex-4', 'subject' => 'Administrasi Infrastruktur Jaringan (AIJ)', 'token' => 'TKJ11A', 'correct' => 26, 'wrong' => 14, 'empty' => 0, 'score' => 65.0, 'passing' => 78.0, 'published' => true],
+
+        // Rekap Nilai Siswa 12-TKJ (ex-7 - KJK - Token: TKJ12A)
+        ['nis' => '0061210001', 'name' => 'Aldi Maulana Syahputra', 'class' => '12-TKJ', 'exam' => 'Uji Kompetensi Keahlian - Keamanan Jaringan & Cyber (KJK)', 'exam_id' => 'ex-7', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'token' => 'TKJ12A', 'correct' => 36, 'wrong' => 4, 'empty' => 0, 'score' => 90.0, 'passing' => 80.0, 'published' => true],
+        ['nis' => '0061210002', 'name' => 'Annisa Nurul Fadilah', 'class' => '12-TKJ', 'exam' => 'Uji Kompetensi Keahlian - Keamanan Jaringan & Cyber (KJK)', 'exam_id' => 'ex-7', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'token' => 'TKJ12A', 'correct' => 39, 'wrong' => 1, 'empty' => 0, 'score' => 97.5, 'passing' => 80.0, 'published' => true],
+        ['nis' => '0061210004', 'name' => 'Cantika Dwi Rahayu', 'class' => '12-TKJ', 'exam' => 'Uji Kompetensi Keahlian - Keamanan Jaringan & Cyber (KJK)', 'exam_id' => 'ex-7', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'token' => 'TKJ12A', 'correct' => 33, 'wrong' => 7, 'empty' => 0, 'score' => 82.5, 'passing' => 80.0, 'published' => true],
+        ['nis' => '0061210005', 'name' => 'Danu Wicaksono', 'class' => '12-TKJ', 'exam' => 'Uji Kompetensi Keahlian - Keamanan Jaringan & Cyber (KJK)', 'exam_id' => 'ex-7', 'subject' => 'Keamanan Jaringan & Cyber Security (KJK)', 'token' => 'TKJ12A', 'correct' => 22, 'wrong' => 18, 'empty' => 0, 'score' => 55.0, 'passing' => 80.0, 'published' => true],
     ];
 }
 
@@ -440,7 +617,7 @@ foreach ($_SESSION['results_list'] as &$rlItem) {
             }
         }
     }
-    if (empty($rlItem['token'])) $rlItem['token'] = 'WXYZ89';
+    if (empty($rlItem['token'])) $rlItem['token'] = 'TKJ10A';
 }
 unset($rlItem);
 
