@@ -264,8 +264,35 @@ if (!isset($_SESSION['subjects_list'])) {
         ['id' => 'sb7', 'code' => 'BIND', 'name' => 'Bahasa Indonesia', 'teacher' => 'Dra. Nurul Hidayati', 'format' => 'standard', 'description' => 'Kebahasaan, penyusunan laporan teknis, karya ilmiah, dan komunikasi formal', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
         ['id' => 'sb8', 'code' => 'BING', 'name' => 'Bahasa Inggris Teknik', 'teacher' => 'Siti Aminah, M.Kom', 'format' => 'standard', 'description' => 'Technical English communication, computer networking terminology, and manual reading', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
         ['id' => 'sb9', 'code' => 'PAI', 'name' => 'Pendidikan Agama & Budi Pekerti', 'teacher' => 'Drs. H. Bambang Sutrisno', 'format' => 'standard', 'description' => 'Pendidikan nilai akhlak mulia, fikih ibadah, muamalah, dan pembentukan budi pekerti luhur', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
-        ['id' => 'sb10', 'code' => 'PKK', 'name' => 'Produk Kreatif & Kewirausahaan (PKK)', 'teacher' => 'Endah Sri Wahyuni, M.Pd', 'format' => 'standard', 'description' => 'Perancangan produk jasa jaringan komputer, analisis kelayakan usaha, HAKI, dan pemasaran digital', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active'],
+        ['id' => 'sb10', 'code' => 'PKK', 'name' => 'Produk Kreatif & Kewirausahaan (PKK)', 'teacher' => 'Endah Sri Wahyuni, M.Pd', 'format' => 'standard', 'description' => 'Perancangan produk jasa jaringan komputer, analisis kelayakan usaha, HAKI, dan pemasaran digital', 'duration' => 90, 'weight_pg' => 100, 'weight_pg_multi' => 0, 'weight_essay' => 0, 'weight_tf' => 0, 'weight_match' => 0, 'questions_count' => 5, 'exams_count' => 2, 'status' => 'active', 'show_score' => true],
     ];
+}
+
+// Ensure each subject has show_score configured
+if (isset($_SESSION['subjects_list']) && is_array($_SESSION['subjects_list'])) {
+    foreach ($_SESSION['subjects_list'] as &$sbItem) {
+        if (!isset($sbItem['show_score'])) {
+            $sbItem['show_score'] = true;
+        }
+    }
+    unset($sbItem);
+}
+
+function isSubjectScoreShown($subjectNameOrId) {
+    $subjects = $_SESSION['subjects_list'] ?? [];
+    foreach ($subjects as $sb) {
+        if ($sb['id'] === $subjectNameOrId || $sb['name'] === $subjectNameOrId || $sb['code'] === $subjectNameOrId) {
+            return !empty($sb['show_score']);
+        }
+    }
+    $exams = $_SESSION['exams_list'] ?? [];
+    foreach ($exams as $ex) {
+        if (($ex['title'] ?? '') === $subjectNameOrId || ($ex['subject'] ?? '') === $subjectNameOrId) {
+            if (isset($ex['show_score'])) return (bool)$ex['show_score'];
+            return isSubjectScoreShown($ex['subject'] ?? '');
+        }
+    }
+    return true;
 }
 
 // F. Questions List (50 Soal Pilihan Ganda: 5 Soal Per Mata Pelajaran)
@@ -3473,6 +3500,12 @@ if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin
     $wMatch = (float)($_POST['weight_match'] ?? 0);
     $classes = $_POST['classes'] ?? ['10-TKJ'];
     if (!is_array($classes)) $classes = [$classes];
+    $showScore = isset($_POST['show_score']) ? true : false;
+    $redirect = trim($_POST['redirect'] ?? '');
+    if (empty($redirect)) {
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        $redirect = str_contains($referer, 'subjects') ? '/admin/subjects' : '/admin/questions';
+    }
 
     $_SESSION['subjects_list'][] = [
         'id' => uniqid('sb_'),
@@ -3491,10 +3524,30 @@ if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin
         'questions_count' => 0,
         'exams_count' => 0,
         'status' => 'active',
+        'show_score' => $showScore,
     ];
-    logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan bank soal: {$name} ({$code}) oleh guru {$teacher}");
-    $_SESSION['import_success'] = "Bank Soal \"{$name}\" berhasil disimpan!";
-    header('Location: /admin/questions');
+    $visText = $showScore ? 'Nilai Siswa: Ditampilkan' : 'Nilai Siswa: Dirahasiakan';
+    logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan bank soal: {$name} ({$code}) oleh guru {$teacher} [{$visText}]");
+    $_SESSION['import_success'] = "Mata Pelajaran / Bank Soal \"{$name}\" berhasil disimpan dengan status {$visText}!";
+    header("Location: {$redirect}");
+    exit;
+}
+
+// Toggle Cepat Visibilitas Nilai Per Mata Pelajaran
+if ($uri === '/admin/subjects/toggle-score') {
+    $id = $_GET['id'] ?? '';
+    $redirect = $_GET['redirect'] ?? '/admin/questions';
+    foreach ($_SESSION['subjects_list'] as &$sb) {
+        if ($sb['id'] === $id || $sb['name'] === $id) {
+            $sb['show_score'] = empty($sb['show_score']);
+            $state = $sb['show_score'] ? 'DITAMPILKAN KE SISWA' : 'DISEMBUNYIKAN';
+            logCbtActivity('SUBJECT', 'TOGGLE_SCORE', "Mengubah visibilitas nilai mapel {$sb['name']} menjadi: {$state}");
+            $_SESSION['import_success'] = "Visibilitas nilai mapel <strong>{$sb['name']}</strong> diubah menjadi: <strong>{$state}</strong>!";
+            break;
+        }
+    }
+    unset($sb);
+    header("Location: {$redirect}");
     exit;
 }
 
@@ -3524,12 +3577,17 @@ if ($method === 'POST' && $uri === '/admin/subjects/edit') {
             if (isset($_POST['classes'])) {
                 $sb['classes'] = is_array($_POST['classes']) ? $_POST['classes'] : [$_POST['classes']];
             }
+            if (isset($_POST['has_score_toggle'])) {
+                $sb['show_score'] = isset($_POST['show_score']);
+            }
             logCbtActivity('SUBJECT', 'EDIT_SUBJECT', "Memperbarui bank soal: {$sb['name']}");
             $_SESSION['import_success'] = "Perubahan bank soal \"{$sb['name']}\" berhasil disimpan!";
             break;
         }
     }
-    header('Location: /admin/questions');
+    unset($sb);
+    $referer = $_SERVER['HTTP_REFERER'] ?? '/admin/questions';
+    header("Location: {$referer}");
     exit;
 }
 
@@ -4844,14 +4902,15 @@ if ($uri === '/admin/results/publish' || (isset($_GET['action']) && $_GET['actio
 }
 
 // Toggle Global Tampilkan/Sembunyikan Nilai Ujian ke Siswa
-if ($uri === '/admin/results/toggle-student-score') {
+if ($uri === '/admin/results/toggle-student-score' || $uri === '/admin/settings/toggle-score-display') {
     $currentStatus = !empty($_SESSION['cbt_settings']['show_score_to_student']);
     $newStatus = !$currentStatus;
     $_SESSION['cbt_settings']['show_score_to_student'] = $newStatus;
     $statusText = $newStatus ? 'DITAMPILKAN KE SISWA (Publik)' : 'DISEMBUNYIKAN DARI SISWA (Rahasia)';
     logCbtActivity('SETTING', 'TOGGLE_STUDENT_SCORE', "Mengubah kebijakan visibilitas nilai siswa menjadi: {$statusText}");
     $_SESSION['import_success'] = "Kebijakan visibilitas nilai berhasil diubah: <strong>{$statusText}</strong>!";
-    header('Location: /admin/results');
+    $redirectUrl = !empty($_GET['redirect']) ? $_GET['redirect'] : ($uri === '/admin/settings/toggle-score-display' ? '/admin/settings' : '/admin/results');
+    header('Location: ' . $redirectUrl);
     exit;
 }
 
@@ -5958,7 +6017,7 @@ function renderStudentPortal() {
                 <div style="background: #ffffff; border: 1.5px dashed #fca5a5; border-radius: 12px; padding: 28px 24px; text-align: center; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.05);">
                     <div style="font-size: 42px; margin-bottom: 10px;">🔒</div>
                     <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: #991b1b;">
-                        Nilai Ujian Disembunyikan oleh Pihak Sekolah
+                        Nilai Disembunyikan oleh Pihak Sekolah
                     </h4>
                     <p style="margin: 0 auto; max-width: 620px; font-size: 13px; color: #64748b; line-height: 1.6;">
                         Seluruh lembar respon dan jawaban Anda telah tersimpan dengan aman di Server CBT. Sesuai kebijakan proktor / panitia ujian sekolah, angka perolehan nilai sementara ini tidak ditampilkan di layar siswa dan akan diumumkan secara terpadu setelah proses verifikasi guru selesai.
@@ -8717,6 +8776,23 @@ function renderSubjectsContent() {
                     </div>
                 </div>
 
+                <!-- OPSIONAL PER MAPEL: VISIBILITAS NILAI SISWA -->
+                <input type="hidden" name="redirect" value="/admin/subjects">
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; margin-top: 14px;">
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="show_score" value="1" checked style="margin-top: 3px; width: 18px; height: 18px;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 6px;">
+                                <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai</span>
+                                <span class="badge" style="background: #15803d; color: #fff; font-size: 10px;">Opsional per Mapel</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #14532d; margin-top: 2px;">
+                                Jika dicentang, peserta yang menyelesaikan ujian mapel ini dapat langsung melihat perolehan skor akhir dan status KKM. Jika tidak dicentang, nilai ujian mapel ini akan dirahasiakan dan disembunyikan.
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
                     <button type="button" class="btn btn-secondary" onclick="toggleCreateSubjectCard()">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan Mata Pelajaran &amp; Kelas</button>
@@ -8735,15 +8811,16 @@ function renderSubjectsContent() {
                             <th style="width: 90px;">Kode</th>
                             <th style="min-width: 200px;">Nama Mata Pelajaran</th>
                             <th>Guru Pengampu</th>
-                            <th style="min-width: 260px;">Alokasi Rombel Kelas</th>
-                            <th style="width: 80px; text-align: center;">Status</th>
+                            <th style="min-width: 240px;">Alokasi Rombel Kelas</th>
+                            <th style="width: 120px; text-align: center;">Visibilitas Nilai</th>
+                            <th style="width: 75px; text-align: center;">Status</th>
                             <th style="width: 220px; text-align: center;">Aksi Setting</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($subjects)): ?>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="9">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">📚</div>
                                         <p>Belum ada data mata pelajaran.</p>
@@ -8753,6 +8830,7 @@ function renderSubjectsContent() {
                         <?php else: ?>
                             <?php foreach ($subjects as $idx => $sb): 
                                 $assignedClasses = $sb['classes'] ?? ['10-TKJ'];
+                                $sbShowScore = !empty($sb['show_score']);
                             ?>
                                 <tr>
                                     <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-subject" value="<?= htmlspecialchars($sb['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih mapel ini"></td>
@@ -8765,8 +8843,8 @@ function renderSubjectsContent() {
                                     </td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 6px;">
-                                            <span style="font-size: 14px;">👨‍🏫</span>
-                                            <span><?= htmlspecialchars($sb['teacher'] ?? 'Budi Santoso, S.Pd') ?></span>
+                                             <span style="font-size: 14px;">👨‍🏫</span>
+                                             <span><?= htmlspecialchars($sb['teacher'] ?? 'Budi Santoso, S.Pd') ?></span>
                                         </div>
                                     </td>
                                     <td>
@@ -8780,6 +8858,12 @@ function renderSubjectsContent() {
                                                 (<?= count($assignedClasses) ?> Kelas)
                                             </span>
                                         </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <a href="/admin/subjects/toggle-score?id=<?= urlencode($sb['id']) ?>&redirect=/admin/subjects" class="btn btn-sm <?= $sbShowScore ? 'btn-success' : 'btn-danger' ?>" style="font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Klik untuk mengubah apakah nilai siswa ditampilkan atau disembunyikan pada mapel ini">
+                                            <span><?= $sbShowScore ? '👁️' : '🔒' ?></span>
+                                            <span><?= $sbShowScore ? 'Tampilkan' : 'Sembunyi' ?></span>
+                                        </a>
                                     </td>
                                     <td style="text-align: center;">
                                         <span class="badge badge-success">Aktif</span>
@@ -9905,6 +9989,23 @@ function renderQuestionsContent() {
                         </div>
                     </div>
 
+                    <!-- OPSIONAL PER MAPEL: VISIBILITAS NILAI SISWA -->
+                    <input type="hidden" name="redirect" value="/admin/questions">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 16px; margin-top: 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="show_score" value="1" checked style="margin-top: 3px; width: 18px; height: 18px;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 6px;">
+                                    <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai (Opsional per Mapel)</span>
+                                    <span class="badge" style="background: #15803d; color: #fff; font-size: 10px;">Fitur Mapel</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #14532d; margin-top: 3px; line-height: 1.5;">
+                                    Jika dicentang, peserta yang menyelesaikan ujian mata pelajaran ini dapat langsung melihat perolehan skor akhir dan status kelulusan KKM di dashboard mereka. Jika tidak dicentang, nilai ujian mapel ini akan dirahasiakan dan disembunyikan.
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
                     <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
                         <button type="button" class="btn btn-secondary" onclick="toggleCreateSubjectCard()">Batal</button>
                         <button type="submit" class="btn btn-primary" style="font-weight: 700; padding: 8px 24px;">Simpan Bank Soal</button>
@@ -9912,7 +10013,7 @@ function renderQuestionsContent() {
                 </form>
             </div>
 
-            <!-- TABEL BANK SOAL: 11 KOLOM PERSIS CONTOH GAMBAR -->
+            <!-- TABEL BANK SOAL: 12 KOLOM -->
             <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
                 <div class="table-responsive">
                     <table class="table example-table" style="margin-bottom: 0;">
@@ -9928,6 +10029,7 @@ function renderQuestionsContent() {
                                 <th style="width: 55px; text-align: center;">B/S <span class="sort-icon">⇅</span></th>
                                 <th style="width: 70px; text-align: center;">JODOH <span class="sort-icon">⇅</span></th>
                                 <th style="width: 95px; text-align: center;">WAKTU <span class="sort-icon">⇅</span></th>
+                                <th style="width: 120px; text-align: center;">NILAI SISWA <span class="sort-icon">⇅</span></th>
                                 <th style="width: 150px; text-align: center;">DAFTAR PERTANYAAN <span class="sort-icon">⇅</span></th>
                                 <th style="width: 110px; text-align: center;">AKSI <span class="sort-icon">⇅</span></th>
                             </tr>
@@ -9935,7 +10037,7 @@ function renderQuestionsContent() {
                         <tbody>
                             <?php if (empty($subjects)): ?>
                                 <tr>
-                                    <td colspan="12" style="text-align: center; padding: 40px 20px;">
+                                    <td colspan="13" style="text-align: center; padding: 40px 20px;">
                                         <div style="font-size: 28px; margin-bottom: 8px;">📚</div>
                                         <div style="font-weight: 700; color: #475569;">Belum ada bank soal</div>
                                         <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Klik "+ Tambah Bank Soal" di atas untuk membuat bank soal baru.</div>
@@ -9946,6 +10048,7 @@ function renderQuestionsContent() {
                                     $counts = $typeCounts[$sb['id']] ?? ['pg' => 0, 'pg_multi' => 0, 'essai' => 0, 'bs' => 0, 'jodoh' => 0];
                                     $teacherName = $sb['teacher'] ?? 'Demo';
                                     $durationText = ($sb['duration'] ?? 120) . ' menit';
+                                    $sbShowScore = !empty($sb['show_score']);
                                 ?>
                                     <tr style="vertical-align: middle;">
                                         <td class="cbt-checkbox-col">
@@ -9983,6 +10086,12 @@ function renderQuestionsContent() {
                                         <td style="text-align: center; color: #475569; font-size: 13px; white-space: nowrap; padding: 18px 10px;">
                                             <?= htmlspecialchars($durationText) ?>
                                         </td>
+                                        <td style="text-align: center; padding: 18px 8px;">
+                                            <a href="/admin/subjects/toggle-score?id=<?= urlencode($sb['id']) ?>&redirect=/admin/questions" class="btn btn-sm <?= $sbShowScore ? 'btn-success' : 'btn-danger' ?>" style="font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Klik untuk mengubah apakah nilai siswa ditampilkan atau disembunyikan pada mapel ini">
+                                                <span><?= $sbShowScore ? '👁️' : '🔒' ?></span>
+                                                <span><?= $sbShowScore ? 'Ditampilkan' : 'Disembunyi' ?></span>
+                                            </a>
+                                        </td>
                                         <td style="text-align: center; padding: 18px 12px;">
                                             <!-- TOMBOL BUAT SOAL UNGU PERSIS CONTOH: LANGSUNG KE GAMBAR DUA -->
                                             <a href="/admin/questions?subject_id=<?= urlencode($sb['id']) ?>" class="btn-buat-soal-purple">
@@ -9992,7 +10101,7 @@ function renderQuestionsContent() {
                                         <td style="text-align: center; padding: 14px 10px;">
                                             <!-- TOMBOL AKSI VERTIKAL PERSIS CONTOH: UBAH, ARSIPKAN, CETAK -->
                                             <div class="action-stack">
-                                                <button type="button" class="btn-action-ubah" onclick="openEditSubjectModal('<?= htmlspecialchars($sb['id']) ?>', '<?= htmlspecialchars(addslashes($sb['code'])) ?>', '<?= htmlspecialchars(addslashes($sb['name'])) ?>')">
+                                                <button type="button" class="btn-action-ubah" onclick="openEditSubjectModal('<?= htmlspecialchars($sb['id']) ?>', '<?= htmlspecialchars(addslashes($sb['code'])) ?>', '<?= htmlspecialchars(addslashes($sb['name'])) ?>', <?= $sbShowScore ? 'true' : 'false' ?>)">
                                                     Ubah
                                                 </button>
                                                 <a href="/admin/subjects/archive?id=<?= urlencode($sb['id']) ?>" class="btn-action-arsipkan" onclick="return confirm('Arsipkan Bank Soal <?= htmlspecialchars(addslashes($sb['name'])) ?> beserta seluruh butir soalnya ke menu Arsip Soal?');">
@@ -10976,6 +11085,13 @@ function renderQuestionsContent() {
                     <label class="form-label" style="font-weight: 700;">Judul Bank Soal *</label>
                     <input type="text" name="name" id="edit_sb_name" class="form-control" required>
                 </div>
+                <input type="hidden" name="has_score_toggle" value="1">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 700; color: #166534; background: #f0fdf4; padding: 10px 12px; border-radius: 6px; border: 1px solid #bbf7d0;">
+                        <input type="checkbox" name="show_score" id="edit_sb_show_score" value="1">
+                        <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai</span>
+                    </label>
+                </div>
                 <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('editSubjectModal').classList.remove('open')">Batal</button>
                     <button type="submit" class="btn btn-primary" style="font-weight: 700;">Simpan Perubahan</button>
@@ -11785,10 +11901,12 @@ function renderQuestionsContent() {
             }
         }
 
-        function openEditSubjectModal(id, code, name) {
+        function openEditSubjectModal(id, code, name, showScore) {
             document.getElementById('edit_sb_id').value = id;
             document.getElementById('edit_sb_code').value = code;
             document.getElementById('edit_sb_name').value = name;
+            var chk = document.getElementById('edit_sb_show_score');
+            if (chk) chk.checked = (showScore !== false && showScore !== 0 && showScore !== '0');
             document.getElementById('editSubjectModal').classList.add('open');
         }
 
@@ -13254,7 +13372,7 @@ function renderMonitoringLiveContent($examId) {
                                 <th style="min-width: 180px; cursor: pointer; user-select: none;" onclick="sortMonitoringByScore()" title="Klik untuk mengurutkan Nilai Terbesar atau Terkecil">
                                     <div style="display: inline-flex; align-items: center; gap: 6px;">
                                         <span>Nilai &amp; Evaluasi Siswa</span>
-                                        <span class="cbt-sort-btn" id="sortIconMonitoring" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.18); transition: all 0.2s;">
+                                        <span class="cbt-sort-btn sort-score-btn" id="sortIconMonitoring" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.18); transition: all 0.2s;">
                                             <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-up" style="display: block; fill: #64748b;"><polygon points="4,0 8,5 0,5"/></svg>
                                             <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-down" style="display: block; fill: #64748b;"><polygon points="0,0 8,0 4,5"/></svg>
                                         </span>
@@ -14195,6 +14313,7 @@ function renderMonitoringLiveContent($examId) {
             if (numCell) numCell.textContent = (idx + 1);
         });
     }
+    window.sortCbtTableByScore = sortMonitoringByScore;
 
     var modalSortDir = null;
     function sortModalScores(forceDir) {
@@ -14962,7 +15081,7 @@ function renderResultsContent() {
                             <th style="text-align: center; cursor: pointer; user-select: none;" onclick="sortResultsScores()" title="Klik untuk mengurutkan Nilai Terbesar atau Terkecil">
                                 <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
                                     <span>Nilai Akhir</span>
-                                    <span class="cbt-sort-btn" id="sortIconResults" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.18); transition: all 0.2s;">
+                                    <span class="cbt-sort-btn sort-score-btn" id="sortIconResults" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.18); transition: all 0.2s;">
                                         <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-up" style="display: block; fill: #64748b;"><polygon points="4,0 8,5 0,5"/></svg>
                                         <svg width="9" height="6" viewBox="0 0 8 5" class="arrow-down" style="display: block; fill: #64748b;"><polygon points="0,0 8,0 4,5"/></svg>
                                     </span>
@@ -15145,6 +15264,7 @@ function renderResultsContent() {
                 if (numCell) numCell.textContent = (idx + 1);
             });
         }
+        window.sortCbtResultsByScore = sortResultsScores;
 
         function updateResultsSortVisual(btnId, dir) {
             var btn = document.getElementById(btnId);
