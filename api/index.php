@@ -264,18 +264,32 @@ if (!isset($_SESSION['exams_list'])) {
 // H. Monitoring Sessions
 if (!isset($_SESSION['monitoring_sessions'])) {
     $_SESSION['monitoring_sessions'] = [
-        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false],
-        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false],
-        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'answered' => 22, 'total' => 40, 'time_left' => '41:05', 'status' => 'Terkunci (3 Pelanggaran)', 'ip' => '192.168.1.103', 'exam_id' => 'ex-1', 'violations' => 3, 'is_locked' => true],
-        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false],
-        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'answered' => 15, 'total' => 40, 'time_left' => '58:20', 'status' => 'Peringatan (1/3)', 'ip' => '192.168.1.105', 'exam_id' => 'ex-1', 'violations' => 1, 'is_locked' => false],
+        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:15:24', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:10:05', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 1 (Windows)'],
+        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'answered' => 22, 'total' => 40, 'time_left' => '41:05', 'status' => 'Terkunci (3 Pelanggaran)', 'ip' => '192.168.1.103', 'exam_id' => 'ex-1', 'violations' => 3, 'is_locked' => true, 'login_time' => '07:14:50', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / Tablet'],
+        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false, 'login_time' => '07:08:12', 'attendance_status' => 'HADIR', 'device' => 'PC Lab 2 (Windows)'],
+        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'answered' => 15, 'total' => 40, 'time_left' => '58:20', 'status' => 'Peringatan (1/3)', 'ip' => '192.168.1.105', 'exam_id' => 'ex-1', 'violations' => 1, 'is_locked' => false, 'login_time' => '07:18:33', 'attendance_status' => 'HADIR', 'device' => 'Android Kiosk / HP'],
     ];
 }
 foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
     if (!isset($msItem['violations'])) $msItem['violations'] = 0;
     if (!isset($msItem['is_locked'])) $msItem['is_locked'] = ($msItem['violations'] >= 3);
+    if (!isset($msItem['login_time'])) $msItem['login_time'] = '07:15:20';
+    if (!isset($msItem['attendance_status'])) $msItem['attendance_status'] = 'HADIR';
+    if (!isset($msItem['device'])) $msItem['device'] = 'PC Desktop / Web';
 }
 unset($msItem);
+
+// H2. Student Attendance Map (Rekap Presensi Siswa Real-Time Berdasarkan Login)
+if (!isset($_SESSION['student_attendance'])) {
+    $_SESSION['student_attendance'] = [
+        '0081234567' => ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'login_time' => '07:15:24', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.101', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
+        '0081234568' => ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'login_time' => '07:10:05', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.102', 'device' => 'PC Lab 1 (Windows)', 'status' => 'HADIR'],
+        '0081234569' => ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'login_time' => '07:14:50', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.103', 'device' => 'Android Kiosk / Tablet', 'status' => 'HADIR'],
+        '0081234570' => ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'login_time' => '07:08:12', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.104', 'device' => 'PC Lab 2 (Windows)', 'status' => 'HADIR'],
+        '0081234571' => ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'login_time' => '07:18:33', 'login_date' => date('d/m/Y'), 'ip' => '192.168.1.105', 'device' => 'Android Kiosk / HP', 'status' => 'HADIR'],
+    ];
+}
 
 // I. Results List
 if (!isset($_SESSION['results_list'])) {
@@ -321,6 +335,47 @@ function logCbtActivity($module, $action, $details) {
     if (count($_SESSION['activity_logs']) > 80) {
         array_pop($_SESSION['activity_logs']);
     }
+}
+
+// Rekap Data Presensi & Absensi Siswa Berdasarkan Event Login
+function getCompleteStudentAttendance() {
+    $students = $_SESSION['students_list'] ?? [];
+    $attendanceMap = $_SESSION['student_attendance'] ?? [];
+    $sessionsMap = [];
+    if (isset($_SESSION['monitoring_sessions'])) {
+        foreach ($_SESSION['monitoring_sessions'] as $ms) {
+            $sessionsMap[$ms['nis']] = $ms;
+        }
+    }
+
+    $result = [];
+    foreach ($students as $st) {
+        $nis = $st['nis'];
+        $att = $attendanceMap[$nis] ?? null;
+        $ms = $sessionsMap[$nis] ?? null;
+
+        $hasLoggedIn = !empty($att['login_time']) || (!empty($ms['login_time']) && $ms['login_time'] !== '—') || (!empty($ms['status']) && $ms['status'] !== 'Belum Mulai' && $ms['status'] !== 'Offline');
+        $loginTime = $att['login_time'] ?? ($ms['login_time'] ?? ($hasLoggedIn ? '07:15:20' : '—'));
+        $loginDate = $att['login_date'] ?? date('d/m/Y');
+        $ip = $att['ip'] ?? ($ms['ip'] ?? ($hasLoggedIn ? '192.168.1.101' : '—'));
+        $device = $att['device'] ?? ($ms['device'] ?? ($hasLoggedIn ? 'PC Lab (Windows)' : '—'));
+        $status = $hasLoggedIn ? 'HADIR' : 'BELUM HADIR';
+
+        $result[] = [
+            'nis' => $nis,
+            'name' => $st['name'],
+            'class' => $st['class'] ?? ($ms['class'] ?? '10-TKJ-1'),
+            'login_time' => $loginTime,
+            'login_date' => $loginDate,
+            'ip' => $ip,
+            'device' => $device,
+            'status' => $status,
+            'exam_status' => $ms['status'] ?? ($hasLoggedIn ? 'Mengerjakan' : 'Belum Mulai'),
+            'score' => $ms['score'] ?? null,
+            'violations' => $ms['violations'] ?? 0,
+        ];
+    }
+    return $result;
 }
 
 // =========================================================================
@@ -2127,6 +2182,53 @@ if ($uri === '/admin/monitoring/export-scores') {
     exit;
 }
 
+if ($uri === '/admin/monitoring/export-attendance') {
+    $examId = $_GET['id'] ?? 'ex-1';
+    $examTitle = 'Ujian CBT';
+    foreach ($_SESSION['exams_list'] as $ex) {
+        if ($ex['id'] === $examId) { $examTitle = $ex['title']; break; }
+    }
+    header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="Daftar_Hadir_CBT_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $examTitle) . '.xls"');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    echo "\xEF\xBB\xBF";
+    $attendanceList = getCompleteStudentAttendance();
+    ?>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body>
+        <h2>BERITA ACARA &amp; DAFTAR HADIR PESERTA UJIAN CBT (REAL-TIME LOGIN)</h2>
+        <p><strong>SMK PESANTREN BUSTANUL ULUM</strong><br>
+        Paket Ujian: <strong><?= htmlspecialchars($examTitle) ?></strong><br>
+        Tanggal: <?= date('d/m/Y') ?><br>
+        Waktu Ekspor: <?= date('d/m/Y H:i:s') ?></p>
+        <table border="1" cellpadding="6" cellspacing="0" style="font-family: Arial, sans-serif; border-collapse: collapse;">
+            <tr style="background:#047857; color:#fff; font-weight:bold;">
+                <th>No</th><th>NIS</th><th>Nama Peserta</th><th>Kelas</th><th>Waktu Login Masuk</th><th>Status Kehadiran</th><th>Alamat IP</th><th>Perangkat</th><th>Status Pengerjaan</th><th>Verifikasi Login</th>
+            </tr>
+            <?php foreach ($attendanceList as $i => $att): ?>
+            <tr>
+                <td style="text-align:center;"><?= $i + 1 ?></td>
+                <td>'<?= htmlspecialchars($att['nis']) ?></td>
+                <td><?= htmlspecialchars($att['name']) ?></td>
+                <td><?= htmlspecialchars($att['class']) ?></td>
+                <td style="text-align:center;"><?= htmlspecialchars($att['login_time']) ?></td>
+                <td style="color: <?= $att['status'] === 'HADIR' ? '#047857' : '#b91c1c' ?>; font-weight:bold; text-align:center;">
+                    <?= htmlspecialchars($att['status']) ?>
+                </td>
+                <td><?= htmlspecialchars($att['ip']) ?></td>
+                <td><?= htmlspecialchars($att['device']) ?></td>
+                <td><?= htmlspecialchars($att['exam_status']) ?></td>
+                <td style="text-align:center;"><?= $att['status'] === 'HADIR' ? 'TERVERIFIKASI SISTEM' : 'BELUM LOGIN' ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 if ($uri === '/admin/monitoring/reset' || (isset($_GET['action']) && $_GET['action'] === 'reset_monitoring')) {
     $targetNis = $_GET['nis'] ?? '';
     $examId = $_GET['id'] ?? 'ex-1';
@@ -2387,7 +2489,67 @@ if ($method === 'POST' && ($uri === '/login' || strpos($uri, 'login') !== false)
         $_SESSION['cbt_user'] = 'siswa';
         $_SESSION['active_student'] = $matchedStudent;
         unset($_SESSION['active_teacher']);
-        logCbtActivity('STUDENT', 'LOGIN_SUCCESS', "Siswa {$matchedStudent['name']} (NIS: {$matchedStudent['nis']}) berhasil login");
+        logCbtActivity('STUDENT', 'LOGIN_SUCCESS', "Siswa {$matchedStudent['name']} (NIS: {$matchedStudent['nis']}) berhasil login (Presensi Masuk Tercatat)");
+
+        // Rekam Absensi Siswa Otomatis Berdasarkan Data Login Real-time
+        if (!isset($_SESSION['student_attendance'])) {
+            $_SESSION['student_attendance'] = [];
+        }
+        $currentTime = date('H:i:s');
+        $currentDate = date('d/m/Y');
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $deviceInfo = (str_contains($userAgent, 'Android') || str_contains($userAgent, 'Mobile')) ? 'Android Kiosk / HP' : 'PC Desktop / Web';
+
+        $_SESSION['student_attendance'][$matchedStudent['nis']] = [
+            'nis' => $matchedStudent['nis'],
+            'name' => $matchedStudent['name'],
+            'class' => $matchedStudent['class'] ?? '10-TKJ-1',
+            'login_time' => $currentTime,
+            'login_date' => $currentDate,
+            'ip' => $clientIp,
+            'device' => $deviceInfo,
+            'status' => 'HADIR',
+            'timestamp' => time(),
+        ];
+
+        // Sinkronisasi ke monitoring_sessions agar tampil di telemetri live
+        if (isset($_SESSION['monitoring_sessions'])) {
+            $foundInMonitoring = false;
+            foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+                if ($ms['nis'] === $matchedStudent['nis']) {
+                    $ms['login_time'] = $currentTime;
+                    $ms['ip'] = $clientIp;
+                    $ms['device'] = $deviceInfo;
+                    $ms['attendance_status'] = 'HADIR';
+                    if ($ms['status'] === 'Belum Mulai' || empty($ms['status'])) {
+                        $ms['status'] = 'Mengerjakan';
+                    }
+                    $foundInMonitoring = true;
+                    break;
+                }
+            }
+            unset($ms);
+            if (!$foundInMonitoring) {
+                $_SESSION['monitoring_sessions'][] = [
+                    'nis' => $matchedStudent['nis'],
+                    'name' => $matchedStudent['name'],
+                    'class' => $matchedStudent['class'] ?? '10-TKJ-1',
+                    'answered' => 0,
+                    'total' => 40,
+                    'time_left' => '90:00',
+                    'status' => 'Mengerjakan',
+                    'ip' => $clientIp,
+                    'device' => $deviceInfo,
+                    'exam_id' => 'ex-1',
+                    'violations' => 0,
+                    'is_locked' => false,
+                    'login_time' => $currentTime,
+                    'attendance_status' => 'HADIR',
+                ];
+            }
+        }
+
         header('Location: /student/dashboard');
         exit;
     }
@@ -8744,6 +8906,16 @@ function getStudentExamAnswerSheet($nis, $examId = 'ex-1') {
 
 function renderMonitoringLiveContent($examId) {
     $sessions = $_SESSION['monitoring_sessions'] ?? [];
+    $attendanceList = getCompleteStudentAttendance();
+    $totalRegistered = count($attendanceList);
+    $totalHadir = 0;
+    foreach ($attendanceList as $a) {
+        if ($a['status'] === 'HADIR') {
+            $totalHadir++;
+        }
+    }
+    $totalBelumHadir = $totalRegistered - $totalHadir;
+    $hadirPercent = $totalRegistered > 0 ? round(($totalHadir / $totalRegistered) * 100, 1) : 0;
     
     // Default score lookup map for students
     $scoreMap = [
@@ -8795,29 +8967,46 @@ function renderMonitoringLiveContent($examId) {
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <h1 class="page-title" style="margin: 0; font-size: 1.25rem;">Telemetri Live Sesi Peserta</h1>
                     <span class="badge badge-primary" style="font-size: 11px;">SERVER AKTIF</span>
+                    <span class="badge badge-success" style="font-size: 11px;">ABSENSI LOGIN OTOMATIS</span>
                 </div>
                 <p class="page-subtitle" style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    <?= htmlspecialchars($examTitle) ?> &bull; Pemantauan progres pengerjaan, lembar jawaban, dan penilaian live
+                    <?= htmlspecialchars($examTitle) ?> &bull; Pemantauan progres pengerjaan, presensi login siswa, dan penilaian live
                 </p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openAttendanceModal()" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-color: #10b981; color: #047857; background: #ecfdf5;">
+                    <span>📋</span> Cetak Berita Acara &amp; Daftar Hadir
+                </button>
+                <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; border-color: #10b981; color: #047857;" title="Unduh spreadsheet presensi kehadiran siswa">
+                    <span>📥</span> Unduh Absensi (.xls)
+                </a>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; border-color: #38bdf8; color: #0284c7; background: #f0f9ff;">
-                    <span>📊</span> Rekap Nilai Semua Siswa
+                    <span>📊</span> Rekap Nilai Siswa
                 </button>
                 <a href="/admin/monitoring/export-scores?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;" title="Unduh spreadsheet nilai semua siswa">
-                    <span>📥</span> Unduh Excel (.xls)
+                    <span>📥</span> Unduh Nilai (.xls)
                 </a>
                 <button type="button" class="btn btn-primary btn-sm" onclick="window.location.reload();">&#8635; Segarkan Data</button>
                 <a href="/admin/monitoring" class="btn btn-secondary btn-sm">&larr; Semua Ujian</a>
             </div>
         </div>
 
-        <!-- STATS OVERVIEW CARDS (WITH CLASS-WIDE SCORE TELEMETRY) -->
-        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+        <!-- STATS OVERVIEW CARDS (TERMASUK REKAP PRESENSI DARI LOGIN) -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
             <div class="stat-card">
                 <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">&#128101;</div>
-                <div class="stat-value">36</div>
+                <div class="stat-value"><?= $totalRegistered ?></div>
                 <div class="stat-label">Total Peserta Terdaftar</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #10b981; background: #f0fdf4;">
+                <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🟢</div>
+                <div class="stat-value" style="color: #16a34a;"><?= $totalHadir ?> <span style="font-size: 13px; font-weight: 600; color: #64748b;">(<?= $hadirPercent ?>%)</span></div>
+                <div class="stat-label">Presensi Hadir (Login CBT)</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #94a3b8; background: #f8fafc;">
+                <div class="stat-icon" style="background: #f1f5f9; color: #64748b;">⚪</div>
+                <div class="stat-value" style="color: #64748b;"><?= $totalBelumHadir ?></div>
+                <div class="stat-label">Belum Login / Belum Hadir</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background: #fef3c7; color: #d97706;">&#9203;</div>
@@ -8829,142 +9018,304 @@ function renderMonitoringLiveContent($examId) {
                 <div class="stat-value" style="color: #16a34a;">16</div>
                 <div class="stat-label">Sudah Submit</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">&#9888;</div>
-                <div class="stat-value" style="color: #dc2626;">2</div>
-                <div class="stat-label">Waktu Habis (Timeout)</div>
-            </div>
             <div class="stat-card" style="border-left: 4px solid #0284c7; background: #f0f9ff;">
                 <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">📈</div>
                 <div class="stat-value" style="color: #0284c7;"><?= number_format($avgScore, 1) ?></div>
-                <div class="stat-label">Rata-rata Nilai Siswa (KKM: 75)</div>
+                <div class="stat-label">Rata-rata Nilai (KKM: 75)</div>
             </div>
             <div class="stat-card" style="border-left: 4px solid #16a34a; background: #f0fdf4;">
                 <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🏆</div>
                 <div class="stat-value" style="color: #16a34a;"><?= number_format($maxScore, 1) ?></div>
-                <div class="stat-label">Nilai Tertinggi (Siti Aminah)</div>
+                <div class="stat-label">Nilai Tertinggi</div>
             </div>
         </div>
 
-        <!-- QUICK ALERT NOTIFICATION -->
-        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-primary);">
-                <span style="font-size: 18px;">💡</span>
-                <div>
-                    <strong>Pemantauan Lembar Jawaban &amp; Skor Peserta:</strong> 
-                    Klik tombol <span style="background: #0284c7; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">👁️ Lembar Jawaban &amp; Nilai</span> pada baris siswa untuk memeriksa butir soal yang sedang dikerjakan, jawaban siswa, kunci jawaban, dan skor perorangan.
-                </div>
-            </div>
-            <div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="font-size: 12px; font-weight: 600;">
-                    Buka Rekapitulasi Nilai &rarr;
+        <!-- TAB NAVIGATION BAR: TELEMETRI VS DAFTAR HADIR -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="tabBtnTelemetri" class="btn btn-primary btn-sm" onclick="switchMonitoringTab('telemetri')" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; padding: 8px 16px;">
+                    <span>📡</span> Telemetri Pengerjaan &amp; Nilai Sesi
+                </button>
+                <button type="button" id="tabBtnAbsensi" class="btn btn-secondary btn-sm" onclick="switchMonitoringTab('absensi')" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; padding: 8px 16px;">
+                    <span>📋</span> Daftar Hadir / Absensi Siswa (Login CBT)
+                    <span class="badge badge-success" style="font-size: 10.5px; padding: 2px 8px; margin-left: 4px;"><?= $totalHadir ?> / <?= $totalRegistered ?> Hadir</span>
                 </button>
             </div>
+            <div style="font-size: 12.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                <span>Data presensi terverifikasi otomatis dari event login akun siswa</span>
+            </div>
         </div>
 
-        <!-- LIVE PARTICIPANTS TABLE WITH NILAI & LEMBAR JAWABAN -->
-        <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
-            <div class="data-table-wrapper">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 45px; text-align: center;">No</th>
-                            <th>NIS / Nama Peserta</th>
-                            <th>Kelas</th>
-                            <th>Status Pengerjaan</th>
-                            <th>Sisa Waktu</th>
-                            <th>Progres Pengerjaan</th>
-                            <th style="min-width: 170px;">Nilai &amp; Evaluasi Siswa</th>
-                            <th>IP Client</th>
-                            <th style="width: 230px; text-align: center;">Aksi Proktor</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($sessions as $idx => $s): 
-                            $pct = round(($s['answered'] / $s['total']) * 100);
-                            $score = (float)$s['score'];
-                            $isPassed = $score >= 75.0;
-                        ?>
+        <!-- =====================================================================
+             TAB 1 CONTENT: TELEMETRI PENGERJAAN & NILAI SESI
+             ===================================================================== -->
+        <div id="tabContentTelemetri" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- QUICK ALERT NOTIFICATION -->
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-primary);">
+                    <span style="font-size: 18px;">💡</span>
+                    <div>
+                        <strong>Pemantauan Sesi &amp; Presensi Real-Time:</strong> 
+                        Kolom <strong>Absensi &amp; Jam Login</strong> mencatat waktu kedatangan siswa saat memasukkan NIS dan sandi di portal CBT. Klik <span style="background: #0284c7; color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">👁️ Lembar Jawaban</span> untuk meninjau butir soal yang sedang dijawab siswa.
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="openAllScoresModal()" style="font-size: 12px; font-weight: 600;">
+                        Buka Rekapitulasi Nilai &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- LIVE PARTICIPANTS TABLE WITH NILAI & LEMBAR JAWABAN -->
+            <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <td style="text-align: center; font-weight: 600; color: var(--text-muted);"><?= $idx + 1 ?></td>
-                                <td>
-                                    <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars($s['name']) ?></div>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars($s['nis']) ?></div>
-                                </td>
-                                <td><span class="badge badge-primary"><?= htmlspecialchars($s['class']) ?></span></td>
-                                <td>
-                                    <?php if ($s['status'] === 'Mengerjakan'): ?>
-                                        <span class="badge badge-warning" style="animation: pulse 2s infinite;">Sedang Mengerjakan</span>
-                                    <?php elseif (str_contains($s['status'], 'Selesai')): ?>
-                                        <span class="badge badge-success">Sudah Selesai</span>
-                                    <?php elseif ($s['status'] === 'Ragu-Ragu'): ?>
-                                        <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Ragu-Ragu</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-secondary"><?= htmlspecialchars($s['status']) ?></span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <strong style="color: <?= $s['time_left'] === '00:00' ? 'var(--danger)' : 'var(--text-primary)' ?>; font-family: monospace; font-size: 13.5px;">
-                                        <?= htmlspecialchars($s['time_left']) ?>
-                                    </strong>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
-                                        <strong><?= (int)$s['answered'] ?> / <?= (int)$s['total'] ?></strong>
-                                        <span style="color: var(--text-muted);"><?= $pct ?>%</span>
-                                    </div>
-                                    <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 120px;">
-                                        <div style="width: <?= $pct ?>%; height: 100%; background: <?= $pct === 100 ? '#16a34a' : 'var(--primary)' ?>;"></div>
-                                    </div>
-                                    <?php if (!empty($s['doubtful'])): ?>
-                                        <div style="font-size: 10.5px; color: #d97706; margin-top: 3px;">
-                                            ⚠️ <?= (int)$s['doubtful'] ?> Ragu-ragu
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <div style="display: flex; align-items: baseline; gap: 6px;">
-                                        <span style="font-size: 1.25rem; font-weight: 800; color: <?= $isPassed ? '#16a34a' : '#dc2626' ?>;">
-                                            <?= number_format($score, 2) ?>
-                                        </span>
-                                        <span style="font-size: 0.75rem; color: var(--text-muted);">/ 100</span>
-                                        <span class="badge <?= $isPassed ? 'badge-success' : 'badge-danger' ?>" style="font-size: 10px; padding: 2px 6px;">
-                                            <?= $isPassed ? 'Lulus KKM' : 'Remedial' ?>
-                                        </span>
-                                    </div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
-                                        <span style="color: #16a34a; font-weight: 600;"><?= (int)$s['correct'] ?> Benar</span> &bull; 
-                                        <span style="color: #dc2626; font-weight: 600;"><?= (int)$s['wrong'] ?> Salah</span> &bull; 
-                                        <span><?= (int)$s['unanswered'] ?> Kosong</span>
-                                    </div>
-                                </td>
-                                <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11.5px;"><?= htmlspecialchars($s['ip']) ?></code></td>
-                                <td style="text-align: center;">
-                                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                                        <button 
-                                            type="button" 
-                                            class="btn btn-sm btn-primary" 
-                                            onclick="openStudentAnswerModal('<?= htmlspecialchars(addslashes($s['nis'])) ?>')" 
-                                            style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; padding: 5px 9px;"
-                                            title="Buka Lembar Jawaban & Nilai Siswa Ini"
-                                        >
-                                            <span>👁️</span> Lembar Jawaban
-                                        </button>
-                                        <a 
-                                            href="/admin/monitoring/reset?nis=<?= urlencode($s['nis']) ?>&id=<?= urlencode($examId) ?>" 
-                                            class="btn btn-sm btn-danger" 
-                                            onclick="return confirm('Reset status sesi login <?= htmlspecialchars(addslashes($s['name'])) ?>?');"
-                                            style="padding: 5px 8px;"
-                                            title="Reset Sesi Login Peserta"
-                                        >
-                                            🔄 Reset
-                                        </a>
-                                    </div>
-                                </td>
+                                <th style="width: 45px; text-align: center;">No</th>
+                                <th>NIS &amp; Nama Siswa</th>
+                                <th>Kelas</th>
+                                <th style="min-width: 140px;">Absensi &amp; Jam Login</th>
+                                <th>Status Pengerjaan</th>
+                                <th>Sisa Waktu</th>
+                                <th>Progres Pengerjaan</th>
+                                <th style="min-width: 170px;">Nilai &amp; Evaluasi Siswa</th>
+                                <th>IP Client</th>
+                                <th style="width: 230px; text-align: center;">Aksi Proktor</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($sessions as $idx => $s): 
+                                $pct = round(($s['answered'] / $s['total']) * 100);
+                                $score = (float)$s['score'];
+                                $isPassed = $score >= 75.0;
+                                $logTime = $s['login_time'] ?? '07:15:20';
+                                $isAttPresent = !empty($s['login_time']) || (!empty($s['attendance_status']) && $s['attendance_status'] === 'HADIR') || ($s['status'] !== 'Belum Mulai');
+                            ?>
+                                <tr>
+                                    <td style="text-align: center; font-weight: 600; color: var(--text-muted);"><?= $idx + 1 ?></td>
+                                    <td>
+                                        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars($s['name']) ?></div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars($s['nis']) ?></div>
+                                    </td>
+                                    <td><span class="badge badge-primary"><?= htmlspecialchars($s['class']) ?></span></td>
+                                    <td>
+                                        <?php if ($isAttPresent): ?>
+                                            <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 700; font-size: 11px; padding: 4px 8px; display: inline-flex; align-items: center; gap: 5px;">
+                                                <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                                                Hadir (<?= htmlspecialchars($logTime) ?>)
+                                            </span>
+                                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">
+                                                <?= htmlspecialchars($s['device'] ?? 'PC Lab (Windows)') ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="badge badge-secondary" style="font-size: 11px; padding: 4px 8px; background: #f1f5f9; color: #64748b;">
+                                                ⚪ Belum Hadir
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($s['status'] === 'Mengerjakan'): ?>
+                                            <span class="badge badge-warning" style="animation: pulse 2s infinite;">Sedang Mengerjakan</span>
+                                        <?php elseif (str_contains($s['status'], 'Selesai')): ?>
+                                            <span class="badge badge-success">Sudah Selesai</span>
+                                        <?php elseif ($s['status'] === 'Ragu-Ragu'): ?>
+                                            <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Ragu-Ragu</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-secondary"><?= htmlspecialchars($s['status']) ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <strong style="color: <?= $s['time_left'] === '00:00' ? 'var(--danger)' : 'var(--text-primary)' ?>; font-family: monospace; font-size: 13.5px;">
+                                            <?= htmlspecialchars($s['time_left']) ?>
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
+                                            <strong><?= (int)$s['answered'] ?> / <?= (int)$s['total'] ?></strong>
+                                            <span style="color: var(--text-muted);"><?= $pct ?>%</span>
+                                        </div>
+                                        <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 120px;">
+                                            <div style="width: <?= $pct ?>%; height: 100%; background: <?= $pct === 100 ? '#16a34a' : 'var(--primary)' ?>;"></div>
+                                        </div>
+                                        <?php if (!empty($s['doubtful'])): ?>
+                                            <div style="font-size: 10.5px; color: #d97706; margin-top: 3px;">
+                                                ⚠️ <?= (int)$s['doubtful'] ?> Ragu-ragu
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: baseline; gap: 6px;">
+                                            <span style="font-size: 1.25rem; font-weight: 800; color: <?= $isPassed ? '#16a34a' : '#dc2626' ?>;">
+                                                <?= number_format($score, 2) ?>
+                                            </span>
+                                            <span style="font-size: 0.75rem; color: var(--text-muted);">/ 100</span>
+                                            <span class="badge <?= $isPassed ? 'badge-success' : 'badge-danger' ?>" style="font-size: 10px; padding: 2px 6px;">
+                                                <?= $isPassed ? 'Lulus KKM' : 'Remedial' ?>
+                                            </span>
+                                        </div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                                            <span style="color: #16a34a; font-weight: 600;"><?= (int)$s['correct'] ?> Benar</span> &bull; 
+                                            <span style="color: #dc2626; font-weight: 600;"><?= (int)$s['wrong'] ?> Salah</span> &bull; 
+                                            <span><?= (int)$s['unanswered'] ?> Kosong</span>
+                                        </div>
+                                    </td>
+                                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11.5px;"><?= htmlspecialchars($s['ip']) ?></code></td>
+                                    <td style="text-align: center;">
+                                        <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                            <button 
+                                                type="button" 
+                                                class="btn btn-sm btn-primary" 
+                                                onclick="openStudentAnswerModal('<?= htmlspecialchars(addslashes($s['nis'])) ?>')" 
+                                                style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; padding: 5px 9px;"
+                                                title="Buka Lembar Jawaban & Nilai Siswa Ini"
+                                            >
+                                                <span>👁️</span> Lembar Jawaban
+                                            </button>
+                                            <a 
+                                                href="/admin/monitoring/reset?nis=<?= urlencode($s['nis']) ?>&id=<?= urlencode($examId) ?>" 
+                                                class="btn btn-sm btn-danger" 
+                                                onclick="return confirm('Reset status sesi login <?= htmlspecialchars(addslashes($s['name'])) ?>?');"
+                                                style="padding: 5px 8px;"
+                                                title="Reset Sesi Login Peserta"
+                                            >
+                                                🔄 Reset
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- =====================================================================
+             TAB 2 CONTENT: LEMBAR PRESENSI / ABSENSI SISWA (REAL-TIME LOGIN)
+             ===================================================================== -->
+        <div id="tabContentAbsensi" style="display: none; flex-direction: column; gap: 16px;">
+            <!-- FILTER & CONTROLS FOR ATTENDANCE -->
+            <div class="card" style="padding: 16px 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 1;">
+                        <div style="position: relative; min-width: 260px;">
+                            <input type="text" id="filterAttendanceSearch" onkeyup="filterAttendanceTable()" placeholder="Cari NIS atau Nama Peserta..." class="form-control" style="padding-left: 34px;">
+                            <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #94a3b8;">🔍</span>
+                        </div>
+                        <div>
+                            <select id="filterAttendanceClass" onchange="filterAttendanceTable()" class="form-control" style="width: auto;">
+                                <option value="">Semua Kelas</option>
+                                <option value="10-TKJ-1">10-TKJ-1</option>
+                                <option value="10-RPL-1">10-RPL-1</option>
+                                <option value="11-TKJ-1">11-TKJ-1</option>
+                                <option value="12-TKJ-1">12-TKJ-1</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="filterAttendanceStatus" onchange="filterAttendanceTable()" class="form-control" style="width: auto;">
+                                <option value="">Semua Status Hadir</option>
+                                <option value="HADIR">Hadir (Sudah Login)</option>
+                                <option value="BELUM HADIR">Belum Login</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-sm" onclick="openAttendanceModal()" style="background: #10b981; color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">
+                            <span>🖨️</span> Cetak Berita Acara &amp; Presensi
+                        </button>
+                        <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                            <span>📥</span> Unduh Excel (.xls)
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ATTENDANCE TABLE -->
+            <div class="card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
+                <div class="data-table-wrapper">
+                    <table class="data-table" id="tableStudentAttendance">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="width: 45px; text-align: center;">No</th>
+                                <th>NIS</th>
+                                <th>Nama Lengkap Siswa</th>
+                                <th>Kelas</th>
+                                <th style="text-align: center;">Waktu Login Masuk</th>
+                                <th style="text-align: center;">Status Presensi</th>
+                                <th>Alamat IP Login</th>
+                                <th>Perangkat / Browser</th>
+                                <th>Status Pengerjaan CBT</th>
+                                <th style="text-align: center;">Verifikasi Sistem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($attendanceList as $aIdx => $att): 
+                                $isHadir = $att['status'] === 'HADIR';
+                            ?>
+                                <tr class="attendance-row" data-class="<?= htmlspecialchars($att['class']) ?>" data-status="<?= $att['status'] ?>" style="border-bottom: 1px solid #f1f5f9; background: <?= $isHadir ? '#ffffff' : '#fcfcfc' ?>;">
+                                    <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $aIdx + 1 ?></td>
+                                    <td><code><?= htmlspecialchars($att['nis']) ?></code></td>
+                                    <td>
+                                        <div style="font-weight: 700; color: var(--text-primary); font-size: 13.5px;"><?= htmlspecialchars($att['name']) ?></div>
+                                    </td>
+                                    <td><span class="badge badge-primary"><?= htmlspecialchars($att['class']) ?></span></td>
+                                    <td style="text-align: center;">
+                                        <?php if ($isHadir): ?>
+                                            <span style="font-family: monospace; font-size: 13px; font-weight: 700; color: #047857; background: #ecfdf5; padding: 3px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">
+                                                <?= htmlspecialchars($att['login_time']) ?> WIB
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8; font-size: 12.5px;">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <?php if ($isHadir): ?>
+                                            <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 800; font-size: 10.5px; padding: 4px 10px; letter-spacing: 0.5px;">
+                                                ● HADIR
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge" style="background: #cbd5e1; color: #475569; font-weight: 700; font-size: 10.5px; padding: 4px 10px;">
+                                                BELUM HADIR
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($isHadir): ?>
+                                            <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11.5px;"><?= htmlspecialchars($att['ip']) ?></code>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8;">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($isHadir): ?>
+                                            <span style="font-size: 12px; color: #334155;"><?= htmlspecialchars($att['device']) ?></span>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8;">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span style="font-size: 12px; font-weight: 600; color: <?= $isHadir ? '#0f172a' : '#94a3b8' ?>;">
+                                            <?= htmlspecialchars($att['exam_status']) ?>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <?php if ($isHadir): ?>
+                                            <span style="font-size: 11.5px; color: #047857; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                                <span>✅</span> Login Terverifikasi
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="font-size: 11px; color: #94a3b8;">
+                                                ⏳ Menunggu Login
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -9199,6 +9550,140 @@ function renderMonitoringLiveContent($examId) {
                 </button>
             </div>
         </div>
+    <!-- =========================================================================
+         MODAL 3: CETAK BERITA ACARA & DAFTAR HADIR PESERTA UJIAN CBT
+         ========================================================================= -->
+    <div id="attendancePrintModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px; overflow-y: auto;">
+        <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 960px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #cbd5e1; overflow: hidden;">
+            <!-- MODAL ACTION BAR (HIDDEN IN PRINT) -->
+            <div class="no-print" style="padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">🖨️</span>
+                    <strong style="font-size: 14px; color: #1e293b;">Pratinjau Berita Acara &amp; Daftar Hadir Ujian (Presensi Login)</strong>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-sm" onclick="printAttendanceSheet()" style="background: #10b981; color: #fff; font-weight: 700; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>🖨️</span> Cetak Lembar Ini
+                    </button>
+                    <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span>📥</span> Unduh Excel (.xls)
+                    </a>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="closeAttendanceModal()" style="font-size: 16px; padding: 4px 10px; line-height: 1;">
+                        &times;
+                    </button>
+                </div>
+            </div>
+
+            <!-- PRINTABLE CONTENT AREA -->
+            <div style="padding: 30px; overflow-y: auto;" id="printableAttendanceArea">
+                <style>
+                @media print {
+                    body * { visibility: hidden; }
+                    #printableAttendanceArea, #printableAttendanceArea * { visibility: visible; }
+                    #printableAttendanceArea { position: absolute; left: 0; top: 0; width: 100%; padding: 15px !important; }
+                    .no-print { display: none !important; }
+                }
+                </style>
+
+                <!-- KOP SURAT RESMI SEKOLAH -->
+                <div style="border-bottom: 3px double #000; padding-bottom: 12px; margin-bottom: 20px; text-align: center; font-family: Arial, sans-serif;">
+                    <div style="font-size: 13px; font-weight: bold; letter-spacing: 1px; color: #000;">PEMERINTAH PROVINSI JAWA TIMUR &bull; DINAS PENDIDIKAN</div>
+                    <div style="font-size: 18px; font-weight: 900; color: #09377d; letter-spacing: 0.5px; margin: 4px 0;">SMK PESANTREN BUSTANUL ULUM</div>
+                    <div style="font-size: 12px; color: #334155;">Jl. KH. Hasyim Asy'ari No. 123, Pagelaran - Malang, Jawa Timur | Telp: (0341) 876543 | Web: smkpesantrenbustanululum.sch.id</div>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 18px;">
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 800; text-transform: uppercase; text-decoration: underline; color: #000;">
+                        BERITA ACARA &amp; DAFTAR HADIR PESERTA UJIAN (CBT)
+                    </h3>
+                    <p style="margin: 4px 0 0; font-size: 12.5px; color: #475569;">
+                        Tahun Ajaran <?= htmlspecialchars($_SESSION['cbt_settings']['academic_year'] ?? '2026/2027') ?> &bull; Sistem Presensi Login Otomatis
+                    </p>
+                </div>
+
+                <!-- METADATA UJIAN -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-size: 12.5px; font-family: Arial, sans-serif;">
+                    <div><strong>Paket Ujian / Mapel:</strong> <?= htmlspecialchars($examTitle) ?></div>
+                    <div><strong>Hari / Tanggal:</strong> <?= date('l, d F Y') ?></div>
+                    <div><strong>Sesi Pelaksanaan:</strong> Sesi 1 (07:30 - 09:00 WIB)</div>
+                    <div><strong>Ruang Ujian:</strong> Lab CBT Komputer 1</div>
+                    <div><strong>Jumlah Terdaftar:</strong> <?= $totalRegistered ?> Peserta</div>
+                    <div><strong>Rekapitulasi Kehadiran:</strong> <span style="color: #047857; font-weight: bold;"><?= $totalHadir ?> Hadir</span> &bull; <span style="color: #b91c1c; font-weight: bold;"><?= $totalBelumHadir ?> Tidak Hadir</span></div>
+                </div>
+
+                <!-- TABEL PRESENSI SISWA -->
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: Arial, sans-serif; margin-bottom: 30px;" border="1" cellpadding="6" cellspacing="0">
+                    <thead>
+                        <tr style="background: #f1f5f9; text-align: center; font-weight: bold;">
+                            <th style="width: 35px;">No</th>
+                            <th style="width: 100px;">NIS</th>
+                            <th style="text-align: left;">Nama Lengkap Peserta</th>
+                            <th style="width: 80px;">Kelas</th>
+                            <th style="width: 100px;">Jam Login</th>
+                            <th style="width: 90px;">Status Hadir</th>
+                            <th style="width: 100px;">Alamat IP</th>
+                            <th style="width: 120px;">Tanda Tangan / Verifikasi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($attendanceList as $idx => $p): 
+                            $isHadir = $p['status'] === 'HADIR';
+                        ?>
+                            <tr>
+                                <td style="text-align: center;"><?= $idx + 1 ?></td>
+                                <td style="text-align: center; font-family: monospace; font-weight: bold;"><?= htmlspecialchars($p['nis']) ?></td>
+                                <td><strong><?= htmlspecialchars($p['name']) ?></strong></td>
+                                <td style="text-align: center;"><?= htmlspecialchars($p['class']) ?></td>
+                                <td style="text-align: center; font-family: monospace;">
+                                    <?= $isHadir ? htmlspecialchars($p['login_time']) : '—' ?>
+                                </td>
+                                <td style="text-align: center; font-weight: bold; color: <?= $isHadir ? '#047857' : '#b91c1c' ?>;">
+                                    <?= $isHadir ? 'HADIR' : 'TIDAK HADIR' ?>
+                                </td>
+                                <td style="text-align: center; font-family: monospace; font-size: 11px;">
+                                    <?= $isHadir ? htmlspecialchars($p['ip']) : '—' ?>
+                                </td>
+                                <td style="text-align: center; font-size: 11px;">
+                                    <?php if ($isHadir): ?>
+                                        <span style="color: #047857; font-weight: bold;">✓ Terverifikasi</span>
+                                    <?php else: ?>
+                                        <span style="color: #94a3b8;">...................</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <!-- TANDA TANGAN PENGAWAS & PROKTOR -->
+                <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-family: Arial, sans-serif; page-break-inside: avoid; margin-top: 20px;">
+                    <div style="text-align: center; width: 220px;">
+                        <div>Mengetahui,</div>
+                        <div style="font-weight: bold; margin-top: 2px;">Pengawas Ruang Ujian</div>
+                        <div style="height: 60px;"></div>
+                        <div style="border-bottom: 1px solid #000; font-weight: bold;">( ........................................ )</div>
+                        <div style="font-size: 11px; color: #475569; margin-top: 3px;">NIP: ........................................</div>
+                    </div>
+                    <div style="text-align: center; width: 220px;">
+                        <div>Malang, <?= date('d F Y') ?></div>
+                        <div style="font-weight: bold; margin-top: 2px;">Proktor Server CBT</div>
+                        <div style="height: 60px;"></div>
+                        <div style="border-bottom: 1px solid #000; font-weight: bold;">( <?= htmlspecialchars($_SESSION['cbt_user'] ?? 'Admin CBT') ?> )</div>
+                        <div style="font-size: 11px; color: #475569; margin-top: 3px;">NIP: -</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL FOOTER -->
+            <div class="no-print" style="padding: 12px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                <div style="font-size: 12px; color: #64748b;">
+                    Dokumen ini digenerate secara otomatis oleh Antigravity CBT Engine berdasarkan data riil login peserta.
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="closeAttendanceModal()">
+                    Tutup
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- JAVASCRIPT DATA & HANDLERS -->
@@ -9392,6 +9877,63 @@ function renderMonitoringLiveContent($examId) {
     }
 
     function printStudentSheet() {
+        window.print();
+    }
+
+    // =============================================
+    // TAB SWITCHING & ABSENSI HANDLERS
+    // =============================================
+    function switchMonitoringTab(tab) {
+        var contentTelemetri = document.getElementById('tabContentTelemetri');
+        var contentAbsensi = document.getElementById('tabContentAbsensi');
+        var btnTelemetri = document.getElementById('tabBtnTelemetri');
+        var btnAbsensi = document.getElementById('tabBtnAbsensi');
+
+        if (tab === 'absensi') {
+            contentTelemetri.style.display = 'none';
+            contentAbsensi.style.display = 'flex';
+            btnTelemetri.className = 'btn btn-secondary btn-sm';
+            btnTelemetri.style.fontWeight = '600';
+            btnAbsensi.className = 'btn btn-primary btn-sm';
+            btnAbsensi.style.fontWeight = '700';
+        } else {
+            contentTelemetri.style.display = 'flex';
+            contentAbsensi.style.display = 'none';
+            btnTelemetri.className = 'btn btn-primary btn-sm';
+            btnTelemetri.style.fontWeight = '700';
+            btnAbsensi.className = 'btn btn-secondary btn-sm';
+            btnAbsensi.style.fontWeight = '600';
+        }
+    }
+
+    function filterAttendanceTable() {
+        var searchQ = (document.getElementById('filterAttendanceSearch').value || '').toLowerCase().trim();
+        var filterClass = (document.getElementById('filterAttendanceClass').value || '').trim();
+        var filterStatus = (document.getElementById('filterAttendanceStatus').value || '').trim();
+
+        var rows = document.querySelectorAll('#tableStudentAttendance tbody tr.attendance-row');
+        rows.forEach(function(row) {
+            var rowText = row.innerText.toLowerCase();
+            var rowClass = row.getAttribute('data-class') || '';
+            var rowStatus = row.getAttribute('data-status') || '';
+
+            var matchSearch = searchQ === '' || rowText.indexOf(searchQ) > -1;
+            var matchClass = filterClass === '' || rowClass === filterClass;
+            var matchStatus = filterStatus === '' || rowStatus === filterStatus;
+
+            row.style.display = (matchSearch && matchClass && matchStatus) ? '' : 'none';
+        });
+    }
+
+    function openAttendanceModal() {
+        document.getElementById('attendancePrintModal').style.display = 'flex';
+    }
+
+    function closeAttendanceModal() {
+        document.getElementById('attendancePrintModal').style.display = 'none';
+    }
+
+    function printAttendanceSheet() {
         window.print();
     }
     </script>

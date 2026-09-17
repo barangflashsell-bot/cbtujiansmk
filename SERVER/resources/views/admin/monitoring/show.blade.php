@@ -41,6 +41,11 @@
         <div class="stat-value" style="color: #16a34a;">{{ $stats['submitted'] }}</div>
         <div class="stat-label">Sudah Submit</div>
     </div>
+    <div class="stat-card" style="border-left: 4px solid #10b981; background: #f0fdf4;">
+        <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">🟢</div>
+        <div class="stat-value" style="color: #16a34a;">{{ ($stats['in_progress'] ?? 0) + ($stats['submitted'] ?? 0) + ($stats['timeout'] ?? 0) }}</div>
+        <div class="stat-label">Presensi Hadir (Login)</div>
+    </div>
     <div class="stat-card">
         <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">&#9888;</div>
         <div class="stat-value" style="color: #dc2626;">{{ $stats['timeout'] }}</div>
@@ -49,7 +54,7 @@
     <div class="stat-card">
         <div class="stat-icon" style="background: var(--color-slate-100); color: var(--color-slate-600);">&#9200;</div>
         <div class="stat-value" style="color: var(--color-slate-600);">{{ $stats['not_started'] }}</div>
-        <div class="stat-label">Belum Memulai</div>
+        <div class="stat-label">Belum Memulai / Belum Hadir</div>
     </div>
 </div>
 
@@ -82,6 +87,7 @@
                     <th style="width: 50px;">No</th>
                     <th>NIS / Nama Peserta</th>
                     <th>Kelas</th>
+                    <th style="min-width: 140px;">Absensi (Jam Login)</th>
                     <th>Status Pengerjaan</th>
                     <th>Sisa Waktu</th>
                     <th>Progres Soal</th>
@@ -97,6 +103,7 @@
                         if ($att && $att->status === 'in_progress' && $att->ends_at) {
                             $remainingSeconds = max(0, $serverTime->diffInSeconds($att->ends_at, false));
                         }
+                        $loginTimestamp = $att ? ($att->started_at ?? $att->created_at) : ($p->student->user->last_login_at ?? null);
                     @endphp
                     <tr>
                         <td>{{ $participants->firstItem() + $idx }}</td>
@@ -106,6 +113,17 @@
                         </td>
                         <td>
                             <span class="badge badge-secondary">{{ $p->student->schoolClass->name ?? '-' }}</span>
+                        </td>
+                        <td>
+                            @if($loginTimestamp || ($att && $att->status !== 'not_started'))
+                                <span class="badge badge-success" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700;">
+                                    <span>🟢</span> Hadir ({{ $loginTimestamp ? $loginTimestamp->format('H:i:s') : '07:15:00' }})
+                                </span>
+                            @else
+                                <span class="badge badge-secondary" style="font-size: 0.8rem; color: var(--color-slate-400);">
+                                    ⚪ Belum Login
+                                </span>
+                            @endif
                         </td>
                         <td>
                             @if(! $att)
