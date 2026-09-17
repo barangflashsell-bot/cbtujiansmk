@@ -49,6 +49,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th class="cbt-checkbox-col" style="width: 40px; text-align: center;"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-result-row')" title="Pilih Semua Hasil"></th>
                     <th style="width: 50px;">No</th>
                     <th>Peserta / Kelas</th>
                     <th>Paket Ujian</th>
@@ -67,6 +68,7 @@
                         $isPassed = ((float) $r->final_score >= $passing);
                     @endphp
                     <tr>
+                        <td class="cbt-checkbox-col" style="text-align: center;"><input type="checkbox" class="cbt-row-checkbox check-result-row" value="{{ $r->id }}" onchange="updateCbtSelection(this)" title="Pilih hasil ini"></td>
                         <td>{{ $results->firstItem() + $idx }}</td>
                         <td>
                             <div style="font-weight: 600;">{{ $r->student->user->name ?? '-' }}</div>
@@ -121,7 +123,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="10" class="empty-state">
                             <div class="empty-icon">&#127919;</div>
                             <div class="empty-title">Belum ada hasil penilaian ujian</div>
                             <div class="empty-desc">Hasil penilaian ujian yang telah diselesaikan peserta akan tercatat di sini.</div>

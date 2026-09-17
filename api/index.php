@@ -2359,6 +2359,385 @@ if ($uri === '/admin/monitoring/export-attendance') {
     exit;
 }
 
+// CETAK RESMI BERITA ACARA & DAFTAR HADIR FORMAT A4 (STANDAR PEMERINTAH / DINAS PENDIDIKAN)
+if ($uri === '/admin/monitoring/print-attendance') {
+    $examId = $_GET['id'] ?? 'ex-1';
+    $classFilter = trim($_GET['class'] ?? '');
+
+    $currentExam = null;
+    if (isset($_SESSION['exams_list'])) {
+        foreach ($_SESSION['exams_list'] as $ex) {
+            if ($ex['id'] === $examId) {
+                $currentExam = $ex;
+                break;
+            }
+        }
+    }
+    if (!$currentExam && !empty($_SESSION['exams_list'])) {
+        $currentExam = $_SESSION['exams_list'][0];
+        $examId = $currentExam['id'];
+    }
+
+    $examTitle = $currentExam['title'] ?? 'Ujian CBT';
+    $examSubject = $currentExam['subject'] ?? 'Umum';
+    $examToken = $currentExam['token'] ?? 'WXYZ89';
+    $targetClass = $currentExam['class'] ?? '10-TKJ-1';
+
+    if (empty($classFilter)) {
+        $classFilter = $targetClass;
+    }
+    $effectiveClass = ($classFilter !== 'SEMUA') ? $classFilter : $targetClass;
+
+    $attendanceList = getCompleteStudentAttendance($examId, $classFilter);
+    $totalRegistered = count($attendanceList);
+    $totalHadir = 0;
+    foreach ($attendanceList as $a) {
+        if ($a['status'] === 'HADIR') $totalHadir++;
+    }
+    $totalBelumHadir = $totalRegistered - $totalHadir;
+    $hadirPercent = $totalRegistered > 0 ? round(($totalHadir / $totalRegistered) * 100, 1) : 0;
+    ?>
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Berita Acara &amp; Daftar Hadir - <?= htmlspecialchars($examSubject) ?> - <?= htmlspecialchars($effectiveClass) ?></title>
+        <style>
+            @page {
+                size: A4 portrait;
+                margin: 10mm 12mm 12mm 12mm;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+                color: #0f172a;
+                background: #f1f5f9;
+                margin: 0;
+                padding: 0;
+                font-size: 10pt;
+                line-height: 1.35;
+            }
+            .print-page {
+                max-width: 210mm;
+                margin: 20px auto;
+                background: #ffffff;
+                padding: 12mm 16mm;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                border: 1px solid #e2e8f0;
+            }
+            .action-bar {
+                max-width: 210mm;
+                margin: 15px auto 0 auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: #0f172a;
+                color: #ffffff;
+                padding: 10px 16mm;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 7px 14px;
+                font-size: 13px;
+                font-weight: 600;
+                border-radius: 6px;
+                cursor: pointer;
+                text-decoration: none;
+                border: none;
+            }
+            .btn-primary { background: #0284c7; color: #fff; }
+            .btn-success { background: #10b981; color: #fff; }
+            .btn-secondary { background: #334155; color: #fff; }
+            
+            /* Kop Surat Resmi */
+            .kop-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 16px;
+                border-bottom: 3px double #000;
+                padding-bottom: 10px;
+                margin-bottom: 14px;
+                text-align: center;
+            }
+            .kop-text h4 { margin: 0; font-size: 11pt; font-weight: bold; letter-spacing: 1px; color: #000; }
+            .kop-text h2 { margin: 2px 0; font-size: 15pt; font-weight: 900; color: #09377d; letter-spacing: 0.5px; }
+            .kop-text p { margin: 0; font-size: 8.5pt; color: #334155; }
+
+            .doc-title {
+                text-align: center;
+                margin: 10px 0 14px 0;
+            }
+            .doc-title h3 {
+                margin: 0;
+                font-size: 12pt;
+                font-weight: 800;
+                text-transform: uppercase;
+                text-decoration: underline;
+                letter-spacing: 0.5px;
+            }
+            .doc-title p { margin: 3px 0 0 0; font-size: 9pt; color: #475569; }
+
+            /* Tabel Info */
+            .meta-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 12px;
+                font-size: 9.5pt;
+            }
+            .meta-table td {
+                padding: 3px 5px;
+                vertical-align: top;
+            }
+
+            /* Tabel Data Peserta */
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 10px 0 16px 0;
+                font-size: 9pt;
+            }
+            .data-table th, .data-table td {
+                border: 1px solid #000;
+                padding: 5px 6px;
+            }
+            .data-table th {
+                background: #f1f5f9 !important;
+                font-weight: 700;
+                text-align: center;
+            }
+
+            .badge-status {
+                display: inline-block;
+                padding: 1px 5px;
+                border-radius: 3px;
+                font-size: 8pt;
+                font-weight: 700;
+            }
+            .status-hadir {
+                color: #047857;
+                border: 1px solid #047857;
+                background: #ecfdf5;
+            }
+            .status-absen {
+                color: #b91c1c;
+                border: 1px solid #b91c1c;
+                background: #fef2f2;
+            }
+
+            /* Tanda Tangan */
+            .signature-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 16px;
+                margin-top: 25px;
+                text-align: center;
+                font-size: 9.5pt;
+                page-break-inside: avoid;
+            }
+            .sign-box {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: 105px;
+            }
+
+            @media print {
+                body { background: #ffffff !important; font-size: 9.5pt; }
+                .action-bar, .no-print { display: none !important; }
+                .print-page {
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                    box-shadow: none;
+                    max-width: 100%;
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="action-bar no-print">
+            <div style="font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <span>📋</span> Pratinjau Berita Acara &amp; Daftar Hadir Siswa (CBT)
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-success" onclick="window.print()">
+                    <span>🖨️</span> Cetak Sekarang (Print / PDF)
+                </button>
+                <a href="/admin/monitoring/export-attendance?id=<?= urlencode($examId) ?>&class=<?= urlencode($effectiveClass) ?>" class="btn btn-primary">
+                    <span>📥</span> Unduh Format Excel
+                </a>
+                <button type="button" class="btn btn-secondary" onclick="window.close()">
+                    <span>✖️</span> Tutup
+                </button>
+            </div>
+        </div>
+
+        <div class="print-page">
+            <!-- KOP SURAT RESMI -->
+            <div class="kop-container">
+                <div class="kop-text">
+                    <h4>PEMERINTAH PROVINSI JAWA TIMUR &bull; DINAS PENDIDIKAN</h4>
+                    <h4>CABANG DINAS PENDIDIKAN WILAYAH JEMBER</h4>
+                    <h2>SMK PESANTREN BUSTANUL ULUM</h2>
+                    <p>Jl. Raya Pesantren No. 01, Krajan, Kec. Tanggul, Kabupaten Jember, Jawa Timur 68155</p>
+                    <p>Website: smkpesantrenbustanululum.sch.id &bull; Surel: cbt@smkpesantrenbustanululum.sch.id</p>
+                </div>
+            </div>
+
+            <!-- JUDUL DOKUMEN -->
+            <div class="doc-title">
+                <h3>BERITA ACARA PELAKSANAAN UJIAN BERBASIS KOMPUTER (CBT)</h3>
+                <p>Tahun Ajaran <?= htmlspecialchars($_SESSION['cbt_settings']['academic_year'] ?? '2025/2026') ?> &bull; Rekap Presensi Login Lokal</p>
+            </div>
+
+            <!-- DETAIL UJIAN -->
+            <table class="meta-table">
+                <tr>
+                    <td style="width: 18%;"><strong>Mata Pelajaran</strong></td>
+                    <td style="width: 2%;">:</td>
+                    <td style="width: 35%;"><strong><?= htmlspecialchars($examSubject) ?></strong></td>
+                    <td style="width: 18%;"><strong>Hari / Tanggal</strong></td>
+                    <td style="width: 2%;">:</td>
+                    <td style="width: 25%;"><?= date('l, d F Y') ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Paket Ujian</strong></td>
+                    <td>:</td>
+                    <td><?= htmlspecialchars($examTitle) ?></td>
+                    <td><strong>Sesi / Waktu</strong></td>
+                    <td>:</td>
+                    <td>Sesi 1 (07:30 - Selesai)</td>
+                </tr>
+                <tr>
+                    <td><strong>Rombel / Kelas</strong></td>
+                    <td>:</td>
+                    <td><strong style="color:#0284c7;"><?= htmlspecialchars($effectiveClass) ?></strong></td>
+                    <td><strong>Ruang / Lab</strong></td>
+                    <td>:</td>
+                    <td>Laboratorium Komputer CBT</td>
+                </tr>
+                <tr>
+                    <td><strong>Token Ujian</strong></td>
+                    <td>:</td>
+                    <td><span style="font-family:monospace; font-weight:bold; background:#e0f2fe; padding:2px 6px; border:1px solid #bae6fd; border-radius:3px;"><?= htmlspecialchars($examToken) ?></span></td>
+                    <td><strong>Kehadiran Siswa</strong></td>
+                    <td>:</td>
+                    <td><strong><?= $totalHadir ?></strong> Hadir / <strong><?= $totalRegistered ?></strong> Total (<?= $hadirPercent ?>%)</td>
+                </tr>
+            </table>
+
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:6px 10px; border-radius:4px; font-size:8.5pt; margin-bottom:12px;">
+                <strong>Catatan Pelaksanaan Ujian:</strong> Seluruh peserta ujian telah login menggunakan akun dan nomor induk siswa resmi. Pengerjaan soal ujian secara digital terlaksana dengan tertib, lancar, dan seluruh lembar jawaban tersimpan aman di server CBT.
+            </div>
+
+            <!-- DAFTAR HADIR PESERTA -->
+            <div style="text-align: center; margin: 14px 0 8px 0;">
+                <h4 style="margin: 0; font-size: 10.5pt; text-transform: uppercase; text-decoration: underline;">
+                    DAFTAR HADIR PESERTA UJIAN (LOGIN PRESENSI CBT)
+                </h4>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 32px;" class="no-print"><input type="checkbox" id="checkAllPrint" onclick="var cbs=document.querySelectorAll('.cb-row-print'); cbs.forEach(cb=>cb.checked=this.checked);"></th>
+                        <th style="width: 32px;">No</th>
+                        <th style="width: 95px;">NIS</th>
+                        <th style="text-align: left;">Nama Lengkap Peserta</th>
+                        <th style="width: 75px;">Kelas</th>
+                        <th style="width: 80px;">Jam Login</th>
+                        <th style="width: 80px;">Status</th>
+                        <th style="width: 105px;">Alamat IP / Alat</th>
+                        <th style="width: 125px;">Tanda Tangan Siswa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($attendanceList as $idx => $st): 
+                        $no = $idx + 1;
+                        $isOdd = ($no % 2 !== 0);
+                    ?>
+                    <tr>
+                        <td style="text-align: center;" class="no-print">
+                            <input type="checkbox" class="cb-row-print" value="<?= htmlspecialchars($st['nis']) ?>" checked>
+                        </td>
+                        <td style="text-align: center;"><?= $no ?></td>
+                        <td style="text-align: center; font-family: monospace; font-weight: bold;"><?= htmlspecialchars($st['nis']) ?></td>
+                        <td><strong><?= htmlspecialchars($st['name']) ?></strong></td>
+                        <td style="text-align: center;"><?= htmlspecialchars($st['class']) ?></td>
+                        <td style="text-align: center; font-size: 8.5pt;"><?= htmlspecialchars($st['login_time']) ?></td>
+                        <td style="text-align: center;">
+                            <span class="badge-status <?= $st['status'] === 'HADIR' ? 'status-hadir' : 'status-absen' ?>">
+                                <?= $st['status'] === 'HADIR' ? '✓ HADIR' : '✗ ABSEN' ?>
+                            </span>
+                        </td>
+                        <td style="font-size: 8pt; text-align: center; color: #475569;">
+                            <?= htmlspecialchars($st['ip']) ?><br><span style="font-size: 7.5pt; color:#64748b;"><?= htmlspecialchars($st['device']) ?></span>
+                        </td>
+                        <td style="height: 32px; vertical-align: middle; padding: 2px 6px; font-size: 8.5pt;">
+                            <?php if ($isOdd): ?>
+                                <div style="text-align: left;"><?= $no ?>. ....................</div>
+                            <?php else: ?>
+                                <div style="text-align: right;"><?= $no ?>. ....................</div>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <!-- TANDA TANGAN PENGESAHAN -->
+            <div style="display: flex; justify-content: flex-end; font-size: 9.5pt; margin-top: 8px;">
+                <div>Tanggul, <?= date('d F Y') ?></div>
+            </div>
+
+            <div class="signature-grid">
+                <div class="sign-box">
+                    <div>Pengawas Ruang 1,</div>
+                    <div style="margin-top: 45px;">
+                        <strong style="text-decoration: underline;">Budi Santoso, S.Pd</strong><br>
+                        <span>NIP. 197501012000011001</span>
+                    </div>
+                </div>
+                <div class="sign-box">
+                    <div>Pengawas Ruang 2,</div>
+                    <div style="margin-top: 45px;">
+                        <strong style="text-decoration: underline;">Dra. Nurul Hidayati</strong><br>
+                        <span>NIP. 199204122019031008</span>
+                    </div>
+                </div>
+                <div class="sign-box">
+                    <div>Proktor CBT Sekolah,</div>
+                    <div style="margin-top: 45px;">
+                        <strong style="text-decoration: underline;">Ahmad Fauzi, S.T</strong><br>
+                        <span>NIP. 198811202010011005</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('autoprint') === '1') {
+                setTimeout(function() {
+                    window.print();
+                }, 400);
+            }
+        </script>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 // EKSPOR REKAP HASIL NILAI DENGAN FILTER KELAS / MAPEL / TOKEN
 if ($uri === '/admin/results/export-excel') {
     $classFilter = trim($_GET['class'] ?? '');
@@ -3819,6 +4198,11 @@ function renderAppPage($uri) {
         .action-btns { display: inline-flex !important; align-items: center !important; justify-content: center !important; flex-wrap: nowrap !important; white-space: nowrap !important; gap: 5px !important; }
         .action-bar { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; flex-wrap: wrap; }
         .data-table th, .data-table td { vertical-align: middle; }
+
+        /* Checkbox Pilihan pada Tabel Berurutan */
+        .cbt-checkbox-col { width: 38px; text-align: center; vertical-align: middle; }
+        .cbt-row-checkbox, .cbt-select-all { width: 17px; height: 17px; cursor: pointer; accent-color: #0284c7; vertical-align: middle; border-radius: 4px; margin: 0; }
+        tr.row-selected { background-color: rgba(2, 132, 199, 0.08) !important; }
     </style>
     <script>
         (function() {
@@ -4083,7 +4467,75 @@ function renderAppPage($uri) {
                 }
             }
         }
+
+        // =========================================================================
+        // UNIVERSAL CBT CHECKBOX SELECTION ENGINE (FOR ALL SEQUENTIAL TABLES)
+        // =========================================================================
+        function toggleCbtSelectAll(masterCb, itemClass) {
+            var cbs = document.querySelectorAll('.' + itemClass);
+            cbs.forEach(function(cb) {
+                cb.checked = masterCb.checked;
+                var row = cb.closest('tr');
+                if (row) {
+                    if (cb.checked) row.classList.add('row-selected');
+                    else row.classList.remove('row-selected');
+                }
+            });
+            updateCbtBatchBar();
+        }
+
+        function updateCbtSelection(cb) {
+            if (cb) {
+                var row = cb.closest('tr');
+                if (row) {
+                    if (cb.checked) row.classList.add('row-selected');
+                    else row.classList.remove('row-selected');
+                }
+            }
+            updateCbtBatchBar();
+        }
+
+        function updateCbtBatchBar() {
+            var allChecked = document.querySelectorAll('.cbt-row-checkbox:checked');
+            var bar = document.getElementById('cbtBatchActionBar');
+            var countEl = document.getElementById('cbtBatchCount');
+            if (!bar || !countEl) return;
+            if (allChecked.length > 0) {
+                countEl.textContent = allChecked.length + ' data dipilih';
+                bar.style.display = 'flex';
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        function clearCbtSelection() {
+            var allChecked = document.querySelectorAll('.cbt-row-checkbox:checked');
+            allChecked.forEach(function(cb) {
+                cb.checked = false;
+                var row = cb.closest('tr');
+                if (row) row.classList.remove('row-selected');
+            });
+            var masters = document.querySelectorAll('.cbt-select-all');
+            masters.forEach(function(m) { m.checked = false; });
+            updateCbtBatchBar();
+        }
     </script>
+
+    <!-- FLOATING BATCH ACTION BAR -->
+    <div id="cbtBatchActionBar" style="display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #ffffff; padding: 10px 22px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); z-index: 9999; align-items: center; gap: 16px; font-size: 13px; font-weight: 600; border: 1px solid #334155; backdrop-filter: blur(8px);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; animation: pulse 2s infinite;"></span>
+            <span id="cbtBatchCount">0 data dipilih</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-sm" onclick="alert('Pilihan berhasil dicatat untuk aksi data massal.');" style="background: #0284c7; color: #ffffff; padding: 4px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700;">
+                ✓ Proses Pilihan
+            </button>
+            <button type="button" class="btn btn-sm" onclick="clearCbtSelection()" style="background: #334155; color: #cbd5e1; padding: 4px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600;">
+                Batal
+            </button>
+        </div>
+    </div>
 </body>
 </html>
     <?php
@@ -4270,6 +4722,7 @@ function renderTeachersContent() {
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-teacher')" title="Pilih Semua Guru"></th>
                             <th style="width: 48px; text-align: center;">No</th>
                             <th style="width: 170px;">NIP</th>
                             <th>Nama Lengkap Guru</th>
@@ -4282,7 +4735,7 @@ function renderTeachersContent() {
                     <tbody>
                         <?php if (empty($teachers)): ?>
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">👨‍🏫</div>
                                         <p>Belum ada data guru pengajar yang terdaftar.</p>
@@ -4292,6 +4745,7 @@ function renderTeachersContent() {
                         <?php else: ?>
                             <?php foreach ($teachers as $idx => $t): ?>
                                 <tr>
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-teacher" value="<?= htmlspecialchars($t['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih guru ini"></td>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td><code><?= htmlspecialchars($t['nip']) ?></code></td>
                                     <td><strong><?= htmlspecialchars($t['name']) ?></strong></td>
@@ -4603,8 +5057,8 @@ function renderStudentsContent() {
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 42px; text-align: center;">
-                                <input type="checkbox" id="selectAllStudents" onclick="toggleSelectAllStudents(this)" style="cursor: pointer; width: 16px; height: 16px;" title="Tandai Semua Peserta">
+                            <th class="cbt-checkbox-col">
+                                <input type="checkbox" id="selectAllStudents" class="cbt-select-all" onclick="toggleSelectAllStudents(this); toggleCbtSelectAll(this, 'check-student');" title="Tandai Semua Peserta">
                             </th>
                             <th style="width: 45px; text-align: center;">No</th>
                             <th style="width: 130px;">NIS (Login Siswa)</th>
@@ -4629,8 +5083,8 @@ function renderStudentsContent() {
                         <?php else: ?>
                             <?php foreach ($students as $idx => $s): ?>
                                 <tr>
-                                    <td style="text-align: center;">
-                                        <input type="checkbox" class="student-checkbox" value="<?= htmlspecialchars($s['id']) ?>" onclick="updateSelectedStudentsBar()" style="cursor: pointer; width: 16px; height: 16px;" title="Tandai peserta ini">
+                                    <td class="cbt-checkbox-col">
+                                        <input type="checkbox" class="student-checkbox cbt-row-checkbox check-student" value="<?= htmlspecialchars($s['id']) ?>" onclick="updateSelectedStudentsBar(); updateCbtSelection(this);" title="Tandai peserta ini">
                                     </td>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td>
@@ -5056,6 +5510,7 @@ function renderClassesContent() {
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-class')" title="Pilih Semua Kelas"></th>
                             <th style="width: 50px; text-align: center;">No</th>
                             <th style="width: 140px; text-align: center;">ID Jurusan (Angka)</th>
                             <th>Jurusan</th>
@@ -5066,7 +5521,7 @@ function renderClassesContent() {
                     <tbody>
                         <?php if (empty($classes)): ?>
                             <tr>
-                                <td colspan="5">
+                                <td colspan="6">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">🏫</div>
                                         <p>Belum ada data kelas.</p>
@@ -5076,6 +5531,7 @@ function renderClassesContent() {
                         <?php else: ?>
                             <?php foreach ($classes as $idx => $c): ?>
                                 <tr>
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-class" value="<?= htmlspecialchars($c['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih kelas ini"></td>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td style="text-align: center;">
                                         <span class="badge badge-primary" style="font-family: monospace; font-size: 14px; font-weight: 800; padding: 4px 12px; min-width: 32px; display: inline-block;">
@@ -5307,6 +5763,7 @@ function renderSubjectsContent() {
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-subject')" title="Pilih Semua Mapel"></th>
                             <th style="width: 45px; text-align: center;">No</th>
                             <th style="width: 90px;">Kode</th>
                             <th style="min-width: 200px;">Nama Mata Pelajaran</th>
@@ -5319,7 +5776,7 @@ function renderSubjectsContent() {
                     <tbody>
                         <?php if (empty($subjects)): ?>
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">📚</div>
                                         <p>Belum ada data mata pelajaran.</p>
@@ -5331,6 +5788,7 @@ function renderSubjectsContent() {
                                 $assignedClasses = $sb['classes'] ?? ['10-TKJ-1'];
                             ?>
                                 <tr>
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-subject" value="<?= htmlspecialchars($sb['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih mapel ini"></td>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $idx + 1 ?></td>
                                     <td>
                                         <span class="badge badge-primary" style="font-size: 11.5px; font-weight: 700;"><?= htmlspecialchars($sb['code']) ?></span>
@@ -6493,6 +6951,7 @@ function renderQuestionsContent() {
                     <table class="table example-table" style="margin-bottom: 0;">
                         <thead>
                             <tr style="background: #f8fafc;">
+                                <th class="cbt-checkbox-col" style="background: #f8fafc;"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-bank-soal')" title="Pilih Semua Bank Soal"></th>
                                 <th style="width: 55px; text-align: center;">NO. <span class="sort-icon">⇅</span></th>
                                 <th>GURU <span class="sort-icon">⇅</span></th>
                                 <th>JUDUL <span class="sort-icon">⇅</span></th>
@@ -6509,7 +6968,7 @@ function renderQuestionsContent() {
                         <tbody>
                             <?php if (empty($subjects)): ?>
                                 <tr>
-                                    <td colspan="11" style="text-align: center; padding: 40px 20px;">
+                                    <td colspan="12" style="text-align: center; padding: 40px 20px;">
                                         <div style="font-size: 28px; margin-bottom: 8px;">📚</div>
                                         <div style="font-weight: 700; color: #475569;">Belum ada bank soal</div>
                                         <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Klik "+ Tambah Bank Soal" di atas untuk membuat bank soal baru.</div>
@@ -6522,6 +6981,9 @@ function renderQuestionsContent() {
                                     $durationText = ($sb['duration'] ?? 120) . ' menit';
                                 ?>
                                     <tr style="vertical-align: middle;">
+                                        <td class="cbt-checkbox-col">
+                                            <input type="checkbox" class="cbt-row-checkbox check-bank-soal" value="<?= htmlspecialchars($sb['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih bank soal ini">
+                                        </td>
                                         <td style="text-align: center; color: #475569; font-weight: 600; padding: 18px 10px;">
                                             <?= $idx + 1 ?>
                                         </td>
@@ -7057,6 +7519,7 @@ function renderQuestionsContent() {
                     <table class="table" style="margin-bottom: 0;">
                         <thead>
                             <tr style="background: #f8fafc;">
+                                <th class="cbt-checkbox-col" style="background: #f8fafc;"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-question-row')" title="Pilih Semua Soal"></th>
                                 <th style="width: 45px; text-align: center;">No</th>
                                 <th style="width: 90px;">Tipe</th>
                                 <th>Pertanyaan &amp; Pilihan Jawaban</th>
@@ -7069,7 +7532,7 @@ function renderQuestionsContent() {
                         <tbody>
                             <?php if (empty($filteredQuestions)): ?>
                                 <tr>
-                                    <td colspan="7" style="padding: 40px; text-align: center;">
+                                    <td colspan="8" style="padding: 40px; text-align: center;">
                                         <div style="font-size: 32px; margin-bottom: 8px;">📝</div>
                                         <div style="font-weight: 700; color: #334155; font-size: 15px;">Belum ada butir pertanyaan untuk bank soal ini</div>
                                         <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Klik tombol "Tambah Soal" untuk membuat soal satu per satu atau "Import Soal" untuk mengunggah file Excel.</div>
@@ -7082,6 +7545,9 @@ function renderQuestionsContent() {
                                     $opts = $q['options'] ?? [];
                                 ?>
                                     <tr style="<?= $isInactive ? 'background: #f8fafc;' : '' ?>">
+                                        <td class="cbt-checkbox-col">
+                                            <input type="checkbox" class="cbt-row-checkbox check-question-row" value="<?= htmlspecialchars($q['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih butir soal ini">
+                                        </td>
                                         <td style="text-align: center; font-weight: 600; color: #64748b;">
                                             <?= $qIdx + 1 ?>
                                         </td>
@@ -8496,6 +8962,7 @@ function renderExamsContent() {
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-exam-row')" title="Pilih Semua Ujian"></th>
                             <th style="width: 50px;">No</th>
                             <th>Nama Ruang &amp; Bank Soal</th>
                             <th>Kode Kelas Ujian</th>
@@ -8509,7 +8976,7 @@ function renderExamsContent() {
                     <tbody>
                         <?php if (empty($exams)): ?>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="9">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">🚪</div>
                                         <p style="font-weight: 700; color: #475569;">Belum ada ruang ujian yang dibuat.</p>
@@ -8520,6 +8987,7 @@ function renderExamsContent() {
                         <?php else: ?>
                             <?php foreach ($exams as $idx => $ex): ?>
                                 <tr>
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-exam-row" value="<?= htmlspecialchars($ex['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih ujian ini"></td>
                                     <td><?= $idx + 1 ?></td>
                                     <td>
                                         <div style="font-weight: 700; font-size: 0.95rem;">
@@ -8816,6 +9284,7 @@ function renderExamDetailContent($examId) {
                 <table class="table">
                     <thead>
                         <tr>
+                            <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-exam-student')" title="Pilih Semua Peserta"></th>
                             <th style="width: 50px;">No</th>
                             <th>NIS</th>
                             <th>Nama Peserta</th>
@@ -8826,6 +9295,7 @@ function renderExamDetailContent($examId) {
                     <tbody>
                         <?php foreach ($_SESSION['students_list'] as $idx => $s): ?>
                             <tr>
+                                <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-exam-student" value="<?= htmlspecialchars($s['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih peserta ini"></td>
                                 <td><?= $idx + 1 ?></td>
                                 <td><code><?= htmlspecialchars($s['nis']) ?></code></td>
                                 <td><strong><?= htmlspecialchars($s['name']) ?></strong></td>
@@ -8956,6 +9426,7 @@ function renderMonitoringContent() {
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-mon-exam')" title="Pilih Semua Ujian"></th>
                             <th style="width: 50px;">No</th>
                             <th>Judul Ujian &amp; Mapel</th>
                             <th>Jadwal / Durasi</th>
@@ -8969,6 +9440,7 @@ function renderMonitoringContent() {
                     <tbody>
                         <?php foreach ($exams as $idx => $ex): ?>
                             <tr>
+                                <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-mon-exam" value="<?= htmlspecialchars($ex['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih ujian ini"></td>
                                 <td><?= $idx + 1 ?></td>
                                 <td>
                                     <div style="font-weight: 700; font-size: 0.95rem;"><?= htmlspecialchars($ex['title']) ?></div>
@@ -9378,6 +9850,7 @@ function renderMonitoringLiveContent($examId) {
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th class="cbt-checkbox-col"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-live-student')" title="Pilih Semua Peserta"></th>
                                 <th style="width: 45px; text-align: center;">No</th>
                                 <th>NIS &amp; Nama Siswa</th>
                                 <th>Kelas</th>
@@ -9399,6 +9872,7 @@ function renderMonitoringLiveContent($examId) {
                                 $isAttPresent = !empty($s['login_time']) || (!empty($s['attendance_status']) && $s['attendance_status'] === 'HADIR') || ($s['status'] !== 'Belum Mulai');
                             ?>
                                 <tr>
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-live-student" value="<?= htmlspecialchars($s['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih peserta ini"></td>
                                     <td style="text-align: center; font-weight: 600; color: var(--text-muted);"><?= $idx + 1 ?></td>
                                     <td>
                                         <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars($s['name']) ?></div>
@@ -9543,6 +10017,7 @@ function renderMonitoringLiveContent($examId) {
                     <table class="data-table" id="tableStudentAttendance">
                         <thead>
                             <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th class="cbt-checkbox-col" style="background: #f8fafc;"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-att-student')" title="Pilih Semua Siswa"></th>
                                 <th style="width: 45px; text-align: center;">No</th>
                                 <th>NIS</th>
                                 <th>Nama Lengkap Siswa</th>
@@ -9560,6 +10035,7 @@ function renderMonitoringLiveContent($examId) {
                                 $isHadir = $att['status'] === 'HADIR';
                             ?>
                                 <tr class="attendance-row" data-class="<?= htmlspecialchars($att['class']) ?>" data-status="<?= $att['status'] ?>" style="border-bottom: 1px solid #f1f5f9; background: <?= $isHadir ? '#ffffff' : '#fcfcfc' ?>;">
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-att-student" value="<?= htmlspecialchars($att['nis']) ?>" onchange="updateCbtSelection(this)" title="Pilih siswa ini"></td>
                                     <td style="text-align: center; color: var(--text-muted); font-weight: 600;"><?= $aIdx + 1 ?></td>
                                     <td><code><?= htmlspecialchars($att['nis']) ?></code></td>
                                     <td>
@@ -9793,6 +10269,7 @@ function renderMonitoringLiveContent($examId) {
                     <table class="data-table" style="margin: 0;">
                         <thead>
                             <tr style="background: #f8fafc;">
+                                <th class="cbt-checkbox-col" style="background: #f8fafc;"><input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-score-modal')" title="Pilih Semua Siswa"></th>
                                 <th style="width: 45px; text-align: center;">No</th>
                                 <th>NIS</th>
                                 <th>Nama Lengkap Peserta</th>
@@ -9812,6 +10289,7 @@ function renderMonitoringLiveContent($examId) {
                                 $pass = $sc >= 75.0;
                             ?>
                                 <tr>
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-score-modal" value="<?= htmlspecialchars($st['nis']) ?>" onchange="updateCbtSelection(this)" title="Pilih siswa ini"></td>
                                     <td style="text-align: center; color: var(--text-muted);"><?= $i + 1 ?></td>
                                     <td><code><?= htmlspecialchars($st['nis']) ?></code></td>
                                     <td><strong><?= htmlspecialchars($st['name']) ?></strong></td>
