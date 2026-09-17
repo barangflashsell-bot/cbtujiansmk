@@ -14,6 +14,35 @@
     </div>
 </div>
 
+@php
+    $proctorPin = session('cbt_settings.proctor_unlock_pin', str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT));
+@endphp
+
+<!-- PROCTOR QUICK PIN CARD -->
+<div id="pin-pengawas" style="background: linear-gradient(135deg, #0f172a, #1e293b); border: 1.5px solid #334155; border-radius: 12px; padding: 16px 20px; color: #ffffff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
+    <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(225,29,72,0.15); border: 1px solid rgba(225,29,72,0.4); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+            🔐
+        </div>
+        <div>
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700;">
+                PIN OTORISASI PENGAWAS (BUKA KUNCI SESI SISWA TERKUNCI)
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 3px;">
+                <span id="displayProctorPin" style="font-family: monospace; font-size: 24px; font-weight: 900; color: #38bdf8; letter-spacing: 4px;">
+                    {{ $proctorPin }}
+                </span>
+                <span class="badge badge-success" style="font-size: 10px; padding: 2px 8px;">AKTIF DI SEMUA RUANG</span>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('displayProctorPin').innerText.trim()); alert('✓ PIN Pengawas berhasil disalin!');" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">
+            📋 Salin PIN
+        </button>
+    </div>
+</div>
+
 <div class="card">
     <form method="GET" action="{{ route('admin.monitoring.index') }}" class="search-filter-bar">
         <div class="search-input-group">

@@ -56,9 +56,40 @@
                 @enderror
             </div>
 
-            <div class="form-group" style="flex: 1;">
-                <label class="form-label" for="score_weight">Bobot Nilai <span style="color:var(--color-rose-500)">*</span></label>
-                <input type="number" step="0.1" min="0.1" max="100" name="score_weight" id="score_weight" class="form-control @error('score_weight') is-invalid @enderror" value="{{ old('score_weight', $question->score_weight) }}" required>
+            @php
+                $currentWeight = (float) old('score_weight', $question->score_weight);
+                $currentType = old('question_type', $question->question_type);
+                $isDefaultWeight = ($currentType === 'essay' && abs($currentWeight - 10.0) < 0.01) || ($currentType !== 'essay' && abs($currentWeight - 2.5) < 0.01);
+                $initialMode = $isDefaultWeight ? 'auto' : 'manual';
+            @endphp
+
+            <div class="form-group" style="flex: 1;" id="group_score_weight">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+                    <label class="form-label" for="score_weight" style="margin: 0;">Bobot Nilai <span style="color:var(--color-rose-500)">*</span></label>
+                    <div class="cbt-weight-mode-toggle" style="display: inline-flex; background: #e2e8f0; border-radius: 6px; padding: 2px; gap: 2px; font-size: 11px; user-select: none;">
+                        <label id="lbl_weight_auto" style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: {{ $initialMode === 'auto' ? '700' : '600' }}; background: {{ $initialMode === 'auto' ? '#2563eb' : 'transparent' }}; color: {{ $initialMode === 'auto' ? '#ffffff' : '#475569' }}; transition: all 0.2s;">
+                            <input type="radio" name="weight_mode" value="auto" {{ $initialMode === 'auto' ? 'checked' : '' }} onchange="toggleWeightCalculationMode('auto')" style="display: none;">
+                            ⚡ Otomatis
+                        </label>
+                        <label id="lbl_weight_manual" style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: {{ $initialMode === 'manual' ? '700' : '600' }}; background: {{ $initialMode === 'manual' ? '#2563eb' : 'transparent' }}; color: {{ $initialMode === 'manual' ? '#ffffff' : '#475569' }}; transition: all 0.2s;">
+                            <input type="radio" name="weight_mode" value="manual" {{ $initialMode === 'manual' ? 'checked' : '' }} onchange="toggleWeightCalculationMode('manual')" style="display: none;">
+                            ✍️ Manual
+                        </label>
+                    </div>
+                </div>
+                <div style="position: relative;">
+                    <input type="number" step="0.1" min="0.1" max="100" name="score_weight" id="score_weight" class="form-control @error('score_weight') is-invalid @enderror" value="{{ old('score_weight', $question->score_weight) }}" required {{ $initialMode === 'auto' ? 'readonly' : '' }} style="background: {{ $initialMode === 'auto' ? '#f8fafc' : '#ffffff' }}; font-weight: 700; color: #1e293b; padding-right: {{ $initialMode === 'auto' ? '75px' : '12px' }};">
+                    <span id="badge_weight_auto" style="display: {{ $initialMode === 'auto' ? 'inline-block' : 'none' }}; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10.5px; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 700; pointer-events: none;">
+                        Otomatis
+                    </span>
+                </div>
+                <small id="hint_weight_mode" style="display: block; font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.3;">
+                    @if($initialMode === 'auto')
+                        ⚡ Bobot dihitung otomatis oleh sistem (2.5 per soal PG, 10 untuk Essai).
+                    @else
+                        ✍️ Mode manual: Anda bebas menentukan angka bobot nilai butir soal ini.
+                    @endif
+                </small>
                 @error('score_weight')
                     <div class="form-error">{{ $message }}</div>
                 @enderror
@@ -119,8 +150,67 @@
 </div>
 
 <script>
+    function toggleWeightCalculationMode(mode) {
+        var input = document.getElementById('score_weight');
+        var badge = document.getElementById('badge_weight_auto');
+        var hint = document.getElementById('hint_weight_mode');
+        var lblAuto = document.getElementById('lbl_weight_auto');
+        var lblManual = document.getElementById('lbl_weight_manual');
+        var qType = document.getElementById('question_type') ? document.getElementById('question_type').value : 'single_choice';
+
+        if (mode === 'manual') {
+            if (lblAuto) {
+                lblAuto.style.background = 'transparent';
+                lblAuto.style.color = '#475569';
+                lblAuto.style.fontWeight = '600';
+            }
+            if (lblManual) {
+                lblManual.style.background = '#2563eb';
+                lblManual.style.color = '#ffffff';
+                lblManual.style.fontWeight = '700';
+            }
+            if (input) {
+                input.readOnly = false;
+                input.style.background = '#ffffff';
+                input.style.cursor = 'text';
+                input.style.paddingRight = '12px';
+                input.focus();
+                input.select();
+            }
+            if (badge) badge.style.display = 'none';
+            if (hint) hint.innerHTML = '✍️ <strong>Mode Manual:</strong> Anda bebas menentukan angka bobot nilai butir soal ini.';
+        } else {
+            if (lblAuto) {
+                lblAuto.style.background = '#2563eb';
+                lblAuto.style.color = '#ffffff';
+                lblAuto.style.fontWeight = '700';
+            }
+            if (lblManual) {
+                lblManual.style.background = 'transparent';
+                lblManual.style.color = '#475569';
+                lblManual.style.fontWeight = '600';
+            }
+            if (input) {
+                input.readOnly = true;
+                input.style.background = '#f8fafc';
+                input.style.cursor = 'default';
+                input.style.paddingRight = '75px';
+                if (qType === 'essay') {
+                    input.value = '10.0';
+                } else {
+                    input.value = '2.5';
+                }
+            }
+            if (badge) badge.style.display = 'inline-block';
+            if (hint) hint.innerHTML = '⚡ <strong>Mode Otomatis:</strong> Bobot dihitung otomatis oleh sistem (2.5 per soal PG, 10 untuk Essai).';
+        }
+    }
+
     function toggleQuestionType(type) {
         var optContainer = document.getElementById('options-container');
+        var weightInput = document.getElementById('score_weight');
+        var modeRadio = document.querySelector('input[name="weight_mode"]:checked');
+
         if (optContainer) {
             if (type === 'essay') {
                 optContainer.style.display = 'none';
@@ -128,7 +218,14 @@
                 optContainer.style.display = 'block';
             }
         }
+
+        if (!modeRadio || modeRadio.value === 'auto') {
+            if (weightInput) {
+                weightInput.value = (type === 'essay') ? '10.0' : '2.5';
+            }
+        }
     }
+
     document.addEventListener('DOMContentLoaded', function() {
         var typeSelect = document.getElementById('question_type');
         if (typeSelect) {

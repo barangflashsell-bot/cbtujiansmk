@@ -31,13 +31,13 @@ if (!isset($_SESSION['cbt_settings'])) {
         'server_port' => 8000,
         'token_refresh_minutes' => 15,
         'active_token' => 'WXYZ89',
-        'proctor_unlock_pin' => '1234',
+        'proctor_unlock_pin' => str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT),
         'student_review' => true,
         'auto_token_release' => true,
     ];
 }
-if (!isset($_SESSION['cbt_settings']['proctor_unlock_pin'])) {
-    $_SESSION['cbt_settings']['proctor_unlock_pin'] = '1234';
+if (!isset($_SESSION['cbt_settings']['proctor_unlock_pin']) || empty($_SESSION['cbt_settings']['proctor_unlock_pin'])) {
+    $_SESSION['cbt_settings']['proctor_unlock_pin'] = str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
 }
 
 // B. Teachers List (Nomer telepon dihilangkan, username namadepan.namabelakang, password default 12345678)
@@ -2259,7 +2259,7 @@ if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin
 
 // --- K2. PROCTOR PIN & UNLOCK ACTIONS ---
 if ($method === 'POST' && $uri === '/admin/proctor-pin/update') {
-    $newPin = strtoupper(trim($_POST['proctor_unlock_pin'] ?? '1234'));
+    $newPin = strtoupper(trim($_POST['proctor_unlock_pin'] ?? ''));
     if ($newPin !== '') {
         $_SESSION['cbt_settings']['proctor_unlock_pin'] = $newPin;
         logCbtActivity('PROCTOR', 'UPDATE_PIN', 'Memperbarui PIN Otorisasi Pengawas Ujian menjadi: ' . $newPin);
@@ -2291,10 +2291,15 @@ if ($method === 'POST' && $uri === '/admin/proctor-pin/unlock-student') {
 }
 
 if ($method === 'POST' && $uri === '/admin/proctor-pin/unlock-all') {
+    $selectedNisRaw = trim($_POST['selected_nis'] ?? '');
+    $selectedNisList = $selectedNisRaw !== '' ? array_filter(array_map('trim', explode(',', $selectedNisRaw))) : [];
+    $isSelective = !empty($selectedNisList);
+
     $unlockedCount = 0;
     if (isset($_SESSION['monitoring_sessions'])) {
         foreach ($_SESSION['monitoring_sessions'] as &$ms) {
-            if (!empty($ms['is_locked']) || (!empty($ms['violations']) && $ms['violations'] > 0)) {
+            $matches = $isSelective ? in_array($ms['nis'], $selectedNisList, true) : true;
+            if ($matches && (!empty($ms['is_locked']) || (!empty($ms['violations']) && $ms['violations'] > 0))) {
                 $ms['violations'] = 0;
                 $ms['is_locked'] = false;
                 $ms['status'] = 'Mengerjakan';
@@ -2303,8 +2308,13 @@ if ($method === 'POST' && $uri === '/admin/proctor-pin/unlock-all') {
         }
         unset($ms);
     }
-    logCbtActivity('PROCTOR', 'UNLOCK_ALL', 'Membuka kunci massal untuk semua peserta ujian (' . $unlockedCount . ' peserta)');
-    $_SESSION['import_success'] = "Berhasil membuka kunci sesi untuk {$unlockedCount} peserta yang terhenti!";
+    if ($isSelective) {
+        logCbtActivity('PROCTOR', 'UNLOCK_SELECTED', 'Membuka kunci sesi untuk ' . $unlockedCount . ' peserta terpilih');
+        $_SESSION['import_success'] = "Berhasil membuka kunci sesi untuk <strong>{$unlockedCount} peserta yang ditandai</strong>!";
+    } else {
+        logCbtActivity('PROCTOR', 'UNLOCK_ALL', 'Membuka kunci massal untuk semua peserta ujian (' . $unlockedCount . ' peserta)');
+        $_SESSION['import_success'] = "Berhasil membuka kunci sesi untuk <strong>{$unlockedCount} peserta</strong> yang terhenti!";
+    }
     header('Location: /admin/proctor-pin');
     exit;
 }
@@ -3089,11 +3099,11 @@ function renderStudentPortal() {
         }
 
         // Proctor Unlock PIN (Dinamis dari Pengaturan / Menu PIN Pengawas)
-        var serverActiveProctorPin = <?= json_encode($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234') ?>;
+        var serverActiveProctorPin = <?= json_encode($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '') ?>;
         function unlockKioskByProctor() {
             var pin = (document.getElementById('proctorUnlockPin').value || '').trim().toUpperCase();
-            var targetPin = (serverActiveProctorPin || '1234').toUpperCase();
-            if (pin === targetPin || pin === '1234' || pin === 'PROCTOR' || pin === 'WXYZ89' || pin === 'ADMIN123') {
+            var targetPin = (serverActiveProctorPin || '').toUpperCase();
+            if (pin && targetPin && pin === targetPin) {
                 violationCount = 0;
                 var badge = document.getElementById('kioskStrikeCount');
                 if (badge) badge.textContent = '0/' + MAX_VIOLATIONS;
@@ -3525,7 +3535,7 @@ function renderAppPage($uri) {
                         <span>PIN &amp; Buka Kunci</span>
                     </span>
                     <span class="nav-badge-pill" style="background: #e11d48; color: #ffffff; font-weight: 800; font-family: monospace; letter-spacing: 1px; padding: 2px 7px;">
-                        <?= htmlspecialchars($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234') ?>
+                        <?= htmlspecialchars($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '----') ?>
                     </span>
                 </a>
                 <a href="/admin/results" class="nav-link <?= $activeMenu === 'results' ? 'active' : '' ?>">
@@ -8543,7 +8553,7 @@ function renderMonitoringContent() {
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 3px;">
                         <span style="font-family: monospace; font-size: 24px; font-weight: 900; color: #38bdf8; letter-spacing: 4px;">
-                            <?= htmlspecialchars($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234') ?>
+                            <?= htmlspecialchars($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '----') ?>
                         </span>
                         <span class="badge badge-success" style="font-size: 10px; padding: 2px 8px;">AKTIF DI SEMUA RUANG</span>
                     </div>
@@ -9392,7 +9402,7 @@ function renderMonitoringLiveContent($examId) {
 // 14B. MENU: PIN PENGAWAS & BUKA KUNCI SESI UJIAN (HARD LOCKOUT MANAGER)
 // =========================================================================
 function renderProctorPinContent() {
-    $activePin = $_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234';
+    $activePin = $_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '----';
     $sessions = $_SESSION['monitoring_sessions'] ?? [];
 
     $lockedCount = 0;
@@ -9509,16 +9519,14 @@ function renderProctorPinContent() {
                             </button>
                         </div>
                         <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('1234')" style="font-size: 11px; padding: 3px 8px;">Preset 1234</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('9988')" style="font-size: 11px; padding: 3px 8px;">Preset 9988</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('PROCTOR')" style="font-size: 11px; padding: 3px 8px;">Preset PROCTOR</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('ADMIN123')" style="font-size: 11px; padding: 3px 8px;">Preset ADMIN123</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="randomizeProctorPinField()" style="font-size: 11px; padding: 3px 8px;">🎲 Acak 4 Digit</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin(Math.floor(1000 + Math.random() * 9000).toString())" style="font-size: 11px; padding: 3px 8px;">🔄 Angka Baru</button>
                         </div>
                     </form>
                 </div>
 
                 <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #64748b; line-height: 1.4;">
-                    ℹ️ <strong>Tips:</strong> PIN bawaan darurat (<code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">1234</code>, <code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">ADMIN123</code>, <code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">PROCTOR</code>) selalu diterima oleh sistem sebagai cadangan darurat.
+                    ℹ️ <strong>Tips:</strong> Hanya PIN yang diset di atas yang diterima oleh sistem. Tidak ada PIN bawaan darurat — pastikan guru pengawas mengetahui PIN aktif sebelum ujian dimulai.
                 </div>
             </div>
 
@@ -9586,10 +9594,32 @@ function renderProctorPinContent() {
                 </div>
             </div>
 
+            <!-- TOOLBAR AKSI MASSAL UNTUK SISWA TERKUNCI YANG DITANDAI -->
+            <div id="bulkUnlockToolbar" style="display: none; background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1.5px solid #3b82f6; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px; display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 18px;">☑️</span>
+                    <span style="font-size: 13px; font-weight: 700; color: #1e40af;"><span id="bulkSelectedCount">0</span> siswa dipilih</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-sm" onclick="bulkUnlockSelected()" style="background: #10b981; color: #ffffff; border: none; font-weight: 700; padding: 8px 16px; border-radius: 6px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
+                        <span>🔓</span> Buka Kunci yang Ditandai
+                    </button>
+                    <button type="button" class="btn btn-sm" onclick="toggleSelectAllLocked()" style="background: #3b82f6; color: #ffffff; border: none; font-weight: 700; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; cursor: pointer;">
+                        ☑️ Pilih Semua Terkunci
+                    </button>
+                    <button type="button" class="btn btn-sm" onclick="clearAllSelection()" style="background: #64748b; color: #ffffff; border: none; font-weight: 600; padding: 8px 14px; border-radius: 6px; font-size: 12.5px; cursor: pointer;">
+                        ✕ Batal Pilih
+                    </button>
+                </div>
+            </div>
+
             <div class="data-table-wrapper" style="overflow-x: auto;">
                 <table class="data-table" id="tableLockoutMonitoring" style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 10px 8px; text-align: center; width: 40px;">
+                                <input type="checkbox" id="checkAllStudents" onchange="toggleCheckAll(this)" title="Pilih semua" style="width: 16px; height: 16px; cursor: pointer;">
+                            </th>
                             <th style="padding: 10px 12px; text-align: center; width: 45px;">No</th>
                             <th style="padding: 10px 12px; text-align: left;">NIS &amp; Nama Siswa</th>
                             <th style="padding: 10px 12px; text-align: left;">Kelas</th>
@@ -9605,7 +9635,14 @@ function renderProctorPinContent() {
                             $vCount = $s['violations'] ?? 0;
                             $isLocked = !empty($s['is_locked']) || $vCount >= 3;
                         ?>
-                            <tr style="border-bottom: 1px solid #f1f5f9; background: <?= $isLocked ? '#fef2f2' : ($vCount > 0 ? '#fffbeb' : '#ffffff') ?>;">
+                            <tr style="border-bottom: 1px solid #f1f5f9; background: <?= $isLocked ? '#fef2f2' : ($vCount > 0 ? '#fffbeb' : '#ffffff') ?>;" class="student-lockout-row" data-locked="<?= $isLocked ? '1' : '0' ?>" data-violations="<?= $vCount ?>">
+                                <td style="padding: 10px 8px; text-align: center;">
+                                    <?php if ($isLocked || $vCount > 0): ?>
+                                        <input type="checkbox" class="student-check" value="<?= htmlspecialchars($s['nis']) ?>" data-name="<?= htmlspecialchars($s['name']) ?>" onchange="updateBulkToolbar()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #2563eb;">
+                                    <?php else: ?>
+                                        <span style="color: #cbd5e1;">—</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td style="padding: 10px 12px; text-align: center; font-size: 12.5px;"><?= $i + 1 ?></td>
                                 <td style="padding: 10px 12px;">
                                     <div style="font-weight: 700; font-size: 13.5px; color: #0f172a;"><?= htmlspecialchars($s['name']) ?></div>
@@ -9655,7 +9692,7 @@ function renderProctorPinContent() {
                                         <form method="POST" action="/admin/proctor-pin/unlock-student" style="margin: 0;">
                                             <input type="hidden" name="nis" value="<?= htmlspecialchars($s['nis']) ?>">
                                             <button type="submit" class="btn btn-sm" style="background: #10b981; color: #ffffff; border: none; font-weight: 700; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">
-                                                <span>🔓</span> Buka Kunci Sesi
+                                                <span>🔓</span> Buka Kunci
                                             </button>
                                         </form>
                                     <?php else: ?>
@@ -9716,6 +9753,79 @@ function renderProctorPinContent() {
             var text = r.innerText.toLowerCase();
             r.style.display = (text.indexOf(q) > -1) ? '' : 'none';
         });
+    }
+
+    // =============================================
+    // BULK UNLOCK: Checkbox & Aksi Massal
+    // =============================================
+    function toggleCheckAll(masterCheckbox) {
+        var checks = document.querySelectorAll('.student-check');
+        checks.forEach(function(cb) {
+            cb.checked = masterCheckbox.checked;
+        });
+        updateBulkToolbar();
+    }
+
+    function updateBulkToolbar() {
+        var checks = document.querySelectorAll('.student-check:checked');
+        var toolbar = document.getElementById('bulkUnlockToolbar');
+        var countEl = document.getElementById('bulkSelectedCount');
+        if (checks.length > 0) {
+            toolbar.style.display = 'flex';
+            countEl.textContent = checks.length;
+        } else {
+            toolbar.style.display = 'none';
+            countEl.textContent = '0';
+        }
+    }
+
+    function toggleSelectAllLocked() {
+        var rows = document.querySelectorAll('.student-lockout-row');
+        rows.forEach(function(row) {
+            if (row.getAttribute('data-locked') === '1' || parseInt(row.getAttribute('data-violations')) > 0) {
+                var cb = row.querySelector('.student-check');
+                if (cb) cb.checked = true;
+            }
+        });
+        updateBulkToolbar();
+    }
+
+    function clearAllSelection() {
+        var checks = document.querySelectorAll('.student-check');
+        checks.forEach(function(cb) { cb.checked = false; });
+        var master = document.getElementById('checkAllStudents');
+        if (master) master.checked = false;
+        updateBulkToolbar();
+    }
+
+    function bulkUnlockSelected() {
+        var checks = document.querySelectorAll('.student-check:checked');
+        if (checks.length === 0) {
+            alert('Belum ada siswa yang ditandai. Centang checkbox di samping nama siswa yang ingin dibuka kunci.');
+            return;
+        }
+        var names = [];
+        checks.forEach(function(cb) {
+            names.push(cb.getAttribute('data-name'));
+        });
+        var confirmMsg = 'Buka kunci ' + checks.length + ' siswa yang ditandai?\n\n' + names.join(', ') + '\n\nKlik OK untuk membuka kunci semua sesi mereka.';
+        if (!confirm(confirmMsg)) return;
+
+        // Submit each NIS via sequential form posts
+        var nisList = [];
+        checks.forEach(function(cb) { nisList.push(cb.value); });
+
+        // Create a hidden form to submit all at once
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/proctor-pin/unlock-all';
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'selected_nis';
+        input.value = nisList.join(',');
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     }
     </script>
     <?php

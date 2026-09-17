@@ -4,186 +4,490 @@
 
 @section('content')
 <style>
-    /* WORD RIBBON & DOCUMENT EDITOR SYSTEM STYLES */
+    /* =========================================================
+       CBT MICROSOFT WORD-LIKE DOCUMENT EDITOR DESIGN SYSTEM
+       ========================================================= */
+
+    /* Editor Box Container */
+    .cbt-word-editor-box,
     .word-editor-box {
         border: 1px solid #cbd5e1;
         border-radius: 8px;
         background: #ffffff;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
         overflow: hidden;
-        margin-bottom: 18px;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        margin-bottom: 24px;
+        transition: all 0.2s ease;
     }
-    .word-editor-box:focus-within {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+
+    [data-theme="dark"] .cbt-word-editor-box,
+    [data-theme="dark"] .word-editor-box {
+        border-color: #334155;
+        background: #1e293b;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
+
+    /* Word Menu Tab Bar (File, Beranda, Sisipkan, etc.) */
+    .cbt-word-menu-tabbar,
     .word-menu-tabbar {
         display: flex;
-        gap: 16px;
-        padding: 6px 14px;
-        background: #f1f5f9;
+        gap: 18px;
+        padding: 7px 16px;
+        background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
         font-size: 12px;
         font-weight: 700;
         color: #475569;
+        user-select: none;
     }
-    .word-menu-tabbar span {
+
+    [data-theme="dark"] .cbt-word-menu-tabbar,
+    [data-theme="dark"] .word-menu-tabbar {
+        background: #0f172a;
+        border-color: #334155;
+        color: #94a3b8;
+    }
+
+    .cbt-word-tab-item {
         cursor: pointer;
-        padding: 3px 6px;
+        padding: 3px 8px;
         border-radius: 4px;
-        transition: background 0.15s, color 0.15s;
+        transition: all 0.15s ease;
     }
-    .word-menu-tabbar span:hover {
+    .cbt-word-tab-item:hover {
         background: #e2e8f0;
-        color: #1e293b;
+        color: #0f172a;
     }
+    [data-theme="dark"] .cbt-word-tab-item:hover {
+        background: #1e293b;
+        color: #ffffff;
+    }
+    .cbt-word-tab-item.active {
+        color: #2563eb;
+        border-bottom: 2px solid #2563eb;
+        border-radius: 4px 4px 0 0;
+    }
+
+    /* Ribbon Toolbar */
+    .cbt-word-ribbon-bar,
     .word-ribbon-bar {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
         align-items: center;
-        padding: 6px 10px;
+        gap: 4px;
+        padding: 7px 12px;
         background: #ffffff;
         border-bottom: 1px solid #e2e8f0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
+
+    [data-theme="dark"] .cbt-word-ribbon-bar,
+    [data-theme="dark"] .word-ribbon-bar {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    /* Ribbon Groups */
+    .cbt-word-ribbon-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 1px 2px;
+        background: transparent;
+        border-radius: 5px;
+    }
+
+    .cbt-word-sep,
+    .word-sep {
+        width: 1px;
+        height: 22px;
+        background: #e2e8f0;
+        margin: 0 5px;
+        flex-shrink: 0;
+    }
+
+    [data-theme="dark"] .cbt-word-sep,
+    [data-theme="dark"] .word-sep {
+        background: #334155;
+    }
+
+    /* Ribbon Buttons */
+    .cbt-word-tool-btn,
     .word-tool-btn {
         background: #ffffff;
         border: 1px solid transparent;
         border-radius: 4px;
-        padding: 3px 6px;
-        font-size: 12px;
+        padding: 4px 7px;
+        font-size: 12.5px;
+        font-weight: 500;
         color: #334155;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 26px;
-        height: 26px;
+        min-width: 28px;
+        height: 28px;
         transition: all 0.15s ease;
         user-select: none;
+        line-height: 1;
     }
+
+    [data-theme="dark"] .cbt-word-tool-btn,
+    [data-theme="dark"] .word-tool-btn {
+        background: #1e293b;
+        color: #cbd5e1;
+    }
+
+    .cbt-word-tool-btn:hover,
     .word-tool-btn:hover {
         background: #eff6ff;
         border-color: #bfdbfe;
         color: #1d4ed8;
     }
+
+    [data-theme="dark"] .cbt-word-tool-btn:hover,
+    [data-theme="dark"] .word-tool-btn:hover {
+        background: #334155;
+        border-color: #475569;
+        color: #60a5fa;
+    }
+
+    /* Active Tool State */
+    .cbt-word-tool-btn.cbt-tool-active,
+    .word-tool-btn.cbt-tool-active {
+        background: #dbeafe !important;
+        border-color: #60a5fa !important;
+        color: #1d4ed8 !important;
+        font-weight: 800 !important;
+        box-shadow: inset 0 1px 2px rgba(37, 99, 235, 0.2);
+    }
+
+    [data-theme="dark"] .cbt-word-tool-btn.cbt-tool-active,
+    [data-theme="dark"] .word-tool-btn.cbt-tool-active {
+        background: #1e3a8a !important;
+        border-color: #3b82f6 !important;
+        color: #93c5fd !important;
+    }
+
+    /* Ribbon Selects */
+    .cbt-word-select,
     .word-select {
-        height: 26px;
-        padding: 2px 6px;
-        font-size: 11.5px;
+        height: 28px;
+        padding: 2px 8px;
+        font-size: 12px;
         border: 1px solid #cbd5e1;
         border-radius: 4px;
         background: #ffffff;
         color: #334155;
         cursor: pointer;
         outline: none;
+        transition: border-color 0.15s;
     }
+
+    [data-theme="dark"] .cbt-word-select,
+    [data-theme="dark"] .word-select {
+        background: #0f172a;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+    .cbt-word-select:hover,
     .word-select:hover {
         border-color: #94a3b8;
     }
-    .word-sep {
-        width: 1px;
-        height: 20px;
-        background: #e2e8f0;
-        margin: 0 4px;
+
+    /* Document Workspace (Office Neutral Gray Canvas) */
+    .cbt-word-workspace {
+        background: #eef2f6;
+        padding: 24px 20px 48px 20px;
+        overflow-x: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
     }
+
+    [data-theme="dark"] .cbt-word-workspace {
+        background: #0f172a;
+        border-color: #334155;
+    }
+
+    /* Horizontal Document Ruler */
+    .cbt-word-ruler {
+        width: 100%;
+        max-width: 880px;
+        height: 22px;
+        margin: 0 auto 6px auto;
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        user-select: none;
+        pointer-events: none;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    [data-theme="dark"] .cbt-word-ruler {
+        background: #1e293b;
+        border-color: #475569;
+    }
+
+    .cbt-word-ruler-track {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 0 45px;
+    }
+
+    .cbt-word-ruler-marker-left {
+        position: absolute;
+        left: 45px;
+        top: 2px;
+    }
+
+    .cbt-word-ruler-marker-right {
+        position: absolute;
+        right: 45px;
+        top: 2px;
+    }
+
+    .cbt-word-ruler-ticks {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        font-size: 9.5px;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.5px;
+        padding: 0 4px;
+    }
+
+    [data-theme="dark"] .cbt-word-ruler-ticks {
+        color: #94a3b8;
+    }
+
+    /* Document Paper (Word-like Writing Surface) */
+    .cbt-document-paper {
+        width: 100%;
+        max-width: 880px;
+        min-height: 650px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 3px;
+        padding: 64px 76px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 12px 28px -4px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.04);
+        outline: none;
+        font-family: "Aptos", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 12pt;
+        line-height: 1.6;
+        color: #1e293b;
+        word-break: break-word;
+        box-sizing: border-box;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .cbt-document-paper:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 14px 32px -4px rgba(37,99,235,0.14), 0 0 0 2px rgba(59,130,246,0.3);
+    }
+
+    .cbt-document-paper:empty:before {
+        content: attr(placeholder);
+        color: #94a3b8;
+        pointer-events: none;
+        display: block;
+    }
+
+    .cbt-document-paper p {
+        margin: 0 0 12px 0;
+    }
+
+    .cbt-document-paper table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 12px 0;
+    }
+
+    .cbt-document-paper table, 
+    .cbt-document-paper th, 
+    .cbt-document-paper td {
+        border: 1px solid #94a3b8;
+        padding: 8px 12px;
+    }
+
+    .cbt-document-paper th {
+        background: #f1f5f9;
+        font-weight: 700;
+    }
+
+    .cbt-document-paper img {
+        max-width: 100%;
+        border-radius: 4px;
+        margin: 8px 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .cbt-document-paper ul, 
+    .cbt-document-paper ol {
+        padding-left: 28px;
+        margin: 10px 0;
+    }
+
+    /* Word Status Bar */
+    .cbt-word-statusbar,
     .word-statusbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 4px 12px;
+        padding: 6px 16px;
         background: #f8fafc;
         border-top: 1px solid #e2e8f0;
         font-size: 11px;
         color: #64748b;
         font-weight: 600;
         letter-spacing: 0.3px;
+        user-select: none;
     }
-    .choice-badge-label {
+
+    [data-theme="dark"] .cbt-word-statusbar,
+    [data-theme="dark"] .word-statusbar {
+        background: #0f172a;
+        border-color: #334155;
+        color: #94a3b8;
+    }
+
+    /* Option Editor Word Card */
+    .cbt-word-option-card {
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    [data-theme="dark"] .cbt-word-option-card {
+        border-color: #334155;
+        background: #1e293b;
+    }
+
+    .cbt-word-option-card.is-correct-active {
+        border-color: #22c55e !important;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2), 0 4px 12px rgba(34, 197, 94, 0.1) !important;
+    }
+
+    .cbt-word-option-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    [data-theme="dark"] .cbt-word-option-header {
+        background: #0f172a;
+        border-color: #334155;
+    }
+
+    .cbt-choice-radio-label {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 9px;
         cursor: pointer;
         margin: 0;
-        padding: 6px 10px;
-        background: #f1f5f9;
-        border-radius: 6px;
         font-weight: 800;
-        font-size: 13px;
+        font-size: 13.5px;
         color: #1e293b;
     }
-    .choice-badge-label:hover {
-        background: #e2e8f0;
+
+    [data-theme="dark"] .cbt-choice-radio-label {
+        color: #f1f5f9;
     }
-    .choice-badge-label input[type="radio"] {
+
+    .cbt-choice-radio-label input[type="radio"] {
         accent-color: #16a34a;
-        width: 17px;
-        height: 17px;
+        width: 18px;
+        height: 18px;
         cursor: pointer;
     }
-    .ai-chip {
-        display: inline-block;
-        padding: 4px 10px;
-        background: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        border-radius: 20px;
+
+    .cbt-correct-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         font-size: 11.5px;
-        color: #334155;
-        cursor: pointer;
-        transition: all 0.15s ease;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 4px;
+        background: #f1f5f9;
+        color: #64748b;
+        transition: all 0.2s;
     }
-    .ai-chip:hover {
-        background: #ede9fe;
-        border-color: #a855f7;
-        color: #6b21a8;
-        transform: translateY(-1px);
+
+    .cbt-word-option-card.is-correct-active .cbt-correct-pill {
+        background: #dcfce7;
+        color: #15803d;
     }
-    .word-content-editable {
-        min-height: 140px;
-        max-height: 480px;
+
+    /* Option Document Paper (Compact Writing Surface) */
+    .cbt-document-paper-option {
+        background: #ffffff;
+        min-height: 95px;
+        max-height: 380px;
         overflow-y: auto;
-        padding: 14px 16px;
-        font-size: 14px;
-        line-height: 1.6;
-        outline: none;
-        background: #ffffff;
+        padding: 18px 24px;
+        font-family: "Aptos", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 11.5pt;
+        line-height: 1.55;
         color: #1e293b;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        outline: none;
         word-break: break-word;
+        box-sizing: border-box;
     }
-    .word-content-editable:focus {
+
+    .cbt-document-paper-option:focus {
         background: #ffffff;
     }
-    .word-content-editable:empty:before {
+
+    .cbt-document-paper-option:empty:before {
         content: attr(placeholder);
         color: #94a3b8;
         pointer-events: none;
         display: block;
     }
-    .word-content-editable table {
+
+    .cbt-document-paper-option p {
+        margin: 0 0 8px 0;
+    }
+
+    .cbt-document-paper-option table {
         border-collapse: collapse;
         width: 100%;
-        margin: 10px 0;
-    }
-    .word-content-editable table, .word-content-editable th, .word-content-editable td {
-        border: 1px solid #cbd5e1;
-        padding: 8px 12px;
-    }
-    .word-content-editable th {
-        background: #f8fafc;
-        font-weight: 700;
-    }
-    .word-content-editable img {
-        max-width: 100%;
-        border-radius: 6px;
-        margin: 6px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .word-content-editable ul, .word-content-editable ol {
-        padding-left: 24px;
         margin: 8px 0;
     }
+
+    .cbt-document-paper-option table,
+    .cbt-document-paper-option th,
+    .cbt-document-paper-option td {
+        border: 1px solid #cbd5e1;
+        padding: 6px 10px;
+    }
+
+    .cbt-document-paper-option img {
+        max-width: 100%;
+        border-radius: 4px;
+        margin: 6px 0;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+
+    /* AI Chip & Google Sign-in Buttons */
     .google-signin-btn {
         display: inline-flex;
         align-items: center;
@@ -225,6 +529,41 @@
         justify-content: center;
         font-weight: 700;
         font-size: 11px;
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 900px) {
+        .cbt-document-paper {
+            padding: 40px 42px;
+            min-height: 520px;
+        }
+        .cbt-word-ruler-track {
+            padding: 0 20px;
+        }
+        .cbt-word-ruler-marker-left {
+            left: 20px;
+        }
+        .cbt-word-ruler-marker-right {
+            right: 20px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .cbt-word-workspace {
+            padding: 12px 6px 24px 6px;
+        }
+        .cbt-document-paper {
+            padding: 24px 18px;
+            min-height: 420px;
+        }
+        .cbt-word-ribbon-bar {
+            overflow-x: auto;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+        }
+        .cbt-word-ruler {
+            display: none;
+        }
     }
 </style>
 
@@ -270,9 +609,29 @@
                 @enderror
             </div>
 
-            <div class="form-group" style="flex: 1;" id="group_score_weight">
-                <label class="form-label" for="score_weight" id="label_score_weight">Bobot Nilai <span style="color:var(--color-rose-500)">*</span></label>
-                <input type="number" step="0.1" min="0.1" max="100" name="score_weight" id="score_weight" class="form-control @error('score_weight') is-invalid @enderror" value="{{ old('score_weight', '2.0') }}" required>
+            <div class="form-group" style="flex: 1.3;" id="group_score_weight">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+                    <label class="form-label" for="score_weight" id="label_score_weight" style="margin: 0; font-weight: 700;">Bobot Nilai <span style="color:var(--color-rose-500)">*</span></label>
+                    <div class="cbt-weight-mode-toggle" style="display: inline-flex; background: #e2e8f0; border-radius: 6px; padding: 2px; gap: 2px; font-size: 11px; user-select: none;">
+                        <label id="lbl_weight_auto" style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: 700; background: #2563eb; color: #ffffff; transition: all 0.2s;">
+                            <input type="radio" name="weight_mode" value="auto" checked onchange="toggleWeightCalculationMode('auto')" style="display: none;">
+                            ⚡ Otomatis
+                        </label>
+                        <label id="lbl_weight_manual" style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; background: transparent; color: #475569; transition: all 0.2s;">
+                            <input type="radio" name="weight_mode" value="manual" onchange="toggleWeightCalculationMode('manual')" style="display: none;">
+                            ✍️ Manual
+                        </label>
+                    </div>
+                </div>
+                <div style="position: relative;">
+                    <input type="number" step="0.1" min="0.1" max="100" name="score_weight" id="score_weight" class="form-control @error('score_weight') is-invalid @enderror" value="{{ old('score_weight', '2.5') }}" required readonly style="background: #f8fafc; font-weight: 700; color: #1e293b; padding-right: 75px;">
+                    <span id="badge_weight_auto" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10.5px; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 700; pointer-events: none;">
+                        Otomatis
+                    </span>
+                </div>
+                <small id="hint_weight_mode" style="display: block; font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.3;">
+                    ⚡ Bobot dihitung otomatis oleh sistem (default: 2.5 per soal PG, 10 untuk Essai).
+                </small>
                 @error('score_weight')
                     <div class="form-error">{{ $message }}</div>
                 @enderror
@@ -289,129 +648,180 @@
         </div>
     </div>
 
-    <!-- KARTU PERTANYAAN DENGAN WORD RIBBON LENGKAP -->
-    <div class="card" style="margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <h3 style="font-size: 1.05rem; font-weight: 800; color: #1e293b; margin: 0;">
-                    Teks Pertanyaan Soal
-                </h3>
-                <span style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Microsoft Word Ribbon</span>
+    <!-- LEMBAR PERTANYAAN (WORD DOCUMENT PAPER & RIBBON SYSTEM) -->
+    <div class="card" style="margin-bottom: 24px; padding: 20px 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.25rem;">📄</span> Lembar Pertanyaan
+                    </h3>
+                    <span style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; letter-spacing: 0.3px;">Word Document Surface</span>
+                </div>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b; line-height: 1.45;">
+                    Tulis pertanyaan seperti di dokumen. Gunakan toolbar untuk memformat teks, matematika, tabel, gambar, dan lainnya.
+                </p>
             </div>
-            <button type="button" class="btn btn-sm" onclick="openAiQuestionModal()" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; border: none; border-radius: 6px; padding: 7px 16px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; transition: all 0.2s ease;">
+            <button type="button" class="btn btn-sm" onclick="openAiQuestionModal()" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; border: none; border-radius: 6px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; transition: all 0.2s ease;">
                 <span>✨</span> Buat Soal dengan AI Gemini
             </button>
         </div>
 
         <!-- WORD EDITOR CONTAINER - QUESTION -->
-        <div class="word-editor-box">
-            <div class="word-menu-tabbar">
-                <span>File</span>
-                <span style="color: #2563eb; border-bottom: 2px solid #2563eb;">Beranda</span>
-                <span>Sisipkan</span>
-                <span>Tata Letak</span>
-                <span>Rumus Matematika</span>
-                <span>Tinjauan</span>
-                <span>Bantuan</span>
+        <div class="cbt-word-editor-box word-editor-box">
+            <!-- WORD RIBBON TABS -->
+            <div class="cbt-word-menu-tabbar word-menu-tabbar">
+                <span class="cbt-word-tab-item">File</span>
+                <span class="cbt-word-tab-item active">Beranda</span>
+                <span class="cbt-word-tab-item">Sisipkan</span>
+                <span class="cbt-word-tab-item">Tata Letak</span>
+                <span class="cbt-word-tab-item">Rumus Matematika</span>
+                <span class="cbt-word-tab-item">Tinjauan</span>
+                <span class="cbt-word-tab-item">Bantuan</span>
             </div>
-            <div class="word-ribbon-bar">
-                <button type="button" class="word-tool-btn" title="Urungkan (Undo)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'undo')">&#8630;</button>
-                <button type="button" class="word-tool-btn" title="Ulangi (Redo)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'redo')">&#8631;</button>
-                <div class="word-sep"></div>
 
-                <select class="word-select" style="width: 105px;" title="Jenis Font" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontName', this.value); this.selectedIndex=0;">
-                    <option value="" disabled selected>Aptos (Body)</option>
-                    <option value="Aptos">Aptos</option>
-                    <option value="Calibri">Calibri</option>
-                    <option value="Arial">Arial</option>
-                    <option value="Times New Roman">Times New Roman</option>
-                    <option value="Courier New">Courier New</option>
-                    <option value="Verdana">Verdana</option>
-                    <option value="Consolas">Consolas</option>
-                </select>
+            <!-- WORD TOP RIBBON TOOLBAR -->
+            <div class="cbt-word-ribbon-bar word-ribbon-bar">
+                <!-- GROUP 1: CLIPBOARD (Undo, Redo) -->
+                <div class="cbt-word-ribbon-group" title="Clipboard">
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="undo" title="Urungkan (Undo)" aria-label="Undo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'undo')">&#8630;</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="redo" title="Ulangi (Redo)" aria-label="Redo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'redo')">&#8631;</button>
+                </div>
 
-                <select class="word-select" style="width: 52px;" title="Ukuran Font" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontSize', this.value); this.selectedIndex=0;">
-                    <option value="" disabled selected>12</option>
-                    <option value="10px">10</option>
-                    <option value="11px">11</option>
-                    <option value="12px">12</option>
-                    <option value="14px">14</option>
-                    <option value="16px">16</option>
-                    <option value="18px">18</option>
-                    <option value="22px">22</option>
-                </select>
+                <div class="cbt-word-sep word-sep"></div>
 
-                <div class="word-sep"></div>
+                <!-- GROUP 2: FONT (Family, Size, Increase, Decrease) -->
+                <div class="cbt-word-ribbon-group" title="Font">
+                    <select class="cbt-word-select word-select" style="width: 110px;" title="Jenis Font" aria-label="Font Family" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontName', this.value); this.selectedIndex=0;">
+                        <option value="" disabled selected>Aptos (Body)</option>
+                        <option value="Aptos">Aptos</option>
+                        <option value="Calibri">Calibri</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Consolas">Consolas</option>
+                    </select>
 
-                <button type="button" class="word-tool-btn" title="Tebal (Bold)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'bold')" style="font-weight: 800;">B</button>
-                <button type="button" class="word-tool-btn" title="Miring (Italic)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'italic')" style="font-style: italic; font-weight: 600;">I</button>
-                <button type="button" class="word-tool-btn" title="Garis Bawah (Underline)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'underline')"><u>U</u></button>
-                <button type="button" class="word-tool-btn" title="Coret (Strikethrough)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'strikeThrough')"><s>ab</s></button>
-                <button type="button" class="word-tool-btn" title="Subscript (x₂)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'subscript')">x₂</button>
-                <button type="button" class="word-tool-btn" title="Superscript (x²)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'superscript')">x²</button>
+                    <select class="cbt-word-select word-select" style="width: 54px;" title="Ukuran Font" aria-label="Font Size" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontSize', this.value); this.selectedIndex=0;">
+                        <option value="" disabled selected>12</option>
+                        <option value="10px">10</option>
+                        <option value="11px">11</option>
+                        <option value="12px">12</option>
+                        <option value="14px">14</option>
+                        <option value="16px">16</option>
+                        <option value="18px">18</option>
+                        <option value="22px">22</option>
+                    </select>
 
-                <div class="word-sep"></div>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Perbesar Ukuran Font (Increase Font)" aria-label="Increase Font" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="stepWordFontSize('editor_content', 1)" style="font-weight: 700;">A▲</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Perkecil Ukuran Font (Decrease Font)" aria-label="Decrease Font" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="stepWordFontSize('editor_content', -1)" style="font-weight: 700; font-size: 11px;">A▼</button>
+                </div>
 
-                <select class="word-select" style="width: 65px;" title="Warna Font" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'foreColor', this.value); this.selectedIndex=0;">
-                    <option value="" disabled selected>🎨 Warna</option>
-                    <option value="#000000" style="color:#000000;">Hitam</option>
-                    <option value="#dc2626" style="color:#dc2626;">Merah</option>
-                    <option value="#2563eb" style="color:#2563eb;">Biru</option>
-                    <option value="#16a34a" style="color:#16a34a;">Hijau</option>
-                    <option value="#d97706" style="color:#d97706;">Oranye</option>
-                    <option value="#7c3aed" style="color:#7c3aed;">Ungu</option>
-                </select>
+                <div class="cbt-word-sep word-sep"></div>
 
-                <select class="word-select" style="width: 65px;" title="Warna Sorotan Teks" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'hiliteColor', this.value); this.selectedIndex=0;">
-                    <option value="" disabled selected>🖍️ Sorot</option>
-                    <option value="#fef08a" style="background:#fef08a;">Kuning</option>
-                    <option value="#bbf7d0" style="background:#bbf7d0;">Hijau Muda</option>
-                    <option value="#bae6fd" style="background:#bae6fd;">Biru Muda</option>
-                    <option value="#fbcfe8" style="background:#fbcfe8;">Merah Muda</option>
-                </select>
+                <!-- GROUP 3: TEXT / FONT STYLE (Bold, Italic, Underline, Strike, Sub, Super, Color, Highlight) -->
+                <div class="cbt-word-ribbon-group" title="Gaya Teks">
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="bold" title="Tebal (Bold)" aria-label="Bold" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'bold')" style="font-weight: 800;">B</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="italic" title="Miring (Italic)" aria-label="Italic" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'italic')" style="font-style: italic; font-weight: 600;">I</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="underline" title="Garis Bawah (Underline)" aria-label="Underline" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'underline')"><u>U</u></button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="strikeThrough" title="Coret (Strikethrough)" aria-label="Strikethrough" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'strikeThrough')"><s>ab</s></button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="subscript" title="Subscript (x₂)" aria-label="Subscript" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'subscript')">x₂</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="superscript" title="Superscript (x²)" aria-label="Superscript" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'superscript')">x²</button>
 
-                <div class="word-sep"></div>
+                    <select class="cbt-word-select word-select" style="width: 72px;" title="Warna Font" aria-label="Font Color" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'foreColor', this.value); this.selectedIndex=0;">
+                        <option value="" disabled selected>🎨 Warna</option>
+                        <option value="#000000" style="color:#000000;">Hitam</option>
+                        <option value="#dc2626" style="color:#dc2626;">Merah</option>
+                        <option value="#2563eb" style="color:#2563eb;">Biru</option>
+                        <option value="#16a34a" style="color:#16a34a;">Hijau</option>
+                        <option value="#d97706" style="color:#d97706;">Oranye</option>
+                        <option value="#7c3aed" style="color:#7c3aed;">Ungu</option>
+                    </select>
 
-                <button type="button" class="word-tool-btn" title="Rata Kiri" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyLeft')">&#8801;</button>
-                <button type="button" class="word-tool-btn" title="Rata Tengah" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyCenter')">&#8788;</button>
-                <button type="button" class="word-tool-btn" title="Rata Kanan" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyRight')">&#8801;</button>
-                <button type="button" class="word-tool-btn" title="Rata Kanan Kiri (Justify)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyFull')">&#9776;</button>
-                <button type="button" class="word-tool-btn" title="Daftar Butir (Bullets)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertUnorderedList')">•≡</button>
-                <button type="button" class="word-tool-btn" title="Daftar Angka (Numbering)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertOrderedList')">1.≡</button>
+                    <select class="cbt-word-select word-select" style="width: 72px;" title="Warna Sorotan Teks (Highlight)" aria-label="Text Highlight" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'hiliteColor', this.value); this.selectedIndex=0;">
+                        <option value="" disabled selected>🖍️ Sorot</option>
+                        <option value="#fef08a" style="background:#fef08a;">Kuning</option>
+                        <option value="#bbf7d0" style="background:#bbf7d0;">Hijau Muda</option>
+                        <option value="#bae6fd" style="background:#bae6fd;">Biru Muda</option>
+                        <option value="#fbcfe8" style="background:#fbcfe8;">Merah Muda</option>
+                    </select>
+                </div>
 
-                <div class="word-sep"></div>
+                <div class="cbt-word-sep word-sep"></div>
 
-                <button type="button" class="word-tool-btn" title="Akar Kuadrat (√)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '√')">√x</button>
-                <button type="button" class="word-tool-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'π')">π</button>
-                <button type="button" class="word-tool-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '±')">±</button>
-                <button type="button" class="word-tool-btn" title="Perkalian (×)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '×')">×</button>
-                <button type="button" class="word-tool-btn" title="Pembagian (÷)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '÷')">÷</button>
-                <button type="button" class="word-tool-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≤')">≤</button>
-                <button type="button" class="word-tool-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≥')">≥</button>
-                <button type="button" class="word-tool-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≠')">≠</button>
-                <button type="button" class="word-tool-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '°')">°</button>
-                <button type="button" class="word-tool-btn" title="Tak Hingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∞')">∞</button>
-                <button type="button" class="word-tool-btn" title="Sigma (∑)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∑')">∑</button>
-                <button type="button" class="word-tool-btn" title="Integral (∫)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∫')">∫</button>
-                <button type="button" class="word-tool-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'α')">α</button>
-                <button type="button" class="word-tool-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'β')">β</button>
-                <button type="button" class="word-tool-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'θ')">θ</button>
-                <button type="button" class="word-tool-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Δ')">Δ</button>
-                <button type="button" class="word-tool-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Ω')">Ω</button>
-                <button type="button" class="word-tool-btn" title="Kurang Lebih / Hampir Sama (≈)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≈')">≈</button>
+                <!-- GROUP 4: PARAGRAPH (Alignments, Lists) -->
+                <div class="cbt-word-ribbon-group" title="Paragraf">
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyLeft" title="Rata Kiri (Align Left)" aria-label="Align Left" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyLeft')">&#8801;</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyCenter" title="Rata Tengah (Center)" aria-label="Center" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyCenter')">&#8788;</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyRight" title="Rata Kanan (Align Right)" aria-label="Align Right" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyRight')">&#8801;</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyFull" title="Rata Kanan Kiri (Justify)" aria-label="Justify" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyFull')">&#9776;</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="insertUnorderedList" title="Daftar Butir (Bullets)" aria-label="Bullets" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertUnorderedList')">•≡</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="insertOrderedList" title="Daftar Angka (Numbering)" aria-label="Numbering" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertOrderedList')">1.≡</button>
+                </div>
 
-                <div class="word-sep"></div>
+                <div class="cbt-word-sep word-sep"></div>
 
-                <button type="button" class="word-tool-btn" title="Sisipkan Tabel 2x2" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordTable('editor_content')">⊞ Tabel</button>
-                <button type="button" class="word-tool-btn" title="Sisipkan Tautan (Link)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordLink('editor_content')">🔗 Link</button>
-                <button type="button" class="word-tool-btn" title="Sisipkan Gambar (Image)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordImage('editor_content')">🖼️ Gambar</button>
-                <button type="button" class="word-tool-btn" title="Hapus Format (Clear Formatting)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="clearWordFormat('editor_content')">Tx</button>
+                <!-- GROUP 5: INSERT (Math Symbols, Table, Link, Image) -->
+                <div class="cbt-word-ribbon-group" title="Sisipkan Simbol Matematika">
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Akar Kuadrat (√)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '√')">√x</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'π')">π</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '±')">±</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Perkalian (×)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '×')">×</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Pembagian (÷)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '÷')">÷</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≤')">≤</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≥')">≥</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≠')">≠</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '°')">°</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Tak Hingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∞')">∞</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Sigma (∑)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∑')">∑</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Integral (∫)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∫')">∫</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'α')">α</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'β')">β</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'θ')">θ</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Δ')">Δ</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Ω')">Ω</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Kurang Lebih / Hampir Sama (≈)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≈')">≈</button>
+                </div>
+
+                <div class="cbt-word-sep word-sep"></div>
+
+                <!-- GROUP 5 & 6: INSERT MEDIA & CLEAR FORMATTING -->
+                <div class="cbt-word-ribbon-group" title="Sisipkan Media & Format">
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Sisipkan Tabel 2x2" aria-label="Insert Table" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordTable('editor_content')">⊞ Tabel</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Sisipkan Tautan (Link)" aria-label="Insert Link" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordLink('editor_content')">🔗 Link</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Sisipkan Gambar (Image)" aria-label="Insert Image" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordImage('editor_content')">🖼️ Gambar</button>
+                    <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="removeFormat" title="Hapus Format (Clear Formatting)" aria-label="Clear Formatting" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="clearWordFormat('editor_content')">Tx</button>
+                </div>
             </div>
-            <div id="editor_content" contenteditable="true" class="word-content-editable" placeholder="Ketikkan butir soal / pertanyaan di sini..." oninput="syncWordContent('editor_content')" onfocus="setWordEditorActive('editor_content')" onmouseup="syncWordSelection('editor_content')" onkeyup="syncWordSelection('editor_content')">{!! old('content') !!}</div>
+
+            <!-- DOCUMENT WORKSPACE (NEUTRAL CANVAS WITH RULER & WHITE DOCUMENT PAPER) -->
+            <div class="cbt-word-workspace">
+                <!-- HORIZONTAL RULER -->
+                <div class="cbt-word-ruler" aria-hidden="true" title="Ruler Dokumen Word">
+                    <div class="cbt-word-ruler-track">
+                        <div class="cbt-word-ruler-marker-left" title="Batas Margin Kiri">
+                            <svg width="10" height="12" viewBox="0 0 10 12" fill="#2563eb"><polygon points="0,0 10,0 5,6"/><rect x="3" y="6" width="4" height="6"/></svg>
+                        </div>
+                        <div class="cbt-word-ruler-ticks">
+                            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
+                        </div>
+                        <div class="cbt-word-ruler-marker-right" title="Batas Margin Kanan">
+                            <svg width="10" height="12" viewBox="0 0 10 12" fill="#2563eb"><polygon points="0,0 10,0 5,6"/><rect x="3" y="6" width="4" height="6"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOCUMENT PAPER (AUTHENTIC WORD WRITING SURFACE) -->
+                <div id="editor_content" contenteditable="true" class="cbt-document-paper word-content-editable" placeholder="Ketikkan butir soal / lembar pertanyaan di sini..." oninput="syncWordContent('editor_content')" onfocus="setWordEditorActive('editor_content')" onmouseup="syncWordSelection('editor_content')" onkeyup="syncWordSelection('editor_content')">{!! old('content') !!}</div>
+            </div>
+
             <textarea name="content" id="raw_editor_content" style="display:none;">{{ old('content') }}</textarea>
-            <div class="word-statusbar">
+
+            <!-- WORD STATUS BAR -->
+            <div class="cbt-word-statusbar word-statusbar">
                 <span>HALAMAN 1 DARI 1</span>
-                <span id="word_status_editor_content">0 KATA • 0 KARAKTER • BUTIR SOAL • WORD EDITOR PRO</span>
+                <span id="word_status_editor_content">0 KATA • 0 KARAKTER • BUTIR SOAL • WORD DOCUMENT PRO</span>
             </div>
         </div>
 
@@ -422,15 +832,15 @@
         </div>
     </div>
 
-    <!-- SECTION PILIHAN JAWABAN (SETIAP PILIHAN A-E DILENGKAPI WORD RIBBON LENGKAP) -->
-    <div id="options-container" class="card" style="margin-bottom: 20px; background: #f8fafc; border: 1px solid #e2e8f0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+    <!-- SECTION PILIHAN JAWABAN (SETIAP PILIHAN A-E DILENGKAPI WORD RIBBON & PAPER) -->
+    <div id="options-container" class="card" style="margin-bottom: 24px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
             <div>
-                <h3 style="font-size: 1.05rem; font-weight: 800; color: #1e293b; margin: 0;">
-                    Pilihan Jawaban &amp; Kunci Jawaban (A s/d E)
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>📝</span> Pilihan Jawaban &amp; Kunci Jawaban (A s/d E)
                 </h3>
                 <span style="font-size: 0.85rem; color: #64748b;">
-                    Setiap opsi dilengkapi Ribbon Editor Microsoft Word mandiri. Klik radio button hijau untuk menentukan Kunci Jawaban Benar.
+                    Setiap opsi dirancang seperti lembar dokumen mandiri. Klik radio button untuk menetapkan Kunci Jawaban Benar.
                 </span>
             </div>
         </div>
@@ -443,118 +853,141 @@
         @foreach($optLetters as $key => $letter)
             @php
                 $editorId = "opt_editor_{$key}";
+                $isCorrect = (old('correct_option', 'A') == $letter);
             @endphp
-            <div class="word-editor-box" style="margin-bottom: 16px; border: 1.5px solid #cbd5e1;">
+            <div class="cbt-word-option-card word-editor-box {{ $isCorrect ? 'is-correct-active' : '' }}" id="opt_card_{{ $key }}">
                 
                 <!-- OPTION HEADER BAR -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0;">
-                    <label class="choice-badge-label">
-                        <input type="radio" name="correct_option" value="{{ $letter }}" {{ old('correct_option', 'A') == $letter ? 'checked' : '' }}>
-                        <span>PILIHAN {{ $letter }}</span>
-                        <span style="font-size: 11px; font-weight: 600; color: #15803d; background: #dcfce7; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">(Klik Radio Untuk Kunci Benar)</span>
+                <div class="cbt-word-option-header">
+                    <label class="cbt-choice-radio-label choice-badge-label">
+                        <input type="radio" name="correct_option" value="{{ $letter }}" {{ $isCorrect ? 'checked' : '' }} onchange="updateCorrectOptionUi()">
+                        <span>◉ PILIHAN JAWABAN {{ $letter }}</span>
                     </label>
                     <input type="hidden" name="options[{{ $idx }}][label]" value="{{ $letter }}">
-                    <span style="font-size: 11px; color: #64748b; font-weight: 700;">Word Ribbon Editor Opsi {{ $letter }}</span>
+                    <span class="cbt-correct-pill" id="opt_pill_{{ $key }}">
+                        {{ $isCorrect ? '✓ Kunci Jawaban Benar' : 'Jadikan Kunci Jawaban' }}
+                    </span>
                 </div>
 
                 <!-- OPTION RIBBON TOOLBAR -->
-                <div class="word-ribbon-bar" style="background: #fafafa;">
-                    <button type="button" class="word-tool-btn" title="Undo" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'undo')">&#8630;</button>
-                    <button type="button" class="word-tool-btn" title="Redo" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'redo')">&#8631;</button>
-                    <div class="word-sep"></div>
+                <div class="cbt-word-ribbon-bar word-ribbon-bar" style="background: #fafafa;">
+                    <!-- GROUP 1: CLIPBOARD -->
+                    <div class="cbt-word-ribbon-group">
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="undo" title="Urungkan (Undo)" aria-label="Undo" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'undo')">&#8630;</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="redo" title="Ulangi (Redo)" aria-label="Redo" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'redo')">&#8631;</button>
+                    </div>
 
-                    <select class="word-select" style="width: 100px;" title="Jenis Font" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'fontName', this.value); this.selectedIndex=0;">
-                        <option value="" disabled selected>Aptos</option>
-                        <option value="Aptos">Aptos</option>
-                        <option value="Calibri">Calibri</option>
-                        <option value="Arial">Arial</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="Consolas">Consolas</option>
-                    </select>
+                    <div class="cbt-word-sep word-sep"></div>
 
-                    <select class="word-select" style="width: 50px;" title="Ukuran Font" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'fontSize', this.value); this.selectedIndex=0;">
-                        <option value="" disabled selected>11</option>
-                        <option value="10px">10</option>
-                        <option value="11px">11</option>
-                        <option value="12px">12</option>
-                        <option value="14px">14</option>
-                        <option value="16px">16</option>
-                    </select>
+                    <!-- GROUP 2: FONT -->
+                    <div class="cbt-word-ribbon-group">
+                        <select class="cbt-word-select word-select" style="width: 100px;" title="Jenis Font" aria-label="Font Family" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'fontName', this.value); this.selectedIndex=0;">
+                            <option value="" disabled selected>Aptos</option>
+                            <option value="Aptos">Aptos</option>
+                            <option value="Calibri">Calibri</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Consolas">Consolas</option>
+                        </select>
 
-                    <div class="word-sep"></div>
+                        <select class="cbt-word-select word-select" style="width: 52px;" title="Ukuran Font" aria-label="Font Size" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'fontSize', this.value); this.selectedIndex=0;">
+                            <option value="" disabled selected>11</option>
+                            <option value="10px">10</option>
+                            <option value="11px">11</option>
+                            <option value="12px">12</option>
+                            <option value="14px">14</option>
+                            <option value="16px">16</option>
+                        </select>
+                    </div>
 
-                    <button type="button" class="word-tool-btn" title="Tebal (Bold)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'bold')" style="font-weight: 800;">B</button>
-                    <button type="button" class="word-tool-btn" title="Miring (Italic)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'italic')" style="font-style: italic; font-weight: 600;">I</button>
-                    <button type="button" class="word-tool-btn" title="Garis Bawah (Underline)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'underline')"><u>U</u></button>
-                    <button type="button" class="word-tool-btn" title="Coret (Strikethrough)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'strikeThrough')"><s>S</s></button>
-                    <div class="word-sep"></div>
-                    <button type="button" class="word-tool-btn" title="Subscript (x₂)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'subscript')">x₂</button>
-                    <button type="button" class="word-tool-btn" title="Superscript (x²)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'superscript')">x²</button>
+                    <div class="cbt-word-sep word-sep"></div>
 
-                    <div class="word-sep"></div>
+                    <!-- GROUP 3: TEXT STYLE -->
+                    <div class="cbt-word-ribbon-group">
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="bold" title="Tebal (Bold)" aria-label="Bold" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'bold')" style="font-weight: 800;">B</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="italic" title="Miring (Italic)" aria-label="Italic" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'italic')" style="font-style: italic; font-weight: 600;">I</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="underline" title="Garis Bawah (Underline)" aria-label="Underline" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'underline')"><u>U</u></button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="strikeThrough" title="Coret (Strikethrough)" aria-label="Strikethrough" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'strikeThrough')"><s>S</s></button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="subscript" title="Subscript (x₂)" aria-label="Subscript" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'subscript')">x₂</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="superscript" title="Superscript (x²)" aria-label="Superscript" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'superscript')">x²</button>
+                    </div>
 
-                    <select class="word-select" style="width: 65px;" title="Warna Font" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'foreColor', this.value); this.selectedIndex=0;">
-                        <option value="" disabled selected>🎨 Warna</option>
-                        <option value="#000000" style="color:#000000;">Hitam</option>
-                        <option value="#dc2626" style="color:#dc2626;">Merah</option>
-                        <option value="#2563eb" style="color:#2563eb;">Biru</option>
-                        <option value="#16a34a" style="color:#16a34a;">Hijau</option>
-                        <option value="#d97706" style="color:#d97706;">Oranye</option>
-                        <option value="#7c3aed" style="color:#7c3aed;">Ungu</option>
-                    </select>
+                    <div class="cbt-word-sep word-sep"></div>
 
-                    <select class="word-select" style="width: 65px;" title="Warna Sorot" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'hiliteColor', this.value); this.selectedIndex=0;">
-                        <option value="" disabled selected>🖍️ Sorot</option>
-                        <option value="#fef08a" style="background:#fef08a;">Kuning</option>
-                        <option value="#bbf7d0" style="background:#bbf7d0;">Hijau</option>
-                        <option value="#bae6fd" style="background:#bae6fd;">Biru</option>
-                        <option value="#fbcfe8" style="background:#fbcfe8;">Pink</option>
-                    </select>
+                    <!-- GROUP 3: COLOR & HIGHLIGHT -->
+                    <div class="cbt-word-ribbon-group">
+                        <select class="cbt-word-select word-select" style="width: 68px;" title="Warna Font" aria-label="Font Color" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'foreColor', this.value); this.selectedIndex=0;">
+                            <option value="" disabled selected>🎨 Warna</option>
+                            <option value="#000000" style="color:#000000;">Hitam</option>
+                            <option value="#dc2626" style="color:#dc2626;">Merah</option>
+                            <option value="#2563eb" style="color:#2563eb;">Biru</option>
+                            <option value="#16a34a" style="color:#16a34a;">Hijau</option>
+                            <option value="#d97706" style="color:#d97706;">Oranye</option>
+                            <option value="#7c3aed" style="color:#7c3aed;">Ungu</option>
+                        </select>
 
-                    <div class="word-sep"></div>
+                        <select class="cbt-word-select word-select" style="width: 68px;" title="Warna Sorot" aria-label="Text Highlight" onmousedown="syncWordSelection('{{ $editorId }}');" onfocus="syncWordSelection('{{ $editorId }}');" onchange="formatWordDoc('{{ $editorId }}', 'hiliteColor', this.value); this.selectedIndex=0;">
+                            <option value="" disabled selected>🖍️ Sorot</option>
+                            <option value="#fef08a" style="background:#fef08a;">Kuning</option>
+                            <option value="#bbf7d0" style="background:#bbf7d0;">Hijau</option>
+                            <option value="#bae6fd" style="background:#bae6fd;">Biru</option>
+                            <option value="#fbcfe8" style="background:#fbcfe8;">Pink</option>
+                        </select>
+                    </div>
 
-                    <button type="button" class="word-tool-btn" title="Rata Kiri" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyLeft')">&#8801;</button>
-                    <button type="button" class="word-tool-btn" title="Rata Tengah" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyCenter')">&#8788;</button>
-                    <button type="button" class="word-tool-btn" title="Rata Kanan" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyRight')">&#8801;</button>
-                    <button type="button" class="word-tool-btn" title="Justify" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyFull')">&#9776;</button>
+                    <div class="cbt-word-sep word-sep"></div>
 
-                    <div class="word-sep"></div>
+                    <!-- GROUP 4: PARAGRAPH -->
+                    <div class="cbt-word-ribbon-group">
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyLeft" title="Rata Kiri" aria-label="Align Left" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyLeft')">&#8801;</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyCenter" title="Rata Tengah" aria-label="Center" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyCenter')">&#8788;</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyRight" title="Rata Kanan" aria-label="Align Right" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyRight')">&#8801;</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="justifyFull" title="Justify" aria-label="Justify" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="formatWordDoc('{{ $editorId }}', 'justifyFull')">&#9776;</button>
+                    </div>
 
-                    <button type="button" class="word-tool-btn" title="Akar Kuadrat (√)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '√')">√x</button>
-                    <button type="button" class="word-tool-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'π')">π</button>
-                    <button type="button" class="word-tool-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '±')">±</button>
-                    <button type="button" class="word-tool-btn" title="Perkalian (×)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '×')">×</button>
-                    <button type="button" class="word-tool-btn" title="Pembagian (÷)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '÷')">÷</button>
-                    <button type="button" class="word-tool-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≤')">≤</button>
-                    <button type="button" class="word-tool-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≥')">≥</button>
-                    <button type="button" class="word-tool-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≠')">≠</button>
-                    <button type="button" class="word-tool-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '°')">°</button>
-                    <button type="button" class="word-tool-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '∞')">∞</button>
-                    <button type="button" class="word-tool-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'α')">α</button>
-                    <button type="button" class="word-tool-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'β')">β</button>
-                    <button type="button" class="word-tool-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'θ')">θ</button>
-                    <button type="button" class="word-tool-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'Δ')">Δ</button>
-                    <button type="button" class="word-tool-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'Ω')">Ω</button>
-                    <button type="button" class="word-tool-btn" title="Hampir Sama (≈)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≈')">≈</button>
+                    <div class="cbt-word-sep word-sep"></div>
 
-                    <div class="word-sep"></div>
+                    <!-- GROUP 5: INSERT SYMBOLS -->
+                    <div class="cbt-word-ribbon-group">
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Akar Kuadrat (√)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '√')">√x</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'π')">π</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '±')">±</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Perkalian (×)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '×')">×</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Pembagian (÷)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '÷')">÷</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≤')">≤</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≥')">≥</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≠')">≠</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '°')">°</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '∞')">∞</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'α')">α</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'β')">β</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'θ')">θ</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'Δ')">Δ</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', 'Ω')">Ω</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Hampir Sama (≈)" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordSymbol('{{ $editorId }}', '≈')">≈</button>
+                    </div>
 
-                    <button type="button" class="word-tool-btn" title="Tabel 2x2" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordTable('{{ $editorId }}')">⊞</button>
-                    <button type="button" class="word-tool-btn" title="Tautan Link" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordLink('{{ $editorId }}')">🔗</button>
-                    <button type="button" class="word-tool-btn" title="Gambar Opsi" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordImage('{{ $editorId }}')">🖼️</button>
-                    <button type="button" class="word-tool-btn" title="Hapus Format" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="clearWordFormat('{{ $editorId }}')">Tx</button>
+                    <div class="cbt-word-sep word-sep"></div>
+
+                    <!-- GROUP 5 & 6: MEDIA & FORMAT -->
+                    <div class="cbt-word-ribbon-group">
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Tabel 2x2" aria-label="Table" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordTable('{{ $editorId }}')">⊞</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Tautan Link" aria-label="Link" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordLink('{{ $editorId }}')">🔗</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" title="Gambar Opsi" aria-label="Image" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="insertWordImage('{{ $editorId }}')">🖼️</button>
+                        <button type="button" class="cbt-word-tool-btn word-tool-btn" data-word-cmd="removeFormat" title="Hapus Format" aria-label="Clear Format" onmousedown="event.preventDefault(); syncWordSelection('{{ $editorId }}');" onclick="clearWordFormat('{{ $editorId }}')">Tx</button>
+                    </div>
                 </div>
 
-                <!-- TEXTAREA FOR OPTION CONTENT -->
-                <div id="{{ $editorId }}" contenteditable="true" class="word-content-editable" style="min-height: 80px; padding: 10px 14px;" placeholder="Tuliskan isi pilihan jawaban {{ $letter }} di sini..." oninput="syncWordContent('{{ $editorId }}')" onfocus="setWordEditorActive('{{ $editorId }}')" onmouseup="syncWordSelection('{{ $editorId }}')" onkeyup="syncWordSelection('{{ $editorId }}')">{!! old("options.{$idx}.content") !!}</div>
+                <!-- OPTION DOCUMENT PAPER SURFACE -->
+                <div id="{{ $editorId }}" contenteditable="true" class="cbt-document-paper-option word-content-editable" placeholder="Tuliskan isi pilihan jawaban {{ $letter }} di sini..." oninput="syncWordContent('{{ $editorId }}')" onfocus="setWordEditorActive('{{ $editorId }}')" onmouseup="syncWordSelection('{{ $editorId }}')" onkeyup="syncWordSelection('{{ $editorId }}')">{!! old("options.{$idx}.content") !!}</div>
                 <textarea name="options[{{ $idx }}][content]" id="raw_{{ $editorId }}" style="display:none;">{{ old("options.{$idx}.content") }}</textarea>
                 
                 <!-- STATUS BAR FOR OPTION -->
-                <div class="word-statusbar">
+                <div class="cbt-word-statusbar word-statusbar">
                     <span style="font-size: 10.5px; color: #94a3b8;">OPSI JAWABAN {{ $letter }}</span>
-                    <span id="word_status_{{ $editorId }}">0 KATA • 0 KARAKTER • OPSI {{ $letter }} • WORD EDITOR PRO</span>
+                    <span id="word_status_{{ $editorId }}">0 KATA • 0 KARAKTER • OPSI {{ $letter }} • WORD COMPACT</span>
                 </div>
             </div>
             @php $idx++; @endphp
@@ -785,6 +1218,77 @@
         lastActiveWordEditor = editorId;
     }
 
+    function stepWordFontSize(editorId, delta) {
+        var el = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
+        if (!el) return;
+        restoreWordSelection(el.id);
+        var sel = window.getSelection();
+        var curSize = 16;
+        if (sel && sel.rangeCount > 0) {
+            var node = sel.anchorNode;
+            if (node) {
+                var parent = (node.nodeType === 3) ? node.parentElement : node;
+                if (parent) {
+                    var cs = window.getComputedStyle(parent).fontSize;
+                    if (cs) curSize = parseFloat(cs) || 16;
+                }
+            }
+        }
+        var newSize = Math.max(9, Math.min(48, Math.round(curSize + delta * 2))) + 'px';
+        formatWordDoc(el.id, 'fontSize', newSize);
+    }
+
+    function updateActiveWordToolStates(editorId) {
+        var targetId = editorId || lastActiveWordEditor || 'editor_content';
+        var el = document.getElementById(targetId);
+        if (!el) return;
+
+        var sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        var r = sel.getRangeAt(0);
+        if (el !== r.commonAncestorContainer && !el.contains(r.commonAncestorContainer)) {
+            return;
+        }
+
+        var container = el.closest('.cbt-word-editor-box') || el.closest('.word-editor-box') || el.closest('.cbt-word-option-card');
+        if (!container) return;
+
+        var commands = ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'insertUnorderedList', 'insertOrderedList'];
+        commands.forEach(function(cmd) {
+            var isActive = false;
+            try {
+                isActive = document.queryCommandState(cmd);
+            } catch(e) {}
+            var btns = container.querySelectorAll('[data-word-cmd="' + cmd + '"]');
+            for (var i = 0; i < btns.length; i++) {
+                if (isActive) {
+                    btns[i].classList.add('cbt-tool-active');
+                    btns[i].setAttribute('aria-pressed', 'true');
+                } else {
+                    btns[i].classList.remove('cbt-tool-active');
+                    btns[i].setAttribute('aria-pressed', 'false');
+                }
+            }
+        });
+    }
+
+    function updateCorrectOptionUi() {
+        var checked = document.querySelector('input[name="correct_option"]:checked');
+        var val = checked ? checked.value : 'A';
+        ['a', 'b', 'c', 'd', 'e'].forEach(function(k) {
+            var card = document.getElementById('opt_card_' + k);
+            var pill = document.getElementById('opt_pill_' + k);
+            var isCur = (k.toUpperCase() === val);
+            if (card) {
+                if (isCur) card.classList.add('is-correct-active');
+                else card.classList.remove('is-correct-active');
+            }
+            if (pill) {
+                pill.innerText = isCur ? '✓ Kunci Jawaban Benar' : 'Jadikan Kunci Jawaban';
+            }
+        });
+    }
+
     function syncWordSelection(editorId) {
         var targetId = editorId || lastActiveWordEditor || 'editor_content';
         var el = document.getElementById(targetId);
@@ -797,6 +1301,7 @@
                 lastActiveWordEditor = targetId;
             }
         }
+        updateActiveWordToolStates(targetId);
     }
 
     function restoreWordSelection(editorId) {
@@ -839,6 +1344,7 @@
                     savedWordRanges[editorIds[i]] = r.cloneRange();
                     lastActiveWordEditor = editorIds[i];
                 }
+                updateActiveWordToolStates(editorIds[i]);
                 break;
             }
         }
@@ -871,7 +1377,7 @@
         var statusEl = document.getElementById('word_status_' + editorId);
         if (statusEl) {
             var label = (editorId === 'editor_content') ? 'BUTIR SOAL' : ('OPSI ' + editorId.slice(-1).toUpperCase());
-            statusEl.innerText = words + ' KATA • ' + chars + ' KARAKTER • ' + label + ' • WORD EDITOR PRO';
+            statusEl.innerText = words + ' KATA • ' + chars + ' KARAKTER • ' + label + ' • WORD DOCUMENT PRO';
         }
     }
 
@@ -919,6 +1425,7 @@
 
         syncWordContent(el.id);
         syncWordSelection(el.id);
+        updateActiveWordToolStates(el.id);
     }
 
     function insertWordSymbol(editorId, sym) {
@@ -1057,6 +1564,61 @@
         insertWordImage(id);
     }
 
+    function toggleWeightCalculationMode(mode) {
+        var lblAuto = document.getElementById('lbl_weight_auto');
+        var lblManual = document.getElementById('lbl_weight_manual');
+        var input = document.getElementById('score_weight');
+        var badge = document.getElementById('badge_weight_auto');
+        var hint = document.getElementById('hint_weight_mode');
+        var qTypeSel = document.getElementById('question_type');
+        var qType = qTypeSel ? qTypeSel.value : 'single_choice';
+
+        if (mode === 'manual') {
+            if (lblAuto) {
+                lblAuto.style.background = 'transparent';
+                lblAuto.style.color = '#475569';
+                lblAuto.style.fontWeight = '600';
+            }
+            if (lblManual) {
+                lblManual.style.background = '#2563eb';
+                lblManual.style.color = '#ffffff';
+                lblManual.style.fontWeight = '700';
+            }
+            if (input) {
+                input.readOnly = false;
+                input.style.background = '#ffffff';
+                input.style.cursor = 'text';
+                input.focus();
+            }
+            if (badge) badge.style.display = 'none';
+            if (hint) hint.innerHTML = '✍️ <strong>Mode Manual:</strong> Anda bebas menentukan bobot nilai untuk butir soal ini.';
+        } else {
+            // Otomatis
+            if (lblAuto) {
+                lblAuto.style.background = '#2563eb';
+                lblAuto.style.color = '#ffffff';
+                lblAuto.style.fontWeight = '700';
+            }
+            if (lblManual) {
+                lblManual.style.background = 'transparent';
+                lblManual.style.color = '#475569';
+                lblManual.style.fontWeight = '600';
+            }
+            if (input) {
+                input.readOnly = true;
+                input.style.background = '#f8fafc';
+                input.style.cursor = 'default';
+                if (qType === 'essay') {
+                    input.value = '10.0';
+                } else {
+                    input.value = '2.5';
+                }
+            }
+            if (badge) badge.style.display = 'inline-block';
+            if (hint) hint.innerHTML = '⚡ <strong>Mode Otomatis:</strong> Bobot dihitung otomatis oleh sistem (2.5 per soal PG, 10 untuk Essai).';
+        }
+    }
+
     function toggleQuestionType(type) {
         var optContainer = document.getElementById('options-container');
         var essayNotice = document.getElementById('essay-weight-notice');
@@ -1067,7 +1629,10 @@
             if (optContainer) optContainer.style.display = 'none';
             if (essayNotice) essayNotice.style.display = 'block';
             if (weightLabel) weightLabel.innerHTML = 'Bobot Soal Essai <span style="color:var(--color-rose-500)">*</span>';
-            if (weightInput && weightInput.value == '2.0') weightInput.value = '20.0';
+            var mode = document.querySelector('input[name="weight_mode"]:checked');
+            if (!mode || mode.value === 'auto') {
+                if (weightInput) weightInput.value = '10.0';
+            }
 
             ['a', 'b', 'c', 'd', 'e'].forEach(function(l) {
                 var optEd = document.getElementById('opt_editor_' + l);
@@ -1080,7 +1645,10 @@
             if (optContainer) optContainer.style.display = 'block';
             if (essayNotice) essayNotice.style.display = 'none';
             if (weightLabel) weightLabel.innerHTML = 'Bobot Nilai <span style="color:var(--color-rose-500)">*</span>';
-            if (weightInput && weightInput.value == '20.0') weightInput.value = '2.0';
+            var mode = document.querySelector('input[name="weight_mode"]:checked');
+            if (!mode || mode.value === 'auto') {
+                if (weightInput) weightInput.value = '2.5';
+            }
         }
     }
 
@@ -1341,6 +1909,7 @@
         ['a', 'b', 'c', 'd', 'e'].forEach(function(l) {
             syncWordContent('opt_editor_' + l);
         });
+        updateCorrectOptionUi();
     });
 </script>
 @endsection

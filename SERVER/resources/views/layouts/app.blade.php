@@ -112,6 +112,12 @@
                             <span>Monitoring Ujian</span>
                         </span>
                     </a>
+                    <a href="{{ route('admin.monitoring.index') }}#pin-pengawas" class="nav-link">
+                        <span class="nav-link-content">
+                            <span class="menu-icon-box" style="background: #ffe4e6; color: #e11d48;">🔐</span>
+                            <span>PIN &amp; Buka Kunci</span>
+                        </span>
+                    </a>
                     <a href="{{ route('admin.results.index') }}" class="nav-link {{ request()->routeIs('admin.results.*') ? 'active' : '' }}">
                         <span class="nav-link-content">
                             <span class="menu-icon-box red">🎯</span>
@@ -173,6 +179,12 @@
                         <span class="nav-link-content">
                             <span class="menu-icon-box cyan">📡</span>
                             <span>Monitoring Peserta</span>
+                        </span>
+                    </a>
+                    <a href="{{ route('guru.monitoring.index') }}#pin-pengawas" class="nav-link">
+                        <span class="nav-link-content">
+                            <span class="menu-icon-box" style="background: #ffe4e6; color: #e11d48;">🔐</span>
+                            <span>PIN &amp; Buka Kunci</span>
                         </span>
                     </a>
                     <a href="{{ route('guru.results.index') }}" class="nav-link {{ request()->routeIs('guru.results.*') ? 'active' : '' }}">
