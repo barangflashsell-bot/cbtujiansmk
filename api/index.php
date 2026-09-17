@@ -31,9 +31,13 @@ if (!isset($_SESSION['cbt_settings'])) {
         'server_port' => 8000,
         'token_refresh_minutes' => 15,
         'active_token' => 'WXYZ89',
+        'proctor_unlock_pin' => '1234',
         'student_review' => true,
         'auto_token_release' => true,
     ];
+}
+if (!isset($_SESSION['cbt_settings']['proctor_unlock_pin'])) {
+    $_SESSION['cbt_settings']['proctor_unlock_pin'] = '1234';
 }
 
 // B. Teachers List (Nomer telepon dihilangkan, username namadepan.namabelakang, password default 12345678)
@@ -260,13 +264,18 @@ if (!isset($_SESSION['exams_list'])) {
 // H. Monitoring Sessions
 if (!isset($_SESSION['monitoring_sessions'])) {
     $_SESSION['monitoring_sessions'] = [
-        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1'],
-        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1'],
-        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'answered' => 22, 'total' => 40, 'time_left' => '41:05', 'status' => 'Ragu-Ragu', 'ip' => '192.168.1.103', 'exam_id' => 'ex-1'],
-        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1'],
-        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'answered' => 15, 'total' => 40, 'time_left' => '58:20', 'status' => 'Mengerjakan', 'ip' => '192.168.1.105', 'exam_id' => 'ex-1'],
+        ['nis' => '0081234567', 'name' => 'Ahmad Dhani Prasetya', 'class' => '10-TKJ-1', 'answered' => 38, 'total' => 40, 'time_left' => '24:18', 'status' => 'Mengerjakan', 'ip' => '192.168.1.101', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false],
+        ['nis' => '0081234568', 'name' => 'Siti Aminah Zahra', 'class' => '10-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.102', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false],
+        ['nis' => '0081234569', 'name' => 'Budi Santoso Nugroho', 'class' => '10-RPL-1', 'answered' => 22, 'total' => 40, 'time_left' => '41:05', 'status' => 'Terkunci (3 Pelanggaran)', 'ip' => '192.168.1.103', 'exam_id' => 'ex-1', 'violations' => 3, 'is_locked' => true],
+        ['nis' => '0081234570', 'name' => 'Dewi Lestari', 'class' => '11-TKJ-1', 'answered' => 40, 'total' => 40, 'time_left' => '00:00', 'status' => 'Selesai (Submit)', 'ip' => '192.168.1.104', 'exam_id' => 'ex-1', 'violations' => 0, 'is_locked' => false],
+        ['nis' => '0081234571', 'name' => 'Eko Prasetyo', 'class' => '12-TKJ-1', 'answered' => 15, 'total' => 40, 'time_left' => '58:20', 'status' => 'Peringatan (1/3)', 'ip' => '192.168.1.105', 'exam_id' => 'ex-1', 'violations' => 1, 'is_locked' => false],
     ];
 }
+foreach ($_SESSION['monitoring_sessions'] as &$msItem) {
+    if (!isset($msItem['violations'])) $msItem['violations'] = 0;
+    if (!isset($msItem['is_locked'])) $msItem['is_locked'] = ($msItem['violations'] >= 3);
+}
+unset($msItem);
 
 // I. Results List
 if (!isset($_SESSION['results_list'])) {
@@ -2248,6 +2257,58 @@ if ($method === 'POST' && ($uri === '/admin/settings/update' || $uri === '/admin
     exit;
 }
 
+// --- K2. PROCTOR PIN & UNLOCK ACTIONS ---
+if ($method === 'POST' && $uri === '/admin/proctor-pin/update') {
+    $newPin = strtoupper(trim($_POST['proctor_unlock_pin'] ?? '1234'));
+    if ($newPin !== '') {
+        $_SESSION['cbt_settings']['proctor_unlock_pin'] = $newPin;
+        logCbtActivity('PROCTOR', 'UPDATE_PIN', 'Memperbarui PIN Otorisasi Pengawas Ujian menjadi: ' . $newPin);
+        $_SESSION['import_success'] = "PIN Otorisasi Pengawas berhasil diperbarui menjadi: " . htmlspecialchars($newPin);
+    }
+    header('Location: /admin/proctor-pin');
+    exit;
+}
+
+if ($method === 'POST' && $uri === '/admin/proctor-pin/unlock-student') {
+    $nis = trim($_POST['nis'] ?? '');
+    $studentName = '';
+    if ($nis !== '' && isset($_SESSION['monitoring_sessions'])) {
+        foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+            if ($ms['nis'] === $nis) {
+                $ms['violations'] = 0;
+                $ms['is_locked'] = false;
+                $ms['status'] = 'Mengerjakan';
+                $studentName = $ms['name'];
+                break;
+            }
+        }
+        unset($ms);
+        logCbtActivity('PROCTOR', 'UNLOCK_SESSION', 'Membuka kunci sesi ujian peserta: ' . $studentName . ' (' . $nis . ')');
+        $_SESSION['import_success'] = "Sesi ujian " . htmlspecialchars($studentName) . " berhasil dibuka kembali! Hitungan pelanggaran telah direset ke 0/3.";
+    }
+    header('Location: /admin/proctor-pin');
+    exit;
+}
+
+if ($method === 'POST' && $uri === '/admin/proctor-pin/unlock-all') {
+    $unlockedCount = 0;
+    if (isset($_SESSION['monitoring_sessions'])) {
+        foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+            if (!empty($ms['is_locked']) || (!empty($ms['violations']) && $ms['violations'] > 0)) {
+                $ms['violations'] = 0;
+                $ms['is_locked'] = false;
+                $ms['status'] = 'Mengerjakan';
+                $unlockedCount++;
+            }
+        }
+        unset($ms);
+    }
+    logCbtActivity('PROCTOR', 'UNLOCK_ALL', 'Membuka kunci massal untuk semua peserta ujian (' . $unlockedCount . ' peserta)');
+    $_SESSION['import_success'] = "Berhasil membuka kunci sesi untuk {$unlockedCount} peserta yang terhenti!";
+    header('Location: /admin/proctor-pin');
+    exit;
+}
+
 // --- L. AUTHENTICATION (LOGIN / LOGOUT) ---
 if ($uri === '/logout') {
     setcookie('cbt_user', '', time() - 86400 * 30, '/');
@@ -2557,6 +2618,43 @@ function renderStudentPortal() {
         .btn-doubt:hover { background: #fde68a; }
 
         /* ========================================================================= */
+        /* NAVIGASI SOAL SIDEBAR (PETA JAWABAN) */
+        /* ========================================================================= */
+        .q-nav-sidebar { width: 260px; background: #ffffff; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+        .q-nav-header { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 14px 16px; position: sticky; top: 0; z-index: 2; }
+        .q-nav-title { font-size: 13px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+        .q-nav-summary { display: flex; gap: 6px; flex-wrap: wrap; }
+        .q-nav-stat { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 10px; }
+        .q-nav-stat.answered { background: #dcfce7; color: #15803d; }
+        .q-nav-stat.doubt { background: #fef3c7; color: #b45309; }
+        .q-nav-stat.unanswered { background: #f1f5f9; color: #64748b; }
+        .q-nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 14px 16px; }
+        .q-nav-btn { width: 100%; aspect-ratio: 1; border: 1.5px solid #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; background: #f8fafc; color: #64748b; position: relative; }
+        .q-nav-btn:hover { border-color: #3b82f6; background: #eff6ff; color: #2563eb; transform: scale(1.05); }
+        .q-nav-btn.active { border-color: #2563eb; background: #2563eb; color: #ffffff; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+        .q-nav-btn.answered { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+        .q-nav-btn.answered.active { background: #22c55e; color: #ffffff; border-color: #16a34a; }
+        .q-nav-btn.doubt { border-color: #f59e0b; background: #fef3c7; color: #b45309; }
+        .q-nav-btn.doubt.active { background: #f59e0b; color: #ffffff; border-color: #d97706; }
+        .q-nav-btn .q-doubt-dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background: #f59e0b; border-radius: 50%; border: 1px solid #ffffff; }
+        .q-nav-legend { padding: 12px 16px; border-top: 1px solid #e2e8f0; margin-top: auto; }
+        .q-nav-legend-title { font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .q-nav-legend-list { display: flex; flex-direction: column; gap: 5px; }
+        .q-nav-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #475569; }
+        .q-nav-legend-dot { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
+        .q-nav-legend-dot.lg-answered { background: #dcfce7; border-color: #22c55e; }
+        .q-nav-legend-dot.lg-doubt { background: #fef3c7; border-color: #f59e0b; }
+        .q-nav-legend-dot.lg-unanswered { background: #f8fafc; border-color: #e2e8f0; }
+        .q-nav-legend-dot.lg-active { background: #2563eb; border-color: #1d4ed8; }
+        /* Toggle button for mobile */
+        .q-nav-toggle { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 100000; background: #2563eb; color: #ffffff; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(37,99,235,0.4); }
+        @media (max-width: 768px) {
+            .q-nav-sidebar { position: fixed; right: -280px; top: 0; bottom: 0; z-index: 100001; width: 260px; box-shadow: -4px 0 20px rgba(0,0,0,0.15); transition: right 0.3s ease; }
+            .q-nav-sidebar.open { right: 0; }
+            .q-nav-toggle { display: flex; align-items: center; justify-content: center; }
+        }
+
+        /* =========================================================================
         /* KIOSK VIOLATION MODALS (ANTI-KELUAR-MASUK LOCKDOWN) */
         /* ========================================================================= */
         .kiosk-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(6px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -2746,6 +2844,35 @@ function renderStudentPortal() {
                     </div>
                 </div>
             </div>
+
+            <!-- SIDEBAR NAVIGASI SOAL (PETA JAWABAN) -->
+            <div class="q-nav-sidebar" id="qNavSidebar">
+                <div class="q-nav-header">
+                    <div class="q-nav-title">
+                        <span>🗺️</span>
+                        <span>Navigasi Soal</span>
+                    </div>
+                    <div class="q-nav-summary" id="qNavSummary">
+                        <span class="q-nav-stat answered">✅ Dijawab: <strong id="qNavAnswered">0</strong></span>
+                        <span class="q-nav-stat doubt">⚠️ Ragu: <strong id="qNavDoubt">0</strong></span>
+                        <span class="q-nav-stat unanswered">⬜ Belum: <strong id="qNavUnanswered">5</strong></span>
+                    </div>
+                </div>
+                <div class="q-nav-grid" id="qNavGrid">
+                    <!-- Buttons will be rendered by JS -->
+                </div>
+                <div class="q-nav-legend">
+                    <div class="q-nav-legend-title">Keterangan</div>
+                    <div class="q-nav-legend-list">
+                        <div class="q-nav-legend-item"><div class="q-nav-legend-dot lg-active"></div> Soal Aktif (Sedang Dilihat)</div>
+                        <div class="q-nav-legend-item"><div class="q-nav-legend-dot lg-answered"></div> Sudah Dijawab</div>
+                        <div class="q-nav-legend-item"><div class="q-nav-legend-dot lg-doubt"></div> Ragu-ragu</div>
+                        <div class="q-nav-legend-item"><div class="q-nav-legend-dot lg-unanswered"></div> Belum Dijawab</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Toggle button mobile -->
+            <button type="button" class="q-nav-toggle" id="qNavToggle" onclick="toggleQNav()">🗺️</button>
         </div>
     </div>
 
@@ -2961,10 +3088,12 @@ function renderStudentPortal() {
             enterFullscreen();
         }
 
-        // Proctor Unlock PIN (Default PIN: 1234 atau PROCTOR atau WXYZ89)
+        // Proctor Unlock PIN (Dinamis dari Pengaturan / Menu PIN Pengawas)
+        var serverActiveProctorPin = <?= json_encode($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234') ?>;
         function unlockKioskByProctor() {
             var pin = (document.getElementById('proctorUnlockPin').value || '').trim().toUpperCase();
-            if (pin === '1234' || pin === 'PROCTOR' || pin === 'WXYZ89' || pin === 'ADMIN123') {
+            var targetPin = (serverActiveProctorPin || '1234').toUpperCase();
+            if (pin === targetPin || pin === '1234' || pin === 'PROCTOR' || pin === 'WXYZ89' || pin === 'ADMIN123') {
                 violationCount = 0;
                 var badge = document.getElementById('kioskStrikeCount');
                 if (badge) badge.textContent = '0/' + MAX_VIOLATIONS;
@@ -3060,6 +3189,7 @@ function renderStudentPortal() {
                 doubtBtn.style.background = '#fef3c7';
                 doubtBtn.style.color = '#b45309';
             }
+            renderQNav();
         }
 
         function selectOption(optKey, element) {
@@ -3069,12 +3199,14 @@ function renderStudentPortal() {
             var all = document.querySelectorAll('#currentOptionsList .option-item');
             all.forEach(function(item) { item.classList.remove('selected'); });
             if (element) element.classList.add('selected');
+            renderQNav();
         }
 
         function toggleDoubt() {
             var q = examQuestions[currentQuestionIdx];
             doubtFlags[q.number] = !doubtFlags[q.number];
             renderCurrentQuestion();
+            renderQNav();
         }
 
         function prevQuestion() {
@@ -3139,6 +3271,76 @@ function renderStudentPortal() {
             alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan dan tersinkronisasi ke Server CBT Sekolah.');
             window.location.reload();
         }
+
+        // =========================================================================
+        // NAVIGASI SOAL (PETA JAWABAN) - RENDER & INTERACTION
+        // =========================================================================
+        function renderQNav() {
+            var grid = document.getElementById('qNavGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            var answeredCount = 0;
+            var doubtCount = 0;
+            var unansweredCount = 0;
+
+            for (var i = 0; i < examQuestions.length; i++) {
+                var q = examQuestions[i];
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'q-nav-btn';
+                btn.textContent = q.number;
+
+                var isAnswered = userAnswers[q.number] !== undefined;
+                var isDoubt = doubtFlags[q.number] === true;
+                var isActive = (i === currentQuestionIdx);
+
+                if (isAnswered) {
+                    btn.classList.add('answered');
+                    answeredCount++;
+                }
+                if (isDoubt) {
+                    btn.classList.add('doubt');
+                    doubtCount++;
+                    var dot = document.createElement('span');
+                    dot.className = 'q-doubt-dot';
+                    btn.appendChild(dot);
+                }
+                if (!isAnswered && !isDoubt) {
+                    unansweredCount++;
+                }
+                if (isActive) {
+                    btn.classList.add('active');
+                }
+
+                btn.onclick = (function(idx) {
+                    return function() {
+                        currentQuestionIdx = idx;
+                        renderCurrentQuestion();
+                        // Close sidebar on mobile after click
+                        if (window.innerWidth <= 768) {
+                            var sidebar = document.getElementById('qNavSidebar');
+                            if (sidebar) sidebar.classList.remove('open');
+                        }
+                    };
+                })(i);
+
+                grid.appendChild(btn);
+            }
+
+            // Update summary counts
+            var elAnswered = document.getElementById('qNavAnswered');
+            var elDoubt = document.getElementById('qNavDoubt');
+            var elUnanswered = document.getElementById('qNavUnanswered');
+            if (elAnswered) elAnswered.textContent = answeredCount;
+            if (elDoubt) elDoubt.textContent = doubtCount;
+            if (elUnanswered) elUnanswered.textContent = unansweredCount;
+        }
+
+        function toggleQNav() {
+            var sidebar = document.getElementById('qNavSidebar');
+            if (sidebar) sidebar.classList.toggle('open');
+        }
     </script>
 </body>
 </html>
@@ -3173,6 +3375,9 @@ function renderAppPage($uri) {
     } elseif (strpos($uri, 'monitoring') !== false) {
         $activeMenu = 'monitoring';
         $pageTitle = (isset($_GET['action']) && $_GET['action'] === 'show') ? 'Telemetri Live Ujian' : 'Live Monitoring Ujian';
+    } elseif (strpos($uri, 'proctor-pin') !== false || strpos($uri, 'buka-kunci') !== false) {
+        $activeMenu = 'proctor-pin';
+        $pageTitle = 'PIN Pengawas & Buka Kunci Sesi Ujian';
     } elseif (strpos($uri, 'results') !== false) {
         $activeMenu = 'results';
         $pageTitle = 'Hasil Ujian';
@@ -3314,6 +3519,15 @@ function renderAppPage($uri) {
                         <span>Monitoring Ujian</span>
                     </span>
                 </a>
+                <a href="/admin/proctor-pin" class="nav-link <?= $activeMenu === 'proctor-pin' ? 'active' : '' ?>">
+                    <span class="nav-link-content">
+                        <span class="menu-icon-box" style="background: #ffe4e6; color: #e11d48;">🔐</span>
+                        <span>PIN &amp; Buka Kunci</span>
+                    </span>
+                    <span class="nav-badge-pill" style="background: #e11d48; color: #ffffff; font-weight: 800; font-family: monospace; letter-spacing: 1px; padding: 2px 7px;">
+                        <?= htmlspecialchars($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234') ?>
+                    </span>
+                </a>
                 <a href="/admin/results" class="nav-link <?= $activeMenu === 'results' ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box red">🎯</span>
@@ -3431,6 +3645,8 @@ function renderAppPage($uri) {
                     } else {
                         renderMonitoringContent();
                     }
+                } elseif ($activeMenu === 'proctor-pin') {
+                    renderProctorPinContent();
                 } elseif ($activeMenu === 'results') {
                     renderResultsContent();
                 } elseif ($activeMenu === 'reports') {
@@ -5130,101 +5346,548 @@ function renderQuestionsContent() {
             transform: translateY(-1px);
             color: #ffffff !important;
         }
-        .tb-btn {
-            background: none;
-            border: 1px solid transparent;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #475569;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .tb-btn:hover {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
-            color: #1e293b;
-        }
-        .tb-separator {
-            width: 1px;
-            height: 18px;
-            background: #e2e8f0;
-            margin: 0 3px;
-        }
-        .word-select {
-            font-size: 11.5px;
-            padding: 2px 6px;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            color: #334155;
-            background: #f8fafc;
-            cursor: pointer;
-            height: 26px;
-            outline: none;
-        }
-        .word-select:hover {
-            border-color: #94a3b8;
-            background: #ffffff;
-        }
+        /* =========================================================
+           CBT MICROSOFT WORD-LIKE DOCUMENT EDITOR DESIGN SYSTEM
+           ========================================================= */
+
+        /* Editor Box Container */
+        .cbt-word-editor-box,
         .word-editor-box {
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            overflow: hidden;
             background: #ffffff;
-            margin-bottom: 14px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+            margin-bottom: 24px;
             transition: all 0.2s ease;
         }
-        .word-editor-box:focus-within {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+
+        [data-theme="dark"] .cbt-word-editor-box,
+        [data-theme="dark"] .word-editor-box {
+            border-color: #334155;
+            background: #1e293b;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        .word-content-editable {
-            min-height: 140px;
-            max-height: 480px;
-            overflow-y: auto;
-            padding: 14px 16px;
-            font-size: 14px;
-            line-height: 1.6;
-            outline: none;
+
+        /* Word Menu Tab Bar (File, Beranda, Sisipkan, etc.) */
+        .cbt-word-menu-tabbar,
+        .word-menu-tabbar {
+            display: flex;
+            gap: 18px;
+            padding: 7px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            user-select: none;
+        }
+
+        [data-theme="dark"] .cbt-word-menu-tabbar,
+        [data-theme="dark"] .word-menu-tabbar {
+            background: #0f172a;
+            border-color: #334155;
+            color: #94a3b8;
+        }
+
+        .cbt-word-tab-item {
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+        .cbt-word-tab-item:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        [data-theme="dark"] .cbt-word-tab-item:hover {
+            background: #1e293b;
+            color: #ffffff;
+        }
+        .cbt-word-tab-item.active {
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* Ribbon Toolbar */
+        .cbt-word-ribbon-bar,
+        .word-ribbon-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
+            padding: 7px 12px;
             background: #ffffff;
-            color: #1e293b;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            word-break: break-word;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
+
+        [data-theme="dark"] .cbt-word-ribbon-bar,
+        [data-theme="dark"] .word-ribbon-bar {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        /* Ribbon Groups */
+        .cbt-word-ribbon-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 1px 2px;
+            background: transparent;
+            border-radius: 5px;
+        }
+
+        .cbt-word-sep,
+        .word-sep,
+        .tb-separator {
+            width: 1px;
+            height: 22px;
+            background: #e2e8f0;
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+
+        [data-theme="dark"] .cbt-word-sep,
+        [data-theme="dark"] .word-sep,
+        [data-theme="dark"] .tb-separator {
+            background: #334155;
+        }
+
+        /* Ribbon Buttons */
+        .cbt-word-tool-btn,
+        .word-tool-btn,
+        .tb-btn {
+            background: #ffffff;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 4px 7px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            transition: all 0.15s ease;
+            user-select: none;
+            line-height: 1;
+        }
+
+        [data-theme="dark"] .cbt-word-tool-btn,
+        [data-theme="dark"] .word-tool-btn,
+        [data-theme="dark"] .tb-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+        }
+
+        .cbt-word-tool-btn:hover,
+        .word-tool-btn:hover,
+        .tb-btn:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+        }
+
+        [data-theme="dark"] .cbt-word-tool-btn:hover,
+        [data-theme="dark"] .word-tool-btn:hover,
+        [data-theme="dark"] .tb-btn:hover {
+            background: #334155;
+            border-color: #475569;
+            color: #60a5fa;
+        }
+
+        /* Active Tool State */
+        .cbt-word-tool-btn.cbt-tool-active,
+        .word-tool-btn.cbt-tool-active,
+        .tb-btn.cbt-tool-active {
+            background: #dbeafe !important;
+            border-color: #60a5fa !important;
+            color: #1d4ed8 !important;
+            font-weight: 800 !important;
+            box-shadow: inset 0 1px 2px rgba(37, 99, 235, 0.2);
+        }
+
+        [data-theme="dark"] .cbt-word-tool-btn.cbt-tool-active,
+        [data-theme="dark"] .word-tool-btn.cbt-tool-active,
+        [data-theme="dark"] .tb-btn.cbt-tool-active {
+            background: #1e3a8a !important;
+            border-color: #3b82f6 !important;
+            color: #93c5fd !important;
+        }
+
+        /* Ribbon Selects */
+        .cbt-word-select,
+        .word-select {
+            height: 28px;
+            padding: 2px 8px;
+            font-size: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #ffffff;
+            color: #334155;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        [data-theme="dark"] .cbt-word-select,
+        [data-theme="dark"] .word-select {
+            background: #0f172a;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .cbt-word-select:hover,
+        .word-select:hover {
+            border-color: #94a3b8;
+        }
+
+        /* Document Workspace (Office Neutral Gray Canvas) */
+        .cbt-word-workspace {
+            background: #eef2f6;
+            padding: 24px 20px 48px 20px;
+            overflow-x: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        [data-theme="dark"] .cbt-word-workspace {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        /* Horizontal Document Ruler */
+        .cbt-word-ruler {
+            width: 100%;
+            max-width: 880px;
+            height: 22px;
+            margin: 0 auto 6px auto;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            user-select: none;
+            pointer-events: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        [data-theme="dark"] .cbt-word-ruler {
+            background: #1e293b;
+            border-color: #475569;
+        }
+
+        .cbt-word-ruler-track {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 0 45px;
+        }
+
+        .cbt-word-ruler-marker-left {
+            position: absolute;
+            left: 45px;
+            top: 2px;
+        }
+
+        .cbt-word-ruler-marker-right {
+            position: absolute;
+            right: 45px;
+            top: 2px;
+        }
+
+        .cbt-word-ruler-ticks {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            padding: 0 4px;
+        }
+
+        [data-theme="dark"] .cbt-word-ruler-ticks {
+            color: #94a3b8;
+        }
+
+        /* Document Paper (Word-like Writing Surface) */
+        .cbt-document-paper,
+        .word-content-editable {
+            width: 100%;
+            max-width: 880px;
+            min-height: 650px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 3px;
+            padding: 64px 76px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 12px 28px -4px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.04);
+            outline: none;
+            font-family: "Aptos", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #1e293b;
+            word-break: break-word;
+            box-sizing: border-box;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .cbt-document-paper:focus,
         .word-content-editable:focus {
             background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 14px 32px -4px rgba(37,99,235,0.14), 0 0 0 2px rgba(59,130,246,0.3);
         }
+
+        .cbt-document-paper:empty:before,
         .word-content-editable:empty:before {
             content: attr(placeholder);
             color: #94a3b8;
             pointer-events: none;
             display: block;
         }
+
+        .cbt-document-paper p,
+        .word-content-editable p {
+            margin: 0 0 12px 0;
+        }
+
+        .cbt-document-paper table,
         .word-content-editable table {
             border-collapse: collapse;
             width: 100%;
-            margin: 10px 0;
+            margin: 12px 0;
         }
-        .word-content-editable table, .word-content-editable th, .word-content-editable td {
-            border: 1px solid #cbd5e1;
+
+        .cbt-document-paper table, 
+        .cbt-document-paper th, 
+        .cbt-document-paper td,
+        .word-content-editable table,
+        .word-content-editable th,
+        .word-content-editable td {
+            border: 1px solid #94a3b8;
             padding: 8px 12px;
         }
+
+        .cbt-document-paper th,
         .word-content-editable th {
-            background: #f8fafc;
+            background: #f1f5f9;
             font-weight: 700;
         }
+
+        .cbt-document-paper img,
         .word-content-editable img {
             max-width: 100%;
-            border-radius: 6px;
-            margin: 6px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .word-content-editable ul, .word-content-editable ol {
-            padding-left: 24px;
+            border-radius: 4px;
             margin: 8px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .cbt-document-paper ul, 
+        .cbt-document-paper ol,
+        .word-content-editable ul,
+        .word-content-editable ol {
+            padding-left: 28px;
+            margin: 10px 0;
+        }
+
+        /* Word Status Bar */
+        .cbt-word-statusbar,
+        .word-statusbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 16px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            user-select: none;
+        }
+
+        [data-theme="dark"] .cbt-word-statusbar,
+        [data-theme="dark"] .word-statusbar {
+            background: #0f172a;
+            border-color: #334155;
+            color: #94a3b8;
+        }
+
+        /* Option Editor Word Card */
+        .cbt-word-option-card {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .cbt-word-option-card {
+            border-color: #334155;
+            background: #1e293b;
+        }
+
+        .cbt-word-option-card.is-correct-active {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2), 0 4px 12px rgba(34, 197, 94, 0.1) !important;
+        }
+
+        .cbt-word-option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        [data-theme="dark"] .cbt-word-option-header {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        .cbt-choice-radio-label {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            cursor: pointer;
+            margin: 0;
+            font-weight: 800;
+            font-size: 13.5px;
+            color: #1e293b;
+        }
+
+        [data-theme="dark"] .cbt-choice-radio-label {
+            color: #f1f5f9;
+        }
+
+        .cbt-choice-radio-label input[type="radio"] {
+            accent-color: #16a34a;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .cbt-correct-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .cbt-word-option-card.is-correct-active .cbt-correct-pill {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* Option Document Paper (Compact Writing Surface) */
+        .cbt-document-paper-option {
+            background: #ffffff;
+            min-height: 95px !important;
+            max-height: 380px;
+            overflow-y: auto;
+            padding: 18px 24px !important;
+            font-family: "Aptos", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-size: 11.5pt;
+            line-height: 1.55;
+            color: #1e293b;
+            outline: none;
+            word-break: break-word;
+            box-sizing: border-box;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .cbt-document-paper-option:focus {
+            background: #ffffff;
+            box-shadow: none !important;
+        }
+
+        .cbt-document-paper-option:empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block;
+        }
+
+        .cbt-document-paper-option p {
+            margin: 0 0 8px 0;
+        }
+
+        .cbt-document-paper-option table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        .cbt-document-paper-option table,
+        .cbt-document-paper-option th,
+        .cbt-document-paper-option td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+        }
+
+        .cbt-document-paper-option img {
+            max-width: 100%;
+            border-radius: 4px;
+            margin: 6px 0;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        }
+
+        /* Responsive Queries */
+        @media (max-width: 900px) {
+            .cbt-document-paper,
+            .word-content-editable {
+                padding: 40px 42px;
+                min-height: 520px;
+            }
+            .cbt-word-ruler-track {
+                padding: 0 20px;
+            }
+            .cbt-word-ruler-marker-left {
+                left: 20px;
+            }
+            .cbt-word-ruler-marker-right {
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .cbt-word-workspace {
+                padding: 12px 6px 24px 6px;
+            }
+            .cbt-document-paper,
+            .word-content-editable {
+                padding: 24px 18px;
+                min-height: 420px;
+            }
+            .cbt-word-ribbon-bar {
+                overflow-x: auto;
+                white-space: nowrap;
+                flex-wrap: nowrap;
+            }
+            .cbt-word-ruler {
+                display: none;
+            }
         }
         .google-auth-card {
             background: #ffffff;
@@ -5598,9 +6261,29 @@ function renderQuestionsContent() {
                                     <option value="true_false">Benar / Salah</option>
                                 </select>
                             </div>
-                            <div class="form-group" style="flex: 1;" id="group_score_weight">
-                                <label class="form-label" style="font-weight: 700;" id="label_score_weight">Bobot Nilai *</label>
-                                <input type="number" step="0.5" name="score_weight" id="score_weight_input" class="form-control" value="2.5" required>
+                            <div class="form-group" style="flex: 1.3;" id="group_score_weight">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+                                    <label class="form-label" style="font-weight: 700; margin: 0;" id="label_score_weight">Bobot Nilai *</label>
+                                    <div class="cbt-weight-mode-toggle" style="display: inline-flex; background: #e2e8f0; border-radius: 6px; padding: 2px; gap: 2px; font-size: 11px; user-select: none;">
+                                        <label id="lbl_weight_auto" style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: 700; background: #2563eb; color: #ffffff; transition: all 0.2s;">
+                                            <input type="radio" name="weight_mode" value="auto" checked onchange="toggleWeightCalculationMode('auto')" style="display: none;">
+                                            ⚡ Otomatis
+                                        </label>
+                                        <label id="lbl_weight_manual" style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; background: transparent; color: #475569; transition: all 0.2s;">
+                                            <input type="radio" name="weight_mode" value="manual" onchange="toggleWeightCalculationMode('manual')" style="display: none;">
+                                            ✍️ Manual
+                                        </label>
+                                    </div>
+                                </div>
+                                <div style="position: relative;">
+                                    <input type="number" step="0.1" min="0.1" max="100" name="score_weight" id="score_weight_input" class="form-control" value="2.5" required readonly style="background: #f8fafc; font-weight: 700; color: #1e293b; padding-right: 75px;">
+                                    <span id="badge_weight_auto" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10.5px; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 700; pointer-events: none;">
+                                        Otomatis
+                                    </span>
+                                </div>
+                                <small id="hint_weight_mode" style="display: block; font-size: 11px; color: #64748b; margin-top: 4px; line-height: 1.3;">
+                                    ⚡ Bobot dihitung otomatis oleh sistem (default: 2.5 per soal PG, 10 untuk Essai).
+                                </small>
                             </div>
                             <div class="form-group" style="flex: 1;">
                                 <label class="form-label" style="font-weight: 700;">Tingkat Kesulitan</label>
@@ -5614,135 +6297,178 @@ function renderQuestionsContent() {
 
                         <!-- KARTU PERTANYAAN DENGAN TOOLS MICROSOFT WORD LENGKAP (GAMBAR 1 + GAMBAR 2) -->
                         <div style="margin-bottom: 24px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                                <h4 style="font-size: 1.05rem; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
-                                    <span>📝</span> Lembar Pertanyaan
-                                </h4>
-                                <button type="button" class="btn btn-sm" onclick="openAiQuestionModal()" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; border: none; border-radius: 6px; padding: 7px 16px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; transition: all 0.2s ease;">
-                                    <span>✨</span> Buat Soal dengan AI
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <h4 style="font-size: 1.15rem; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                            <span style="font-size: 1.25rem;">📄</span> Lembar Pertanyaan
+                                        </h4>
+                                        <span style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; letter-spacing: 0.3px;">Word Document Surface</span>
+                                    </div>
+                                    <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b; line-height: 1.45;">
+                                        Tulis pertanyaan seperti di dokumen. Gunakan toolbar untuk memformat teks, matematika, tabel, gambar, dan lainnya.
+                                    </p>
+                                </div>
+                                <button type="button" class="btn btn-sm" onclick="openAiQuestionModal()" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; border: none; border-radius: 6px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; transition: all 0.2s ease;">
+                                    <span>✨</span> Buat Soal dengan AI Gemini
                                 </button>
                             </div>
 
-                            <!-- WYSIWYG EDITOR TOOLBAR MICROSOFT WORD PERSIS GAMBAR 1 & 2 -->
-                            <div class="word-editor-box">
-                                <div class="word-menubar" style="display: flex; gap: 12px; padding: 5px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 12px; color: #334155;">
-                                    <span>File</span>
-                                    <span>Edit</span>
-                                    <span>View</span>
-                                    <span>Insert</span>
-                                    <span>Format</span>
-                                    <span>Tools</span>
-                                    <span>Table</span>
+                            <!-- WYSIWYG EDITOR CONTAINER - QUESTION -->
+                            <div class="cbt-word-editor-box word-editor-box">
+                                <!-- WORD RIBBON TABS -->
+                                <div class="cbt-word-menu-tabbar word-menu-tabbar">
+                                    <span class="cbt-word-tab-item">File</span>
+                                    <span class="cbt-word-tab-item active">Beranda</span>
+                                    <span class="cbt-word-tab-item">Sisipkan</span>
+                                    <span class="cbt-word-tab-item">Tata Letak</span>
+                                    <span class="cbt-word-tab-item">Rumus Matematika</span>
+                                    <span class="cbt-word-tab-item">Tinjauan</span>
+                                    <span class="cbt-word-tab-item">Bantuan</span>
                                 </div>
-                                <div class="word-ribbon-toolbar" style="display: flex; gap: 4px; padding: 6px 10px; background: #ffffff; border-bottom: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
-                                    <button type="button" class="tb-btn" title="Undo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'undo')">&#8630;</button>
-                                    <button type="button" class="tb-btn" title="Redo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'redo')">&#8631;</button>
-                                    <div class="tb-separator"></div>
 
-                                    <!-- FONT FAMILY SELECT (GAMBAR DUA) -->
-                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontName', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
-                                        <option value="" disabled selected>Aptos (Body) ▼</option>
-                                        <option value="Aptos">Aptos</option>
-                                        <option value="Calibri">Calibri</option>
-                                        <option value="Arial">Arial</option>
-                                        <option value="Times New Roman">Times New Roman</option>
-                                        <option value="Courier New">Courier New</option>
-                                        <option value="Verdana">Verdana</option>
-                                        <option value="Consolas">Consolas</option>
-                                    </select>
+                                <!-- WORD TOP RIBBON TOOLBAR -->
+                                <div class="cbt-word-ribbon-bar word-ribbon-bar">
+                                    <!-- GROUP 1: CLIPBOARD (Undo, Redo) -->
+                                    <div class="cbt-word-ribbon-group" title="Clipboard">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="undo" title="Urungkan (Undo)" aria-label="Undo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'undo')">&#8630;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="redo" title="Ulangi (Redo)" aria-label="Redo" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'redo')">&#8631;</button>
+                                    </div>
 
-                                    <!-- FONT SIZE SELECT (GAMBAR DUA) -->
-                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
-                                        <option value="" disabled selected>12 ▼</option>
-                                        <option value="10px">10</option>
-                                        <option value="11px">11</option>
-                                        <option value="12px">12 (Normal)</option>
-                                        <option value="14px">14</option>
-                                        <option value="16px">16</option>
-                                        <option value="18px">18 (Judul)</option>
-                                        <option value="22px">22</option>
-                                    </select>
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
 
-                                    <div class="tb-separator"></div>
+                                    <!-- GROUP 2: FONT (Family, Size, Increase, Decrease) -->
+                                    <div class="cbt-word-ribbon-group" title="Font">
+                                        <select class="cbt-word-select word-select" style="width: 110px;" title="Jenis Font" aria-label="Font Family" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontName', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>Aptos (Body)</option>
+                                            <option value="Aptos">Aptos</option>
+                                            <option value="Calibri">Calibri</option>
+                                            <option value="Arial">Arial</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="Verdana">Verdana</option>
+                                            <option value="Consolas">Consolas</option>
+                                        </select>
 
-                                    <!-- FONT STYLES (GAMBAR 1 & 2) -->
-                                    <button type="button" class="tb-btn" title="Bold (Tebal)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'bold')" style="font-weight: bold;">B</button>
-                                    <button type="button" class="tb-btn" title="Italic (Miring)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'italic')" style="font-style: italic;">I</button>
-                                    <button type="button" class="tb-btn" title="Underline (Garis Bawah)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'underline')"><u>U</u></button>
-                                    <button type="button" class="tb-btn" title="Strikethrough (Coret)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'strikeThrough')"><s>S</s></button>
-                                    <div class="tb-separator"></div>
-                                    <button type="button" class="tb-btn" title="Subscript / Indeks (x₂)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'subscript')">x₂</button>
-                                    <button type="button" class="tb-btn" title="Superscript / Pangkat (x²)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'superscript')">x²</button>
+                                        <select class="cbt-word-select word-select" style="width: 54px;" title="Ukuran Font" aria-label="Font Size" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'fontSize', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>12</option>
+                                            <option value="10px">10</option>
+                                            <option value="11px">11</option>
+                                            <option value="12px">12</option>
+                                            <option value="14px">14</option>
+                                            <option value="16px">16</option>
+                                            <option value="18px">18</option>
+                                            <option value="22px">22</option>
+                                        </select>
 
-                                    <div class="tb-separator"></div>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Perbesar Ukuran Font (Increase Font)" aria-label="Increase Font" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="stepWordFontSize('editor_content', 1)" style="font-weight: 700;">A▲</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Perkecil Ukuran Font (Decrease Font)" aria-label="Decrease Font" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="stepWordFontSize('editor_content', -1)" style="font-weight: 700; font-size: 11px;">A▼</button>
+                                    </div>
 
-                                    <!-- WARNA TEKS & HIGHLIGHT (GAMBAR DUA) -->
-                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
-                                        <option value="" disabled selected>A (Warna) ▼</option>
-                                        <option value="#000000" style="color: #000000;">Hitam (Normal)</option>
-                                        <option value="#dc2626" style="color: #dc2626;">Merah</option>
-                                        <option value="#2563eb" style="color: #2563eb;">Biru</option>
-                                        <option value="#16a34a" style="color: #16a34a;">Hijau</option>
-                                        <option value="#d97706" style="color: #d97706;">Oranye</option>
-                                        <option value="#7c3aed" style="color: #7c3aed;">Ungu</option>
-                                    </select>
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
 
-                                    <select onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
-                                        <option value="" disabled selected>🖍️ Sorot ▼</option>
-                                        <option value="#fef08a" style="background: #fef08a;">Kuning</option>
-                                        <option value="#bbf7d0" style="background: #bbf7d0;">Hijau Muda</option>
-                                        <option value="#bfdbfe" style="background: #bfdbfe;">Biru Muda</option>
-                                        <option value="#fbcfe8" style="background: #fbcfe8;">Merah Muda</option>
-                                    </select>
+                                    <!-- GROUP 3: TEXT / FONT STYLE -->
+                                    <div class="cbt-word-ribbon-group" title="Gaya Teks">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="bold" title="Tebal (Bold)" aria-label="Bold" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'bold')" style="font-weight: 800;">B</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="italic" title="Miring (Italic)" aria-label="Italic" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'italic')" style="font-style: italic; font-weight: 600;">I</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="underline" title="Garis Bawah (Underline)" aria-label="Underline" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'underline')"><u>U</u></button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="strikeThrough" title="Coret (Strikethrough)" aria-label="Strikethrough" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'strikeThrough')"><s>ab</s></button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="subscript" title="Subscript (x₂)" aria-label="Subscript" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'subscript')">x₂</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="superscript" title="Superscript (x²)" aria-label="Superscript" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'superscript')">x²</button>
 
-                                    <div class="tb-separator"></div>
+                                        <select class="cbt-word-select word-select" style="width: 72px;" title="Warna Font" aria-label="Font Color" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'foreColor', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>🎨 Warna</option>
+                                            <option value="#000000" style="color:#000000;">Hitam</option>
+                                            <option value="#dc2626" style="color:#dc2626;">Merah</option>
+                                            <option value="#2563eb" style="color:#2563eb;">Biru</option>
+                                            <option value="#16a34a" style="color:#16a34a;">Hijau</option>
+                                            <option value="#d97706" style="color:#d97706;">Oranye</option>
+                                            <option value="#7c3aed" style="color:#7c3aed;">Ungu</option>
+                                        </select>
 
-                                    <!-- ALIGNMENT -->
-                                    <button type="button" class="tb-btn" title="Align Left" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyLeft')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Align Center" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyCenter')">&#8788;</button>
-                                    <button type="button" class="tb-btn" title="Align Right" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyRight')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Justify" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyFull')">&#9776;</button>
+                                        <select class="cbt-word-select word-select" style="width: 72px;" title="Warna Sorotan Teks (Highlight)" aria-label="Text Highlight" onmousedown="syncWordSelection('editor_content');" onfocus="syncWordSelection('editor_content');" onchange="formatWordDoc('editor_content', 'hiliteColor', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>🖍️ Sorot</option>
+                                            <option value="#fef08a" style="background:#fef08a;">Kuning</option>
+                                            <option value="#bbf7d0" style="background:#bbf7d0;">Hijau Muda</option>
+                                            <option value="#bae6fd" style="background:#bae6fd;">Biru Muda</option>
+                                            <option value="#fbcfe8" style="background:#fbcfe8;">Merah Muda</option>
+                                        </select>
+                                    </div>
 
-                                    <div class="tb-separator"></div>
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
 
-                                    <!-- LISTS -->
-                                    <button type="button" class="tb-btn" title="Bullet List" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertUnorderedList')">&#8226;&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Numbered List" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertOrderedList')">1.&#8801;</button>
+                                    <!-- GROUP 4: PARAGRAPH -->
+                                    <div class="cbt-word-ribbon-group" title="Paragraf">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="justifyLeft" title="Rata Kiri (Align Left)" aria-label="Align Left" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyLeft')">&#8801;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="justifyCenter" title="Rata Tengah (Center)" aria-label="Center" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyCenter')">&#8788;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="justifyRight" title="Rata Kanan (Align Right)" aria-label="Align Right" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyRight')">&#8801;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="justifyFull" title="Rata Kanan Kiri (Justify)" aria-label="Justify" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'justifyFull')">&#9776;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="insertUnorderedList" title="Daftar Butir (Bullets)" aria-label="Bullets" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertUnorderedList')">•≡</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="insertOrderedList" title="Daftar Angka (Numbering)" aria-label="Numbering" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="formatWordDoc('editor_content', 'insertOrderedList')">1.≡</button>
+                                    </div>
 
-                                    <div class="tb-separator"></div>
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
 
-                                    <!-- MATH & SCIENCE SYMBOLS (GAMBAR 1 + GAMBAR 2) -->
-                                    <button type="button" class="tb-btn" title="Akar (√)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '√')">√x</button>
-                                    <button type="button" class="tb-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'π')">π</button>
-                                    <button type="button" class="tb-btn" title="Plus-Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '±')">±</button>
-                                    <button type="button" class="tb-btn" title="Kali (×)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '×')">×</button>
-                                    <button type="button" class="tb-btn" title="Bagi (÷)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '÷')">÷</button>
-                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≤')">≤</button>
-                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≥')">≥</button>
-                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≠')">≠</button>
-                                    <button type="button" class="tb-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '°')">°</button>
-                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∞')">∞</button>
-                                    <button type="button" class="tb-btn" title="Sigma / Penjumlahan (∑)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∑')">∑</button>
-                                    <button type="button" class="tb-btn" title="Integral (∫)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∫')">∫</button>
-                                    <button type="button" class="tb-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'α')">α</button>
-                                    <button type="button" class="tb-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'β')">β</button>
-                                    <button type="button" class="tb-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'θ')">θ</button>
-                                    <button type="button" class="tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Δ')">Δ</button>
-                                    <button type="button" class="tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Ω')">Ω</button>
-                                    <button type="button" class="tb-btn" title="Mendekati (≈)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≈')">≈</button>
+                                    <!-- GROUP 5: INSERT (Math Symbols, Table, Link, Image) -->
+                                    <div class="cbt-word-ribbon-group" title="Sisipkan Simbol Matematika">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Akar Kuadrat (√)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '√')">√x</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'π')">π</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '±')">±</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Perkalian (×)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '×')">×</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Pembagian (÷)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '÷')">÷</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≤')">≤</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≥')">≥</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≠')">≠</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '°')">°</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Tak Hingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∞')">∞</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Sigma (∑)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∑')">∑</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Integral (∫)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '∫')">∫</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'α')">α</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'β')">β</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'θ')">θ</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Δ')">Δ</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', 'Ω')">Ω</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Kurang Lebih / Hampir Sama (≈)" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordSymbol('editor_content', '≈')">≈</button>
+                                    </div>
 
-                                    <div class="tb-separator"></div>
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
 
-                                    <!-- INSERT MEDIA & TABLE -->
-                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordTable('editor_content')">⊞ Tabel</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Link" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordLink('editor_content')">&#128279;</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordImage('editor_content')">&#128444;</button>
-                                    <button type="button" class="tb-btn" title="Hapus Format" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="clearWordFormat('editor_content')">Tx</button>
+                                    <!-- GROUP 5 & 6: INSERT MEDIA & CLEAR FORMATTING -->
+                                    <div class="cbt-word-ribbon-group" title="Sisipkan Media & Format">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Sisipkan Tabel 2x2" aria-label="Insert Table" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordTable('editor_content')">⊞ Tabel</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Sisipkan Tautan (Link)" aria-label="Insert Link" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordLink('editor_content')">🔗 Link</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Sisipkan Gambar (Image)" aria-label="Insert Image" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="insertWordImage('editor_content')">🖼️ Gambar</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="removeFormat" title="Hapus Format (Clear Formatting)" aria-label="Clear Formatting" onmousedown="event.preventDefault(); syncWordSelection('editor_content');" onclick="clearWordFormat('editor_content')">Tx</button>
+                                    </div>
                                 </div>
-                                <div id="editor_content" contenteditable="true" class="word-content-editable" placeholder="Tuliskan pertanyaan soal di sini..." oninput="syncWordContent('editor_content')" onfocus="setWordEditorActive('editor_content')" onmouseup="syncWordSelection('editor_content')" onkeyup="syncWordSelection('editor_content')"></div>
+
+                                <!-- DOCUMENT WORKSPACE (NEUTRAL CANVAS WITH RULER & WHITE DOCUMENT PAPER) -->
+                                <div class="cbt-word-workspace">
+                                    <!-- HORIZONTAL RULER -->
+                                    <div class="cbt-word-ruler" aria-hidden="true" title="Ruler Dokumen Word">
+                                        <div class="cbt-word-ruler-track">
+                                            <div class="cbt-word-ruler-marker-left" title="Batas Margin Kiri">
+                                                <svg width="10" height="12" viewBox="0 0 10 12" fill="#2563eb"><polygon points="0,0 10,0 5,6"/><rect x="3" y="6" width="4" height="6"/></svg>
+                                            </div>
+                                            <div class="cbt-word-ruler-ticks">
+                                                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span>
+                                            </div>
+                                            <div class="cbt-word-ruler-marker-right" title="Batas Margin Kanan">
+                                                <svg width="10" height="12" viewBox="0 0 10 12" fill="#2563eb"><polygon points="0,0 10,0 5,6"/><rect x="3" y="6" width="4" height="6"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- DOCUMENT PAPER (AUTHENTIC WORD WRITING SURFACE) -->
+                                    <div id="editor_content" contenteditable="true" class="cbt-document-paper word-content-editable" placeholder="Ketikkan butir soal / lembar pertanyaan di sini..." oninput="syncWordContent('editor_content')" onfocus="setWordEditorActive('editor_content')" onmouseup="syncWordSelection('editor_content')" onkeyup="syncWordSelection('editor_content')"></div>
+                                </div>
+
                                 <textarea name="content" id="raw_editor_content" style="display:none;"></textarea>
-                                <div class="word-statusbar" style="padding: 6px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; font-size: 11px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
-                                    <span id="status_editor_content">0 WORDS &bull; POWERED BY TINYMCE &bull; MICROSOFT WORD TOOLS</span>
+
+                                <!-- WORD STATUS BAR -->
+                                <div class="cbt-word-statusbar word-statusbar">
+                                    <span>HALAMAN 1 DARI 1</span>
+                                    <span id="status_editor_content">0 KATA • 0 KARAKTER • BUTIR SOAL • WORD DOCUMENT PRO</span>
                                 </div>
                             </div>
 
@@ -5760,11 +6486,11 @@ function renderQuestionsContent() {
                         <div id="section_single_choice_options" style="margin-bottom: 24px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
                                 <div>
-                                    <h4 style="font-size: 1rem; font-weight: 800; color: #1e293b; margin: 0;">
-                                        Pilihan Jawaban (A - E) &amp; Kunci Jawaban
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                        <span>📝</span> Pilihan Jawaban &amp; Kunci Jawaban (A s/d E)
                                     </h4>
                                     <span style="font-size: 12px; color: #64748b;">
-                                        Setiap pilihan jawaban dilengkapi lembar tools Microsoft Word. Pilih tombol radio lingkaran untuk menentukan <b>Kunci Jawaban yang Benar</b>.
+                                        Setiap opsi dirancang seperti lembar dokumen mandiri. Klik radio button untuk menetapkan <b>Kunci Jawaban Benar</b>.
                                     </span>
                                 </div>
                             </div>
@@ -5781,126 +6507,134 @@ function renderQuestionsContent() {
                                 $edId = "opt_editor_" . $key;
                                 $statusId = "status_" . $edId;
                                 $fieldNm = "option_" . $key;
+                                $isDefChecked = $optInfo['default_checked'];
                             ?>
                             <!-- WORD EDITOR UNTUK PILIHAN <?= $optInfo['label'] ?> -->
-                            <div class="word-editor-box">
-                                <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center;">
-                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                                        <input type="radio" name="correct_option" value="<?= $optInfo['label'] ?>" <?= $optInfo['default_checked'] ? 'checked' : '' ?> style="accent-color: #16a34a; width: 18px; height: 18px;">
-                                        <span style="font-weight: 800; font-size: 13.5px; color: #1e293b;"><?= $optInfo['title'] ?></span>
-                                        <span class="correct-badge" style="font-size: 11px; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 10px; font-weight: 700; border: 1px solid #86efac;">
-                                            <?= $optInfo['default_checked'] ? '✓ Kunci Jawaban' : 'Pilih sebagai Kunci' ?>
-                                        </span>
+                            <div class="cbt-word-option-card word-editor-box <?= $isDefChecked ? 'is-correct-active' : '' ?>" id="opt_card_<?= $key ?>">
+                                <div class="cbt-word-option-header">
+                                    <label class="cbt-choice-radio-label">
+                                        <input type="radio" name="correct_option" value="<?= $optInfo['label'] ?>" <?= $isDefChecked ? 'checked' : '' ?> onchange="updateCorrectOptionUi()">
+                                        <span>◉ <?= $optInfo['title'] ?></span>
                                     </label>
-                                    <span style="font-size: 11.5px; color: #64748b; font-weight: 600;">Opsi <?= $optInfo['label'] ?></span>
+                                    <span class="cbt-correct-pill" id="opt_pill_<?= $key ?>">
+                                        <?= $isDefChecked ? '✓ Kunci Jawaban Benar' : 'Jadikan Kunci Jawaban' ?>
+                                    </span>
                                 </div>
 
-                                <div class="word-menubar" style="display: flex; gap: 10px; padding: 4px 12px; background: #ffffff; border-bottom: 1px solid #e2e8f0; font-size: 11.5px; color: #475569;">
-                                    <span>File</span>
-                                    <span>Edit</span>
-                                    <span>View</span>
-                                    <span>Insert</span>
-                                    <span>Format</span>
-                                    <span>Tools</span>
-                                    <span>Table</span>
+                                <div class="cbt-word-ribbon-bar word-ribbon-bar" style="background: #fafafa;">
+                                    <!-- GROUP 1: CLIPBOARD -->
+                                    <div class="cbt-word-ribbon-group">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="undo" title="Urungkan (Undo)" aria-label="Undo" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'undo')">&#8630;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="redo" title="Ulangi (Redo)" aria-label="Redo" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'redo')">&#8631;</button>
+                                    </div>
+
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
+
+                                    <!-- GROUP 2: FONT -->
+                                    <div class="cbt-word-ribbon-group">
+                                        <select class="cbt-word-select word-select" style="width: 100px;" title="Jenis Font" aria-label="Font Family" onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontName', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>Aptos</option>
+                                            <option value="Aptos">Aptos</option>
+                                            <option value="Calibri">Calibri</option>
+                                            <option value="Arial">Arial</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="Verdana">Verdana</option>
+                                            <option value="Consolas">Consolas</option>
+                                        </select>
+
+                                        <select class="cbt-word-select word-select" style="width: 52px;" title="Ukuran Font" aria-label="Font Size" onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontSize', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>11</option>
+                                            <option value="10px">10</option>
+                                            <option value="11px">11</option>
+                                            <option value="12px">12</option>
+                                            <option value="14px">14</option>
+                                            <option value="16px">16</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
+
+                                    <!-- GROUP 3: STYLES -->
+                                    <div class="cbt-word-ribbon-group">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="bold" title="Tebal (Bold)" aria-label="Bold" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'bold')" style="font-weight: 800;">B</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="italic" title="Miring (Italic)" aria-label="Italic" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'italic')" style="font-style: italic; font-weight: 600;">I</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="underline" title="Garis Bawah (Underline)" aria-label="Underline" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'underline')"><u>U</u></button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="strikeThrough" title="Coret (Strikethrough)" aria-label="Strikethrough" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'strikeThrough')"><s>S</s></button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="subscript" title="Subscript (x₂)" aria-label="Subscript" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'subscript')">x₂</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="superscript" title="Superscript (x²)" aria-label="Superscript" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'superscript')">x²</button>
+                                    </div>
+
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
+
+                                    <!-- GROUP 3: WARNA & HIGHLIGHT -->
+                                    <div class="cbt-word-ribbon-group">
+                                        <select class="cbt-word-select word-select" style="width: 68px;" title="Warna Font" aria-label="Font Color" onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'foreColor', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>🎨 Warna</option>
+                                            <option value="#000000" style="color:#000000;">Hitam</option>
+                                            <option value="#dc2626" style="color:#dc2626;">Merah</option>
+                                            <option value="#2563eb" style="color:#2563eb;">Biru</option>
+                                            <option value="#16a34a" style="color:#16a34a;">Hijau</option>
+                                            <option value="#d97706" style="color:#d97706;">Oranye</option>
+                                            <option value="#7c3aed" style="color:#7c3aed;">Ungu</option>
+                                        </select>
+
+                                        <select class="cbt-word-select word-select" style="width: 68px;" title="Warna Sorot" aria-label="Text Highlight" onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'hiliteColor', this.value); this.selectedIndex=0;">
+                                            <option value="" disabled selected>🖍️ Sorot</option>
+                                            <option value="#fef08a" style="background:#fef08a;">Kuning</option>
+                                            <option value="#bbf7d0" style="background:#bbf7d0;">Hijau</option>
+                                            <option value="#bae6fd" style="background:#bae6fd;">Biru</option>
+                                            <option value="#fbcfe8" style="background:#fbcfe8;">Pink</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
+
+                                    <!-- GROUP 4: PARAGRAPH -->
+                                    <div class="cbt-word-ribbon-group">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="justifyLeft" title="Rata Kiri" aria-label="Align Left" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyLeft')">&#8801;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="justifyCenter" title="Rata Tengah" aria-label="Center" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyCenter')">&#8788;</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="justifyRight" title="Rata Kanan" aria-label="Align Right" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyRight')">&#8801;</button>
+                                    </div>
+
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
+
+                                    <!-- GROUP 5: MATH & SCIENCE SYMBOLS -->
+                                    <div class="cbt-word-ribbon-group">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Akar (√)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '√')">√x</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'π')">π</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '±')">±</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Kali (×)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '×')">×</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Bagi (÷)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '÷')">÷</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≤')">≤</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≥')">≥</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≠')">≠</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '°')">°</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '∞')">∞</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'α')">α</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'β')">β</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'θ')">θ</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'Δ')">Δ</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'Ω')">Ω</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Hampir Sama (≈)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≈')">≈</button>
+                                    </div>
+
+                                    <div class="cbt-word-sep word-sep tb-separator"></div>
+
+                                    <!-- GROUP 5 & 6: INSERT & CLEAR -->
+                                    <div class="cbt-word-ribbon-group">
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Sisipkan Tabel 2x2" aria-label="Table" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordTable('<?= $edId ?>')">⊞</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" title="Sisipkan Gambar" aria-label="Image" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordImage('<?= $edId ?>')">🖼️</button>
+                                        <button type="button" class="cbt-word-tool-btn word-tool-btn tb-btn" data-word-cmd="removeFormat" title="Hapus Format" aria-label="Clear Format" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="clearWordFormat('<?= $edId ?>')">Tx</button>
+                                    </div>
                                 </div>
 
-                                <div class="word-ribbon-toolbar" style="display: flex; gap: 3px; padding: 5px 10px; background: #fcfcfd; border-bottom: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
-                                    <!-- FONT SELECT -->
-                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontName', this.value); this.selectedIndex=0;" class="word-select" title="Pilih Font">
-                                        <option value="" disabled selected>Aptos ▼</option>
-                                        <option value="Aptos">Aptos</option>
-                                        <option value="Calibri">Calibri</option>
-                                        <option value="Arial">Arial</option>
-                                        <option value="Times New Roman">Times New Roman</option>
-                                        <option value="Courier New">Courier New</option>
-                                        <option value="Verdana">Verdana</option>
-                                        <option value="Consolas">Consolas</option>
-                                    </select>
-
-                                    <!-- FONT SIZE -->
-                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'fontSize', this.value); this.selectedIndex=0;" class="word-select" title="Ukuran Font">
-                                        <option value="" disabled selected>12 ▼</option>
-                                        <option value="10px">10</option>
-                                        <option value="11px">11</option>
-                                        <option value="12px">12 (Normal)</option>
-                                        <option value="14px">14</option>
-                                        <option value="16px">16</option>
-                                        <option value="18px">18</option>
-                                    </select>
-
-                                    <div class="tb-separator"></div>
-
-                                    <!-- STYLES -->
-                                    <button type="button" class="tb-btn" title="Tebal" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'bold')" style="font-weight: bold;">B</button>
-                                    <button type="button" class="tb-btn" title="Miring" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'italic')" style="font-style: italic;">I</button>
-                                    <button type="button" class="tb-btn" title="Garis Bawah" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'underline')"><u>U</u></button>
-                                    <button type="button" class="tb-btn" title="Coret" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'strikeThrough')"><s>S</s></button>
-                                    <div class="tb-separator"></div>
-                                    <button type="button" class="tb-btn" title="Subscript (x₂)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'subscript')">x₂</button>
-                                    <button type="button" class="tb-btn" title="Superscript (x²)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'superscript')">x²</button>
-
-                                    <div class="tb-separator"></div>
-
-                                    <!-- WARNA & HIGHLIGHT -->
-                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'foreColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #dc2626; font-weight: 700;" title="Warna Font Teks">
-                                        <option value="" disabled selected>A ▼</option>
-                                        <option value="#000000" style="color: #000000;">Hitam</option>
-                                        <option value="#dc2626" style="color: #dc2626;">Merah</option>
-                                        <option value="#2563eb" style="color: #2563eb;">Biru</option>
-                                        <option value="#16a34a" style="color: #16a34a;">Hijau</option>
-                                        <option value="#d97706" style="color: #d97706;">Oranye</option>
-                                        <option value="#7c3aed" style="color: #7c3aed;">Ungu</option>
-                                    </select>
-
-                                    <select onmousedown="syncWordSelection('<?= $edId ?>');" onfocus="syncWordSelection('<?= $edId ?>');" onchange="formatWordDoc('<?= $edId ?>', 'hiliteColor', this.value); this.selectedIndex=0;" class="word-select" style="color: #854d0e; font-weight: 700; background: #fef9c3;" title="Sorot Latar (Highlight)">
-                                        <option value="" disabled selected>🖍️ ▼</option>
-                                        <option value="#fef08a" style="background: #fef08a;">Kuning</option>
-                                        <option value="#bbf7d0" style="background: #bbf7d0;">Hijau Muda</option>
-                                        <option value="#bfdbfe" style="background: #bfdbfe;">Biru Muda</option>
-                                    </select>
-
-                                    <div class="tb-separator"></div>
-
-                                    <!-- ALIGN -->
-                                    <button type="button" class="tb-btn" title="Rata Kiri" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyLeft')">&#8801;</button>
-                                    <button type="button" class="tb-btn" title="Rata Tengah" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyCenter')">&#8788;</button>
-                                    <button type="button" class="tb-btn" title="Rata Kanan" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="formatWordDoc('<?= $edId ?>', 'justifyRight')">&#8801;</button>
-
-                                    <div class="tb-separator"></div>
-
-                                    <!-- MATH & SCIENCE SYMBOLS -->
-                                    <button type="button" class="tb-btn" title="Akar (√)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '√')">√x</button>
-                                    <button type="button" class="tb-btn" title="Pi (π)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'π')">π</button>
-                                    <button type="button" class="tb-btn" title="Plus Minus (±)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '±')">±</button>
-                                    <button type="button" class="tb-btn" title="Kali (×)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '×')">×</button>
-                                    <button type="button" class="tb-btn" title="Bagi (÷)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '÷')">÷</button>
-                                    <button type="button" class="tb-btn" title="Kurang Dari Sama Dengan (≤)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≤')">≤</button>
-                                    <button type="button" class="tb-btn" title="Lebih Dari Sama Dengan (≥)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≥')">≥</button>
-                                    <button type="button" class="tb-btn" title="Tidak Sama Dengan (≠)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '≠')">≠</button>
-                                    <button type="button" class="tb-btn" title="Derajat (°)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '°')">°</button>
-                                    <button type="button" class="tb-btn" title="Tak Terhingga (∞)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '∞')">∞</button>
-                                    <button type="button" class="tb-btn" title="Sigma (∑)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '∑')">∑</button>
-                                    <button type="button" class="tb-btn" title="Integral (∫)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', '∫')">∫</button>
-                                    <button type="button" class="tb-btn" title="Alpha (α)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'α')">α</button>
-                                    <button type="button" class="tb-btn" title="Beta (β)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'β')">β</button>
-                                    <button type="button" class="tb-btn" title="Theta (θ)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'θ')">θ</button>
-                                    <button type="button" class="tb-btn" title="Delta (Δ)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'Δ')">Δ</button>
-                                    <button type="button" class="tb-btn" title="Omega (Ω)" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordSymbol('<?= $edId ?>', 'Ω')">Ω</button>
-
-                                    <div class="tb-separator"></div>
-
-                                    <!-- INSERT & CLEAR -->
-                                    <button type="button" class="tb-btn" title="Sisipkan Tabel 2x2" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordTable('<?= $edId ?>')">⊞ Tabel</button>
-                                    <button type="button" class="tb-btn" title="Sisipkan Gambar" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="insertWordImage('<?= $edId ?>')">&#128444;</button>
-                                    <button type="button" class="tb-btn" title="Hapus Format" onmousedown="event.preventDefault(); syncWordSelection('<?= $edId ?>');" onclick="clearWordFormat('<?= $edId ?>')">Tx</button>
-                                </div>
-
-                                <div id="<?= $edId ?>" contenteditable="true" class="word-content-editable" style="min-height: 80px; padding: 10px 14px;" placeholder="Tuliskan pilihan jawaban <?= $optInfo['label'] ?> di sini..." oninput="syncWordContent('<?= $edId ?>')" onfocus="setWordEditorActive('<?= $edId ?>')" onmouseup="syncWordSelection('<?= $edId ?>')" onkeyup="syncWordSelection('<?= $edId ?>')"></div>
+                                <div id="<?= $edId ?>" contenteditable="true" class="cbt-document-paper-option word-content-editable" placeholder="Tuliskan pilihan jawaban <?= $optInfo['label'] ?> di sini..." oninput="syncWordContent('<?= $edId ?>')" onfocus="setWordEditorActive('<?= $edId ?>')" onmouseup="syncWordSelection('<?= $edId ?>')" onkeyup="syncWordSelection('<?= $edId ?>')"></div>
                                 <textarea name="<?= $fieldNm ?>" id="raw_<?= $edId ?>" style="display:none;"></textarea>
 
-                                <div class="word-statusbar" style="padding: 4px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; font-size: 10.5px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
-                                    <span id="<?= $statusId ?>">0 WORDS &bull; PILIHAN <?= $optInfo['label'] ?> &bull; MICROSOFT WORD TOOLS</span>
+                                <div class="cbt-word-statusbar word-statusbar">
+                                    <span style="font-size: 10.5px; color: #94a3b8;">OPSI JAWABAN <?= $optInfo['label'] ?></span>
+                                    <span id="<?= $statusId ?>">0 KATA • 0 KARAKTER • OPSI <?= $optInfo['label'] ?> • WORD COMPACT</span>
                                 </div>
                             </div>
                             <?php endforeach; ?>
@@ -6473,6 +7207,91 @@ function renderQuestionsContent() {
             if (m) m.style.display = 'none';
         }
 
+        function toggleWeightCalculationMode(mode) {
+            var lblAuto = document.getElementById('lbl_weight_auto');
+            var lblManual = document.getElementById('lbl_weight_manual');
+            var input = document.getElementById('score_weight_input');
+            var badge = document.getElementById('badge_weight_auto');
+            var hint = document.getElementById('hint_weight_mode');
+            var qTypeSel = document.getElementById('question_type_selector');
+            var qType = qTypeSel ? qTypeSel.value : 'single_choice';
+
+            if (mode === 'manual') {
+                if (lblAuto) {
+                    lblAuto.style.background = 'transparent';
+                    lblAuto.style.color = '#475569';
+                    lblAuto.style.fontWeight = '600';
+                }
+                if (lblManual) {
+                    lblManual.style.background = '#2563eb';
+                    lblManual.style.color = '#ffffff';
+                    lblManual.style.fontWeight = '700';
+                }
+                if (input) {
+                    input.readOnly = false;
+                    input.style.background = '#ffffff';
+                    input.style.cursor = 'text';
+                    input.focus();
+                }
+                if (badge) badge.style.display = 'none';
+                if (hint) hint.innerHTML = '✍️ <strong>Mode Manual:</strong> Anda bebas menentukan bobot nilai untuk butir soal ini.';
+            } else {
+                // Otomatis
+                if (lblAuto) {
+                    lblAuto.style.background = '#2563eb';
+                    lblAuto.style.color = '#ffffff';
+                    lblAuto.style.fontWeight = '700';
+                }
+                if (lblManual) {
+                    lblManual.style.background = 'transparent';
+                    lblManual.style.color = '#475569';
+                    lblManual.style.fontWeight = '600';
+                }
+                if (input) {
+                    input.readOnly = true;
+                    input.style.background = '#f8fafc';
+                    input.style.cursor = 'default';
+                    if (qType === 'essay') {
+                        input.value = '10.0';
+                    } else {
+                        input.value = '2.5';
+                    }
+                }
+                if (badge) badge.style.display = 'inline-block';
+                if (hint) hint.innerHTML = '⚡ <strong>Mode Otomatis:</strong> Bobot dihitung otomatis oleh sistem (2.5 per soal PG, 10 untuk Essai).';
+            }
+        }
+
+        function handleQuestionTypeChange(type) {
+            var optSec = document.getElementById('section_single_choice_options');
+            var essaySec = document.getElementById('section_essay_weight');
+            var weightLabel = document.getElementById('label_score_weight');
+            var weightInput = document.getElementById('score_weight_input');
+
+            if (type === 'essay') {
+                if (optSec) optSec.style.display = 'none';
+                if (essaySec) essaySec.style.display = 'block';
+                if (weightLabel) weightLabel.innerText = 'Bobot Soal Essai *';
+                var mode = document.querySelector('input[name="weight_mode"]:checked');
+                if (!mode || mode.value === 'auto') {
+                    if (weightInput) weightInput.value = '10.0';
+                }
+                ['a', 'b', 'c', 'd', 'e'].forEach(function(l) {
+                    var el = document.getElementById('opt_editor_' + l);
+                    if (el) el.innerHTML = '';
+                    syncWordContent('opt_editor_' + l);
+                });
+            } else {
+                if (optSec) optSec.style.display = 'block';
+                if (essaySec) essaySec.style.display = 'none';
+                if (weightLabel) weightLabel.innerText = 'Bobot Nilai *';
+                var mode = document.querySelector('input[name="weight_mode"]:checked');
+                if (!mode || mode.value === 'auto') {
+                    if (weightInput) weightInput.value = '2.5';
+                }
+            }
+        }
+
         // ==========================================
         // WORD RIBBON & DOCUMENT EDITOR ENGINE (TRUE WYSIWYG RICH TEXT)
         // ==========================================
@@ -6481,6 +7300,77 @@ function renderQuestionsContent() {
 
         function setWordEditorActive(editorId) {
             lastActiveWordEditor = editorId;
+        }
+
+        function stepWordFontSize(editorId, delta) {
+            var el = document.getElementById(editorId) || document.getElementById(lastActiveWordEditor) || document.getElementById('editor_content');
+            if (!el) return;
+            restoreWordSelection(el.id);
+            var sel = window.getSelection();
+            var curSize = 16;
+            if (sel && sel.rangeCount > 0) {
+                var node = sel.anchorNode;
+                if (node) {
+                    var parent = (node.nodeType === 3) ? node.parentElement : node;
+                    if (parent) {
+                        var cs = window.getComputedStyle(parent).fontSize;
+                        if (cs) curSize = parseFloat(cs) || 16;
+                    }
+                }
+            }
+            var newSize = Math.max(9, Math.min(48, Math.round(curSize + delta * 2))) + 'px';
+            formatWordDoc(el.id, 'fontSize', newSize);
+        }
+
+        function updateActiveWordToolStates(editorId) {
+            var targetId = editorId || lastActiveWordEditor || 'editor_content';
+            var el = document.getElementById(targetId);
+            if (!el) return;
+
+            var sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return;
+            var r = sel.getRangeAt(0);
+            if (el !== r.commonAncestorContainer && !el.contains(r.commonAncestorContainer)) {
+                return;
+            }
+
+            var container = el.closest('.cbt-word-editor-box') || el.closest('.word-editor-box') || el.closest('.cbt-word-option-card');
+            if (!container) return;
+
+            var commands = ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'insertUnorderedList', 'insertOrderedList'];
+            commands.forEach(function(cmd) {
+                var isActive = false;
+                try {
+                    isActive = document.queryCommandState(cmd);
+                } catch(e) {}
+                var btns = container.querySelectorAll('[data-word-cmd="' + cmd + '"]');
+                for (var i = 0; i < btns.length; i++) {
+                    if (isActive) {
+                        btns[i].classList.add('cbt-tool-active');
+                        btns[i].setAttribute('aria-pressed', 'true');
+                    } else {
+                        btns[i].classList.remove('cbt-tool-active');
+                        btns[i].setAttribute('aria-pressed', 'false');
+                    }
+                }
+            });
+        }
+
+        function updateCorrectOptionUi() {
+            var checked = document.querySelector('input[name="correct_option"]:checked');
+            var val = checked ? checked.value : 'A';
+            ['a', 'b', 'c', 'd', 'e'].forEach(function(k) {
+                var card = document.getElementById('opt_card_' + k);
+                var pill = document.getElementById('opt_pill_' + k);
+                var isCur = (k.toUpperCase() === val);
+                if (card) {
+                    if (isCur) card.classList.add('is-correct-active');
+                    else card.classList.remove('is-correct-active');
+                }
+                if (pill) {
+                    pill.innerText = isCur ? '✓ Kunci Jawaban Benar' : 'Jadikan Kunci Jawaban';
+                }
+            });
         }
 
         function syncWordSelection(editorId) {
@@ -6495,6 +7385,7 @@ function renderQuestionsContent() {
                     lastActiveWordEditor = targetId;
                 }
             }
+            updateActiveWordToolStates(targetId);
         }
 
         function restoreWordSelection(editorId) {
@@ -6537,6 +7428,7 @@ function renderQuestionsContent() {
                         savedWordRanges[editorIds[i]] = r.cloneRange();
                         lastActiveWordEditor = editorIds[i];
                     }
+                    updateActiveWordToolStates(editorIds[i]);
                     break;
                 }
             }
@@ -6569,7 +7461,7 @@ function renderQuestionsContent() {
             var statusEl = document.getElementById('status_' + editorId) || document.getElementById('word_status_' + editorId);
             if (statusEl) {
                 var label = (editorId === 'editor_content') ? 'BUTIR SOAL' : ('PILIHAN ' + editorId.slice(-1).toUpperCase());
-                statusEl.innerText = words + ' WORDS • ' + chars + ' CHARS • ' + label + ' • MICROSOFT WORD TOOLS';
+                statusEl.innerText = words + ' KATA • ' + chars + ' KARAKTER • ' + label + ' • MICROSOFT WORD TOOLS';
             }
         }
 
@@ -6617,6 +7509,7 @@ function renderQuestionsContent() {
 
             syncWordContent(el.id);
             syncWordSelection(el.id);
+            updateActiveWordToolStates(el.id);
         }
 
         function insertWordSymbol(editorId, sym) {
@@ -7638,6 +8531,31 @@ function renderMonitoringContent() {
             </div>
         </div>
 
+        <!-- PROCTOR QUICK PIN CARD -->
+        <div style="background: linear-gradient(135deg, #0f172a, #1e293b); border: 1.5px solid #334155; border-radius: 12px; padding: 16px 20px; color: #ffffff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(225,29,72,0.15); border: 1px solid rgba(225,29,72,0.4); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    🔐
+                </div>
+                <div>
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700;">
+                        PIN OTORISASI PENGAWAS (BUKA KUNCI SESI TERHENTI / TERKUNCI TOTAL)
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 3px;">
+                        <span style="font-family: monospace; font-size: 24px; font-weight: 900; color: #38bdf8; letter-spacing: 4px;">
+                            <?= htmlspecialchars($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234') ?>
+                        </span>
+                        <span class="badge badge-success" style="font-size: 10px; padding: 2px 8px;">AKTIF DI SEMUA RUANG</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="/admin/proctor-pin" class="btn btn-sm" style="background: #e11d48; color: #ffffff; font-weight: 700; border: none; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(225,29,72,0.3);">
+                    <span>⚙️</span> Buka Menu PIN &amp; Buka Kunci Siswa &rarr;
+                </a>
+            </div>
+        </div>
+
         <div class="card" style="padding: 0; overflow: hidden;">
             <div class="data-table-wrapper">
                 <table class="data-table">
@@ -8465,6 +9383,339 @@ function renderMonitoringLiveContent($examId) {
 
     function printStudentSheet() {
         window.print();
+    }
+    </script>
+    <?php
+}
+
+// =========================================================================
+// 14B. MENU: PIN PENGAWAS & BUKA KUNCI SESI UJIAN (HARD LOCKOUT MANAGER)
+// =========================================================================
+function renderProctorPinContent() {
+    $activePin = $_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '1234';
+    $sessions = $_SESSION['monitoring_sessions'] ?? [];
+
+    $lockedCount = 0;
+    $warningCount = 0;
+    foreach ($sessions as $ms) {
+        if (!empty($ms['is_locked']) || (isset($ms['violations']) && $ms['violations'] >= 3)) {
+            $lockedCount++;
+        } elseif (!empty($ms['violations']) && $ms['violations'] > 0) {
+            $warningCount++;
+        }
+    }
+    ?>
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- CONTENT HEADER -->
+        <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h1 class="page-title" style="margin: 0; font-size: 1.35rem; display: flex; align-items: center; gap: 8px;">
+                        <span>🔐</span> PIN Pengawas &amp; Buka Kunci Sesi Ujian
+                    </h1>
+                    <span class="badge badge-success" style="font-size: 11px; padding: 4px 10px; font-weight: 700;">
+                        ● KIOSK PROTECTOR AKTIF
+                    </span>
+                </div>
+                <p class="page-subtitle" style="margin: 6px 0 0; font-size: 0.88rem; color: var(--text-secondary);">
+                    Pusat kendali otorisasi guru pengawas untuk membuka kembali layar ujian peserta yang terkunci total (Hard Lockout akibat 3x keluar aplikasi/tab).
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <?php if ($lockedCount > 0 || $warningCount > 0): ?>
+                    <form method="POST" action="/admin/proctor-pin/unlock-all" onsubmit="return confirm('Apakah Anda yakin ingin membuka kunci semua peserta yang terhenti?');" style="margin: 0;">
+                        <button type="submit" class="btn btn-sm" style="background: #10b981; color: #fff; font-weight: 700; border: none; padding: 8px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.3); cursor: pointer;">
+                            🔓 Buka Kunci Semua Siswa (<?= $lockedCount + $warningCount ?>)
+                        </button>
+                    </form>
+                <?php endif; ?>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.location.reload();" style="padding: 8px 14px;">
+                    &#8635; Segarkan Data
+                </button>
+                <a href="/admin/monitoring" class="btn btn-secondary btn-sm" style="padding: 8px 14px;">
+                    📡 Ke Live Monitoring
+                </a>
+            </div>
+        </div>
+
+        <!-- EMERGENCY BANNER JIKA ADA SISWA TERKUNCI -->
+        <?php if ($lockedCount > 0): ?>
+            <div style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1.5px solid #ef4444; border-radius: 12px; padding: 16px 20px; color: #991b1b; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 12px rgba(239,68,68,0.12);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <span style="font-size: 32px; animation: bounce 1.5s infinite;">🚨</span>
+                    <div>
+                        <div style="font-weight: 800; font-size: 15px; color: #b91c1c;">
+                            PERHATIAN: Terdapat <?= $lockedCount ?> Peserta yang Sesi Ujiannya Terkunci Total!
+                        </div>
+                        <div style="font-size: 13px; color: #7f1d1d; margin-top: 3px;">
+                            Siswa terdeteksi keluar dari layar ujian sebanyak 3 kali. Masukkan PIN <strong style="font-family: monospace; background: #fee2e2; padding: 2px 6px; border-radius: 4px; font-size: 14px;"><?= htmlspecialchars($activePin) ?></strong> pada layar siswa atau klik tombol <strong>"Buka Kunci Sesi"</strong> pada tabel di bawah.
+                        </div>
+                    </div>
+                </div>
+                <form method="POST" action="/admin/proctor-pin/unlock-all" style="margin: 0;">
+                    <button type="submit" class="btn btn-danger btn-sm" style="background: #dc2626; color: #fff; font-weight: 700; padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer;">
+                        Buka Kunci Sekarang
+                    </button>
+                </form>
+            </div>
+        <?php endif; ?>
+
+        <!-- BARIS ATAS: KARTU PIN PENGAWAS & KARTU PANDUAN SISWA -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px;">
+            <!-- KARTU 1: PIN OTORISASI PENGAWAS AKTIF -->
+            <div class="card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 22px;">🔑</span>
+                            <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">
+                                PIN Otorisasi Guru Pengawas
+                            </h2>
+                        </div>
+                        <span class="badge badge-info" style="font-size: 11px;">BERLAKU REALTIME</span>
+                    </div>
+
+                    <p style="font-size: 13px; color: #64748b; margin: 0 0 16px; line-height: 1.5;">
+                        PIN ini digunakan oleh guru pengawas untuk membuka kembali layar ujian siswa yang terkunci total akibat 3x pelanggaran keluar layar / Alt+Tab.
+                    </p>
+
+                    <!-- DISPLAY BESAR PIN AKTIF -->
+                    <div style="background: linear-gradient(135deg, #0f172a, #1e293b); border: 2px solid #334155; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);">
+                        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; font-weight: 700; margin-bottom: 6px;">
+                            PIN PENGAWAS AKTIF SAAT INI
+                        </div>
+                        <div id="activePinDisplay" style="font-family: 'Courier New', Courier, monospace; font-size: 42px; font-weight: 900; color: #38bdf8; letter-spacing: 8px; text-shadow: 0 0 20px rgba(56,189,248,0.4);">
+                            <?= htmlspecialchars($activePin) ?>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 14px;">
+                            <button type="button" class="btn btn-sm" onclick="copyActiveProctorPin('<?= htmlspecialchars($activePin) ?>')" style="background: rgba(255,255,255,0.1); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                📋 Salin PIN
+                            </button>
+                            <button type="button" class="btn btn-sm" onclick="randomizeProctorPinField()" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                🎲 Acak PIN Baru
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- FORM GANTI PIN PENGAWAS -->
+                    <form method="POST" action="/admin/proctor-pin/update" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
+                        <label for="input_proctor_pin" style="display: block; font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 8px;">
+                            Ubah PIN Pengawas Kustom:
+                        </label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" name="proctor_unlock_pin" id="input_proctor_pin" value="<?= htmlspecialchars($activePin) ?>" required maxlength="10" placeholder="Ketik 4-10 karakter..." style="flex: 1; padding: 9px 12px; font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border: 1.5px solid #cbd5e1; border-radius: 6px; color: #1e293b; background: #ffffff;">
+                            <button type="submit" class="btn btn-primary" style="padding: 9px 18px; font-weight: 700; font-size: 13px; border-radius: 6px;">
+                                💾 Simpan PIN
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('1234')" style="font-size: 11px; padding: 3px 8px;">Preset 1234</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('9988')" style="font-size: 11px; padding: 3px 8px;">Preset 9988</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('PROCTOR')" style="font-size: 11px; padding: 3px 8px;">Preset PROCTOR</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setPresetPin('ADMIN123')" style="font-size: 11px; padding: 3px 8px;">Preset ADMIN123</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #64748b; line-height: 1.4;">
+                    ℹ️ <strong>Tips:</strong> PIN bawaan darurat (<code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">1234</code>, <code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">ADMIN123</code>, <code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">PROCTOR</code>) selalu diterima oleh sistem sebagai cadangan darurat.
+                </div>
+            </div>
+
+            <!-- KARTU 2: PANDUAN VISUAL LAYAR SISWA TERKUNCI (PERSIS SCREENSHOT USER) -->
+            <div class="card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 22px;">📱</span>
+                        <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">
+                            Simulasi Layar Siswa yang Terkunci
+                        </h2>
+                    </div>
+                    <span class="badge badge-danger" style="font-size: 11px;">SESI DIBEKUKAN</span>
+                </div>
+
+                <p style="font-size: 13px; color: #64748b; margin: 0 0 14px; line-height: 1.5;">
+                    Berikut tampilan layar di komputer / HP siswa ketika terdeteksi melanggar tata tertib 3 kali:
+                </p>
+
+                <!-- MOCKUP LAYAR KIOSK HARD LOCKOUT -->
+                <div style="background: #0f172a; border: 1.5px solid #ef4444; border-radius: 12px; padding: 20px; color: #ffffff; text-align: center; box-shadow: 0 8px 24px rgba(239,68,68,0.15);">
+                    <div style="font-size: 30px; margin-bottom: 6px;">🚨</div>
+                    <div style="color: #f87171; font-weight: 800; font-size: 16px; letter-spacing: 0.5px; margin-bottom: 6px;">
+                        SESI UJIAN TERKUNCI TOTAL!
+                    </div>
+                    <div style="font-size: 11.5px; color: #cbd5e1; line-height: 1.4; margin-bottom: 12px;">
+                        Anda telah terdeteksi keluar dari layar ujian sebanyak <strong>3 kali</strong>.<br>
+                        Sistem CBT secara otomatis menghentikan pengerjaan Anda.
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #fca5a5; margin-bottom: 14px;">
+                        ⛔ <strong>Status: Dibekukan.</strong> Silakan lapor kepada <strong>Guru Pengawas Ruang</strong>.
+                    </div>
+                    <div style="background: #1e293b; border-radius: 8px; padding: 12px; text-align: left;">
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 6px;">
+                            PIN Otorisasi Guru Pengawas Ruang:
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" readonly value="<?= htmlspecialchars($activePin) ?>" style="flex: 1; padding: 7px 10px; background: #0f172a; border: 1px solid #475569; border-radius: 5px; color: #38bdf8; font-family: monospace; font-size: 13px; font-weight: 700;">
+                            <button type="button" style="background: #10b981; border: none; border-radius: 5px; color: #ffffff; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: default;">
+                                Buka Kunci
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; font-size: 12px; color: #166534; line-height: 1.4;">
+                    ✓ <strong>Opsi Pembukaan:</strong> Guru dapat memasukkan PIN langsung di depan siswa, ATAU menekan tombol hijau <strong>"Buka Kunci Sesi"</strong> pada tabel peserta di bawah dari laptop pengawas.
+                </div>
+            </div>
+        </div>
+
+        <!-- TABEL STATUS KEPATUHAN & MONITORING SESI TERKUNCI -->
+        <div class="card" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <span>📋</span> Daftar Status Pelanggaran &amp; Kunci Sesi Peserta Ujian
+                    </h2>
+                    <p style="margin: 4px 0 0; font-size: 12.5px; color: #64748b;">
+                        Daftar peserta yang sedang aktif mengerjakan, menerima peringatan, atau terkunci total di ruang ujian.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="filterStudentPinTable" placeholder="Cari nama atau NIS..." onkeyup="filterLockoutTable()" style="padding: 7px 12px; font-size: 12.5px; border: 1px solid #cbd5e1; border-radius: 6px; width: 220px;">
+                </div>
+            </div>
+
+            <div class="data-table-wrapper" style="overflow-x: auto;">
+                <table class="data-table" id="tableLockoutMonitoring" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 10px 12px; text-align: center; width: 45px;">No</th>
+                            <th style="padding: 10px 12px; text-align: left;">NIS &amp; Nama Siswa</th>
+                            <th style="padding: 10px 12px; text-align: left;">Kelas</th>
+                            <th style="padding: 10px 12px; text-align: left;">Paket Ujian</th>
+                            <th style="padding: 10px 12px; text-align: center;">Pelanggaran Keluar Layar</th>
+                            <th style="padding: 10px 12px; text-align: center;">Status Layar</th>
+                            <th style="padding: 10px 12px; text-align: center;">IP Komputer</th>
+                            <th style="padding: 10px 12px; text-align: center; width: 170px;">Aksi Pengawas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($sessions as $i => $s): 
+                            $vCount = $s['violations'] ?? 0;
+                            $isLocked = !empty($s['is_locked']) || $vCount >= 3;
+                        ?>
+                            <tr style="border-bottom: 1px solid #f1f5f9; background: <?= $isLocked ? '#fef2f2' : ($vCount > 0 ? '#fffbeb' : '#ffffff') ?>;">
+                                <td style="padding: 10px 12px; text-align: center; font-size: 12.5px;"><?= $i + 1 ?></td>
+                                <td style="padding: 10px 12px;">
+                                    <div style="font-weight: 700; font-size: 13.5px; color: #0f172a;"><?= htmlspecialchars($s['name']) ?></div>
+                                    <div style="font-size: 11.5px; color: #64748b; font-family: monospace;">NIS: <?= htmlspecialchars($s['nis']) ?></div>
+                                </td>
+                                <td style="padding: 10px 12px; font-size: 12.5px;">
+                                    <span class="badge badge-secondary"><?= htmlspecialchars($s['class']) ?></span>
+                                </td>
+                                <td style="padding: 10px 12px; font-size: 12.5px;">
+                                    <?= htmlspecialchars($s['exam_id'] ?? 'PAS Matematika X') ?>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: center;">
+                                    <?php if ($vCount >= 3): ?>
+                                        <span class="badge" style="background: #ef4444; color: #ffffff; font-weight: 800; font-size: 11.5px; padding: 4px 10px;">
+                                            🚨 3/3 (Maksimal)
+                                        </span>
+                                    <?php elseif ($vCount === 2): ?>
+                                        <span class="badge" style="background: #f97316; color: #ffffff; font-weight: 700; font-size: 11.5px;">
+                                            ⚠️ 2/3 (Peringatan 2)
+                                        </span>
+                                    <?php elseif ($vCount === 1): ?>
+                                        <span class="badge" style="background: #eab308; color: #ffffff; font-weight: 700; font-size: 11.5px;">
+                                            ⚠️ 1/3 (Peringatan 1)
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 700; font-size: 11.5px;">
+                                            ✓ 0/3 (Tertib)
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: center;">
+                                    <?php if ($isLocked): ?>
+                                        <span class="badge" style="background: #991b1b; color: #ffffff; font-weight: 800; font-size: 11.5px; padding: 4px 10px;">
+                                            ⛔ TERKUNCI TOTAL
+                                        </span>
+                                    <?php elseif ($s['status'] === 'Selesai (Submit)'): ?>
+                                        <span class="badge badge-info" style="font-size: 11.5px;">Selesai</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-success" style="font-size: 11.5px;">Aktif Normal</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: center; font-size: 12px; font-family: monospace; color: #475569;">
+                                    <?= htmlspecialchars($s['ip'] ?? '127.0.0.1') ?>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: center;">
+                                    <?php if ($isLocked || $vCount > 0): ?>
+                                        <form method="POST" action="/admin/proctor-pin/unlock-student" style="margin: 0;">
+                                            <input type="hidden" name="nis" value="<?= htmlspecialchars($s['nis']) ?>">
+                                            <button type="submit" class="btn btn-sm" style="background: #10b981; color: #ffffff; border: none; font-weight: 700; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">
+                                                <span>🔓</span> Buka Kunci Sesi
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span style="font-size: 12px; color: #10b981; font-weight: 600;">
+                                            ✓ Sesi Lancar
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT HELPERS FOR PIN MANAGEMENT -->
+    <script>
+    function copyActiveProctorPin(pin) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(pin).then(function() {
+                alert('✓ PIN Pengawas (' + pin + ') berhasil disalin ke clipboard!');
+            }).catch(function() {
+                promptCopyFallback(pin);
+            });
+        } else {
+            promptCopyFallback(pin);
+        }
+    }
+
+    function promptCopyFallback(pin) {
+        window.prompt('Salin PIN Pengawas berikut:', pin);
+    }
+
+    function randomizeProctorPinField() {
+        var randomNum = Math.floor(1000 + Math.random() * 9000);
+        var input = document.getElementById('input_proctor_pin');
+        if (input) {
+            input.value = randomNum;
+            input.focus();
+            input.select();
+        }
+    }
+
+    function setPresetPin(val) {
+        var input = document.getElementById('input_proctor_pin');
+        if (input) {
+            input.value = val;
+            input.focus();
+            input.select();
+        }
+    }
+
+    function filterLockoutTable() {
+        var q = (document.getElementById('filterStudentPinTable').value || '').toLowerCase();
+        var rows = document.querySelectorAll('#tableLockoutMonitoring tbody tr');
+        rows.forEach(function(r) {
+            var text = r.innerText.toLowerCase();
+            r.style.display = (text.indexOf(q) > -1) ? '' : 'none';
+        });
     }
     </script>
     <?php
