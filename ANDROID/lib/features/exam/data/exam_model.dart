@@ -10,6 +10,8 @@ class ExamListItem {
   final String? subjectName;
   final String? subjectCode;
   final bool hasToken;
+  final String? className;
+  final String? token;
 
   const ExamListItem({
     required this.id,
@@ -22,6 +24,8 @@ class ExamListItem {
     this.subjectName,
     this.subjectCode,
     required this.hasToken,
+    this.className,
+    this.token,
   });
 
   factory ExamListItem.fromJson(Map<String, dynamic> json) {
@@ -31,7 +35,7 @@ class ExamListItem {
         : (int.tryParse(json['id']?.toString() ?? '1') ?? 1);
     final duration = json['duration_minutes'] ?? json['duration'];
     final parsedDuration = duration is num
-        ? (duration as num).toInt()
+        ? duration.toInt()
         : (int.tryParse(duration?.toString() ?? '60') ?? 60);
     final questionsCount = json['questions_count'] is num
         ? (json['questions_count'] as num).toInt()
@@ -48,6 +52,8 @@ class ExamListItem {
       subjectName: subject?['name']?.toString() ?? json['subject']?.toString(),
       subjectCode: subject?['code']?.toString(),
       hasToken: json['token'] != null && json['token'].toString().isNotEmpty,
+      className: json['class']?.toString() ?? json['class_name']?.toString(),
+      token: json['token']?.toString(),
     );
   }
 }

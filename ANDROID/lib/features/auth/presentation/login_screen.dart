@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isDiscovering = false;
   String? _errorMessage;
 
   @override
@@ -43,6 +44,52 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _checkServer() {
     _healthRepository.checkHealth().then((_) {}, onError: (_) {});
+  }
+
+  Future<void> _handleAutoDiscover() async {
+    setState(() {
+      _isDiscovering = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final foundUrl = await _healthRepository.autoDiscoverServer();
+      if (foundUrl != null) {
+        await AppPreferences.saveServerUrl(foundUrl);
+        _checkServer();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('✓ Server ditemukan & terhubung: $foundUrl'),
+              backgroundColor: Colors.green.shade700,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Server tidak terdeteksi otomatis. Pastikan HP terhubung ke Wi-Fi sekolah.'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Gagal memindai jaringan: $e';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDiscovering = false;
+        });
+      }
+    }
   }
 
   @override
@@ -91,56 +138,98 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _openServerConfigDialog() {
     final controller = TextEditingController(text: ApiConfig.baseUrl);
+    bool isDialogScanning = false;
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Konfigurasi Server CBT'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Masukkan IP Address dan Port server lokal Windows di sekolah (contoh: http://192.168.1.100:8000)',
-              style: TextStyle(fontSize: 13, color: Colors.black54),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Server URL',
-                hintText: 'http://192.168.1.100:8000',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lan),
+      builder: (ctx) => StatefulBuilder(
+        builder: (dialogCtx, setDialogState) => AlertDialog(
+          title: const Text('Konfigurasi Server CBT'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Masukkan IP Address server lokal di sekolah atau gunakan tombol cari otomatis di bawah:',
+                style: TextStyle(fontSize: 13, color: Colors.black54),
               ),
-              keyboardType: TextInputType.url,
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  labelText: 'Server URL',
+                  hintText: 'http://192.168.1.11:8000',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.lan),
+                ),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 12),
+              // Preset & Auto-Detect Buttons
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: isDialogScanning
+                        ? null
+                        : () async {
+                            setDialogState(() => isDialogScanning = true);
+                            final found = await _healthRepository.autoDiscoverServer();
+                            setDialogState(() => isDialogScanning = false);
+                            if (found != null) {
+                              controller.text = found;
+                            }
+                          },
+                    icon: isDialogScanning
+                        ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.wifi_find, size: 16),
+                    label: Text(isDialogScanning ? 'Mencari...' : '🔍 Pindai Wi-Fi'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    ),
+                  ),
+                  ActionChip(
+                    label: const Text('LAN Default', style: TextStyle(fontSize: 11)),
+                    onPressed: () {
+                      controller.text = ApiConfig.defaultLanUrl;
+                    },
+                  ),
+                  ActionChip(
+                    label: const Text('Cloud Vercel', style: TextStyle(fontSize: 11)),
+                    onPressed: () {
+                      controller.text = ApiConfig.defaultCloudUrl;
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const HealthCheckScreen()),
+                );
+              },
+              child: const Text('Diagnosa'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newUrl = controller.text.trim();
+                if (ApiConfig.isValidUrl(newUrl)) {
+                  await AppPreferences.saveServerUrl(newUrl);
+                  if (ctx.mounted) {
+                    Navigator.of(ctx).pop();
+                  }
+                  _checkServer();
+                }
+              },
+              child: const Text('Simpan & Hubungkan'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const HealthCheckScreen()),
-              );
-            },
-            child: const Text('Diagnosa Lengkap'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final newUrl = controller.text.trim();
-              if (ApiConfig.isValidUrl(newUrl)) {
-                await AppPreferences.saveServerUrl(newUrl);
-                if (ctx.mounted) {
-                  Navigator.of(ctx).pop();
-                }
-                _checkServer();
-              }
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
       ),
     );
   }
@@ -218,8 +307,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: OutlinedButton.icon(
+                      onPressed: _isDiscovering ? null : _handleAutoDiscover,
+                      icon: _isDiscovering
+                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.wifi_find_rounded, size: 18),
+                      label: Text(_isDiscovering ? 'Memindai Jaringan Wi-Fi...' : '🔍 Cari Server Otomatis di Wi-Fi'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        foregroundColor: Colors.indigo.shade700,
+                        side: BorderSide(color: Colors.indigo.shade200),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
                   // Error Banner
                   if (_errorMessage != null)
