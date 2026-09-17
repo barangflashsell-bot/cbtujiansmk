@@ -12,6 +12,8 @@ if (!isset($_ENV['VERCEL']) && !isset($_SERVER['VERCEL']) && !getenv('VERCEL') &
 }
 
 // Standalone Serverless Mode on Vercel
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE);
+ini_set('display_errors', '0');
 session_start();
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
@@ -5179,8 +5181,8 @@ function renderAppPage($uri) {
         .data-table th, .data-table td { vertical-align: middle; }
 
         /* Checkbox Pilihan pada Tabel Berurutan */
-        .cbt-checkbox-col { width: 38px; text-align: center; vertical-align: middle; }
-        .cbt-row-checkbox, .cbt-select-all { width: 17px; height: 17px; cursor: pointer; accent-color: #0284c7; vertical-align: middle; border-radius: 4px; margin: 0; }
+        .cbt-checkbox-col { width: 42px !important; min-width: 42px !important; max-width: 42px !important; text-align: center !important; vertical-align: middle !important; padding: 10px 8px !important; white-space: nowrap !important; }
+        .cbt-row-checkbox, .cbt-select-all { width: 17px; height: 17px; cursor: pointer; accent-color: #0284c7; vertical-align: middle; border-radius: 4px; margin: 0; display: inline-block; }
         tr.row-selected { background-color: rgba(2, 132, 199, 0.08) !important; }
     </style>
     <script>
@@ -11039,11 +11041,11 @@ function renderExamDetailContent($examId) {
                     <tbody>
                         <?php foreach ($_SESSION['students_list'] as $idx => $s): ?>
                             <tr>
-                                <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-exam-student" value="<?= htmlspecialchars($s['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih peserta ini"></td>
+                                <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-exam-student" value="<?= htmlspecialchars((string)($s['id'] ?? ($s['nis'] ?? ''))) ?>" onchange="updateCbtSelection(this)" title="Pilih peserta ini"></td>
                                 <td><?= $idx + 1 ?></td>
-                                <td><code><?= htmlspecialchars($s['nis']) ?></code></td>
-                                <td><strong><?= htmlspecialchars($s['name']) ?></strong></td>
-                                <td><span class="badge badge-primary"><?= htmlspecialchars($s['class']) ?></span></td>
+                                <td><code><?= htmlspecialchars((string)($s['nis'] ?? '')) ?></code></td>
+                                <td><strong><?= htmlspecialchars((string)($s['name'] ?? '')) ?></strong></td>
+                                <td><span class="badge badge-primary"><?= htmlspecialchars((string)($s['class'] ?? '')) ?></span></td>
                                 <td><span class="badge badge-success">Siap Mengerjakan</span></td>
                             </tr>
                         <?php endforeach; ?>
@@ -11609,28 +11611,31 @@ function renderMonitoringLiveContent($examId) {
                         </thead>
                         <tbody>
                             <?php foreach ($sessions as $idx => $s): 
-                                $pct = round(($s['answered'] / $s['total']) * 100);
-                                $score = (float)$s['score'];
+                                $answered = (int)($s['answered'] ?? 0);
+                                $total = max(1, (int)($s['total'] ?? 40));
+                                $pct = round(($answered / $total) * 100);
+                                $score = (float)($s['score'] ?? 0);
                                 $isPassed = $score >= 75.0;
                                 $logTime = $s['login_time'] ?? '07:15:20';
-                                $isAttPresent = !empty($s['login_time']) || (!empty($s['attendance_status']) && $s['attendance_status'] === 'HADIR') || ($s['status'] !== 'Belum Mulai');
+                                $isAttPresent = !empty($s['login_time']) || (!empty($s['attendance_status']) && $s['attendance_status'] === 'HADIR') || (($s['status'] ?? '') !== 'Belum Mulai');
+                                $statusStr = (string)($s['status'] ?? 'Belum Mulai');
                             ?>
                                 <tr>
-                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-live-student" value="<?= htmlspecialchars($s['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih peserta ini"></td>
+                                    <td class="cbt-checkbox-col"><input type="checkbox" class="cbt-row-checkbox check-live-student" value="<?= htmlspecialchars((string)($s['nis'] ?? ($s['id'] ?? ''))) ?>" onchange="updateCbtSelection(this)" title="Pilih peserta ini"></td>
                                     <td style="text-align: center; font-weight: 600; color: var(--text-muted);"><?= $idx + 1 ?></td>
                                     <td>
-                                        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars($s['name']) ?></div>
-                                        <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars($s['nis']) ?></div>
+                                        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);"><?= htmlspecialchars((string)($s['name'] ?? '')) ?></div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">NIS: <?= htmlspecialchars((string)($s['nis'] ?? '')) ?></div>
                                     </td>
-                                    <td><span class="badge badge-primary"><?= htmlspecialchars($s['class']) ?></span></td>
+                                    <td><span class="badge badge-primary"><?= htmlspecialchars((string)($s['class'] ?? '')) ?></span></td>
                                     <td>
                                         <?php if ($isAttPresent): ?>
                                             <span class="badge" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 700; font-size: 11px; padding: 4px 8px; display: inline-flex; align-items: center; gap: 5px;">
                                                 <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-                                                Hadir (<?= htmlspecialchars($logTime) ?>)
+                                                Hadir (<?= htmlspecialchars((string)$logTime) ?>)
                                             </span>
                                             <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">
-                                                <?= htmlspecialchars($s['device'] ?? 'PC Lab (Windows)') ?>
+                                                <?= htmlspecialchars((string)($s['device'] ?? 'PC Lab (Windows)')) ?>
                                             </div>
                                         <?php else: ?>
                                             <span class="badge badge-secondary" style="font-size: 11px; padding: 4px 8px; background: #f1f5f9; color: #64748b;">
@@ -11639,24 +11644,24 @@ function renderMonitoringLiveContent($examId) {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if ($s['status'] === 'Mengerjakan'): ?>
+                                        <?php if ($statusStr === 'Mengerjakan'): ?>
                                             <span class="badge badge-warning" style="animation: pulse 2s infinite;">Sedang Mengerjakan</span>
-                                        <?php elseif (str_contains($s['status'], 'Selesai')): ?>
+                                        <?php elseif (str_contains($statusStr, 'Selesai')): ?>
                                             <span class="badge badge-success">Sudah Selesai</span>
-                                        <?php elseif ($s['status'] === 'Ragu-Ragu'): ?>
+                                        <?php elseif ($statusStr === 'Ragu-Ragu'): ?>
                                             <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Ragu-Ragu</span>
                                         <?php else: ?>
-                                            <span class="badge badge-secondary"><?= htmlspecialchars($s['status']) ?></span>
+                                            <span class="badge badge-secondary"><?= htmlspecialchars($statusStr) ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <strong style="color: <?= $s['time_left'] === '00:00' ? 'var(--danger)' : 'var(--text-primary)' ?>; font-family: monospace; font-size: 13.5px;">
-                                            <?= htmlspecialchars($s['time_left']) ?>
+                                        <strong style="color: <?= (($s['time_left'] ?? '') === '00:00') ? 'var(--danger)' : 'var(--text-primary)' ?>; font-family: monospace; font-size: 13.5px;">
+                                            <?= htmlspecialchars((string)($s['time_left'] ?? '00:00')) ?>
                                         </strong>
                                     </td>
                                     <td>
                                         <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
-                                            <strong><?= (int)$s['answered'] ?> / <?= (int)$s['total'] ?></strong>
+                                            <strong><?= $answered ?> / <?= $total ?></strong>
                                             <span style="color: var(--text-muted);"><?= $pct ?>%</span>
                                         </div>
                                         <div style="height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 120px;">
@@ -11679,27 +11684,27 @@ function renderMonitoringLiveContent($examId) {
                                             </span>
                                         </div>
                                         <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
-                                            <span style="color: #16a34a; font-weight: 600;"><?= (int)$s['correct'] ?> Benar</span> &bull; 
-                                            <span style="color: #dc2626; font-weight: 600;"><?= (int)$s['wrong'] ?> Salah</span> &bull; 
-                                            <span><?= (int)$s['unanswered'] ?> Kosong</span>
+                                            <span style="color: #16a34a; font-weight: 600;"><?= (int)($s['correct'] ?? 0) ?> Benar</span> &bull; 
+                                            <span style="color: #dc2626; font-weight: 600;"><?= (int)($s['wrong'] ?? 0) ?> Salah</span> &bull; 
+                                            <span><?= (int)($s['unanswered'] ?? 0) ?> Kosong</span>
                                         </div>
                                     </td>
-                                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11.5px;"><?= htmlspecialchars($s['ip']) ?></code></td>
+                                    <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11.5px;"><?= htmlspecialchars((string)($s['ip'] ?? '127.0.0.1')) ?></code></td>
                                     <td style="text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
                                             <button 
                                                 type="button" 
                                                 class="btn btn-sm btn-primary" 
-                                                onclick="openStudentAnswerModal('<?= htmlspecialchars(addslashes($s['nis'])) ?>')" 
+                                                onclick="openStudentAnswerModal('<?= htmlspecialchars(addslashes((string)($s['nis'] ?? ''))) ?>')" 
                                                 style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; padding: 5px 9px;"
                                                 title="Buka Lembar Jawaban & Nilai Siswa Ini"
                                             >
                                                 <span>👁️</span> Lembar Jawaban
                                             </button>
                                             <a 
-                                                href="/admin/monitoring/reset?nis=<?= urlencode($s['nis']) ?>&id=<?= urlencode($examId) ?>" 
+                                                href="/admin/monitoring/reset?nis=<?= urlencode((string)($s['nis'] ?? '')) ?>&id=<?= urlencode((string)$examId) ?>" 
                                                 class="btn btn-sm btn-danger" 
-                                                onclick="return confirm('Reset status sesi login <?= htmlspecialchars(addslashes($s['name'])) ?>?');"
+                                                onclick="return confirm('Reset status sesi login <?= htmlspecialchars(addslashes((string)($s['name'] ?? ''))) ?>?');"
                                                 style="padding: 5px 8px;"
                                                 title="Reset Sesi Login Peserta"
                                             >
