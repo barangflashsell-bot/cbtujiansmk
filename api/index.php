@@ -372,57 +372,117 @@ if (!isset($_SESSION['activity_logs'])) {
     ];
 }
 
-// L. Archived Questions List (Arsip Butir Soal & Bank Soal Non-Aktif)
-if (!isset($_SESSION['archived_questions'])) {
-    $_SESSION['archived_questions'] = [
+// L. Archived Subjects List (Arsip Bank Soal Per Mata Pelajaran)
+if (!isset($_SESSION['archived_subjects'])) {
+    $_SESSION['archived_subjects'] = [
         [
-            'id' => 'q-arc-1',
-            'subject_id' => 'sb1',
-            'subject_name' => 'Matematika X',
-            'original_bank' => 'Matematika X',
-            'question_type' => 'single_choice',
-            'difficulty' => 'hard',
-            'content' => 'Diketahui sistem persamaan linear dua variabel: 2x + 3y = 12 dan 4x - y = 10. Nilai dari x + 2y adalah...',
-            'score_weight' => 2.5,
-            'creator' => 'Budi Santoso, S.Pd',
-            'options' => ['A' => '5', 'B' => '7', 'C' => '8', 'D' => '10', 'E' => '12'],
-            'correct_option' => 'B',
-            'status' => 'archived',
+            'id' => 'sb-arc-1',
+            'code' => 'SIMDIG-X',
+            'name' => 'Simulasi & Komunikasi Digital X',
+            'teacher' => 'Dra. Nurul Hidayati',
+            'format' => 'standard',
+            'description' => 'Bank Soal Arsip Simulasi & Komunikasi Digital Semester Lalu',
+            'duration' => 90,
+            'weight_pg' => 60,
+            'weight_pg_multi' => 0,
+            'weight_essay' => 40,
+            'weight_tf' => 0,
+            'weight_match' => 0,
             'archived_at' => '10/09/2026 14:20',
             'archived_by' => 'Administrator CBT',
+            'status' => 'archived',
+            'questions' => [
+                [
+                    'id' => 'q-arc-1',
+                    'subject_id' => 'sb-arc-1',
+                    'subject_name' => 'Simulasi & Komunikasi Digital X',
+                    'question_type' => 'single_choice',
+                    'difficulty' => 'easy',
+                    'content' => 'Fungsi utama dari perangkat lunak pengolah kata (Microsoft Word) dalam komunikasi perkantoran adalah...',
+                    'score_weight' => 2.5,
+                    'creator' => 'Dra. Nurul Hidayati',
+                    'options' => [
+                        'A' => 'Mengolah data angka dan statistik formula',
+                        'B' => 'Membuat, mengedit, dan memformat dokumen naskah teks',
+                        'C' => 'Mengirim pesan elektronik (email)',
+                        'D' => 'Melakukan rendering video multimedia animasi',
+                        'E' => 'Membuat basis data relasional'
+                    ],
+                    'correct_option' => 'B',
+                    'status' => 'active',
+                ],
+                [
+                    'id' => 'q-arc-2',
+                    'subject_id' => 'sb-arc-1',
+                    'subject_name' => 'Simulasi & Komunikasi Digital X',
+                    'question_type' => 'essay',
+                    'difficulty' => 'medium',
+                    'content' => 'Tuliskan dan jelaskan 3 kelebihan komunikasi daring asinkron (seperti email/forum) dibandingkan komunikasi daring sinkron dalam proses pembelajaran!',
+                    'score_weight' => 20.0,
+                    'creator' => 'Dra. Nurul Hidayati',
+                    'options' => [],
+                    'correct_option' => '(Essai)',
+                    'status' => 'active',
+                ],
+            ]
         ],
         [
-            'id' => 'q-arc-2',
-            'subject_id' => 'sb3',
-            'subject_name' => 'Dasar Pemrograman RPL',
-            'original_bank' => 'Dasar Pemrograman RPL',
-            'question_type' => 'single_choice',
-            'difficulty' => 'medium',
-            'content' => 'Tipe data primitif dalam bahasa pemrograman Java yang digunakan untuk menyimpan bilangan bulat berukuran 64-bit adalah...',
-            'score_weight' => 3.0,
-            'creator' => 'Siti Aminah, M.Kom',
-            'options' => ['A' => 'int', 'B' => 'short', 'C' => 'byte', 'D' => 'long', 'E' => 'float'],
-            'correct_option' => 'D',
+            'id' => 'sb-arc-2',
+            'code' => 'TLJ-XI',
+            'name' => 'Teknologi Layanan Jaringan XI',
+            'teacher' => 'Ahmad Fauzi, S.T',
+            'format' => 'standard',
+            'description' => 'Bank Soal Arsip Teknologi Layanan Jaringan TKJ',
+            'duration' => 120,
+            'weight_pg' => 70,
+            'weight_pg_multi' => 0,
+            'weight_essay' => 30,
+            'weight_tf' => 0,
+            'weight_match' => 0,
+            'archived_at' => '12/09/2026 10:15',
+            'archived_by' => 'Ahmad Fauzi, S.T',
             'status' => 'archived',
-            'archived_at' => '12/09/2026 11:45',
-            'archived_by' => 'Siti Aminah, M.Kom',
-        ],
-        [
-            'id' => 'q-arc-3',
-            'subject_id' => 'sb2',
-            'subject_name' => 'Bahasa Indonesia X',
-            'original_bank' => 'Bahasa Indonesia X',
-            'question_type' => 'essay',
-            'difficulty' => 'hard',
-            'content' => 'Tuliskan dan jelaskan perbedaan struktur teks laporan hasil observasi dengan teks deskripsi beserta contoh kalimat penjelasnya!',
-            'score_weight' => 20.0,
-            'creator' => 'Dra. Nurul Hidayati',
-            'options' => [],
-            'correct_option' => '-',
-            'status' => 'archived',
-            'archived_at' => '14/09/2026 09:30',
-            'archived_by' => 'Dra. Nurul Hidayati',
-        ],
+            'questions' => [
+                [
+                    'id' => 'q-arc-3',
+                    'subject_id' => 'sb-arc-2',
+                    'subject_name' => 'Teknologi Layanan Jaringan XI',
+                    'question_type' => 'single_choice',
+                    'difficulty' => 'medium',
+                    'content' => 'Protokol VoIP yang umum digunakan untuk menginisiasi, memodifikasi, dan mengakhiri sesi komunikasi multimedia adalah...',
+                    'score_weight' => 2.5,
+                    'creator' => 'Ahmad Fauzi, S.T',
+                    'options' => [
+                        'A' => 'SIP (Session Initiation Protocol)',
+                        'B' => 'FTP (File Transfer Protocol)',
+                        'C' => 'SMTP (Simple Mail Transfer Protocol)',
+                        'D' => 'DHCP',
+                        'E' => 'SNMP'
+                    ],
+                    'correct_option' => 'A',
+                    'status' => 'active',
+                ],
+                [
+                    'id' => 'q-arc-4',
+                    'subject_id' => 'sb-arc-2',
+                    'subject_name' => 'Teknologi Layanan Jaringan XI',
+                    'question_type' => 'multiple_choice',
+                    'difficulty' => 'hard',
+                    'content' => 'Manakah di bawah ini yang merupakan komponen pendukung arsitektur jaringan VoIP berbasis Asterisk? (Pilih jawaban yang benar)',
+                    'score_weight' => 5.0,
+                    'creator' => 'Ahmad Fauzi, S.T',
+                    'options' => [
+                        'A' => 'Softswitch / IP-PBX Server',
+                        'B' => 'IP Phone / Softphone Client',
+                        'C' => 'Media Gateway',
+                        'D' => 'Kabel Coaxial Antena Analog',
+                        'E' => 'Kaset Pita Magnetik'
+                    ],
+                    'correct_option' => 'A',
+                    'status' => 'active',
+                ]
+            ]
+        ]
     ];
 }
 
@@ -2153,15 +2213,40 @@ if ($method === 'POST' && $uri === '/admin/subjects/set-classes') {
     exit;
 }
 
-if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/delete') !== false || ($uri === '/admin/subjects' && isset($_GET['delete_id'])))) {
-    $id = $_GET['id'] ?? $_GET['delete_id'] ?? $_POST['id'] ?? '';
+// 1. ARSIPKAN BANK SOAL (PER MATA PELAJARAN BESERTA BUTIR SOALNYA)
+if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/archive') !== false || strpos($uri, '/admin/subjects/delete') !== false || ($uri === '/admin/subjects' && isset($_GET['archive_id'])))) {
+    $id = $_GET['id'] ?? $_GET['archive_id'] ?? $_POST['id'] ?? '';
+    if (!isset($_SESSION['archived_subjects'])) $_SESSION['archived_subjects'] = [];
+    
     foreach ($_SESSION['subjects_list'] as $k => $sb) {
         if ($sb['id'] === $id) {
-            $deletedName = $sb['name'];
+            // Ambil seluruh butir pertanyaan milik bank soal ini
+            $subjQuestions = [];
+            if (!empty($_SESSION['questions_list'])) {
+                $remainingQuestions = [];
+                foreach ($_SESSION['questions_list'] as $qItem) {
+                    if (($qItem['subject_id'] ?? '') === $id || ($qItem['subject_name'] ?? '') === $sb['name']) {
+                        $subjQuestions[] = $qItem;
+                    } else {
+                        $remainingQuestions[] = $qItem;
+                    }
+                }
+                $_SESSION['questions_list'] = $remainingQuestions;
+            }
+            
+            $archivedBank = $sb;
+            $archivedBank['archived_at'] = date('d/m/Y H:i');
+            $archivedBank['archived_by'] = ($_SESSION['cbt_user'] ?? 'admin') === 'guru' ? ($_SESSION['teachers_list'][0]['name'] ?? 'Guru Pengampu') : 'Administrator CBT';
+            $archivedBank['status'] = 'archived';
+            $archivedBank['questions'] = $subjQuestions;
+            
+            array_unshift($_SESSION['archived_subjects'], $archivedBank);
             unset($_SESSION['subjects_list'][$k]);
             $_SESSION['subjects_list'] = array_values($_SESSION['subjects_list']);
-            logCbtActivity('SUBJECT', 'DELETE_SUBJECT', "Menghapus/mengarsipkan bank soal: {$deletedName}");
-            $_SESSION['import_success'] = "Bank Soal \"{$deletedName}\" berhasil diarsipkan!";
+            
+            $qCount = count($subjQuestions);
+            logCbtActivity('SUBJECT', 'ARCHIVE_SUBJECT', "Mengarsipkan bank soal: {$sb['name']} ({$qCount} butir soal)");
+            $_SESSION['import_success'] = "Bank Soal <strong>\"{$sb['name']}\"</strong> beserta <strong>{$qCount} butir pertanyaan</strong> berhasil dipindahkan ke menu <strong>Arsip Soal</strong>!";
             break;
         }
     }
@@ -2169,24 +2254,150 @@ if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/
     exit;
 }
 
-// Bulk Delete Bank Soal
-if ($method === 'POST' && $uri === '/admin/subjects/bulk-delete') {
+// 2. BULK ARSIPKAN BANK SOAL TERPILIH
+if ($method === 'POST' && $uri === '/admin/subjects/bulk-archive') {
     $rawIds = $_POST['ids'] ?? [];
     if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
     $ids = array_filter(array_map('trim', (array)$rawIds));
+    if (!isset($_SESSION['archived_subjects'])) $_SESSION['archived_subjects'] = [];
+    
+    $archivedCount = 0;
+    $totalQCount = 0;
+    if (!empty($ids)) {
+        foreach ($ids as $id) {
+            foreach ($_SESSION['subjects_list'] as $k => $sb) {
+                if ($sb['id'] === $id) {
+                    $subjQuestions = [];
+                    if (!empty($_SESSION['questions_list'])) {
+                        $remainingQuestions = [];
+                        foreach ($_SESSION['questions_list'] as $qItem) {
+                            if (($qItem['subject_id'] ?? '') === $id || ($qItem['subject_name'] ?? '') === $sb['name']) {
+                                $subjQuestions[] = $qItem;
+                            } else {
+                                $remainingQuestions[] = $qItem;
+                            }
+                        }
+                        $_SESSION['questions_list'] = $remainingQuestions;
+                    }
+                    
+                    $archivedBank = $sb;
+                    $archivedBank['archived_at'] = date('d/m/Y H:i');
+                    $archivedBank['archived_by'] = ($_SESSION['cbt_user'] ?? 'admin') === 'guru' ? ($_SESSION['teachers_list'][0]['name'] ?? 'Guru Pengampu') : 'Administrator CBT';
+                    $archivedBank['status'] = 'archived';
+                    $archivedBank['questions'] = $subjQuestions;
+                    
+                    array_unshift($_SESSION['archived_subjects'], $archivedBank);
+                    unset($_SESSION['subjects_list'][$k]);
+                    $_SESSION['subjects_list'] = array_values($_SESSION['subjects_list']);
+                    $archivedCount++;
+                    $totalQCount += count($subjQuestions);
+                    break;
+                }
+            }
+        }
+        logCbtActivity('SUBJECT', 'BULK_ARCHIVE', "Mengarsipkan {$archivedCount} bank soal ({$totalQCount} butir soal)");
+        $_SESSION['import_success'] = "Berhasil mengarsipkan <strong>{$archivedCount} bank soal</strong> ({$totalQCount} butir soal) ke menu <strong>Arsip Soal</strong>!";
+    }
+    header('Location: /admin/questions');
+    exit;
+}
+
+// 3. PULIHKAN BANK SOAL DARI ARSIP KEMBALI KE BANK SOAL AKTIF (RESTORE)
+if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/restore') !== false || ($uri === '/admin/subjects' && isset($_GET['restore_id'])))) {
+    $id = $_GET['id'] ?? $_GET['restore_id'] ?? $_POST['id'] ?? '';
+    if (!isset($_SESSION['archived_subjects'])) $_SESSION['archived_subjects'] = [];
+    
+    foreach ($_SESSION['archived_subjects'] as $k => $arc) {
+        if ($arc['id'] === $id) {
+            $restoredBank = $arc;
+            $questionsToRestore = $restoredBank['questions'] ?? [];
+            unset($restoredBank['questions'], $restoredBank['archived_at'], $restoredBank['archived_by']);
+            $restoredBank['status'] = 'active';
+            
+            $_SESSION['subjects_list'][] = $restoredBank;
+            
+            if (!isset($_SESSION['questions_list'])) $_SESSION['questions_list'] = [];
+            foreach ($questionsToRestore as $q) {
+                $q['status'] = 'active';
+                $_SESSION['questions_list'][] = $q;
+            }
+            
+            unset($_SESSION['archived_subjects'][$k]);
+            $_SESSION['archived_subjects'] = array_values($_SESSION['archived_subjects']);
+            
+            $qCount = count($questionsToRestore);
+            logCbtActivity('SUBJECT', 'RESTORE_SUBJECT', "Memulihkan bank soal: {$restoredBank['name']} ({$qCount} butir soal)");
+            $_SESSION['import_success'] = "Bank Soal <strong>\"{$restoredBank['name']}\"</strong> beserta <strong>{$qCount} butir soal</strong> berhasil dipulihkan kembali ke Bank Soal Aktif!";
+            break;
+        }
+    }
+    header('Location: /admin/questions');
+    exit;
+}
+
+// 4. BULK PULIHKAN BANK SOAL DARI ARSIP
+if ($method === 'POST' && $uri === '/admin/subjects/bulk-restore') {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    if (!isset($_SESSION['archived_subjects'])) $_SESSION['archived_subjects'] = [];
+    
+    $restoredCount = 0;
+    $totalQCount = 0;
+    if (!empty($ids)) {
+        foreach ($ids as $id) {
+            foreach ($_SESSION['archived_subjects'] as $k => $arc) {
+                if ($arc['id'] === $id) {
+                    $restoredBank = $arc;
+                    $questionsToRestore = $restoredBank['questions'] ?? [];
+                    unset($restoredBank['questions'], $restoredBank['archived_at'], $restoredBank['archived_by']);
+                    $restoredBank['status'] = 'active';
+                    
+                    $_SESSION['subjects_list'][] = $restoredBank;
+                    
+                    if (!isset($_SESSION['questions_list'])) $_SESSION['questions_list'] = [];
+                    foreach ($questionsToRestore as $q) {
+                        $q['status'] = 'active';
+                        $_SESSION['questions_list'][] = $q;
+                    }
+                    
+                    unset($_SESSION['archived_subjects'][$k]);
+                    $_SESSION['archived_subjects'] = array_values($_SESSION['archived_subjects']);
+                    $restoredCount++;
+                    $totalQCount += count($questionsToRestore);
+                    break;
+                }
+            }
+        }
+        logCbtActivity('SUBJECT', 'BULK_RESTORE', "Memulihkan {$restoredCount} bank soal ({$totalQCount} butir soal)");
+        $_SESSION['import_success'] = "Berhasil memulihkan <strong>{$restoredCount} bank soal</strong> ({$totalQCount} butir soal) ke Bank Soal Aktif!";
+    }
+    header('Location: /admin/questions');
+    exit;
+}
+
+// 5. HAPUS PERMANEN BANK SOAL DARI ARSIP
+if (($method === 'POST' || $method === 'GET') && (strpos($uri, '/admin/subjects/permanent-delete') !== false || strpos($uri, '/admin/subjects/bulk-permanent-delete') !== false)) {
+    $rawIds = $_POST['ids'] ?? [];
+    if (is_string($rawIds)) $rawIds = explode(',', $rawIds);
+    $singleId = trim($_GET['id'] ?? $_POST['id'] ?? '');
+    if (!empty($singleId)) $rawIds[] = $singleId;
+    $ids = array_filter(array_map('trim', (array)$rawIds));
+    
+    if (!isset($_SESSION['archived_subjects'])) $_SESSION['archived_subjects'] = [];
     $deletedCount = 0;
     if (!empty($ids)) {
-        $_SESSION['subjects_list'] = array_values(array_filter($_SESSION['subjects_list'], function($sb) use ($ids, &$deletedCount) {
+        $_SESSION['archived_subjects'] = array_values(array_filter($_SESSION['archived_subjects'], function($sb) use ($ids, &$deletedCount) {
             if (in_array($sb['id'], $ids)) {
                 $deletedCount++;
                 return false;
             }
             return true;
         }));
-        logCbtActivity('SUBJECT', 'BULK_DELETE', "Menghapus {$deletedCount} bank soal terpilih");
-        $_SESSION['import_success'] = "Berhasil menghapus/mengarsipkan <strong>{$deletedCount} bank soal</strong> terpilih!";
+        logCbtActivity('SUBJECT', 'PERMANENT_DELETE', "Menghapus permanen {$deletedCount} bank soal arsip");
+        $_SESSION['import_success'] = "Berhasil menghapus permanen <strong>{$deletedCount} bank soal arsip</strong> dari database!";
     }
-    header('Location: /admin/questions');
+    header('Location: /admin/archive-questions');
     exit;
 }
 
@@ -5051,14 +5262,14 @@ function renderAppPage($uri) {
                         <span class="menu-icon-box orange">📝</span>
                         <span>Bank Soal</span>
                     </span>
-                    <span class="nav-badge-pill"><?= count($_SESSION['questions_list']) ?></span>
+                    <span class="nav-badge-pill"><?= count($_SESSION['subjects_list'] ?? []) ?></span>
                 </a>
                 <a href="/admin/archive-questions" class="nav-link <?= $activeMenu === 'archive-questions' ? 'active' : '' ?>">
                     <span class="nav-link-content">
                         <span class="menu-icon-box" style="background: #fef3c7; color: #d97706;">📦</span>
                         <span>Arsip Soal</span>
                     </span>
-                    <span class="nav-badge-pill" style="background: #fef3c7; color: #b45309; font-weight: 700;"><?= count($_SESSION['archived_questions'] ?? []) ?></span>
+                    <span class="nav-badge-pill" style="background: #fef3c7; color: #b45309; font-weight: 700;"><?= count($_SESSION['archived_subjects'] ?? []) ?></span>
                 </a>
                 <a href="/admin/exams" class="nav-link <?= $activeMenu === 'exams' ? 'active' : '' ?>">
                     <span class="nav-link-content">
@@ -5377,15 +5588,13 @@ function renderAppPage($uri) {
                 actionUrl = '/admin/teachers/bulk-delete';
             } else if (CBT_CURRENT_MENU === 'classes') {
                 actionUrl = '/admin/classes/bulk-delete';
-            } else if (CBT_CURRENT_MENU === 'subjects') {
+            } else if (CBT_CURRENT_MENU === 'subjects' || CBT_CURRENT_MENU === 'questions') {
                 actionUrl = '/admin/subjects/bulk-delete';
-            } else if (CBT_CURRENT_MENU === 'questions') {
-                actionUrl = '/admin/questions/bulk-delete';
             } else if (CBT_CURRENT_MENU === 'exams') {
                 actionUrl = '/admin/exams/bulk-delete';
             } else if (CBT_CURRENT_MENU === 'archive-questions') {
-                actionUrl = '/admin/questions/bulk-permanent-delete';
-                confirmMsg = 'PERINGATAN: ' + ids.length + ' butir soal akan dihapus PERMANEN dari database dan tidak dapat dipulihkan lagi. Lanjutkan?';
+                actionUrl = '/admin/subjects/bulk-permanent-delete';
+                confirmMsg = 'PERINGATAN: ' + ids.length + ' Bank Soal arsip beserta seluruh butir soalnya akan dihapus PERMANEN dari database dan tidak dapat dipulihkan lagi. Lanjutkan?';
             } else if (CBT_CURRENT_MENU === 'remedial') {
                 actionUrl = '/admin/remedial/bulk-delete';
             }
@@ -5398,16 +5607,16 @@ function renderAppPage($uri) {
         function executeCbtBatchArchive() {
             var ids = getSelectedCbtIds();
             if (ids.length === 0) return;
-            if (confirm('Pindahkan ' + ids.length + ' butir soal terpilih ke menu Arsip Soal?')) {
-                submitCbtBatchForm('/admin/questions/bulk-archive');
+            if (confirm('Arsipkan ' + ids.length + ' Bank Soal terpilih beserta seluruh butir soalnya ke menu Arsip Soal?')) {
+                submitCbtBatchForm('/admin/subjects/bulk-archive');
             }
         }
 
         function executeCbtBatchRestore() {
             var ids = getSelectedCbtIds();
             if (ids.length === 0) return;
-            if (confirm('Pulihkan ' + ids.length + ' butir soal dari arsip kembali ke Bank Soal?')) {
-                submitCbtBatchForm('/admin/questions/bulk-restore');
+            if (confirm('Pulihkan ' + ids.length + ' Bank Soal terpilih dari arsip kembali ke Bank Soal Aktif?')) {
+                submitCbtBatchForm('/admin/subjects/bulk-restore');
             }
         }
 
@@ -5536,13 +5745,13 @@ function renderAppPage($uri) {
             <button type="button" class="btn btn-sm" onclick="openCbtBatchMoveModal()" style="background: #2563eb; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
                 <span>🔄</span> Pindahkan Terpilih
             </button>
-            <!-- Tombol Arsip (Khusus Soal) -->
+            <!-- Tombol Arsip (Khusus Bank Soal) -->
             <button type="button" id="btnBatchArchive" class="btn btn-sm" onclick="executeCbtBatchArchive()" style="display: none; background: #d97706; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; align-items: center; gap: 5px;">
-                <span>📦</span> Arsipkan Soal
+                <span>📦</span> Arsipkan Bank Soal
             </button>
-            <!-- Tombol Pulihkan (Khusus Arsip) -->
+            <!-- Tombol Pulihkan (Khusus Arsip Bank Soal) -->
             <button type="button" id="btnBatchRestore" class="btn btn-sm" onclick="executeCbtBatchRestore()" style="display: none; background: #059669; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; align-items: center; gap: 5px;">
-                <span>♻️</span> Pulihkan ke Bank Asal
+                <span>♻️</span> Pulihkan ke Bank Soal Aktif
             </button>
             <!-- Tombol Hapus (Universal) -->
             <button type="button" class="btn btn-sm" onclick="executeCbtBatchDelete()" style="background: #dc2626; color: #ffffff; padding: 6px 14px; font-size: 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
@@ -8150,7 +8359,7 @@ function renderQuestionsContent() {
                                                 <button type="button" class="btn-action-ubah" onclick="openEditSubjectModal('<?= htmlspecialchars($sb['id']) ?>', '<?= htmlspecialchars(addslashes($sb['code'])) ?>', '<?= htmlspecialchars(addslashes($sb['name'])) ?>')">
                                                     Ubah
                                                 </button>
-                                                <a href="/admin/subjects/delete?id=<?= urlencode($sb['id']) ?>" class="btn-action-arsipkan" onclick="return confirm('Arsipkan atau hapus bank soal <?= htmlspecialchars(addslashes($sb['name'])) ?>?');">
+                                                <a href="/admin/subjects/archive?id=<?= urlencode($sb['id']) ?>" class="btn-action-arsipkan" onclick="return confirm('Arsipkan Bank Soal <?= htmlspecialchars(addslashes($sb['name'])) ?> beserta seluruh butir soalnya ke menu Arsip Soal?');">
                                                     Arsipkan
                                                 </a>
                                                 <button type="button" class="btn-action-cetak" onclick="window.print()">
@@ -9959,54 +10168,191 @@ function renderQuestionsContent() {
 }
 
 // =========================================================================
-// 12B. MENU BARU: ARSIP SOAL (ARCHIVED QUESTIONS REPOSITORY)
+// 12B. MENU BARU: ARSIP BANK SOAL (PER MATA PELAJARAN / PER BANK SOAL)
 // =========================================================================
 function renderArchiveQuestionsContent() {
-    if (!isset($_SESSION['archived_questions'])) {
-        $_SESSION['archived_questions'] = [];
+    if (!isset($_SESSION['archived_subjects'])) {
+        $_SESSION['archived_subjects'] = [];
     }
 
-    $search = strtolower(trim($_GET['search'] ?? ''));
-    $filterBank = trim($_GET['bank'] ?? '');
-    $filterType = trim($_GET['type'] ?? '');
+    $action = $_GET['action'] ?? '';
+    $subjectId = $_GET['subject_id'] ?? '';
 
-    $archivedList = $_SESSION['archived_questions'];
+    // =========================================================================
+    // SUB-VIEW: LIHAT BUTIR SOAL DI DALAM BANK SOAL ARSIP
+    // =========================================================================
+    if ($action === 'view_questions' && !empty($subjectId)) {
+        $targetBank = null;
+        foreach ($_SESSION['archived_subjects'] as $sb) {
+            if ($sb['id'] === $subjectId) {
+                $targetBank = $sb;
+                break;
+            }
+        }
+
+        if (!$targetBank) {
+            echo '<div class="alert alert-danger" style="margin: 20px;">Bank soal arsip tidak ditemukan. <a href="/admin/archive-questions">Kembali</a></div>';
+            return;
+        }
+
+        $bankQuestions = $targetBank['questions'] ?? [];
+        ?>
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 22px 28px; border-radius: 14px; color: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <a href="/admin/archive-questions" class="btn btn-sm" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 700;">
+                        ← Kembali ke Arsip
+                    </a>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff;">
+                                Butir Soal Arsip: <?= htmlspecialchars($targetBank['name']) ?>
+                            </h2>
+                            <span class="badge" style="background: #f59e0b; color: #ffffff; font-weight: 700; font-size: 11px;">Arsip</span>
+                        </div>
+                        <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">
+                            Kode: <strong><?= htmlspecialchars($targetBank['code']) ?></strong> &bull; Guru: <strong><?= htmlspecialchars($targetBank['teacher'] ?? '-') ?></strong> &bull; Durasi: <strong><?= $targetBank['duration'] ?? 120 ?> Menit</strong> &bull; Diarsipkan: <span style="color: #fcd34d; font-weight: 600;"><?= htmlspecialchars($targetBank['archived_at'] ?? '-') ?></span>
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="btn" onclick="window.print()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: 8px;">
+                        🖨️ Cetak Lembar Soal
+                    </button>
+                    <a href="/admin/subjects/restore?id=<?= urlencode($targetBank['id']) ?>" class="btn" style="background: #059669; color: #ffffff; padding: 8px 18px; font-weight: 700; font-size: 13px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(5,150,105,0.3);" onclick="return confirm('Pulihkan Bank Soal ini beserta <?= count($bankQuestions) ?> butir soal ke Bank Soal Aktif?');">
+                        <span>♻️</span> Pulihkan Bank Soal Ini ke Aktif
+                    </a>
+                </div>
+            </div>
+
+            <!-- TABEL BUTIR SOAL ARSIP -->
+            <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
+                <div class="table-responsive">
+                    <table class="table" style="margin-bottom: 0;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th style="width: 50px; text-align: center;">No</th>
+                                <th style="width: 90px; text-align: center;">Tipe</th>
+                                <th>Pertanyaan &amp; Pilihan Jawaban</th>
+                                <th style="width: 80px; text-align: center;">Bobot</th>
+                                <th style="width: 90px; text-align: center;">Kunci</th>
+                                <th style="width: 110px; text-align: center;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($bankQuestions)): ?>
+                                <tr>
+                                    <td colspan="6" style="padding: 40px; text-align: center; color: #64748b;">
+                                        Belum ada butir pertanyaan di dalam bank soal arsip ini.
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($bankQuestions as $qIdx => $q): 
+                                    $isEssay = (($q['question_type'] ?? '') === 'essay');
+                                    $opts = $q['options'] ?? [];
+                                ?>
+                                    <tr style="vertical-align: top;">
+                                        <td style="text-align: center; font-weight: 600; color: #64748b; padding: 16px 8px;">
+                                            <?= $qIdx + 1 ?>
+                                        </td>
+                                        <td style="text-align: center; padding: 16px 8px;">
+                                            <?php if ($isEssay): ?>
+                                                <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">ESSAI</span>
+                                            <?php elseif (($q['question_type'] ?? '') === 'multiple_choice'): ?>
+                                                <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">PG MULTI</span>
+                                            <?php else: ?>
+                                                <span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 700;">PG</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td style="padding: 16px 12px;">
+                                            <div style="color: #334155; font-size: 14px; line-height: 1.6;">
+                                                <?= strip_tags($q['content'], '<p><br><b><strong><i><em><u><s><sub><sup><span><table><thead><tbody><tr><th><td><img><ul><ol><li><a><mark><div>') ?>
+                                            </div>
+                                            <?php if (!$isEssay && !empty($opts)): ?>
+                                                <div style="margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 6px; font-size: 12.5px;">
+                                                    <?php foreach (['A', 'B', 'C', 'D', 'E'] as $k): ?>
+                                                        <?php if (!empty($opts[$k])): ?>
+                                                            <?php $isCorrect = (strtoupper($q['correct_option'] ?? '') === $k); ?>
+                                                            <div style="padding: 6px 10px; border-radius: 6px; background: <?= $isCorrect ? '#f0fdf4' : '#f8fafc' ?>; border: 1px solid <?= $isCorrect ? '#86efac' : '#e2e8f0' ?>; color: <?= $isCorrect ? '#166534' : '#475569' ?>; <?= $isCorrect ? 'font-weight: 700;' : '' ?>">
+                                                                <strong><?= $k ?>.</strong> <?= strip_tags($opts[$k], '<p><br><b><strong><i><em><u><s><sub><sup><span><img><a><mark>') ?>
+                                                                <?php if ($isCorrect): ?> <span style="color: #15803d; font-size: 11px;">✓ (Kunci)</span> <?php endif; ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td style="text-align: center; padding: 16px 8px; font-weight: 600; color: #475569;">
+                                            <?= $q['score_weight'] ?? 2.5 ?>
+                                        </td>
+                                        <td style="text-align: center; padding: 16px 8px;">
+                                            <?php if ($isEssay): ?>
+                                                <span style="color: #94a3b8; font-size: 11.5px;">(Essai)</span>
+                                            <?php else: ?>
+                                                <span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 800; font-size: 12px; padding: 4px 10px;">
+                                                    <?= htmlspecialchars($q['correct_option'] ?? 'A') ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td style="text-align: center; padding: 16px 8px;">
+                                            <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 600;">
+                                                Diarsipkan
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php
+        return;
+    }
+
+    // =========================================================================
+    // MAIN VIEW: DAFTAR BANK SOAL ARSIP (PER MATA PELAJARAN - SESUAI BANK SOAL)
+    // =========================================================================
+    $search = strtolower(trim($_GET['search'] ?? ''));
+    $filterTeacher = trim($_GET['teacher'] ?? '');
+
+    $archivedSubjects = $_SESSION['archived_subjects'];
 
     // Filtering
-    if ($filterBank !== '') {
-        $archivedList = array_filter($archivedList, function($q) use ($filterBank) {
-            return ($q['subject_id'] ?? '') === $filterBank || ($q['subject_name'] ?? '') === $filterBank;
-        });
-    }
-
-    if ($filterType !== '') {
-        $archivedList = array_filter($archivedList, function($q) use ($filterType) {
-            return ($q['question_type'] ?? 'single_choice') === $filterType;
+    if ($filterTeacher !== '') {
+        $archivedSubjects = array_filter($archivedSubjects, function($sb) use ($filterTeacher) {
+            return ($sb['teacher'] ?? '') === $filterTeacher;
         });
     }
 
     if ($search !== '') {
-        $archivedList = array_filter($archivedList, function($q) use ($search) {
-            $text = strtolower(strip_tags($q['content'] ?? ''));
-            $bank = strtolower($q['subject_name'] ?? '');
-            return strpos($text, $search) !== false || strpos($bank, $search) !== false;
+        $archivedSubjects = array_filter($archivedSubjects, function($sb) use ($search) {
+            $name = strtolower($sb['name'] ?? '');
+            $code = strtolower($sb['code'] ?? '');
+            $teacher = strtolower($sb['teacher'] ?? '');
+            return strpos($name, $search) !== false || strpos($code, $search) !== false || strpos($teacher, $search) !== false;
         });
     }
 
-    // Hitung statistik arsip
-    $totalArchived = count($_SESSION['archived_questions']);
-    $pgCount = 0;
-    $pgMultiCount = 0;
-    $essayCount = 0;
-    foreach ($_SESSION['archived_questions'] as $arc) {
-        $t = $arc['question_type'] ?? 'single_choice';
-        if ($t === 'essay') $essayCount++;
-        elseif ($t === 'multiple_choice') $pgMultiCount++;
-        else $pgCount++;
+    // Hitung statistik arsip bank soal
+    $totalArchivedBanks = count($_SESSION['archived_subjects']);
+    $totalQuestionsInArchive = 0;
+    $totalDuration = 0;
+    $uniqueTeachers = [];
+
+    foreach ($_SESSION['archived_subjects'] as $sb) {
+        $qCount = count($sb['questions'] ?? []);
+        $totalQuestionsInArchive += $qCount;
+        $totalDuration += (int)($sb['duration'] ?? 120);
+        if (!empty($sb['teacher'])) {
+            $uniqueTeachers[$sb['teacher']] = true;
+        }
     }
+    $avgDuration = $totalArchivedBanks > 0 ? round($totalDuration / $totalArchivedBanks) : 0;
     ?>
     <div style="display: flex; flex-direction: column; gap: 20px;">
-        <!-- HEADER ARSIP SOAL -->
+        <!-- HEADER ARSIP BANK SOAL -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 22px 28px; border-radius: 14px; color: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="width: 52px; height: 52px; border-radius: 12px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; font-size: 26px;">
@@ -10014,48 +10360,48 @@ function renderArchiveQuestionsContent() {
                 </div>
                 <div>
                     <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
-                        Arsip Butir Soal &amp; Bank Soal Tersimpan
+                        Arsip Bank Soal (Per Mata Pelajaran)
                     </h2>
                     <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">
-                        Penyimpanan butir soal yang dinonaktifkan/diarsipkan. Soal aman, tidak tampil di ujian siswa, dan dapat dipulihkan atau dipindahkan kapan saja.
+                        Daftar bank soal mata pelajaran yang telah diarsipkan. Bank soal di sini tidak aktif di ruang ujian siswa dan dapat dipulihkan kapan saja ke Bank Soal aktif.
                     </p>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="/admin/questions" class="btn" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; padding: 8px 16px; font-weight: 600; font-size: 13px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                    <span>🔙</span> Kembali ke Bank Soal
+                    <span>🔙</span> Buka Bank Soal Aktif
                 </a>
             </div>
         </div>
 
         <!-- STATS OVERVIEW CARDS -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px;">
             <div class="card" style="padding: 16px 20px; border-left: 4px solid #f59e0b; display: flex; align-items: center; gap: 14px;">
                 <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 20px;">📦</div>
                 <div>
-                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Total Soal Diarsipkan</div>
-                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $totalArchived ?></div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Bank Soal Diarsipkan</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $totalArchivedBanks ?> Paket</div>
                 </div>
             </div>
             <div class="card" style="padding: 16px 20px; border-left: 4px solid #2563eb; display: flex; align-items: center; gap: 14px;">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔘</div>
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px;">❓</div>
                 <div>
-                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Pilihan Ganda (PG)</div>
-                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $pgCount ?></div>
-                </div>
-            </div>
-            <div class="card" style="padding: 16px 20px; border-left: 4px solid #7c3aed; display: flex; align-items: center; gap: 14px;">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 20px;">☑️</div>
-                <div>
-                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">PG Multi Jawaban</div>
-                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $pgMultiCount ?></div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Total Butir Pertanyaan</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $totalQuestionsInArchive ?> Butir</div>
                 </div>
             </div>
             <div class="card" style="padding: 16px 20px; border-left: 4px solid #059669; display: flex; align-items: center; gap: 14px;">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 20px;">✍️</div>
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 20px;">👨‍🏫</div>
                 <div>
-                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Essai / Uraian</div>
-                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $essayCount ?></div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Guru Pengampu</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= count($uniqueTeachers) ?> Guru</div>
+                </div>
+            </div>
+            <div class="card" style="padding: 16px 20px; border-left: 4px solid #7c3aed; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 20px;">⏱️</div>
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Rata-Rata Waktu</div>
+                    <div style="font-size: 22px; font-weight: 800; color: #1e293b;"><?= $avgDuration ?> Menit</div>
                 </div>
             </div>
         </div>
@@ -10064,31 +10410,23 @@ function renderArchiveQuestionsContent() {
         <div class="card" style="padding: 16px 20px;">
             <form method="GET" action="/admin/archive-questions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                    <!-- Filter Bank Asal -->
-                    <select name="bank" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #f8fafc; font-weight: 600; color: #334155;">
-                        <option value="">-- Semua Bank Soal Asal --</option>
-                        <?php foreach ($_SESSION['subjects_list'] as $sb): ?>
-                            <option value="<?= htmlspecialchars($sb['id']) ?>" <?= $filterBank === $sb['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($sb['name']) ?> (<?= htmlspecialchars($sb['code']) ?>)
+                    <!-- Filter Guru Pengampu -->
+                    <select name="teacher" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #f8fafc; font-weight: 600; color: #334155;">
+                        <option value="">-- Semua Guru Pengampu --</option>
+                        <?php foreach (array_keys($uniqueTeachers) as $tName): ?>
+                            <option value="<?= htmlspecialchars($tName) ?>" <?= $filterTeacher === $tName ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($tName) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
 
-                    <!-- Filter Tipe Soal -->
-                    <select name="type" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #f8fafc; font-weight: 600; color: #334155;">
-                        <option value="">-- Semua Tipe Soal --</option>
-                        <option value="single_choice" <?= $filterType === 'single_choice' ? 'selected' : '' ?>>Pilihan Ganda (PG)</option>
-                        <option value="multiple_choice" <?= $filterType === 'multiple_choice' ? 'selected' : '' ?>>PG Multi Jawaban</option>
-                        <option value="essay" <?= $filterType === 'essay' ? 'selected' : '' ?>>Essai / Uraian</option>
-                    </select>
-
                     <!-- Search Input -->
                     <div style="position: relative;">
-                        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari isi pertanyaan..." style="padding: 8px 12px 8px 32px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 220px;">
+                        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari judul atau kode bank soal..." style="padding: 8px 12px 8px 32px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 250px;">
                         <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px;">🔍</span>
                     </div>
 
-                    <?php if ($filterBank !== '' || $filterType !== '' || $search !== ''): ?>
+                    <?php if ($filterTeacher !== '' || $search !== ''): ?>
                         <a href="/admin/archive-questions" class="btn btn-sm" style="padding: 6px 12px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; text-decoration: none;">
                             Reset Filter
                         </a>
@@ -10096,48 +10434,52 @@ function renderArchiveQuestionsContent() {
                 </div>
 
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button type="button" class="btn btn-sm" onclick="openCbtBatchMoveModal()" style="background: #2563eb; color: #ffffff; padding: 7px 14px; border: none; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                        <span>🔄</span> Pulihkan &amp; Pindahkan
-                    </button>
                     <button type="button" class="btn btn-sm" onclick="executeCbtBatchRestore()" style="background: #059669; color: #ffffff; padding: 7px 14px; border: none; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                        <span>♻️</span> Pulihkan ke Asal
+                        <span>♻️</span> Pulihkan Terpilih
+                    </button>
+                    <button type="button" class="btn btn-sm" onclick="executeCbtBatchDelete()" style="background: #dc2626; color: #ffffff; padding: 7px 14px; border: none; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                        <span>🗑️</span> Hapus Permanen
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- TABEL DATA ARSIP SOAL -->
+        <!-- TABEL ARSIP BANK SOAL (11 KOLOM PERSIS STRUKTUR BANK SOAL) -->
         <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
             <div class="table-responsive">
-                <table class="table" style="margin-bottom: 0;">
+                <table class="table example-table" style="margin-bottom: 0;">
                     <thead>
                         <tr style="background: #f8fafc;">
                             <th class="cbt-checkbox-col" style="background: #f8fafc; width: 40px; text-align: center;">
-                                <input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-archive-row')" title="Pilih Semua Soal Arsip">
+                                <input type="checkbox" class="cbt-select-all" onclick="toggleCbtSelectAll(this, 'check-archive-bank')" title="Pilih Semua Bank Soal Arsip">
                             </th>
-                            <th style="width: 50px; text-align: center;">No</th>
-                            <th style="width: 90px;">Tipe</th>
-                            <th>Pertanyaan &amp; Pilihan Jawaban</th>
-                            <th style="width: 140px;">Bank Asal</th>
-                            <th style="width: 130px; text-align: center;">Waktu Arsip</th>
-                            <th style="width: 75px; text-align: center;">Kunci</th>
-                            <th style="width: 145px; text-align: center;">Aksi</th>
+                            <th style="width: 55px; text-align: center;">NO. <span class="sort-icon">⇅</span></th>
+                            <th>GURU <span class="sort-icon">⇅</span></th>
+                            <th>JUDUL BANK SOAL <span class="sort-icon">⇅</span></th>
+                            <th style="width: 50px; text-align: center;">PG <span class="sort-icon">⇅</span></th>
+                            <th style="width: 85px; text-align: center;">PG MULTI <span class="sort-icon">⇅</span></th>
+                            <th style="width: 65px; text-align: center;">ESSAI <span class="sort-icon">⇅</span></th>
+                            <th style="width: 55px; text-align: center;">B/S <span class="sort-icon">⇅</span></th>
+                            <th style="width: 70px; text-align: center;">JODOH <span class="sort-icon">⇅</span></th>
+                            <th style="width: 95px; text-align: center;">WAKTU <span class="sort-icon">⇅</span></th>
+                            <th style="width: 170px; text-align: center;">DAFTAR PERTANYAAN <span class="sort-icon">⇅</span></th>
+                            <th style="width: 120px; text-align: center;">AKSI <span class="sort-icon">⇅</span></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($archivedList)): ?>
+                        <?php if (empty($archivedSubjects)): ?>
                             <tr>
-                                <td colspan="8" style="padding: 50px 20px; text-align: center;">
+                                <td colspan="12" style="padding: 50px 20px; text-align: center;">
                                     <div style="font-size: 40px; margin-bottom: 10px;">📦</div>
                                     <div style="font-weight: 700; color: #334155; font-size: 16px;">
-                                        <?= ($totalArchived === 0) ? 'Belum Ada Butir Soal yang Diarsipkan' : 'Tidak ada butir soal arsip yang cocok dengan filter' ?>
+                                        <?= ($totalArchivedBanks === 0) ? 'Belum Ada Bank Soal yang Diarsipkan' : 'Tidak ada bank soal arsip yang cocok dengan pencarian' ?>
                                     </div>
                                     <div style="color: #94a3b8; font-size: 13.5px; margin-top: 6px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
-                                        <?= ($totalArchived === 0) 
-                                            ? 'Untuk mengarsipkan butir pertanyaan, buka menu <strong>Bank Soal</strong> lalu tandai butir pertanyaan dan klik tombol <strong>"Arsipkan Soal"</strong>.' 
-                                            : 'Coba ubah kata kunci pencarian atau reset filter di atas untuk melihat soal arsip lainnya.' ?>
+                                        <?= ($totalArchivedBanks === 0) 
+                                            ? 'Untuk mengarsipkan bank soal mata pelajaran, buka menu <strong>Bank Soal</strong> lalu klik tombol <strong>"Arsipkan"</strong> pada baris bank soal yang bersangkutan.' 
+                                            : 'Coba reset filter atau ubah kata kunci pencarian di atas.' ?>
                                     </div>
-                                    <?php if ($totalArchived === 0): ?>
+                                    <?php if ($totalArchivedBanks === 0): ?>
                                         <a href="/admin/questions" class="btn btn-primary" style="margin-top: 16px; padding: 8px 20px; font-weight: 700; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                                             <span>📝</span> Buka Bank Soal Sekarang
                                         </a>
@@ -10145,82 +10487,72 @@ function renderArchiveQuestionsContent() {
                                 </td>
                             </tr>
                         <?php else: ?>
-                            <?php foreach ($archivedList as $idx => $q): 
-                                $isEssay = (($q['question_type'] ?? '') === 'essay');
-                                $opts = $q['options'] ?? [];
+                            <?php foreach ($archivedSubjects as $idx => $sb): 
+                                $questions = $sb['questions'] ?? [];
+                                $qPg = 0; $qPgMulti = 0; $qEssai = 0; $qBs = 0; $qJodoh = 0;
+                                foreach ($questions as $q) {
+                                    $t = $q['question_type'] ?? 'single_choice';
+                                    if ($t === 'essay') $qEssai++;
+                                    elseif ($t === 'multiple_choice') $qPgMulti++;
+                                    elseif ($t === 'true_false') $qBs++;
+                                    elseif ($t === 'matching') $qJodoh++;
+                                    else $qPg++;
+                                }
+                                $durationText = ($sb['duration'] ?? 120) . ' menit';
                             ?>
-                                <tr style="background: #fafafa;">
-                                    <td class="cbt-checkbox-col" style="text-align: center;">
-                                        <input type="checkbox" class="cbt-row-checkbox check-archive-row" value="<?= htmlspecialchars($q['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih butir soal arsip ini">
+                                <tr style="vertical-align: middle;">
+                                    <td class="cbt-checkbox-col">
+                                        <input type="checkbox" class="cbt-row-checkbox check-archive-bank" value="<?= htmlspecialchars($sb['id']) ?>" onchange="updateCbtSelection(this)" title="Pilih bank soal arsip ini">
                                     </td>
-                                    <td style="text-align: center; font-weight: 600; color: #64748b;">
+                                    <td style="text-align: center; color: #475569; font-weight: 600; padding: 18px 10px;">
                                         <?= $idx + 1 ?>
                                     </td>
-                                    <td>
-                                        <?php if ($isEssay): ?>
-                                            <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">ESSAI</span>
-                                        <?php elseif (($q['question_type'] ?? '') === 'multiple_choice'): ?>
-                                            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">PG MULTI</span>
-                                        <?php else: ?>
-                                            <span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 700;">PG</span>
-                                        <?php endif; ?>
+                                    <td style="color: #475569; font-size: 13.5px; padding: 18px 12px;">
+                                        <?= htmlspecialchars($sb['teacher'] ?? 'Demo') ?>
                                     </td>
-                                    <td>
-                                        <div style="color: #475569; font-size: 13.5px; line-height: 1.5;">
-                                            <?= strip_tags($q['content'], '<p><br><b><strong><i><em><u><s><sub><sup><span><table><thead><tbody><tr><th><td><img><ul><ol><li><a><mark><div>') ?>
+                                    <td style="padding: 18px 12px;">
+                                        <div style="font-weight: 700; font-size: 14px; color: #1e293b; line-height: 1.4;">
+                                            <?= htmlspecialchars($sb['name']) ?>
                                         </div>
-                                        <?php if (!$isEssay && !empty($opts)): ?>
-                                            <div style="margin-top: 6px; font-size: 11.5px; color: #64748b; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 4px;">
-                                                <?php foreach (['A', 'B', 'C', 'D', 'E'] as $k): ?>
-                                                    <?php if (!empty($opts[$k])): ?>
-                                                        <?php $isCorrect = (strtoupper($q['correct_option'] ?? '') === $k); ?>
-                                                        <div style="<?= $isCorrect ? 'font-weight: 700; color: #15803d;' : '' ?>">
-                                                            <strong><?= $k ?>.</strong> <?= strip_tags($opts[$k], '<p><br><b><strong><i><em><u><s><sub><sup><span><img><a><mark>') ?>
-                                                            <?php if ($isCorrect): ?> <span style="font-size: 10px;">✓ (Kunci)</span> <?php endif; ?>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 600; color: #334155; font-size: 13px;">
-                                            <?= htmlspecialchars($q['subject_name'] ?? ($q['original_bank'] ?? 'Bank Umum')) ?>
-                                        </div>
-                                        <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 11px; margin-top: 3px;">
-                                            ID: <?= htmlspecialchars($q['subject_id'] ?? 'sb1') ?>
-                                        </span>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <div style="font-size: 12px; color: #475569; font-weight: 600;">
-                                            <?= htmlspecialchars($q['archived_at'] ?? date('d/m/Y')) ?>
-                                        </div>
-                                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
-                                            Oleh: <?= htmlspecialchars($q['archived_by'] ?? 'Admin') ?>
+                                        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+                                            Kode: <strong style="color: #0f172a;"><?= htmlspecialchars($sb['code']) ?></strong> &bull; Format: <?= ucfirst($sb['format'] ?? 'Standard') ?> &bull; Diarsipkan: <span style="color: #b45309; font-weight: 600;"><?= htmlspecialchars($sb['archived_at'] ?? date('d/m/Y')) ?></span>
                                         </div>
                                     </td>
-                                    <td style="text-align: center;">
-                                        <?php if ($isEssay): ?>
-                                            <span style="color: #94a3b8; font-size: 11px;">(Essai)</span>
-                                        <?php else: ?>
-                                            <span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 700;">
-                                                <?= htmlspecialchars($q['correct_option'] ?? 'A') ?>
-                                            </span>
-                                        <?php endif; ?>
+                                    <td style="text-align: center; color: #64748b; font-weight: 600; font-size: 14px; padding: 18px 8px;">
+                                        <?= $qPg ?>
                                     </td>
-                                    <td style="text-align: center;">
-                                        <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: center;">
-                                            <!-- PULIHKAN KE ASAL -->
-                                            <a href="/admin/questions/restore?id=<?= urlencode($q['id']) ?>" class="btn btn-sm" style="padding: 4px 8px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 4px; font-weight: 600; text-decoration: none;" title="Pulihkan kembali ke Bank Soal asalnya" onclick="return confirm('Pulihkan butir soal ini ke Bank Soal asalnya?');">
-                                                ♻️ Pulihkan
+                                    <td style="text-align: center; color: #64748b; font-weight: 600; font-size: 14px; padding: 18px 8px;">
+                                        <?= $qPgMulti ?>
+                                    </td>
+                                    <td style="text-align: center; color: #64748b; font-weight: 600; font-size: 14px; padding: 18px 8px;">
+                                        <?= $qEssai ?>
+                                    </td>
+                                    <td style="text-align: center; color: #64748b; font-weight: 600; font-size: 14px; padding: 18px 8px;">
+                                        <?= $qBs ?>
+                                    </td>
+                                    <td style="text-align: center; color: #64748b; font-weight: 600; font-size: 14px; padding: 18px 8px;">
+                                        <?= $qJodoh ?>
+                                    </td>
+                                    <td style="text-align: center; color: #475569; font-size: 13px; white-space: nowrap; padding: 18px 10px;">
+                                        <?= htmlspecialchars($durationText) ?>
+                                    </td>
+                                    <td style="text-align: center; padding: 18px 12px;">
+                                        <!-- TOMBOL BUKA BUTIR SOAL ARSIP -->
+                                        <a href="/admin/archive-questions?action=view_questions&subject_id=<?= urlencode($sb['id']) ?>" class="btn-buat-soal-purple" style="background: #2563eb; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                                            👁️ Buka Soal (<?= count($questions) ?>)
+                                        </a>
+                                    </td>
+                                    <td style="text-align: center; padding: 14px 10px;">
+                                        <!-- TOMBOL AKSI VERTIKAL IDENTIK BANK SOAL -->
+                                        <div class="action-stack">
+                                            <a href="/admin/subjects/restore?id=<?= urlencode($sb['id']) ?>" class="btn-action-ubah" style="background: #059669; color: #ffffff; border: none; text-decoration: none; text-align: center;" onclick="return confirm('Pulihkan Bank Soal <?= htmlspecialchars(addslashes($sb['name'])) ?> beserta seluruh butir soalnya ke Bank Soal Aktif?');" title="Pulihkan ke Bank Soal Aktif">
+                                                Pulihkan
                                             </a>
-                                            <!-- PINDAH BANK LAIN -->
-                                            <button type="button" class="btn btn-sm" style="padding: 4px 7px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 4px;" onclick="openSingleQuestionMove('<?= htmlspecialchars($q['id']) ?>', '')" title="Pulihkan dan pindahkan ke Bank Soal lain">
-                                                🔄
+                                            <button type="button" class="btn-action-cetak" onclick="window.open('/admin/archive-questions?action=view_questions&subject_id=<?= urlencode($sb['id']) ?>', '_blank')">
+                                                Cetak
                                             </button>
-                                            <!-- HAPUS PERMANEN -->
-                                            <a href="/admin/questions/permanent-delete?id=<?= urlencode($q['id']) ?>" class="btn btn-sm btn-danger" style="padding: 4px 7px;" onclick="return confirm('PERINGATAN: Hapus PERMANEN butir soal ini dari database? Tindakan ini tidak dapat dibatalkan.');" title="Hapus Permanen">
-                                                🗑️
+                                            <a href="/admin/subjects/permanent-delete?id=<?= urlencode($sb['id']) ?>" class="btn-action-arsipkan" style="background: #fee2e2; color: #b91c1c; border-color: #fca5a5; text-decoration: none; text-align: center;" onclick="return confirm('PERINGATAN: Hapus PERMANEN Bank Soal <?= htmlspecialchars(addslashes($sb['name'])) ?> beserta seluruh butir soalnya? Tindakan ini tidak dapat dibatalkan.');" title="Hapus Permanen">
+                                                Hapus
                                             </a>
                                         </div>
                                     </td>
