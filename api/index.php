@@ -6636,38 +6636,44 @@ function renderStudentPortal() {
         var doubtFlags = {};
 
         // Master Soal Demo
-        var examQuestions = [
+        var examQuestionsMaster = [
             {
+                originalId: 1,
                 number: 1,
                 content: "Berapakah hasil dari 2 pangkat 5 ditambah 3 pangkat 3?",
                 options: { A: "45", B: "59", C: "64", D: "32", E: "27" },
                 weight: 2.5
             },
             {
+                originalId: 2,
                 number: 2,
                 content: "Ide pokok atau gagasan utama dalam suatu paragraf biasanya terletak pada...",
                 options: { A: "Awal paragraf", B: "Akhir paragraf", C: "Tengah paragraf", D: "Awal atau akhir paragraf", E: "Seluruh isi paragraf" },
                 weight: 2.5
             },
             {
+                originalId: 3,
                 number: 3,
                 content: "Struktur perulangan dalam pemrograman yang pasti mengeksekusi blok minimal satu kali adalah...",
                 options: { A: "for loop", B: "while loop", C: "do-while loop", D: "foreach loop", E: "recursive loop" },
                 weight: 3.0
             },
             {
+                originalId: 4,
                 number: 4,
                 content: "Protokol jaringan yang bertugas memberikan konfigurasi alamat IP secara otomatis ke perangkat klien adalah...",
                 options: { A: "DNS", B: "DHCP", C: "FTP", D: "HTTP", E: "SMTP" },
                 weight: 2.5
             },
             {
+                originalId: 5,
                 number: 5,
                 content: "Topologi jaringan yang menggunakan konsentrator pusat seperti Switch atau Hub adalah...",
                 options: { A: "Topologi Bus", B: "Topologi Ring", C: "Topologi Star", D: "Topologi Mesh", E: "Topologi Tree" },
                 weight: 2.5
             }
         ];
+        var examQuestions = JSON.parse(JSON.stringify(examQuestionsMaster));
 
         // Synthesize Warning Audio via Web Audio API (100% Offline)
         function playWarningBuzzer() {
@@ -6705,6 +6711,22 @@ function renderStudentPortal() {
 
             // Enter Fullscreen Enforced
             enterFullscreen();
+
+            // Acak Urutan Butir Soal per Siswa (Setiap siswa menerima urutan nomor berbeda)
+            var shuffledQuestions = JSON.parse(JSON.stringify(examQuestionsMaster));
+            for (var i = shuffledQuestions.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = shuffledQuestions[i];
+                shuffledQuestions[i] = shuffledQuestions[j];
+                shuffledQuestions[j] = tmp;
+            }
+            // Beri label nomor urut 1, 2, 3.. agar rapi di layar siswa
+            for (var k = 0; k < shuffledQuestions.length; k++) {
+                shuffledQuestions[k].number = k + 1;
+            }
+            examQuestions = shuffledQuestions;
+            userAnswers = {};
+            doubtFlags = {};
 
             // Set active state
             isExamRunning = true;

@@ -169,7 +169,7 @@ class ExamAttemptController extends ApiController
         }
 
         // Fetch questions without answer keys (is_correct stripped)
-        $questions = $exam->examQuestions()
+        $examQuestionsQuery = $exam->examQuestions()
             ->with([
                 'question' => function ($q) {
                     $q->select('id', 'subject_id', 'question_type', 'content', 'media_path');
@@ -180,24 +180,39 @@ class ExamAttemptController extends ApiController
                 },
             ])
             ->orderBy('order_index')
-            ->get()
-            ->map(function ($eq) {
-                return [
-                    'id' => $eq->question->id,
-                    'order_index' => $eq->order_index,
-                    'weight' => $eq->weight,
-                    'question_type' => $eq->question->question_type,
-                    'content' => $eq->question->content,
-                    'media_path' => $eq->question->media_path,
-                    'options' => $eq->question->options->map(function ($opt) {
-                        return [
-                            'id' => $opt->id,
-                            'label' => $opt->option_label,
-                            'content' => $opt->content,
-                        ];
-                    }),
-                ];
-            });
+            ->get();
+
+        // Acak urutan butir soal jika shuffle_questions aktif (seed per siswa & attempt agar konsisten saat refresh)
+        if ($exam->shuffle_questions) {
+            $seed = (int) (($student->id ?? 1) * 1000 + ($attempt->id ?? 1));
+            $examQuestionsQuery = $examQuestionsQuery->shuffle($seed);
+        }
+
+        $questions = $examQuestionsQuery->values()->map(function ($eq, $idx) use ($exam) {
+            $options = $eq->question->options;
+            // Acak urutan pilihan jawaban jika shuffle_options aktif
+            if ($exam->shuffle_options) {
+                $options = $options->shuffle();
+            }
+            $labels = ['A', 'B', 'C', 'D', 'E'];
+
+            return [
+                'id' => $eq->question->id,
+                'order_index' => $idx + 1,
+                'original_order' => $eq->order_index,
+                'weight' => $eq->weight,
+                'question_type' => $eq->question->question_type,
+                'content' => $eq->question->content,
+                'media_path' => $eq->question->media_path,
+                'options' => $options->values()->map(function ($opt, $optIdx) use ($labels) {
+                    return [
+                        'id' => $opt->id,
+                        'label' => $labels[$optIdx] ?? $opt->option_label,
+                        'content' => $opt->content,
+                    ];
+                }),
+            ];
+        });
 
         // Load previously saved answers if any
         $savedAnswers = Answer::where('attempt_id', $attempt->id)
