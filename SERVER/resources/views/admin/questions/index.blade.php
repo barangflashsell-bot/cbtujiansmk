@@ -551,7 +551,7 @@
                         <option value="tryout">Tryout (UTBK / SNMPTN / CPNS)</option>
                     </select>
                     <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
-                        Merupakan tipe format penilaian apakah menggunakan metode standard atau tryout. Lihat <a href="https://e-ujian.id/panduan-menggunakan-cbt-eujian/membuat-soal-tryout-utbk-snmptn-dan-cpns-online/" target="_blank" style="color: #2563eb; text-decoration: underline;">penjelasan format tryout</a>.
+                        Merupakan tipe format penilaian apakah menggunakan metode standard atau tryout.
                     </div>
                 </div>
 

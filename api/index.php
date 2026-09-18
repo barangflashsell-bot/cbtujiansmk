@@ -9929,11 +9929,6 @@ function renderQuestionsContent() {
                                 <option value="standard">Standard (Metode Penilaian Sekolah Biasa)</option>
                                 <option value="tryout">Tryout (Format UTBK / SNMPTN / CPNS)</option>
                             </select>
-                            <small style="font-size: 11px; margin-top: 4px; display: block;">
-                                <a href="https://e-ujian.id/panduan-menggunakan-cbt-eujian/membuat-soal-tryout-utbk-snmptn-dan-cpns-online/" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline;">
-                                    ℹ️ Lihat penjelasan format tryout
-                                </a>
-                            </small>
                         </div>
 
                         <div class="form-group" style="flex: 1;">
