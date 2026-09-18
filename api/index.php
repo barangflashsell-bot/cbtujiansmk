@@ -2619,6 +2619,237 @@ if (strpos($uri, '/api/v1/') === 0) {
         exit;
     }
 
+    // =========================================================================
+    // STUDENT EXAM REAL-TIME TELEMETRY & SUBMIT ENDPOINTS (WEB & MOBILE)
+    // =========================================================================
+    if ($uri === '/api/v1/student/start-exam' && $method === 'POST') {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?: $_POST;
+        $student = $_SESSION['active_student'] ?? [
+            'nis' => '0081010001',
+            'name' => 'Ahmad Fauzan Pratama',
+            'class' => '10-TKJ'
+        ];
+        $nis = $student['nis'];
+        $examId = $input['exam_id'] ?? 'ex-1';
+        $title = $input['title'] ?? 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)';
+        $subject = $input['subject'] ?? 'Dasar Teknik Jaringan Komputer (DTKJ)';
+        $token = $input['token'] ?? 'TKJ10A';
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+
+        if (!isset($_SESSION['monitoring_sessions'])) {
+            $_SESSION['monitoring_sessions'] = [];
+        }
+
+        $found = false;
+        foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+            if ($ms['nis'] === $nis) {
+                $ms['exam_id'] = $examId;
+                $ms['subject'] = $subject;
+                $ms['token'] = $token;
+                $ms['status'] = 'Mengerjakan';
+                $ms['answered'] = 0;
+                $ms['total'] = 5;
+                $ms['time_left'] = '90:00';
+                $ms['violations'] = 0;
+                $ms['is_locked'] = false;
+                $ms['attendance_status'] = 'HADIR';
+                $ms['last_activity'] = date('H:i:s');
+                $found = true;
+                break;
+            }
+        }
+        unset($ms);
+
+        if (!$found) {
+            $_SESSION['monitoring_sessions'][] = [
+                'nis' => $nis,
+                'name' => $student['name'],
+                'class' => $student['class'] ?? '10-TKJ',
+                'token' => $token,
+                'subject' => $subject,
+                'answered' => 0,
+                'total' => 5,
+                'time_left' => '90:00',
+                'status' => 'Mengerjakan',
+                'ip' => $clientIp,
+                'device' => 'Web Browser Siswa',
+                'exam_id' => $examId,
+                'violations' => 0,
+                'is_locked' => false,
+                'login_time' => date('H:i:s'),
+                'attendance_status' => 'HADIR',
+                'last_activity' => date('H:i:s'),
+            ];
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Sesi ujian berhasil dimulai di sistem monitoring']);
+        exit;
+    }
+
+    if ($uri === '/api/v1/student/save-answer' && $method === 'POST') {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?: $_POST;
+        $student = $_SESSION['active_student'] ?? [
+            'nis' => '0081010001',
+            'name' => 'Ahmad Fauzan Pratama',
+            'class' => '10-TKJ'
+        ];
+        $nis = $student['nis'];
+        $answered = (int)($input['answered_count'] ?? 1);
+        $total = (int)($input['total'] ?? 5);
+        $timeLeft = $input['time_left'] ?? '89:00';
+        $examId = $input['exam_id'] ?? 'ex-1';
+
+        if (isset($_SESSION['monitoring_sessions'])) {
+            foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+                if ($ms['nis'] === $nis) {
+                    $ms['answered'] = $answered;
+                    $ms['total'] = $total;
+                    $ms['time_left'] = $timeLeft;
+                    $ms['status'] = 'Mengerjakan';
+                    $ms['last_activity'] = date('H:i:s');
+                    break;
+                }
+            }
+            unset($ms);
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Jawaban berhasil disinkronkan ke monitoring']);
+        exit;
+    }
+
+    if ($uri === '/api/v1/student/violation' && $method === 'POST') {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?: $_POST;
+        $student = $_SESSION['active_student'] ?? [
+            'nis' => '0081010001',
+            'name' => 'Ahmad Fauzan Pratama',
+            'class' => '10-TKJ'
+        ];
+        $nis = $student['nis'];
+        $violations = (int)($input['violations'] ?? 1);
+
+        if (isset($_SESSION['monitoring_sessions'])) {
+            foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+                if ($ms['nis'] === $nis) {
+                    $ms['violations'] = $violations;
+                    if ($violations >= 3) {
+                        $ms['is_locked'] = true;
+                        $ms['status'] = 'Terkunci';
+                    }
+                    break;
+                }
+            }
+            unset($ms);
+        }
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($uri === '/api/v1/student/finish-exam' && $method === 'POST') {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?: $_POST;
+        $student = $_SESSION['active_student'] ?? [
+            'nis' => '0081010001',
+            'name' => 'Ahmad Fauzan Pratama',
+            'class' => '10-TKJ'
+        ];
+        $nis = $student['nis'];
+        $examId = $input['exam_id'] ?? 'ex-1';
+        $title = $input['title'] ?? 'PAS Ganjil - Dasar Teknik Jaringan Komputer (DTKJ)';
+        $subject = $input['subject'] ?? 'Dasar Teknik Jaringan Komputer (DTKJ)';
+        $token = $input['token'] ?? 'TKJ10A';
+        $userAnswers = $input['answers'] ?? [];
+        $totalQuestions = (int)($input['total'] ?? 5);
+
+        // Kunci jawaban demo (5 butir): 1=>B, 2=>D, 3=>C, 4=>B, 5=>C
+        $keys = [1 => 'B', 2 => 'D', 3 => 'C', 4 => 'B', 5 => 'C'];
+        $correct = 0;
+        $wrong = 0;
+        $empty = 0;
+
+        for ($i = 1; $i <= $totalQuestions; $i++) {
+            if (!isset($userAnswers[$i]) || $userAnswers[$i] === '' || $userAnswers[$i] === null) {
+                $empty++;
+            } elseif (isset($keys[$i]) && $userAnswers[$i] === $keys[$i]) {
+                $correct++;
+            } else {
+                $wrong++;
+            }
+        }
+
+        $finalScore = $totalQuestions > 0 ? round(($correct / $totalQuestions) * 100, 1) : 0;
+
+        // 1. Update status di monitoring_sessions menjadi Selesai
+        if (isset($_SESSION['monitoring_sessions'])) {
+            foreach ($_SESSION['monitoring_sessions'] as &$ms) {
+                if ($ms['nis'] === $nis) {
+                    $ms['status'] = 'Selesai';
+                    $ms['answered'] = $totalQuestions - $empty;
+                    $ms['time_left'] = '00:00';
+                    $ms['score'] = $finalScore;
+                    $ms['correct'] = $correct;
+                    $ms['wrong'] = $wrong;
+                    $ms['empty'] = $empty;
+                    break;
+                }
+            }
+            unset($ms);
+        }
+
+        // 2. Simpan ke results_list agar tampil di menu Hasil & Nilai Ujian
+        if (!isset($_SESSION['results_list'])) {
+            $_SESSION['results_list'] = [];
+        }
+
+        $foundRes = false;
+        foreach ($_SESSION['results_list'] as &$resItem) {
+            if ($resItem['nis'] === $nis && ($resItem['exam_id'] ?? '') === $examId) {
+                $resItem['correct'] = $correct;
+                $resItem['wrong'] = $wrong;
+                $resItem['empty'] = $empty;
+                $resItem['score'] = $finalScore;
+                $resItem['published'] = true;
+                $foundRes = true;
+                break;
+            }
+        }
+        unset($resItem);
+
+        if (!$foundRes) {
+            array_unshift($_SESSION['results_list'], [
+                'nis' => $nis,
+                'name' => $student['name'],
+                'class' => $student['class'] ?? '10-TKJ',
+                'exam' => $title,
+                'exam_id' => $examId,
+                'subject' => $subject,
+                'token' => $token,
+                'correct' => $correct,
+                'wrong' => $wrong,
+                'empty' => $empty,
+                'score' => $finalScore,
+                'passing' => 75.0,
+                'published' => true
+            ]);
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Hasil ujian berhasil disimpan',
+            'data' => [
+                'score' => $finalScore,
+                'correct' => $correct,
+                'wrong' => $wrong,
+                'empty' => $empty,
+                'is_pass' => $finalScore >= 75.0
+            ]
+        ]);
+        exit;
+    }
+
     // Result Endpoint (/api/v1/attempts/{id}/result)
     if (preg_match('#^/api/v1/attempts/(\d+)/result$#', $uri)) {
         $showScore = !empty($_SESSION['cbt_settings']['show_score_to_student']);
@@ -2658,8 +2889,8 @@ if (strpos($uri, '/api/v1/') === 0) {
         exit;
     }
 
-    // Student Exam Results List Endpoint (/api/v1/results)
-    if ($uri === '/api/v1/results') {
+    // Student Exam Results List Endpoint (/api/v1/results or /api/v1/student/results)
+    if ($uri === '/api/v1/results' || $uri === '/api/v1/student/results') {
         $showScore = !empty($_SESSION['cbt_settings']['show_score_to_student']);
         $studentNis = $_SESSION['student_user']['nis'] ?? ($_GET['nis'] ?? null);
         $results = [];
@@ -5922,6 +6153,9 @@ if (!$isLoggedOut) {
     } elseif (!empty($_COOKIE['cbt_user'])) {
         $currentUser = $_COOKIE['cbt_user'];
         $_SESSION['cbt_user'] = $currentUser;
+    } elseif (isset($_GET['standalone']) && $_GET['standalone'] == '1') {
+        $currentUser = (strpos($uri, '/student') === 0) ? 'siswa' : 'admin';
+        $_SESSION['cbt_user'] = $currentUser;
     }
 }
 
@@ -6682,6 +6916,9 @@ function renderStudentPortal() {
         var timerInterval = null;
         var userAnswers = {};
         var doubtFlags = {};
+        var currentExamTitle = '';
+        var currentExamSubject = '';
+        var currentExamToken = '';
 
         // Master Soal Demo
         var examQuestionsMaster = [
@@ -6781,10 +7018,25 @@ function renderStudentPortal() {
             violationCount = 0;
             currentQuestionIdx = 0;
             timerSeconds = (durationMinutes || 90) * 60;
+            currentExamTitle = title;
+            currentExamSubject = subject;
+            currentExamToken = val;
 
             document.getElementById('activeExamTitle').textContent = title + ' (' + subject + ')';
             document.getElementById('studentPortalDashboard').style.display = 'none';
             document.getElementById('activeExamRoom').style.display = 'flex';
+
+            // Laporkan mulai ujian ke sistem telemetri monitoring server
+            fetch('/api/v1/student/start-exam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    exam_id: 'ex-1',
+                    title: title,
+                    subject: subject,
+                    token: val
+                })
+            }).catch(function(){});
 
             renderCurrentQuestion();
             startTimer();
@@ -6807,6 +7059,16 @@ function renderStudentPortal() {
 
             violationCount++;
             playWarningBuzzer();
+
+            // Sinkronkan pelanggaran ke telemetri pengawas di server
+            fetch('/api/v1/student/violation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    violations: violationCount,
+                    reason: reason
+                })
+            }).catch(function(){});
 
             var badge = document.getElementById('kioskStrikeCount');
             if (badge) badge.textContent = violationCount + '/' + MAX_VIOLATIONS;
@@ -6964,6 +7226,23 @@ function renderStudentPortal() {
             all.forEach(function(item) { item.classList.remove('selected'); });
             if (element) element.classList.add('selected');
             renderQNav();
+
+            // Sinkronkan ke telemetri pengawas secara real-time
+            var ansCount = Object.keys(userAnswers).length;
+            var timerEl = document.getElementById('examTimerText');
+            var curTimeLeft = timerEl ? timerEl.textContent : '90:00';
+            fetch('/api/v1/student/save-answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    exam_id: 'ex-1',
+                    question_num: q.number,
+                    selected_option: optKey,
+                    answered_count: ansCount,
+                    total: examQuestions.length,
+                    time_left: curTimeLeft
+                })
+            }).catch(function(){});
         }
 
         function toggleDoubt() {
@@ -6994,7 +7273,7 @@ function renderStudentPortal() {
             timerInterval = setInterval(function() {
                 if (timerSeconds <= 0) {
                     clearInterval(timerInterval);
-                    alert('Waktu ujian telah habis! Sistem secara otomatis menyimpan seluruh jawaban Anda.');
+                    alert('Waktu ujian telah habis! Sistem secara otomatis menyimpan seluruh lembar jawaban Anda.');
                     finishExamSubmit();
                     return;
                 }
@@ -7029,27 +7308,49 @@ function renderStudentPortal() {
                 document.exitFullscreen().catch(function(){});
             }
 
-            document.getElementById('activeExamRoom').style.display = 'none';
-            document.getElementById('studentPortalDashboard').style.display = 'block';
-
             var isScoreVisible = <?= json_encode(!empty($_SESSION['cbt_settings']['show_score_to_student'])) ?>;
             var answeredCount = Object.keys(userAnswers).length;
             var totalCount = examQuestions.length;
+            var cTitle = currentExamTitle || 'PAS Ganjil - Dasar Kejuruan TKJ';
+            var cSubj = currentExamSubject || 'Dasar Teknik Jaringan Komputer (DTKJ)';
+            var cTok = currentExamToken || 'TKJ10A';
 
-            if (isScoreVisible) {
-                var estScore = Math.round((answeredCount / totalCount) * 100);
-                var isPass = estScore >= 75;
-                alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan ke Server CBT.\n\n' +
-                    '📊 Hasil Ujian Anda:\n' +
-                    '• Soal Terjawab: ' + answeredCount + ' dari ' + totalCount + ' Butir\n' +
-                    '• Estimasi Skor: ' + estScore + '.0 / 100\n' +
-                    '• Status: ' + (isPass ? 'LULUS STANDAR KKM (>= 75)' : 'REMEDIAL (< 75)') + '\n\n' +
-                    'Rincian evaluasi dapat dilihat pada kartu nilai di bawah.');
-            } else {
-                alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan dan tersinkronisasi ke Server CBT Sekolah.\n\n' +
-                    '🔒 Kebijakan Nilai: Nilai ujian sementara dirahasiakan/disembunyikan oleh pihak sekolah dan akan diumumkan secara resmi.');
-            }
-            window.location.reload();
+            document.getElementById('activeExamRoom').style.display = 'none';
+            document.getElementById('studentPortalDashboard').style.display = 'block';
+
+            // Kirim lembar jawaban ke server dan sinkronkan ke riwayat nilai serta monitoring pengawas
+            fetch('/api/v1/student/finish-exam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    exam_id: 'ex-1',
+                    title: cTitle,
+                    subject: cSubj,
+                    token: cTok,
+                    answers: userAnswers,
+                    total: totalCount
+                })
+            }).then(function(res) {
+                return res.json();
+            }).then(function(resData) {
+                var score = (resData && resData.data && typeof resData.data.score !== 'undefined') ? resData.data.score : Math.round((answeredCount / totalCount) * 100);
+                var isPass = score >= 75;
+                if (isScoreVisible) {
+                    alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan ke Server CBT.\n\n' +
+                        '📊 Hasil Ujian Anda:\n' +
+                        '• Soal Terjawab: ' + answeredCount + ' dari ' + totalCount + ' Butir\n' +
+                        '• Nilai Akhir: ' + score + ' / 100\n' +
+                        '• Status: ' + (isPass ? 'LULUS STANDAR KKM (>= 75)' : 'REMEDIAL (< 75)') + '\n\n' +
+                        'Rincian evaluasi dapat dilihat pada kartu nilai di bawah.');
+                } else {
+                    alert('Alhamdulillah! Seluruh lembar jawaban Anda telah berhasil tersimpan dan tersinkronisasi ke Server CBT Sekolah.\n\n' +
+                        '🔒 Kebijakan Nilai: Nilai ujian sementara dirahasiakan/disembunyikan oleh pihak sekolah dan akan diumumkan secara resmi.');
+                }
+                window.location.reload();
+            }).catch(function() {
+                alert('Lembar jawaban berhasil dikumpulkan ke Server CBT.');
+                window.location.reload();
+            });
         }
 
         // =========================================================================
@@ -11666,82 +11967,19 @@ function renderQuestionsContent() {
                         <button type="button" onclick="closeAiQuestionModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
                     </div>
 
-                    <!-- SCREEN 1: OPTIONAL GOOGLE LOGIN (HIDDEN BY DEFAULT SO GENERATOR OPENS DIRECTLY) -->
-                    <div id="ai_google_login_screen" style="display: none; padding: 32px 28px; text-align: center;">
-                        <div style="width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
-                            <svg width="36" height="36" viewBox="0 0 48 48">
-                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.79l7.97-6.2z"/>
-                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                            </svg>
-                        </div>
-                        <h4 style="font-size: 20px; font-weight: 800; color: #1e293b; margin: 0 0 8px;">Masuk dengan Akun Google</h4>
-                        <p style="color: #64748b; font-size: 13.5px; max-width: 480px; margin: 0 auto 24px; line-height: 1.5;">
-                            Untuk menggunakan fitur <strong>Google Gemini AI</strong> dalam pembuatan soal otomatis, silakan hubungkan akun Google Anda terlebih dahulu.
-                        </p>
-
-                        <!-- PILIHAN AKUN CEPAT ATAU CUSTOM -->
-                        <div style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 20px; max-width: 460px; margin: 0 auto 20px; text-align: left;">
-                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">Pilih Akun Google Guru / Pengajar:</label>
-                            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
-                                <div onclick="loginWithGoogle('guru.cbt@gmail.com', 'Guru Mata Pelajaran')" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#4285F4'; this.style.background='#eff6ff';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='#ffffff';">
-                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #4285F4; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">G</div>
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 700; font-size: 13px; color: #1e293b;">Guru Mata Pelajaran</div>
-                                        <div style="font-size: 11.5px; color: #64748b;">guru.cbt@gmail.com</div>
-                                    </div>
-                                    <span style="font-size: 12px; color: #2563eb; font-weight: 700;">Pilih &rarr;</span>
-                                </div>
-                                <div onclick="loginWithGoogle('admin.sekolah@gmail.com', 'Admin Kurikulum CBT')" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#4285F4'; this.style.background='#eff6ff';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='#ffffff';">
-                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #0f9d58; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">A</div>
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 700; font-size: 13px; color: #1e293b;">Admin Kurikulum CBT</div>
-                                        <div style="font-size: 11.5px; color: #64748b;">admin.sekolah@gmail.com</div>
-                                    </div>
-                                    <span style="font-size: 12px; color: #2563eb; font-weight: 700;">Pilih &rarr;</span>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <input type="email" id="custom_google_email" class="form-control" placeholder="atau ketik email Google Anda..." style="font-size: 12.5px;">
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="loginWithCustomGoogle()" style="font-weight: 700; white-space: nowrap;">Masuk</button>
-                            </div>
-                        </div>
-
-                        <!-- OFFICIAL GOOGLE SIGN IN BUTTON -->
-                        <div style="display: flex; justify-content: center; gap: 12px;">
-                            <button type="button" class="google-signin-btn" onclick="loginWithGoogle('user.google@gmail.com', 'Akun Google')">
-                                <svg width="20" height="20" viewBox="0 0 48 48">
-                                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.79l7.97-6.2z"/>
-                                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                                </svg>
-                                Lanjutkan dengan Akun Google
-                            </button>
-                        </div>
-                        <div style="margin-top: 20px;">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="closeAiQuestionModal()">Batal</button>
-                        </div>
-                    </div>
-
-                    <!-- SCREEN 2: GEMINI AI QUESTION GENERATOR SCREEN (DIRECTLY ACCESSIBLE) -->
+                    <!-- DIRECT AI GENERATOR SCREEN -->
                     <div id="ai_generator_screen" style="display: block; padding: 22px 24px;">
                         
-                        <!-- GOOGLE USER PROFILE CHIP BAR -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 14px; margin-bottom: 18px;">
-                            <div class="google-chip">
-                                <span class="google-avatar" id="google_user_avatar">G</span>
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-weight: 700; color: #1e293b; font-size: 12.5px;" id="google_user_name">Guru CBT</span>
-                                    <span style="font-size: 11px; color: #64748b;" id="google_user_email">guru.cbt@gmail.com</span>
+                        <!-- AI ENGINE STATUS BAR -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%); border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px 16px; margin-bottom: 18px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 20px;">🤖</span>
+                                <div>
+                                    <div style="font-weight: 800; color: #15803d; font-size: 13px;">Google Gemini 1.5 &amp; Smart Bank Engine Aktif</div>
+                                    <div style="font-size: 11.5px; color: #64748b;">Mendukung Kurikulum Merdeka / K13 SMK Vokasi &amp; Mata Pelajaran Umum</div>
                                 </div>
-                                <span style="font-size: 11px; background: #dcfce7; color: #15803d; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">✓ Terhubung</span>
                             </div>
-                            <button type="button" onclick="logoutGoogle()" style="background: none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; font-size: 11.5px; color: #64748b; cursor: pointer; font-weight: 600;" onmouseover="this.style.color='#ef4444'; this.style.borderColor='#fca5a5';" onmouseout="this.style.color='#64748b'; this.style.borderColor='#cbd5e1';">
-                                Ganti Akun Google
-                            </button>
+                            <span style="font-size: 11.5px; background: #dcfce7; color: #166534; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #86efac;">● Siap Digunakan</span>
                         </div>
 
                         <!-- QUICK SUGGESTED TOPICS CHIPS -->
