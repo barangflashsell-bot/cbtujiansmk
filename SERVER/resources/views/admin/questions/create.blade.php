@@ -1035,8 +1035,8 @@
             <button type="button" onclick="closeAiQuestionModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
         </div>
 
-        <!-- SCREEN 1: WAJIB LOGIN DENGAN AKUN GOOGLE -->
-        <div id="ai_google_login_screen" style="display: block; padding: 32px 28px; text-align: center;">
+        <!-- SCREEN 1: OPTIONAL GOOGLE LOGIN (HIDDEN BY DEFAULT SO GENERATOR OPENS DIRECTLY) -->
+        <div id="ai_google_login_screen" style="display: none; padding: 32px 28px; text-align: center;">
             <div style="width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
                 <svg width="36" height="36" viewBox="0 0 48 48">
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -1095,8 +1095,8 @@
             </div>
         </div>
 
-        <!-- SCREEN 2: GEMINI AI QUESTION GENERATOR SCREEN (ACTIVE ONCE LOGGED IN) -->
-        <div id="ai_generator_screen" style="display: none; padding: 22px 24px;">
+        <!-- SCREEN 2: GEMINI AI QUESTION GENERATOR SCREEN -->
+        <div id="ai_generator_screen" style="display: block; padding: 22px 24px;">
             
             <!-- GOOGLE USER PROFILE CHIP BAR -->
             <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 14px; margin-bottom: 18px;">
@@ -1734,10 +1734,8 @@
             var user = getGoogleUser();
             if (user) {
                 updateGoogleUserUi(user);
-                showAiGeneratorScreen();
-            } else {
-                showAiLoginScreen();
             }
+            showAiGeneratorScreen();
             var rb = document.getElementById('ai_result_box');
             if (rb) rb.style.display = 'none';
 
@@ -1889,7 +1887,10 @@
             });
 
             var r = document.querySelector('input[name="correct_option"][value="' + currentAiResult.correct_option + '"]');
-            if (r) r.checked = true;
+            if (r) {
+                r.checked = true;
+                updateCorrectOptionUi();
+            }
         }
 
         closeAiQuestionModal();

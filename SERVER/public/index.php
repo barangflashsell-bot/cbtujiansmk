@@ -1,5 +1,30 @@
 <?php
 
+$uri = urldecode(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH));
+if ($uri !== '/' && file_exists(__DIR__ . $uri) && is_file(__DIR__ . $uri)) {
+    $ext = strtolower(pathinfo(__DIR__ . $uri, PATHINFO_EXTENSION));
+    $mimes = [
+        'js' => 'application/javascript; charset=utf-8',
+        'css' => 'text/css; charset=utf-8',
+        'json' => 'application/json; charset=utf-8',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'svg' => 'image/svg+xml',
+        'ico' => 'image/x-icon',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+    ];
+    if (isset($mimes[$ext])) {
+        header('Content-Type: ' . $mimes[$ext]);
+        header('Content-Length: ' . filesize(__DIR__ . $uri));
+        readfile(__DIR__ . $uri);
+        exit;
+    }
+    return false;
+}
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 

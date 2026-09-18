@@ -10,6 +10,8 @@ SERVER/public/downloads/*.apk
 .DS_Store
 Thumbs.db
 scratch/
+cookies.txt
+*.tmp
 
 # Server Laravel
 SERVER/.env

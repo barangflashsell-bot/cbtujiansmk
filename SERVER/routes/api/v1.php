@@ -264,3 +264,155 @@ Route::middleware('auth:sanctum')->prefix('test')->group(function () {
         ]);
     })->middleware('role:peserta,student,PESERTA')->name('api.v1.test.peserta');
 });
+
+// =========================================================================
+// AI QUESTION GENERATOR ENDPOINT (GEMINI 1.5/2.5 FLASH REST API + LOCAL KNOWLEDGE BANK)
+// =========================================================================
+Route::post('/ai/generate-question', function (Request $request) {
+    $subject = trim($request->input('subject') ?? $request->input('subject_name') ?? 'Umum');
+    $topic = trim($request->input('topic') ?? '');
+    $type = trim($request->input('type') ?? 'single_choice');
+    $difficulty = trim($request->input('difficulty') ?? 'medium');
+    $clientKey = trim($request->input('key') ?? '');
+
+    $apiKey = $clientKey ?: env('GEMINI_API_KEY') ?: '';
+
+    if (!empty($apiKey)) {
+        $prompt = "Buatkan 1 butir soal ujian tingkat SMK untuk mata pelajaran \"{$subject}\"" .
+            ($topic ? " dengan topik/materi: \"{$topic}\"" : "") .
+            ". Tipe soal: " . ($type === 'essay' ? "Essai/Uraian" : "Pilihan Ganda 5 opsi (A, B, C, D, E)") .
+            ". Tingkat kesulitan: {$difficulty}.\n" .
+            "Format balasan WAJIB berupa JSON murni tanpa markdown/backticks dengan skema:\n" .
+            "{\n" .
+            '  "type": "' . ($type === 'essay' ? 'essay' : 'single_choice') . '",' . "\n" .
+            '  "content": "<p>Teks soal HTML lengkap</p>",' . "\n" .
+            '  "options": {"A": "opsi A", "B": "opsi B", "C": "opsi C", "D": "opsi D", "E": "opsi E"},' . "\n" .
+            '  "correct_option": "A",' . "\n" .
+            '  "score_weight": 2.5,' . "\n" .
+            '  "explanation": "Penjelasan singkat jawaban benar"' . "\n" .
+            "}";
+
+        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . urlencode($apiKey);
+        $payload = json_encode([
+            'contents' => [
+                ['parts' => [['text' => $prompt]]]
+            ],
+            'generationConfig' => [
+                'temperature' => 0.4,
+                'responseMimeType' => 'application/json'
+            ]
+        ]);
+
+        $ctx = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+                'content' => $payload,
+                'timeout' => 15,
+                'ignore_errors' => true
+            ]
+        ]);
+
+        $res = @file_get_contents($apiUrl, false, $ctx);
+        if ($res !== false) {
+            $jsonRes = json_decode($res, true);
+            $rawText = $jsonRes['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            $rawText = trim(preg_replace('/^```(?:json)?\s*/i', '', preg_replace('/\s*```$/i', '', $rawText)));
+            $parsed = json_decode($rawText, true);
+
+            if ($parsed && !empty($parsed['content'])) {
+                return response()->json([
+                    'success' => true,
+                    'provider' => 'gemini-api',
+                    'data' => [
+                        'type' => $parsed['type'] ?? $type,
+                        'content' => $parsed['content'],
+                        'options' => $parsed['options'] ?? [
+                            'A' => 'Jawaban A', 'B' => 'Jawaban B', 'C' => 'Jawaban C', 'D' => 'Jawaban D', 'E' => 'Jawaban E'
+                        ],
+                        'correct_option' => strtoupper($parsed['correct_option'] ?? 'A'),
+                        'score_weight' => $parsed['score_weight'] ?? ($type === 'essay' ? 10.0 : 2.5),
+                        'explanation' => $parsed['explanation'] ?? 'Disusun oleh Google Gemini AI'
+                    ]
+                ]);
+            }
+        }
+    }
+
+    // Fallback: Smart local knowledge bank
+    $subLower = strtolower($subject);
+    $topLower = strtolower($topic);
+
+    if (str_contains($subLower, 'dtkj') || str_contains($subLower, 'dasar') || str_contains($topLower, 'kabel') || str_contains($topLower, 'crimping') || str_contains($topLower, 'lan')) {
+        $q = [
+            'type' => 'single_choice',
+            'content' => '<p>Pada pengkabelan jaringan LAN standar <strong>TIA/EIA-568B</strong> menggunakan kabel UTP Cat6, urutan warna pin ke-1 sampai pin ke-4 pada konektor RJ-45 yang benar adalah...</p>',
+            'options' => [
+                'A' => 'Putih Orange, Orange, Putih Hijau, Biru',
+                'B' => 'Putih Hijau, Hijau, Putih Orange, Biru',
+                'C' => 'Putih Orange, Orange, Putih Biru, Hijau',
+                'D' => 'Orange, Putih Orange, Biru, Putih Biru',
+                'E' => 'Putih Biru, Biru, Putih Hijau, Hijau'
+            ],
+            'correct_option' => 'A',
+            'score_weight' => 2.5,
+            'explanation' => 'Standar TIA/EIA-568B: 1. Putih Orange, 2. Orange, 3. Putih Hijau, 4. Biru, 5. Putih Biru, 6. Hijau, 7. Putih Cokelat, 8. Cokelat.'
+        ];
+    } elseif (str_contains($subLower, 'aij') || str_contains($subLower, 'infrastruktur') || str_contains($topLower, 'vlan') || str_contains($topLower, 'routing') || str_contains($topLower, 'mikrotik')) {
+        $q = [
+            'type' => 'single_choice',
+            'content' => '<p>Sebuah interface router MikroTik dikonfigurasi dengan alamat <strong>192.168.10.65/27</strong>. Jumlah host valid (usable host) yang dapat dialokasikan pada subnet tersebut adalah...</p>',
+            'options' => [
+                'A' => '14 host',
+                'B' => '30 host',
+                'C' => '62 host',
+                'D' => '126 host',
+                'E' => '254 host'
+            ],
+            'correct_option' => 'B',
+            'score_weight' => 2.5,
+            'explanation' => 'Prefix /27 memiliki 32 total IP. Usable host = 2^(32-27) - 2 = 32 - 2 = 30 host valid.'
+        ];
+    } elseif (str_contains($subLower, 'tlj') || str_contains($subLower, 'layanan') || str_contains($topLower, 'voip') || str_contains($topLower, 'sip') || str_contains($topLower, 'asterisk')) {
+        $q = [
+            'type' => 'single_choice',
+            'content' => '<p>Protokol pensinyalan (signaling) pada jaringan <strong>VoIP (Voice over IP)</strong> yang bertugas membangun, memodifikasi, dan mengakhiri sesi komunikasi multimedia secara real-time adalah...</p>',
+            'options' => [
+                'A' => 'SIP (Session Initiation Protocol)',
+                'B' => 'RTP (Real-time Transport Protocol)',
+                'C' => 'RTCP (Real-time Control Protocol)',
+                'D' => 'H.264 Video Codec',
+                'E' => 'SNMP (Simple Network Management Protocol)'
+            ],
+            'correct_option' => 'A',
+            'score_weight' => 2.5,
+            'explanation' => 'SIP (Session Initiation Protocol, RFC 3261) merupakan protokol pensinyalan standar untuk inisiasi, manajemen, dan terminasi sesi VoIP.'
+        ];
+    } else {
+        $a = rand(2, 6);
+        $b = rand(1, 5);
+        $c = rand(1, 4);
+        $d = rand(3, 7);
+        $det = ($a * $d) - ($b * $c);
+        $q = [
+            'type' => 'single_choice',
+            'content' => "<p>Diberikan matriks ordo 2&times;2: <strong>A = [{$a}, {$b}; {$c}, {$d}]</strong>. Nilai determinan dari matriks A adalah...</p>",
+            'options' => [
+                'A' => (string)($det),
+                'B' => (string)($det + 2),
+                'C' => (string)($det - 3),
+                'D' => (string)($det + 5),
+                'E' => (string)($det - 1)
+            ],
+            'correct_option' => 'A',
+            'score_weight' => 2.5,
+            'explanation' => "Determinan matriks 2x2: det(A) = (a * d) - (b * c) = ({$a} * {$d}) - ({$b} * {$c}) = " . ($a * $d) . " - " . ($b * $c) . " = {$det}."
+        ];
+    }
+
+    return response()->json([
+        'success' => true,
+        'provider' => 'local-smart-bank',
+        'data' => $q
+    ]);
+});

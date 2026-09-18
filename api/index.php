@@ -5,20 +5,63 @@
  * All 12 Menus with Live Interactive CRUD, Modals, Downloads & State Management
  */
 
-$autoloader = __DIR__ . '/../SERVER/vendor/autoload.php';
-$forceStandalone = isset($_ENV['STANDALONE']) || isset($_SERVER['STANDALONE']) || getenv('STANDALONE') === '1' || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL') || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 8088) || isset($_GET['standalone']);
-if (!$forceStandalone && file_exists($autoloader)) {
-    require __DIR__ . '/../SERVER/public/index.php';
-    exit;
-}
-
-// Standalone Serverless Mode on Vercel
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE);
-ini_set('display_errors', '0');
-session_start();
-
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+// Serve static assets from SERVER/public/ if available
+$publicPath = realpath(__DIR__ . '/../SERVER/public');
+if ($publicPath && $uri !== '/' && $uri !== '/index.php') {
+    $requestedFile = realpath($publicPath . $uri);
+    if ($requestedFile && strpos($requestedFile, $publicPath) === 0 && is_file($requestedFile)) {
+        $ext = strtolower(pathinfo($requestedFile, PATHINFO_EXTENSION));
+        $mimeTypes = [
+            'css' => 'text/css; charset=utf-8',
+            'js' => 'application/javascript; charset=utf-8',
+            'json' => 'application/json; charset=utf-8',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            'ico' => 'image/x-icon',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'bat' => 'application/bat',
+            'apk' => 'application/vnd.android.package-archive',
+            'txt' => 'text/plain; charset=utf-8',
+        ];
+        $contentType = $mimeTypes[$ext] ?? (function_exists('mime_content_type') ? mime_content_type($requestedFile) : 'application/octet-stream');
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        header('Content-Type: ' . $contentType);
+        header('Cache-Control: public, max-age=86400');
+        readfile($requestedFile);
+        exit;
+    }
+}
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (isset($_GET['standalone'])) {
+    $_SESSION['standalone'] = 1;
+    setcookie('standalone', '1', time() + 86400 * 30, '/');
+}
+$autoloader = __DIR__ . '/../SERVER/vendor/autoload.php';
+$forceStandalone = isset($_ENV['STANDALONE']) || isset($_SERVER['STANDALONE']) || getenv('STANDALONE') === '1' || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL') || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 8088) || !empty($_SESSION['standalone']) || (isset($_COOKIE['standalone']) && $_COOKIE['standalone'] === '1');
+if (!$forceStandalone && file_exists($autoloader)) {
+    try {
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../SERVER/public/index.php';
+        require __DIR__ . '/../SERVER/public/index.php';
+        exit;
+    } catch (\Throwable $e) {
+        // Fallback to Standalone Serverless Mode if Laravel or DB connection fails
+    }
+}
+
 
 // =========================================================================
 // 1. STATE INITIALIZATION (SESSION-PERSISTED MASTER DATA)
@@ -3881,6 +3924,8 @@ if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin
     $classes = $_POST['classes'] ?? ['10-TKJ'];
     if (!is_array($classes)) $classes = [$classes];
     $showScore = isset($_POST['show_score']) ? true : false;
+    $shuffleQuestions = isset($_POST['shuffle_questions']) ? true : false;
+    $shuffleOptions = isset($_POST['shuffle_options']) ? true : false;
     $redirect = trim($_POST['redirect'] ?? '');
     if (empty($redirect)) {
         $referer = $_SERVER['HTTP_REFERER'] ?? '';
@@ -3905,10 +3950,13 @@ if ($method === 'POST' && ($uri === '/admin/subjects/create' || $uri === '/admin
         'exams_count' => 0,
         'status' => 'active',
         'show_score' => $showScore,
+        'shuffle_questions' => $shuffleQuestions,
+        'shuffle_options' => $shuffleOptions,
     ];
     $visText = $showScore ? 'Nilai Siswa: Ditampilkan' : 'Nilai Siswa: Dirahasiakan';
-    logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan bank soal: {$name} ({$code}) oleh guru {$teacher} [{$visText}]");
-    $_SESSION['import_success'] = "Mata Pelajaran / Bank Soal \"{$name}\" berhasil disimpan dengan status {$visText}!";
+    $rndText = ($shuffleQuestions ? 'Acak Soal: Ya' : 'Acak Soal: Tidak') . ', ' . ($shuffleOptions ? 'Acak Opsi: Ya' : 'Acak Opsi: Tidak');
+    logCbtActivity('SUBJECT', 'CREATE_SUBJECT', "Menambahkan bank soal: {$name} ({$code}) oleh guru {$teacher} [{$visText}, {$rndText}]");
+    $_SESSION['import_success'] = "Mata Pelajaran / Bank Soal \"{$name}\" berhasil disimpan [{$visText}, {$rndText}]!";
     header("Location: {$redirect}");
     exit;
 }
@@ -9473,21 +9521,56 @@ function renderSubjectsContent() {
                     </div>
                 </div>
 
-                <!-- OPSIONAL PER MAPEL: VISIBILITAS NILAI SISWA -->
+                <!-- OPSI KEBIJAKAN UJIAN, PENGACAKAN SOAL & NILAI -->
                 <input type="hidden" name="redirect" value="/admin/subjects">
-                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; margin-top: 14px;">
-                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
-                        <input type="checkbox" name="show_score" value="1" checked style="margin-top: 3px; width: 18px; height: 18px;">
-                        <div>
-                            <div style="font-weight: 700; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 6px;">
-                                <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai</span>
-                                <span class="badge" style="background: #15803d; color: #fff; font-size: 10px;">Opsional per Mapel</span>
+                <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <!-- 1. ACAK SOAL -->
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="shuffle_questions" value="1" checked style="margin-top: 3px; width: 18px; height: 18px; accent-color: #2563eb;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.88rem; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                                    <span>🔀 Acak Urutan Butir Soal (Shuffle Questions)</span>
+                                    <span class="badge" style="background: #2563eb; color: #fff; font-size: 10px; font-weight: 700;">Anti-Nyontek</span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: #1e3a8a; margin-top: 2px;">
+                                    Setiap siswa menerima urutan nomor soal yang berbeda-beda agar tidak bisa saling mencontek nomor soal.
+                                </div>
                             </div>
-                            <div style="font-size: 0.8rem; color: #14532d; margin-top: 2px;">
-                                Jika dicentang, peserta yang menyelesaikan ujian mapel ini dapat langsung melihat perolehan skor akhir dan status KKM. Jika tidak dicentang, nilai ujian mapel ini akan dirahasiakan dan disembunyikan.
+                        </label>
+                    </div>
+
+                    <!-- 2. ACAK PILIHAN JAWABAN -->
+                    <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 10px 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="shuffle_options" value="1" checked style="margin-top: 3px; width: 18px; height: 18px; accent-color: #7c3aed;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.88rem; color: #5b21b6; display: flex; align-items: center; gap: 6px;">
+                                    <span>🔀 Acak Urutan Pilihan Jawaban (Shuffle Options)</span>
+                                    <span class="badge" style="background: #7c3aed; color: #fff; font-size: 10px; font-weight: 700;">Acak Opsi A-E</span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: #4c1d95; margin-top: 2px;">
+                                    Urutan pilihan ganda (A, B, C, D, E) diacak posisinya untuk masing-masing siswa.
+                                </div>
                             </div>
-                        </div>
-                    </label>
+                        </label>
+                    </div>
+
+                    <!-- 3. VISIBILITAS NILAI -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="show_score" value="1" checked style="margin-top: 3px; width: 18px; height: 18px; accent-color: #16a34a;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.88rem; color: #166534; display: flex; align-items: center; gap: 6px;">
+                                    <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai</span>
+                                    <span class="badge" style="background: #15803d; color: #fff; font-size: 10px; font-weight: 700;">Opsional per Mapel</span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: #14532d; margin-top: 2px;">
+                                    Jika dicentang, peserta yang menyelesaikan ujian mapel ini dapat langsung melihat perolehan skor akhir dan status KKM.
+                                </div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
@@ -10681,21 +10764,56 @@ function renderQuestionsContent() {
                         </div>
                     </div>
 
-                    <!-- OPSIONAL PER MAPEL: VISIBILITAS NILAI SISWA -->
+                    <!-- OPSI KEBIJAKAN UJIAN, PENGACAKAN SOAL & NILAI -->
                     <input type="hidden" name="redirect" value="/admin/questions">
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 16px; margin-top: 14px;">
-                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
-                            <input type="checkbox" name="show_score" value="1" checked style="margin-top: 3px; width: 18px; height: 18px;">
-                            <div>
-                                <div style="font-weight: 700; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 6px;">
-                                    <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai (Opsional per Mapel)</span>
-                                    <span class="badge" style="background: #15803d; color: #fff; font-size: 10px;">Fitur Mapel</span>
+                    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+                        <!-- 1. ACAK SOAL -->
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 13px 16px; transition: all 0.2s;">
+                            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" name="shuffle_questions" value="1" checked style="margin-top: 3px; width: 18px; height: 18px; accent-color: #2563eb;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 0.9rem; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                                        <span>🔀 Acak Urutan Butir Soal (Shuffle Questions)</span>
+                                        <span class="badge" style="background: #2563eb; color: #fff; font-size: 10px; font-weight: 700;">Anti-Nyontek</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #1e3a8a; margin-top: 3px; line-height: 1.4;">
+                                        Setiap siswa menerima urutan nomor soal yang berbeda-beda secara otomatis sehingga mencegah siswa saling mencontek nomor soal saat ujian berlangsung.
+                                    </div>
                                 </div>
-                                <div style="font-size: 0.8rem; color: #14532d; margin-top: 3px; line-height: 1.5;">
-                                    Jika dicentang, peserta yang menyelesaikan ujian mata pelajaran ini dapat langsung melihat perolehan skor akhir dan status kelulusan KKM di dashboard mereka. Jika tidak dicentang, nilai ujian mapel ini akan dirahasiakan dan disembunyikan.
+                            </label>
+                        </div>
+
+                        <!-- 2. ACAK PILIHAN JAWABAN (OPSI A-E) -->
+                        <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 13px 16px; transition: all 0.2s;">
+                            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" name="shuffle_options" value="1" checked style="margin-top: 3px; width: 18px; height: 18px; accent-color: #7c3aed;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 0.9rem; color: #5b21b6; display: flex; align-items: center; gap: 6px;">
+                                        <span>🔀 Acak Urutan Pilihan Jawaban (Shuffle Options)</span>
+                                        <span class="badge" style="background: #7c3aed; color: #fff; font-size: 10px; font-weight: 700;">Acak Opsi A-E</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #4c1d95; margin-top: 3px; line-height: 1.4;">
+                                        Urutan pilihan ganda (A, B, C, D, E) diacak posisinya untuk masing-masing siswa. Kunci jawaban tetap otomatis disesuaikan secara presisi oleh sistem.
+                                    </div>
                                 </div>
-                            </div>
-                        </label>
+                            </label>
+                        </div>
+
+                        <!-- 3. VISIBILITAS NILAI SISWA -->
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 13px 16px;">
+                            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                                <input type="checkbox" name="show_score" value="1" checked style="margin-top: 3px; width: 18px; height: 18px; accent-color: #16a34a;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 6px;">
+                                        <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai (Opsional per Mapel)</span>
+                                        <span class="badge" style="background: #15803d; color: #fff; font-size: 10px; font-weight: 700;">Fitur Mapel</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #14532d; margin-top: 3px; line-height: 1.4;">
+                                        Jika dicentang, peserta yang menyelesaikan ujian mata pelajaran ini dapat langsung melihat perolehan skor akhir dan status kelulusan KKM di dashboard mereka. Jika tidak dicentang, nilai ujian mapel ini akan dirahasiakan dan disembunyikan.
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
 
                     <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
@@ -10850,13 +10968,16 @@ function renderQuestionsContent() {
                     </div>
                 </div>
 
-                <!-- DUA TOMBOL PERSIS GAMBAR DUA: TAMBAH SOAL (BIRU GELAP) & IMPORT SOAL (BIRU MUDA) -->
-                <div style="display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap;">
+                <!-- TIGA TOMBOL: TAMBAH SOAL (BIRU GELAP), IMPORT SOAL (BIRU MUDA) & BUAT SOAL AI (GEMINI) -->
+                <div style="display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; align-items: center;">
                     <button type="button" class="btn" onclick="openChooseTypeModal()" style="background: #003366; color: #ffffff; font-weight: 700; padding: 9px 24px; border-radius: 6px; border: none; box-shadow: 0 4px 12px rgba(0, 51, 102, 0.25); cursor: pointer;">
                         Tambah Soal
                     </button>
                     <button type="button" class="btn" onclick="openImportQuestionModal()" style="background: #0088cc; color: #ffffff; font-weight: 700; padding: 9px 24px; border-radius: 6px; border: none; box-shadow: 0 4px 12px rgba(0, 136, 204, 0.25); cursor: pointer;">
                         Import Soal
+                    </button>
+                    <button type="button" class="btn" onclick="openAiQuestionModal()" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; padding: 9px 22px; border-radius: 6px; border: none; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+                        <span>✨</span> Buat Soal AI (Gemini)
                     </button>
                 </div>
 
@@ -11545,8 +11666,8 @@ function renderQuestionsContent() {
                         <button type="button" onclick="closeAiQuestionModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
                     </div>
 
-                    <!-- SCREEN 1: WAJIB LOGIN DENGAN AKUN GOOGLE -->
-                    <div id="ai_google_login_screen" style="display: block; padding: 32px 28px; text-align: center;">
+                    <!-- SCREEN 1: OPTIONAL GOOGLE LOGIN (HIDDEN BY DEFAULT SO GENERATOR OPENS DIRECTLY) -->
+                    <div id="ai_google_login_screen" style="display: none; padding: 32px 28px; text-align: center;">
                         <div style="width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
                             <svg width="36" height="36" viewBox="0 0 48 48">
                                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -11605,8 +11726,8 @@ function renderQuestionsContent() {
                         </div>
                     </div>
 
-                    <!-- SCREEN 2: GEMINI AI QUESTION GENERATOR SCREEN (ACTIVE ONCE LOGGED IN) -->
-                    <div id="ai_generator_screen" style="display: none; padding: 22px 24px;">
+                    <!-- SCREEN 2: GEMINI AI QUESTION GENERATOR SCREEN (DIRECTLY ACCESSIBLE) -->
+                    <div id="ai_generator_screen" style="display: block; padding: 22px 24px;">
                         
                         <!-- GOOGLE USER PROFILE CHIP BAR -->
                         <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 14px; margin-bottom: 18px;">
@@ -12370,10 +12491,8 @@ function renderQuestionsContent() {
                 var user = getGoogleUser();
                 if (user) {
                     updateGoogleUserUi(user);
-                    showAiGeneratorScreen();
-                } else {
-                    showAiLoginScreen();
                 }
+                showAiGeneratorScreen();
                 var rb = document.getElementById('ai_result_box');
                 if (rb) rb.style.display = 'none';
             }
@@ -12403,6 +12522,7 @@ function renderQuestionsContent() {
             if (btn) btn.disabled = true;
             if (resBox) resBox.style.display = 'none';
 
+            var savedApiKey = localStorage.getItem('gemini_api_key') || '';
             fetch('/api/v1/ai/generate-question', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -12410,7 +12530,8 @@ function renderQuestionsContent() {
                     subject: subjName,
                     topic: topic,
                     type: type,
-                    difficulty: diff
+                    difficulty: diff,
+                    api_key: savedApiKey
                 })
             })
             .then(function(res) { return res.json(); })
@@ -12517,7 +12638,10 @@ function renderQuestionsContent() {
                 });
 
                 var r = document.querySelector('input[name="correct_option"][value="' + currentAiResult.correct_option + '"]');
-                if (r) r.checked = true;
+                if (r) {
+                    r.checked = true;
+                    updateCorrectOptionUi();
+                }
             }
 
             closeAiQuestionModal();

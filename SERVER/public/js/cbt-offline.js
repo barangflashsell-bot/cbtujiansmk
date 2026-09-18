@@ -84,12 +84,6 @@ function toggleQrModal(show) {
     }
 }
 
-// 4. Initialization
-document.addEventListener('DOMContentLoaded', function () {
-    // Sync theme buttons on load
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    updateThemeButtons(currentTheme);
-
 // 3.1 Sidebar Collapse & Mini Mode Controller
 function toggleSidebarCollapse() {
     const sb = document.getElementById('appSidebar');
@@ -127,6 +121,14 @@ document.addEventListener('DOMContentLoaded', function () {
             updateCollapseButtonState(true);
         }
     } catch(e){}
+
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('active');
+        });
+    }
 
     if (overlay && sidebar) {
         overlay.addEventListener('click', function () {

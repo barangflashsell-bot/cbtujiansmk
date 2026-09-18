@@ -598,6 +598,57 @@
                     </div>
                 </div>
 
+                <!-- OPSI KEBIJAKAN UJIAN, PENGACAKAN SOAL & NILAI -->
+                <div style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <!-- 1. ACAK SOAL -->
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="shuffle_questions" value="1" checked style="margin-top: 3px; width: 16px; height: 16px; accent-color: #2563eb;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 13px; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                                    <span>🔀 Acak Urutan Butir Soal (Shuffle Questions)</span>
+                                    <span class="badge" style="background: #2563eb; color: #fff; font-size: 10px; font-weight: 700;">Anti-Nyontek</span>
+                                </div>
+                                <div style="font-size: 11px; color: #1e3a8a; margin-top: 2px;">
+                                    Setiap siswa menerima urutan nomor soal yang berbeda-beda agar tidak bisa saling mencontek nomor soal.
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- 2. ACAK PILIHAN JAWABAN -->
+                    <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 10px 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="shuffle_options" value="1" checked style="margin-top: 3px; width: 16px; height: 16px; accent-color: #7c3aed;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 13px; color: #5b21b6; display: flex; align-items: center; gap: 6px;">
+                                    <span>🔀 Acak Urutan Pilihan Jawaban (Shuffle Options)</span>
+                                    <span class="badge" style="background: #7c3aed; color: #fff; font-size: 10px; font-weight: 700;">Acak Opsi A-E</span>
+                                </div>
+                                <div style="font-size: 11px; color: #4c1d95; margin-top: 2px;">
+                                    Urutan opsi (A, B, C, D, E) diacak posisinya untuk masing-masing siswa.
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- 3. VISIBILITAS NILAI -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                            <input type="checkbox" name="show_score" value="1" checked style="margin-top: 3px; width: 16px; height: 16px; accent-color: #16a34a;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 13px; color: #166534; display: flex; align-items: center; gap: 6px;">
+                                    <span>👁️ Tampilkan Nilai Ujian ke Siswa Setelah Selesai</span>
+                                    <span class="badge" style="background: #15803d; color: #fff; font-size: 10px; font-weight: 700;">Opsional per Mapel</span>
+                                </div>
+                                <div style="font-size: 11px; color: #14532d; margin-top: 2px;">
+                                    Jika dicentang, peserta dapat langsung melihat nilai akhir dan status kelulusan KKM di dashboard mereka.
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 14px;">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateSubjectModal()">Batal</button>
                     <button type="submit" class="btn btn-primary" style="background: #5b47fb; border-color: #5b47fb; font-weight: 700;">
