@@ -28,6 +28,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
   late final AuthRepository _authRepository;
 
   List<ExamListItem> _exams = [];
+  List<ExamResultModel> _results = [];
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -47,9 +48,17 @@ class _ExamListScreenState extends State<ExamListScreen> {
 
     try {
       final exams = await _examRepository.getActiveExams();
+      List<ExamResultModel> results = [];
+      try {
+        results = await _examRepository.getStudentResults();
+      } catch (_) {
+        // Fallback gracefully if results endpoint is unavailable
+      }
+
       if (mounted) {
         setState(() {
           _exams = exams;
+          _results = results;
           _isLoading = false;
         });
       }
@@ -441,8 +450,328 @@ class _ExamListScreenState extends State<ExamListScreen> {
                     ),
                   );
                 }),
+
+              const SizedBox(height: 24),
+
+              // =======================================================
+              // RIWAYAT & HASIL NILAI UJIAN SISWA PER MATA PELAJARAN
+              // =======================================================
+              _buildExamResultsSection(),
+              const SizedBox(height: 20),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExamResultsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.analytics_rounded, size: 20, color: Colors.indigo),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Riwayat & Hasil Nilai Siswa',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            if (_results.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.indigo.shade50,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.indigo.shade100),
+                ),
+                child: Text(
+                  '${_results.length} Selesai',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo.shade900,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Rekapitulasi perolehan nilai resmi ujian per mata pelajaran.',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        const SizedBox(height: 12),
+        if (_results.isEmpty)
+          Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Colors.grey.shade300, style: BorderStyle.solid),
+            ),
+            color: Colors.grey.shade50,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.assignment_turned_in_outlined, size: 44, color: Colors.grey.shade400),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Belum Ada Nilai Ujian Tercatat',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Setelah Anda selesai mengerjakan paket ujian di atas, lembar nilai per mata pelajaran akan muncul otomatis di sini.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.black38, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else
+          ..._results.map((result) => _buildResultCard(result)),
+      ],
+    );
+  }
+
+  Widget _buildResultCard(ExamResultModel result) {
+    final bool isPassed = result.isPassed;
+    final bool isHidden = result.isScoreHidden;
+
+    final Color statusColor = isHidden
+        ? Colors.amber.shade800
+        : (isPassed ? Colors.green.shade700 : Colors.red.shade700);
+
+    final Color statusBg = isHidden
+        ? Colors.amber.shade50
+        : (isPassed ? Colors.green.shade50 : Colors.red.shade50);
+
+    final Color borderColor = isHidden
+        ? Colors.amber.shade200
+        : (isPassed ? Colors.green.shade300 : Colors.red.shade300);
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: borderColor, width: 1.5),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Bar: Subject Badge & Status
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              color: statusBg,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Text('📚 ', style: TextStyle(fontSize: 13)),
+                        Expanded(
+                          child: Text(
+                            result.subjectName,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: isPassed ? Colors.green.shade900 : (isHidden ? Colors.amber.shade900 : Colors.red.shade900),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isHidden ? Colors.amber.shade100 : (isPassed ? Colors.green.shade100 : Colors.red.shade100),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: Text(
+                      isHidden ? '🔒 Dirahasiakan' : (isPassed ? '✓ Lulus KKM' : '⚠️ Remedial'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: statusColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Content Body
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    result.examTitle,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  if (isHidden)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.lock_clock_rounded, size: 28, color: Colors.amber.shade700),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Nilai Belum Diumumkan',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black87),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Lembar jawaban Anda telah tersimpan aman di server CBT. Angka nilai dirahasiakan oleh panitia ujian.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 11.5, color: Colors.black54),
+                          ),
+                        ],
+                      ),
+                    )
+                  else ...[
+                    // Score Box
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: isPassed ? Colors.green.shade50 : Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: borderColor),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'SKOR NILAI AKHIR',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.8,
+                              color: isPassed ? Colors.green.shade800 : Colors.red.shade800,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            result.finalScore.toStringAsFixed(1),
+                            style: TextStyle(
+                              fontSize: 38,
+                              fontWeight: FontWeight.w900,
+                              color: isPassed ? Colors.green.shade900 : Colors.red.shade900,
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Standar KKM: ${result.passingScore?.toStringAsFixed(1) ?? '75.0'}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Correct / Wrong / Unanswered Breakdown
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const Text('Benar', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${result.correctCount}',
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(height: 24, width: 1, color: Colors.grey.shade300),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const Text('Salah', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${result.wrongCount}',
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.red.shade700),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(height: 24, width: 1, color: Colors.grey.shade300),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const Text('Kosong', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${result.unansweredCount}',
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black54),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

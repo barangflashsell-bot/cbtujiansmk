@@ -186,4 +186,32 @@ class ExamRepository {
     }
     return null;
   }
+
+  /// Fetch student's completed exam results history grouped by subject.
+  Future<List<ExamResultModel>> getStudentResults() async {
+    try {
+      final token = AppPreferences.getAuthToken();
+      final url = '${ApiConfig.baseUrl}/api/v1/results';
+
+      final response = await _networkClient.getJson(url, token: token);
+      if (response['success'] == true && response['data'] != null) {
+        final List<dynamic> list = response['data'] is List
+            ? (response['data'] as List<dynamic>)
+            : ((response['data'] as Map<String, dynamic>)['items'] as List<dynamic>? ?? []);
+
+        final isGlobalScoreHidden = response['show_score'] == false;
+
+        return list.map((item) {
+          final map = Map<String, dynamic>.from(item as Map<dynamic, dynamic>);
+          if (isGlobalScoreHidden) {
+            map['is_score_hidden'] = true;
+          }
+          return ExamResultModel.fromJson(map);
+        }).toList();
+      }
+    } catch (_) {
+      // Returns empty list if offline or error
+    }
+    return [];
+  }
 }

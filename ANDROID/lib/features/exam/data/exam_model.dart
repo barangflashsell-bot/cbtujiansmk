@@ -237,6 +237,8 @@ class ExamResultModel {
   final int id;
   final int attemptId;
   final int examId;
+  final String examTitle;
+  final String subjectName;
   final int correctCount;
   final int wrongCount;
   final int unansweredCount;
@@ -246,12 +248,16 @@ class ExamResultModel {
   final double finalScore;
   final String status;
   final bool isPublished;
+  final bool isScoreHidden;
   final double? passingScore;
+  final String? submittedAt;
 
   const ExamResultModel({
     required this.id,
     required this.attemptId,
     required this.examId,
+    this.examTitle = 'Ujian CBT',
+    this.subjectName = 'Mata Pelajaran',
     required this.correctCount,
     required this.wrongCount,
     required this.unansweredCount,
@@ -261,7 +267,9 @@ class ExamResultModel {
     required this.finalScore,
     required this.status,
     required this.isPublished,
+    this.isScoreHidden = false,
     this.passingScore,
+    this.submittedAt,
   });
 
   bool get isPassed => passingScore != null ? finalScore >= passingScore! : true;
@@ -269,24 +277,61 @@ class ExamResultModel {
   factory ExamResultModel.fromJson(Map<String, dynamic> json) {
     final examData = json['exam'] as Map<String, dynamic>?;
     double? passing;
-    if (examData != null && examData['passing_score'] != null) {
+    if (json['passing_score'] != null) {
+      passing = double.tryParse(json['passing_score'].toString());
+    } else if (examData != null && examData['passing_score'] != null) {
       passing = double.tryParse(examData['passing_score'].toString());
     }
 
+    // Exam Title
+    String title = json['exam_title'] as String? ?? '';
+    if (title.isEmpty && examData != null && examData['title'] != null) {
+      title = examData['title'].toString();
+    }
+    if (title.isEmpty) {
+      title = 'Ujian CBT';
+    }
+
+    // Subject Name
+    String subject = json['subject_name'] as String? ?? '';
+    if (subject.isEmpty && examData != null) {
+      final subObj = examData['subject'];
+      if (subObj is Map<String, dynamic> && subObj['name'] != null) {
+        subject = subObj['name'].toString();
+      } else if (examData['subject_name'] != null) {
+        subject = examData['subject_name'].toString();
+      }
+    }
+    if (subject.isEmpty) {
+      subject = 'Mata Pelajaran';
+    }
+
+    final scoreHidden = json['is_score_hidden'] == true || json['show_score'] == false;
+    final parsedScore = double.tryParse(json['score']?.toString() ?? '0') ?? 0.0;
+    final parsedFinalScore = double.tryParse(json['final_score']?.toString() ?? json['score']?.toString() ?? '0') ?? 0.0;
+
+    final parsedId = json['id'] is num ? (json['id'] as num).toInt() : (int.tryParse(json['id']?.toString() ?? '1') ?? 1);
+    final parsedAttemptId = json['attempt_id'] is num ? (json['attempt_id'] as num).toInt() : (int.tryParse(json['attempt_id']?.toString() ?? '1') ?? 1);
+    final parsedExamId = json['exam_id'] is num ? (json['exam_id'] as num).toInt() : (int.tryParse(json['exam_id']?.toString() ?? '1') ?? 1);
+
     return ExamResultModel(
-      id: json['id'] as int,
-      attemptId: json['attempt_id'] as int,
-      examId: json['exam_id'] as int,
-      correctCount: (json['correct_count'] as int?) ?? 0,
-      wrongCount: (json['wrong_count'] as int?) ?? 0,
+      id: parsedId,
+      attemptId: parsedAttemptId,
+      examId: parsedExamId,
+      examTitle: title,
+      subjectName: subject,
+      correctCount: (json['correct_count'] as int?) ?? (json['correct_answers'] as int?) ?? 0,
+      wrongCount: (json['wrong_count'] as int?) ?? (json['wrong_answers'] as int?) ?? 0,
       unansweredCount: (json['unanswered_count'] as int?) ?? 0,
       mcScore: double.tryParse(json['mc_score']?.toString() ?? '0') ?? 0.0,
       essayScore: double.tryParse(json['essay_score']?.toString() ?? '0') ?? 0.0,
-      score: double.tryParse(json['score']?.toString() ?? '0') ?? 0.0,
-      finalScore: double.tryParse(json['final_score']?.toString() ?? '0') ?? 0.0,
+      score: parsedScore,
+      finalScore: parsedFinalScore,
       status: json['status'] as String? ?? 'completed',
-      isPublished: (json['is_published'] as bool?) ?? false,
-      passingScore: passing,
+      isPublished: (json['is_published'] as bool?) ?? true,
+      isScoreHidden: scoreHidden,
+      passingScore: passing ?? 75.0,
+      submittedAt: json['submitted_at'] as String?,
     );
   }
 }
