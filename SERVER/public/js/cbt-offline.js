@@ -90,20 +90,49 @@ document.addEventListener('DOMContentLoaded', function () {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     updateThemeButtons(currentTheme);
 
-    // Sidebar Mobile Toggle
-    const toggleBtn = document.getElementById('sidebarToggleBtn');
+// 3.1 Sidebar Collapse & Mini Mode Controller
+function toggleSidebarCollapse() {
+    const sb = document.getElementById('appSidebar');
+    if (!sb) return;
+    const isCollapsed = sb.classList.toggle('collapsed');
+    try {
+        localStorage.setItem('cbt_sidebar_collapsed', isCollapsed ? '1' : '0');
+    } catch(e){}
+    updateCollapseButtonState(isCollapsed);
+}
+
+function updateCollapseButtonState(isCollapsed) {
+    const btn = document.getElementById('sidebarCollapseBtn');
+    if (btn) {
+        btn.setAttribute('title', isCollapsed ? 'Munculkan Nama Menu Lengkap (Expand)' : 'Kecilkan Menjadi Ikon / Logo Saja (Collapse)');
+        const icon = btn.querySelector('.collapse-icon');
+        if (icon) icon.textContent = isCollapsed ? '»' : '«';
+    }
+}
+
+// 4. Initialization
+document.addEventListener('DOMContentLoaded', function () {
+    // Sync theme buttons on load
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeButtons(currentTheme);
+
     const sidebar = document.getElementById('appSidebar');
     const overlay = document.getElementById('sidebarOverlay');
 
-    if (toggleBtn && sidebar && overlay) {
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-        });
+    // Restore desktop sidebar collapse state
+    try {
+        const isCollapsed = localStorage.getItem('cbt_sidebar_collapsed') === '1';
+        if (isCollapsed && window.innerWidth > 768 && sidebar) {
+            sidebar.classList.add('collapsed');
+            updateCollapseButtonState(true);
+        }
+    } catch(e){}
 
+    if (overlay && sidebar) {
         overlay.addEventListener('click', function () {
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
+            overlay.classList.remove('open');
         });
     }
 

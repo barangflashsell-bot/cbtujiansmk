@@ -37,7 +37,7 @@
         <aside class="sidebar" id="appSidebar">
             <!-- 1. BRAND CBT SMK DI PALING ATAS SIDEBAR -->
             <div class="sidebar-brand-header">
-                <div class="brand-crest-box">
+                <div class="brand-crest-box" onclick="toggleSidebarCollapse()" style="cursor: pointer;" title="Klik untuk membesarkan / mengecilkan menu">
                     <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="brandCrestGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
@@ -50,10 +50,13 @@
                         <path d="M14 18L17 21L23 15" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
-                <div class="brand-info">
+                <div class="brand-info" onclick="toggleSidebarCollapse()" style="cursor: pointer;" title="Klik untuk mengecilkan menu (hanya logo)">
                     <div class="brand-name">CBT SERVER MANAGER</div>
                     <div class="brand-tagline">Server Ujian Berbasis LAN</div>
                 </div>
+                <button type="button" class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" title="Kecilkan Menjadi Ikon Saja / Munculkan Nama Menu Lengkap" aria-label="Toggle Sidebar">
+                    <span class="collapse-icon">«</span>
+                </button>
             </div>
 
             <!-- 2. DAFTAR MENU DENGAN WARNA PADA SETIAP NAMA MENU -->
@@ -61,7 +64,7 @@
                 @if ($userRole === 'admin')
                     <!-- 1. UTAMA -->
                     <div class="nav-section-title">Utama</div>
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" data-tooltip="Dashboard">
                         <span class="nav-link-content">
                             <span class="menu-icon-box blue">📊</span>
                             <span>Dashboard</span>
@@ -70,13 +73,13 @@
 
                     <!-- 2. MASTER DATA -->
                     <div class="nav-section-title">Master Data</div>
-                    <a href="{{ route('admin.classes.index') }}" class="nav-link {{ request()->routeIs('admin.classes.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.classes.index') }}" class="nav-link {{ request()->routeIs('admin.classes.*') ? 'active' : '' }}" data-tooltip="Data Kelas">
                         <span class="nav-link-content">
                             <span class="menu-icon-box amber">🏫</span>
                             <span>Data Kelas</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.students.index') }}" class="nav-link {{ request()->routeIs('admin.students.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.students.index') }}" class="nav-link {{ request()->routeIs('admin.students.*') ? 'active' : '' }}" data-tooltip="Data Peserta">
                         <span class="nav-link-content">
                             <span class="menu-icon-box purple">👥</span>
                             <span>Data Peserta</span>
@@ -85,7 +88,7 @@
                             <span class="nav-badge-pill">{{ $studentCount }}</span>
                         @endif
                     </a>
-                    <a href="{{ route('admin.teachers.index') }}" class="nav-link {{ request()->routeIs('admin.teachers.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.teachers.index') }}" class="nav-link {{ request()->routeIs('admin.teachers.*') ? 'active' : '' }}" data-tooltip="Data Guru">
                         <span class="nav-link-content">
                             <span class="menu-icon-box teal">👨‍🏫</span>
                             <span>Data Guru</span>
@@ -94,37 +97,37 @@
 
                     <!-- 3. AKADEMIK & UJIAN -->
                     <div class="nav-section-title">Akademik & Ujian</div>
-                    <a href="{{ route('admin.questions.index') }}" class="nav-link {{ request()->routeIs('admin.questions.*') || request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.questions.index') }}" class="nav-link {{ request()->routeIs('admin.questions.*') || request()->routeIs('admin.subjects.*') ? 'active' : '' }}" data-tooltip="Bank Soal">
                         <span class="nav-link-content">
                             <span class="menu-icon-box orange">📝</span>
                             <span>Bank Soal</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.exams.index') }}" class="nav-link {{ request()->routeIs('admin.exams.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.exams.index') }}" class="nav-link {{ request()->routeIs('admin.exams.*') ? 'active' : '' }}" data-tooltip="Ruang Ujian">
                         <span class="nav-link-content">
                             <span class="menu-icon-box emerald">⏱️</span>
                             <span>Ruang Ujian</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.monitoring.index') }}" class="nav-link {{ request()->routeIs('admin.monitoring.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.monitoring.index') }}" class="nav-link {{ request()->routeIs('admin.monitoring.*') ? 'active' : '' }}" data-tooltip="Monitoring Ujian">
                         <span class="nav-link-content">
                             <span class="menu-icon-box cyan">📡</span>
                             <span>Monitoring Ujian</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.monitoring.index') }}#pin-pengawas" class="nav-link">
+                    <a href="{{ route('admin.monitoring.index') }}#pin-pengawas" class="nav-link" data-tooltip="PIN & Buka Kunci">
                         <span class="nav-link-content">
                             <span class="menu-icon-box" style="background: #ffe4e6; color: #e11d48;">🔐</span>
                             <span>PIN &amp; Buka Kunci</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.results.index') }}" class="nav-link {{ request()->routeIs('admin.results.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.results.index') }}" class="nav-link {{ request()->routeIs('admin.results.*') ? 'active' : '' }}" data-tooltip="Hasil Ujian">
                         <span class="nav-link-content">
                             <span class="menu-icon-box red">🎯</span>
                             <span>Hasil Ujian</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}" data-tooltip="Laporan Nilai">
                         <span class="nav-link-content">
                             <span class="menu-icon-box indigo">📈</span>
                             <span>Laporan Nilai</span>
@@ -133,19 +136,19 @@
 
                     <!-- 4. PEMELIHARAAN SERVER -->
                     <div class="nav-section-title">Pemeliharaan Server</div>
-                    <a href="{{ route('admin.backups.index') }}" class="nav-link {{ request()->routeIs('admin.backups.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.backups.index') }}" class="nav-link {{ request()->routeIs('admin.backups.*') ? 'active' : '' }}" data-tooltip="Backup & Restore">
                         <span class="nav-link-content">
                             <span class="menu-icon-box lime">💾</span>
                             <span>Backup & Restore</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" data-tooltip="Pengaturan Server">
                         <span class="nav-link-content">
                             <span class="menu-icon-box slate">⚙️</span>
                             <span>Pengaturan Server</span>
                         </span>
                     </a>
-                    <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}" data-tooltip="Log Aktivitas">
                         <span class="nav-link-content">
                             <span class="menu-icon-box slate">📋</span>
                             <span>Log Aktivitas</span>

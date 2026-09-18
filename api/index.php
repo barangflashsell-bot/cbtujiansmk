@@ -6748,6 +6748,137 @@ function renderAppPage($uri) {
         .cbt-checkbox-col { width: 42px !important; min-width: 42px !important; max-width: 42px !important; text-align: center !important; vertical-align: middle !important; padding: 10px 8px !important; white-space: nowrap !important; }
         .cbt-row-checkbox, .cbt-select-all { width: 17px; height: 17px; cursor: pointer; accent-color: #0284c7; vertical-align: middle; border-radius: 4px; margin: 0; display: inline-block; }
         tr.row-selected { background-color: rgba(2, 132, 199, 0.08) !important; }
+
+        /* SIDEBAR COLLAPSE / MINI MODE (HANYA LOGO ATAU MUNCUL SEMUA) */
+        .sidebar-collapse-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: rgba(255, 255, 255, 0.85);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: auto;
+            transition: all 0.2s ease;
+            padding: 0;
+            line-height: 1;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .sidebar-collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: scale(1.05);
+        }
+        .sidebar-collapse-btn:active { transform: scale(0.95); }
+
+        .sidebar {
+            transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .sidebar.collapsed {
+            width: 68px !important;
+        }
+        .sidebar.collapsed .sidebar-brand-header {
+            padding: 0 10px;
+            justify-content: center;
+            position: relative;
+        }
+        .sidebar.collapsed .brand-info {
+            display: none !important;
+        }
+        .sidebar.collapsed .sidebar-collapse-btn {
+            position: absolute;
+            right: -13px;
+            top: 17px;
+            z-index: 100;
+            background: #0284c7;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+            margin-left: 0;
+        }
+        .sidebar.collapsed .sidebar-collapse-btn .collapse-icon {
+            transform: rotate(180deg);
+            display: inline-block;
+        }
+        .sidebar.collapsed .nav-section-title {
+            height: 1px;
+            padding: 0;
+            margin: 10px 14px;
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 0;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 8px 0;
+            position: relative;
+            border-radius: 8px;
+            margin: 2px 6px;
+        }
+        .sidebar.collapsed .nav-link-content {
+            justify-content: center;
+        }
+        .sidebar.collapsed .nav-link-content > span:not(.menu-icon-box) {
+            display: none !important;
+        }
+        .sidebar.collapsed .nav-badge-pill {
+            position: absolute;
+            top: 3px;
+            right: 5px;
+            font-size: 9px;
+            padding: 1px 4px;
+            min-width: 14px;
+            height: 14px;
+            line-height: 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+        }
+        .sidebar.collapsed .nav-link::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .sidebar.collapsed .nav-link:hover::before {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-50%) translateX(2px);
+        }
+        @media (min-width: 769px) {
+            .menu-toggle-btn {
+                display: inline-flex !important;
+                margin-right: 10px;
+                cursor: pointer;
+            }
+        }
+        html.sidebar-init-collapsed .sidebar { width: 68px !important; }
+        html.sidebar-init-collapsed .sidebar .brand-info,
+        html.sidebar-init-collapsed .sidebar .nav-link-content > span:not(.menu-icon-box) { display: none !important; }
     </style>
     <script>
         (function() {
@@ -6757,6 +6888,9 @@ function renderAppPage($uri) {
                     document.documentElement.setAttribute('data-theme', 'dark');
                 } else {
                     document.documentElement.setAttribute('data-theme', 'light');
+                }
+                if (localStorage.getItem('cbt_sidebar_collapsed') === '1' && window.innerWidth > 768) {
+                    document.documentElement.classList.add('sidebar-init-collapsed');
                 }
             } catch (e) {}
         })();
@@ -6768,7 +6902,7 @@ function renderAppPage($uri) {
         <!-- SIDEBAR -->
         <aside class="sidebar" id="appSidebar">
             <div class="sidebar-brand-header">
-                <div class="brand-crest-box">
+                <div class="brand-crest-box" onclick="toggleSidebarCollapse()" style="cursor: pointer;" title="Klik untuk membesarkan / mengecilkan menu">
                     <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="brandCrestGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
@@ -6781,16 +6915,19 @@ function renderAppPage($uri) {
                         <path d="M14 18L17 21L23 15" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
-                <div class="brand-info">
+                <div class="brand-info" onclick="toggleSidebarCollapse()" style="cursor: pointer;" title="Klik untuk mengecilkan menu (hanya logo)">
                     <div class="brand-name">CBT SERVER MANAGER</div>
                     <div class="brand-tagline">Server Ujian Berbasis LAN</div>
                 </div>
+                <button type="button" class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" title="Kecilkan Menjadi Ikon Saja / Munculkan Nama Menu Lengkap" aria-label="Toggle Sidebar">
+                    <span class="collapse-icon">«</span>
+                </button>
             </div>
 
             <nav class="sidebar-nav">
                 <!-- 1. UTAMA -->
                 <div class="nav-section-title">Utama</div>
-                <a href="/admin/dashboard" class="nav-link <?= $activeMenu === 'dashboard' ? 'active' : '' ?>">
+                <a href="/admin/dashboard" class="nav-link <?= $activeMenu === 'dashboard' ? 'active' : '' ?>" data-tooltip="Dashboard">
                     <span class="nav-link-content">
                         <span class="menu-icon-box blue">📊</span>
                         <span>Dashboard</span>
@@ -6799,21 +6936,21 @@ function renderAppPage($uri) {
 
                 <!-- 2. MASTER DATA -->
                 <div class="nav-section-title">Master Data</div>
-                <a href="/admin/classes" class="nav-link <?= $activeMenu === 'classes' ? 'active' : '' ?>">
+                <a href="/admin/classes" class="nav-link <?= $activeMenu === 'classes' ? 'active' : '' ?>" data-tooltip="Data Kelas">
                     <span class="nav-link-content">
                         <span class="menu-icon-box amber">🏫</span>
                         <span>Data Kelas</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['classes_list']) ?></span>
                 </a>
-                <a href="/admin/students" class="nav-link <?= $activeMenu === 'students' ? 'active' : '' ?>">
+                <a href="/admin/students" class="nav-link <?= $activeMenu === 'students' ? 'active' : '' ?>" data-tooltip="Data Peserta">
                     <span class="nav-link-content">
                         <span class="menu-icon-box purple">👥</span>
                         <span>Data Peserta</span>
                     </span>
                     <span class="nav-badge-pill"><?= $totalStudents ?></span>
                 </a>
-                <a href="/admin/teachers" class="nav-link <?= $activeMenu === 'teachers' ? 'active' : '' ?>">
+                <a href="/admin/teachers" class="nav-link <?= $activeMenu === 'teachers' ? 'active' : '' ?>" data-tooltip="Data Guru">
                     <span class="nav-link-content">
                         <span class="menu-icon-box teal">👨‍🏫</span>
                         <span>Data Guru</span>
@@ -6823,34 +6960,34 @@ function renderAppPage($uri) {
 
                 <!-- 3. AKADEMIK & UJIAN -->
                 <div class="nav-section-title">Akademik & Ujian</div>
-                <a href="/admin/questions" class="nav-link <?= in_array($activeMenu, ['questions', 'subjects']) ? 'active' : '' ?>">
+                <a href="/admin/questions" class="nav-link <?= in_array($activeMenu, ['questions', 'subjects']) ? 'active' : '' ?>" data-tooltip="Bank Soal">
                     <span class="nav-link-content">
                         <span class="menu-icon-box orange">📝</span>
                         <span>Bank Soal</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['subjects_list'] ?? []) ?></span>
                 </a>
-                <a href="/admin/archive-questions" class="nav-link <?= $activeMenu === 'archive-questions' ? 'active' : '' ?>">
+                <a href="/admin/archive-questions" class="nav-link <?= $activeMenu === 'archive-questions' ? 'active' : '' ?>" data-tooltip="Arsip Soal">
                     <span class="nav-link-content">
                         <span class="menu-icon-box" style="background: #fef3c7; color: #d97706;">📦</span>
                         <span>Arsip Soal</span>
                     </span>
                     <span class="nav-badge-pill" style="background: #fef3c7; color: #b45309; font-weight: 700;"><?= count($_SESSION['archived_subjects'] ?? []) ?></span>
                 </a>
-                <a href="/admin/exams" class="nav-link <?= $activeMenu === 'exams' ? 'active' : '' ?>">
+                <a href="/admin/exams" class="nav-link <?= $activeMenu === 'exams' ? 'active' : '' ?>" data-tooltip="Ruang Ujian">
                     <span class="nav-link-content">
                         <span class="menu-icon-box emerald">⏱️</span>
                         <span>Ruang Ujian</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['exams_list']) ?></span>
                 </a>
-                <a href="/admin/monitoring" class="nav-link <?= $activeMenu === 'monitoring' ? 'active' : '' ?>">
+                <a href="/admin/monitoring" class="nav-link <?= $activeMenu === 'monitoring' ? 'active' : '' ?>" data-tooltip="Monitoring Ujian">
                     <span class="nav-link-content">
                         <span class="menu-icon-box cyan">📡</span>
                         <span>Monitoring Ujian</span>
                     </span>
                 </a>
-                <a href="/admin/proctor-pin" class="nav-link <?= $activeMenu === 'proctor-pin' ? 'active' : '' ?>">
+                <a href="/admin/proctor-pin" class="nav-link <?= $activeMenu === 'proctor-pin' ? 'active' : '' ?>" data-tooltip="PIN & Buka Kunci">
                     <span class="nav-link-content">
                         <span class="menu-icon-box" style="background: #ffe4e6; color: #e11d48;">🔐</span>
                         <span>PIN &amp; Buka Kunci</span>
@@ -6859,7 +6996,7 @@ function renderAppPage($uri) {
                         <?= htmlspecialchars($_SESSION['cbt_settings']['proctor_unlock_pin'] ?? '----') ?>
                     </span>
                 </a>
-                <a href="/admin/results" class="nav-link <?= $activeMenu === 'results' ? 'active' : '' ?>">
+                <a href="/admin/results" class="nav-link <?= $activeMenu === 'results' ? 'active' : '' ?>" data-tooltip="Hasil Ujian">
                     <span class="nav-link-content">
                         <span class="menu-icon-box red">🎯</span>
                         <span>Hasil Ujian</span>
@@ -6875,14 +7012,14 @@ function renderAppPage($uri) {
                         }
                     }
                 ?>
-                <a href="/admin/remedial" class="nav-link <?= $activeMenu === 'remedial' ? 'active' : '' ?>">
+                <a href="/admin/remedial" class="nav-link <?= $activeMenu === 'remedial' ? 'active' : '' ?>" data-tooltip="Ujian Remedial">
                     <span class="nav-link-content">
                         <span class="menu-icon-box" style="background: #fee2e2; color: #ef4444;">🎯</span>
                         <span>Ujian Remedial</span>
                     </span>
                     <span class="nav-badge-pill" style="background: #ef4444; color: #ffffff; font-weight: 800; padding: 2px 7px;"><?= $remedialCandidatesCount ?></span>
                 </a>
-                <a href="/admin/reports" class="nav-link <?= $activeMenu === 'reports' ? 'active' : '' ?>">
+                <a href="/admin/reports" class="nav-link <?= $activeMenu === 'reports' ? 'active' : '' ?>" data-tooltip="Laporan Nilai">
                     <span class="nav-link-content">
                         <span class="menu-icon-box indigo">📈</span>
                         <span>Laporan Nilai</span>
@@ -6891,20 +7028,20 @@ function renderAppPage($uri) {
 
                 <!-- 4. PEMELIHARAAN SERVER -->
                 <div class="nav-section-title">Pemeliharaan Server</div>
-                <a href="/admin/backups" class="nav-link <?= $activeMenu === 'backups' ? 'active' : '' ?>">
+                <a href="/admin/backups" class="nav-link <?= $activeMenu === 'backups' ? 'active' : '' ?>" data-tooltip="Backup & Restore">
                     <span class="nav-link-content">
                         <span class="menu-icon-box lime">💾</span>
                         <span>Backup & Restore</span>
                     </span>
                     <span class="nav-badge-pill"><?= count($_SESSION['backups_list']) ?></span>
                 </a>
-                <a href="/admin/settings" class="nav-link <?= $activeMenu === 'settings' ? 'active' : '' ?>">
+                <a href="/admin/settings" class="nav-link <?= $activeMenu === 'settings' ? 'active' : '' ?>" data-tooltip="Pengaturan Server">
                     <span class="nav-link-content">
                         <span class="menu-icon-box slate">⚙️</span>
                         <span>Pengaturan Server</span>
                     </span>
                 </a>
-                <a href="/admin/activity-logs" class="nav-link <?= $activeMenu === 'activity-logs' ? 'active' : '' ?>">
+                <a href="/admin/activity-logs" class="nav-link <?= $activeMenu === 'activity-logs' ? 'active' : '' ?>" data-tooltip="Log Aktivitas">
                     <span class="nav-link-content">
                         <span class="menu-icon-box amber">📜</span>
                         <span>Log Aktivitas</span>
@@ -7018,14 +7155,49 @@ function renderAppPage($uri) {
     <script src="/js/cbt-offline.js"></script>
     <script src="/js/qrcode.min.js"></script>
     <script>
-        function toggleSidebar() {
+        function toggleSidebarCollapse() {
             var sb = document.getElementById('appSidebar');
-            var ov = document.getElementById('sidebarOverlay');
-            if (sb && ov) {
-                sb.classList.toggle('open');
-                ov.classList.toggle('open');
+            if (!sb) return;
+            var isCollapsed = sb.classList.toggle('collapsed');
+            try {
+                localStorage.setItem('cbt_sidebar_collapsed', isCollapsed ? '1' : '0');
+            } catch(e){}
+            updateCollapseButtonState(isCollapsed);
+        }
+
+        function updateCollapseButtonState(isCollapsed) {
+            var btn = document.getElementById('sidebarCollapseBtn');
+            if (btn) {
+                btn.setAttribute('title', isCollapsed ? 'Munculkan Nama Menu Lengkap (Expand)' : 'Kecilkan Menjadi Ikon / Logo Saja (Collapse)');
+                var icon = btn.querySelector('.collapse-icon');
+                if (icon) icon.textContent = isCollapsed ? '»' : '«';
             }
         }
+
+        function toggleSidebar() {
+            if (window.innerWidth <= 768) {
+                var sb = document.getElementById('appSidebar');
+                var ov = document.getElementById('sidebarOverlay');
+                if (sb && ov) {
+                    sb.classList.toggle('open');
+                    ov.classList.toggle('open');
+                }
+            } else {
+                toggleSidebarCollapse();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                var isCollapsed = localStorage.getItem('cbt_sidebar_collapsed') === '1';
+                var sb = document.getElementById('appSidebar');
+                if (isCollapsed && window.innerWidth > 768 && sb) {
+                    sb.classList.add('collapsed');
+                    updateCollapseButtonState(true);
+                }
+                document.documentElement.classList.remove('sidebar-init-collapsed');
+            } catch(e){}
+        });
         function setAppTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             try { localStorage.setItem('cbt_theme', theme); } catch(e){}
